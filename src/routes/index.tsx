@@ -205,7 +205,7 @@ const RequireAuth = ({
   if (loading) {
     return (
       <Box p={5} textAlign="center">
-        <h1>Checking authentication...</h1>
+        <SharedLoading />
       </Box>
     );
   }
@@ -307,7 +307,7 @@ const AppRoutes: React.FC = () => {
       />
       <Route
         element={
-          <Suspense fallback={<h1>Welcome Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <WelcomeLayout />
           </Suspense>
           // <RequireAuth
@@ -320,7 +320,7 @@ const AppRoutes: React.FC = () => {
           <Route
             path="student"
             element={
-              <Suspense fallback={<h1>Onboard Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <OnboardStudent />
               </Suspense>
             }
@@ -328,7 +328,7 @@ const AppRoutes: React.FC = () => {
           <Route
             path="tutor"
             element={
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <OnboardTutor />
               </Suspense>
             }
@@ -340,7 +340,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="login"
           element={
-            <Suspense fallback={<h1>Login Loading...</h1>}>
+            <Suspense fallback={<SharedLoading />}>
               <Login />
             </Suspense>
             // <RequireAuth
@@ -353,7 +353,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="signup"
           element={
-            <Suspense fallback={<h1>Signup Loading...</h1>}>
+            <Suspense fallback={<SharedLoading />}>
               <RequireAuth
                 authenticated={<Navigate to={'/dashboard'} />}
                 unAuthenticated={<OnboardStudent />}
@@ -364,7 +364,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="forgot-password"
           element={
-            <Suspense fallback={<h1>Forget Loading...</h1>}>
+            <Suspense fallback={<SharedLoading />}>
               <RequireAuth
                 authenticated={<Navigate to={'/dashboard'} />}
                 unAuthenticated={<ForgotPassword />}
@@ -378,7 +378,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="verification_pending"
         element={
-          <Suspense fallback={<h1>Verification pending Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <PendingVerification />
           </Suspense>
         }
@@ -386,7 +386,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="verification_success"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <VerificationSuccess />
           </Suspense>
         }
@@ -395,7 +395,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="complete_profile"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <CompleteProfile />
           </Suspense>
         }
@@ -403,7 +403,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="verify_email"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <VerifyEmail />
           </Suspense>
         }
@@ -411,7 +411,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="activation_pending"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <PendingActivation />
           </Suspense>
         }
@@ -420,7 +420,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="signup"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <RequireAuth
               authenticated={<Navigate to={'/dashboard'} />}
               unAuthenticated={<Signup />}
@@ -431,7 +431,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="forgot-password"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <RequireAuth
               authenticated={<Navigate to={'/dashboard'} />}
               unAuthenticated={<ForgotPassword />}
@@ -444,7 +444,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="home"
         element={
-          <Suspense fallback={<h1>Home Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <Home />
           </Suspense>
         }
@@ -452,7 +452,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="feedback"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <Feedback />
           </Suspense>
         }
@@ -460,7 +460,7 @@ const AppRoutes: React.FC = () => {
       <Route
         path="session/:bookingId"
         element={
-          <Suspense fallback={<h1>Loading...</h1>}>
+          <Suspense fallback={<SharedLoading />}>
             <RequireAuth
               authenticated={<Session />}
               unAuthenticated={<Navigate to={'/login'} />}
@@ -473,7 +473,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <NewNote />
               </Suspense>
             </DashboardLayout>
@@ -485,7 +485,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <FlashCard />
               </Suspense>
             </DashboardLayout>
@@ -497,7 +497,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <DocChat />
               </Suspense>
             </DashboardLayout>
@@ -510,7 +510,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <HomeWorkHelp />
               </Suspense>
             </DashboardLayout>
@@ -522,7 +522,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <TakeQuizzes />
               </Suspense>
             </DashboardLayout>
@@ -534,7 +534,7 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<DashboardLayoutSkeleton />}>
             <DashboardLayout>
-              <Suspense fallback={<h1>Loading...</h1>}>
+              <Suspense fallback={<SharedLoading />}>
                 <Tutor />
               </Suspense>
             </DashboardLayout>
@@ -568,7 +568,7 @@ const AppRoutes: React.FC = () => {
         <Route
           path="ace-homework"
           element={
-            <Suspense fallback={<h1>Loading...</h1>}>
+            <Suspense fallback={<SharedLoading />}>
               <HomeWorkHelp />
             </Suspense>
           }
