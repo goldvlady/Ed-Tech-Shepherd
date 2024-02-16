@@ -83,6 +83,7 @@ const FlashCardSetupInit = ({
     if (flashcardData.documentId) {
       setLocalData((prevState) => ({
         ...prevState,
+
         startPage: null,
         endPage: null
       }));

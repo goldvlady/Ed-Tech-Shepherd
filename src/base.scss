@@ -1266,7 +1266,10 @@ code {
 input[type='text']:focus {
   box-shadow: none;
 }
-
+// T AND C
+.tandc p {
+  margin-bottom: 16px;
+}
 //STREAM CHAT STYLES
 .stream-chat-wrapper {
   height: calc(100vh - 80px);

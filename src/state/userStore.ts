@@ -105,6 +105,7 @@ const useUserStore = create<Store>((set) => ({
     set((state) => {
       if (state.user) {
         const newUser = { ...state.user, ...data };
+
         const hasActiveSubscription = !!(
           newUser.subscription &&
           (newUser.subscription.status === 'active' ||
