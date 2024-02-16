@@ -65,7 +65,7 @@ const FlashcardFromDocumentSetup = ({
           : 'Spaced repetition',
       value:
         localData.studyType && localData.studyType === 'quickPractice'
-          ? 'doesntRepeat'
+          ? 'noRepeat'
           : 'spacedRepetition'
     }
   ];
