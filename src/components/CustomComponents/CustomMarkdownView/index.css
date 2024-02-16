@@ -236,5 +236,6 @@
 /* Code block styling */
 .memoized-react-markdown pre {
   background-color: #fff;
-  display: table;
+  display: block;
+  max-height: none;
 }

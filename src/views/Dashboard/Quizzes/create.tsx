@@ -28,7 +28,16 @@ import {
   AlertStatus,
   ToastPosition,
   Center,
-  Icon
+  Icon,
+  Drawer,
+  DrawerBody,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  Button,
+  useBreakpointValue,
+  VStack
 } from '@chakra-ui/react';
 import {
   isEmpty,
@@ -49,7 +58,9 @@ import {
   toString,
   isBoolean,
   isObject,
-  isNaN
+  isNaN,
+  findIndex,
+  unionBy
 } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -58,6 +69,7 @@ import { HeaderButton, HeaderButtonText } from './styles';
 import clsx from 'clsx';
 import PlansModal from '../../../components/PlansModal';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
@@ -98,6 +110,8 @@ const CreateQuizPage = () => {
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isHovering, setIsHovering] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const handleLockClick = () => {
     setTogglePlansModal(true);
@@ -228,6 +242,22 @@ const CreateQuizPage = () => {
 
   const handleOpenTagsModal = () => setOpenTags(true);
 
+  const parsedQuestionsArrayFunc = (createdQuestions) =>
+    map(createdQuestions, (question) => {
+      const options = question?.options?.map((option) => {
+        return omit(option, ['_id', 'updatedAt', 'createdAt']);
+      });
+      const answer =
+        isNil(question?.answer) || isEmpty(question?.answer)
+          ? toString(findIndex(options, 'isCorrect'))
+          : question?.answer;
+      return {
+        ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
+        options,
+        answer
+      };
+    });
+
   const handleCreateQuiz = async (
     quizQuestions = questions,
     canEdit = false,
@@ -237,16 +267,13 @@ const CreateQuizPage = () => {
     setIsLoadingButton(true);
     setUploadingState(true);
 
+    const parsedQuestionsArray = parsedQuestionsArrayFunc(
+      quizQuestions
+    ) as QuizQuestion[];
+
     await handleCreateQuizService(
       {
-        questions: map(quizQuestions, (question) => {
-          return {
-            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
-            options: question?.options?.map((option) => {
-              return omit(option, ['_id', 'updatedAt', 'createdAt']);
-            })
-          };
-        }) as any[],
+        questions: parsedQuestionsArray,
         title: quizTitle,
         tags: quizTags,
         canEdit
@@ -278,32 +305,33 @@ const CreateQuizPage = () => {
   const handleUpdateQuiz = async (
     quizId,
     payload: {
-      quizQuestions: NewQuizQuestion[];
+      quizQuestions?: NewQuizQuestion[];
       quizTitle?: string;
       quizTags?: string[];
       canEdit?: boolean;
-    } = {
-      quizQuestions: questions,
-      quizTitle: title,
-      quizTags: tags,
-      canEdit: false
-    }
+    } = {}
   ) => {
-    const { quizQuestions, quizTitle, quizTags, canEdit } = payload;
+    const mergedPayload = merge(
+      {
+        quizQuestions: [],
+        quizTitle: title,
+        quizTags: tags,
+        canEdit: false
+      },
+      payload
+    );
+    const { quizQuestions, quizTitle, quizTags, canEdit } = mergedPayload;
     setIsLoadingButton(true);
     setUploadingState(true);
+
+    const parsedQuestionsArray = parsedQuestionsArrayFunc(
+      unionBy(quizQuestions, questions, 'question')
+    ) as QuizQuestion[];
 
     await handleUpdateQuizService(
       quizId,
       {
-        questions: map(quizQuestions, (question) => {
-          return {
-            ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
-            options: question?.options?.map((option) => {
-              return omit(option, ['_id', 'updatedAt', 'createdAt']);
-            })
-          };
-        }) as any[],
+        questions: parsedQuestionsArray,
         title: quizTitle,
         tags: quizTags,
         canEdit
@@ -313,6 +341,7 @@ const CreateQuizPage = () => {
         setIsLoadingButton(false);
         setUploadingState(false);
         if (error) {
+          console.log('QUIZ ERROR: ', error);
           toast({
             position: 'top-right',
             title: `failed to update quiz`,
@@ -366,18 +395,23 @@ const CreateQuizPage = () => {
   const handleSearch = useSearch(searchQuizzes);
 
   const handleCreateUpdateQuiz = async (
-    questions = [],
-    opts: { canEdit?: boolean; quizID: string } = {
-      canEdit: false,
-      quizID: quizId
-    }
+    createdQuestions = [],
+    payload: { canEdit?: boolean; quizID?: string } = {}
   ) => {
+    const opts = merge(
+      {
+        canEdit: false,
+        quizID: quizId
+      },
+      payload
+    );
+
     if (isNil(opts.quizID) && isEmpty(opts.quizID)) {
-      await handleCreateQuiz(questions, opts.canEdit);
+      await handleCreateQuiz(createdQuestions, opts.canEdit);
     } else {
       await handleUpdateQuiz(opts.quizID, {
-        quizQuestions: questions,
-        ...opts
+        ...opts,
+        quizQuestions: createdQuestions
       });
     }
     await fetchQuizzes();
@@ -665,7 +699,61 @@ const CreateQuizPage = () => {
                   />
                 </TabPanel>
               </TabPanels>
+              {isMobile && (
+                <Flex justifyContent={'flex-end'}>
+                  <Button
+                    borderRadius="8px"
+                    p="10px 20px"
+                    m="20px 0px"
+                    fontSize="14px"
+                    lineHeight="20px"
+                    variant="solid"
+                    colorScheme="primary"
+                    onClick={onOpen}
+                    isDisabled={isEmpty(questions) && isEmpty(searchQuestions)}
+                  >
+                    View Quiz
+                  </Button>
+                </Flex>
+              )}
             </Tabs>
+            <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+              <DrawerOverlay />
+              <DrawerContent>
+                <DrawerCloseButton />
+                <DrawerBody>
+                  {!isEmpty(searchQuestions) || !isEmpty(questions) ? (
+                    <QuizPreviewer
+                      handleClearQuiz={handleClearQuiz}
+                      onOpen={handleLoadQuiz}
+                      updateQuiz={handleUpdateQuiz}
+                      questions={
+                        !isEmpty(searchQuestions) ? searchQuestions : questions
+                      }
+                      quizId={quiz?._id ?? (quizId as string)}
+                      isLoadingButton={isLoadingButton}
+                      handleUpdateQuizQuestion={handleUpdateQuizQuestion}
+                      handleSearch={handleSearch}
+                      handleDeleteQuizQuestion={handleDeleteQuizQuestion}
+                      handleSetUploadingState={handleSetUploadingState}
+                    />
+                  ) : (
+                    <Center h="full">
+                      <VStack spacing={4}>
+                        <InfoOutlineIcon boxSize="50px" color="gray.400" />
+                        <Text
+                          fontSize="lg"
+                          fontWeight="medium"
+                          color="gray.600"
+                        >
+                          No generated quiz questions
+                        </Text>
+                      </VStack>
+                    </Center>
+                  )}
+                </DrawerBody>
+              </DrawerContent>
+            </Drawer>
           </>
         </Box>
         <Box
@@ -706,7 +794,6 @@ const CreateQuizPage = () => {
           )}
         </Box>
       </Flex>
-
       {openTags && (
         <TagModal
           onSubmit={AddTags}

@@ -14,13 +14,13 @@ type Store = {
 export default create<Store>((set) => ({
   librarySubjects: null,
   isLoading: false,
-  pagination: { limit: 10, page: 1, count: 100 },
+  pagination: { limit: 30, page: 1, count: 100 },
 
   fetchLibrarySubjects: async (queryParams?: SearchQueryParams) => {
     try {
       const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
-      if (!params.limit) params.limit = 10;
+      if (!params.limit) params.limit = 30;
       set({ isLoading: true });
       const response = await ApiService.getLibrarySubjects(params);
       const { data, meta } = await response.json();

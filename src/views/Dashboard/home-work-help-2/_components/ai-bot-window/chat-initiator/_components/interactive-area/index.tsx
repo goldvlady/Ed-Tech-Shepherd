@@ -8,15 +8,18 @@ function InteractiveArea({
 }: {
   initiateConversation: ({
     subject,
-    topic
+    topic,
+    level
   }: {
     subject: string;
     topic: string;
+    level: string;
   }) => void;
 }) {
   const [chatContext, setChatContext] = useState({
     subject: '',
-    topic: ''
+    topic: '',
+    level: ''
   });
 
   const handleSubjectChange = (subject: string) => {
@@ -25,6 +28,10 @@ function InteractiveArea({
 
   const handleTopicChange = (topic: string) => {
     setChatContext((prev) => ({ ...prev, topic }));
+  };
+
+  const handleLevelChange = (level: string) => {
+    setChatContext((prev) => ({ ...prev, level }));
   };
 
   const handleSubmit = () => {
@@ -38,7 +45,8 @@ function InteractiveArea({
         actions={{
           handleSubjectChange,
           handleTopicChange,
-          onSubmit: handleSubmit
+          onSubmit: handleSubmit,
+          handleLevelChange
         }}
         state={{ chatContext }}
       />

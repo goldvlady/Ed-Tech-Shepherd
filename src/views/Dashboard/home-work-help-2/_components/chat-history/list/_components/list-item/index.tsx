@@ -10,7 +10,7 @@ const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
 
 const ListItem = ({
   id,
-  title = 'Untitled',
+  title = 'Chat title',
   topic,
   subject
 }: {

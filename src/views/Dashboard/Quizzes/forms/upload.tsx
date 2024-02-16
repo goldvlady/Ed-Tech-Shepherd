@@ -88,8 +88,8 @@ const UploadQuizForm = ({
   const [file, setFile] = useState<any>();
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
-  const [plansModalMessage] = useState('');
-  const [PlansModalSubMessage] = useState('');
+  const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [openModal, _, setOpenModal] = useToggle(false);
   const [ingestedDocument, setIngestedDocument] = useState(null);
 
@@ -134,6 +134,30 @@ const UploadQuizForm = ({
     try {
       setIsUploadingFile(true);
       handleSetUploadingState(true);
+
+      const { hasActiveSubscription } = userStore.getState();
+      const quizCountResponse = await ApiService.checkQuizCount(user._id);
+      const userQuizCount = await quizCountResponse.json();
+
+      if (
+        (!hasActiveSubscription && userQuizCount.count >= 40) ||
+        (user.subscription?.subscriptionMetadata?.quiz_limit &&
+          userQuizCount.count >=
+            user.subscription.subscriptionMetadata.quiz_limit)
+      ) {
+        setPlansModalMessage(
+          !hasActiveSubscription
+            ? "Let's get you on a plan so you can generate quizzes! "
+            : "Looks like you've filled up your quiz store! 🚀"
+        );
+        setPlansModalSubMessage(
+          !hasActiveSubscription
+            ? 'Get started today for free!'
+            : "Let's upgrade your plan so you can keep generating more."
+        );
+        setTogglePlansModal(true); // Show the PlansModal
+        return;
+      }
 
       if (isNil(ingestedDocument)) {
         const title = decodeURIComponent(
@@ -398,7 +422,7 @@ const UploadQuizForm = ({
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
           message={plansModalMessage} // Pass the message to the modal
-          subMessage={PlansModalSubMessage}
+          subMessage={plansModalSubMessage}
         />
       )}
     </Box>

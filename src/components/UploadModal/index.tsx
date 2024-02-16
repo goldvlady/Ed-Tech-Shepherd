@@ -39,7 +39,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
   const hasFile = Boolean(file);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
-  const [PlansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   if (togglePlansModal) {
     return (
@@ -47,7 +47,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         togglePlansModal={togglePlansModal}
         setTogglePlansModal={setTogglePlansModal}
         message={plansModalMessage} // Pass the message to the modal
-        subMessage={PlansModalSubMessage}
+        subMessage={plansModalSubMessage}
       />
     );
   } else {

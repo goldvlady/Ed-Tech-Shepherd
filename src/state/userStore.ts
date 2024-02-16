@@ -52,7 +52,7 @@ const loadState = (): Partial<Store> => {
         userNotifications: [],
         userDocuments: [],
         hasActiveSubscription: false,
-        onboardCompleted: false,
+        onboardCompleted: true,
         fileSizeLimitMB: 0,
         fileSizeLimitBytes: 0
       };
@@ -63,7 +63,7 @@ const useUserStore = create<Store>((set) => ({
   userNotifications: [],
   userDocuments: [],
   hasActiveSubscription: false,
-  onboardCompleted: false,
+  onboardCompleted: true,
   fileSizeLimitMB: 0,
   fileSizeLimitBytes: 0,
   ...loadState(),
@@ -105,6 +105,7 @@ const useUserStore = create<Store>((set) => ({
     set((state) => {
       if (state.user) {
         const newUser = { ...state.user, ...data };
+
         const hasActiveSubscription = !!(
           newUser.subscription &&
           (newUser.subscription.status === 'active' ||

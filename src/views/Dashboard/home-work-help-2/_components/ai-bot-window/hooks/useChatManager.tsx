@@ -47,12 +47,15 @@ const useChatManager = (
   namespace: string,
   options?: { autoPersistChat: boolean; autoHydrateChat: boolean }
 ) => {
+  const [firstMessageDropped, setFirstMessageDropped] = useState(false);
   const user = useUserStore((state) => state.user);
   const studentId = user?._id;
   const [isLoading, setLoading] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
   const [error, setError] = useState(null);
   const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
     `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
+  const query = useQueryClient();
 
   // State hooks for managing chat messages, current chat content, and conversation ID
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -103,6 +106,24 @@ const useChatManager = (
       autoPersistChat();
     }
   }, [messages, conversationId, autoPersistChat]);
+
+  useEffect(() => {
+    if (socketRef.current) {
+      socketRef.current.on('aitutorchat_limit_reached', (iLimitReached) => {
+        setLimitReached(iLimitReached);
+      });
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('aitutorchat_limit_reached');
+      }
+    };
+  }, [socketRef.current]);
+
+  const resetLimitReached = () => {
+    setLimitReached(false);
+  };
 
   // useCallback for formatting messages before they are sent or stored
   const formatMessage = useCallback(
@@ -246,6 +267,13 @@ const useChatManager = (
           formatMessage(newMessage, 'assistant')
         ]);
         setCurrentChat('');
+        if (!firstMessageDropped) {
+          console.log('firstMessageDropped');
+          query.invalidateQueries({
+            queryKey: ['chatHistory', { studentId }]
+          });
+          setFirstMessageDropped(true);
+        }
         debugLog('CHAT RESPONSE END', newMessage);
       });
 
@@ -353,7 +381,9 @@ const useChatManager = (
     setChatWindowToStale,
     isLoading,
     error,
-    currentSocket: socketRef?.current
+    currentSocket: socketRef?.current,
+    limitReached,
+    resetLimitReached
   };
 };
 

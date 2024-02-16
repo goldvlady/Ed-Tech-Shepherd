@@ -767,7 +767,8 @@ const HomeWorkHelp = () => {
                 colorScheme="green"
                 mr={3}
                 onClick={() => {
-                  navigate('/dashboard/account-settings');
+                  setTogglePlansModal(true);
+                  // navigate('/dashboard/account-settings');
                 }}
               >
                 Upgrade Plan

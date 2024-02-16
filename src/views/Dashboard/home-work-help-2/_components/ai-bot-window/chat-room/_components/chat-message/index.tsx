@@ -30,7 +30,7 @@ const ChatMessage = ({
         shadow={'md'}
       />
       <div
-        className={`message shadow-element rounded-md flex justify-center items-center ${
+        className={`message shadow-element rounded-md flex justify-center items-center overflow-hidden ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >

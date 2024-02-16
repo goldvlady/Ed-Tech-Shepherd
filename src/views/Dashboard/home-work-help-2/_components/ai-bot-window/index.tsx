@@ -3,8 +3,8 @@ import ChatInitiator from './chat-initiator';
 import useUserStore from '../../../../../state/userStore';
 import useChatManager from './hooks/useChatManager';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
-
-const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY = 'CHAT_WINDOW_CONFIG_PARAMS';
+import LimitReachModel from './chat-initiator/_components/limit-reach-model';
+import PlansModal from '../../../../../components/PlansModal';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -28,10 +28,32 @@ function AiChatBotWindow() {
     onEvent,
     currentSocket,
     setChatWindowParams,
+    limitReached,
+    resetLimitReached,
     ...rest
   } = useChatManager('homework-help');
 
-  console.log(conversationId);
+  const [limitReachedModal, setLimitReachedModal] = useState(false);
+  const [isPlansModalOpen, setPlansModalOpen] = useState(false);
+
+  const handleOpenLimitReached = () => {
+    setLimitReachedModal(true);
+  };
+
+  const handleCloseLimitModal = () => {
+    setLimitReachedModal(false);
+    setTimeout(() => {
+      resetLimitReached();
+    }, 100);
+  };
+
+  const handleOpenPlansModal = () => {
+    setPlansModalOpen(true);
+  };
+
+  const handleClosePlansModal = () => {
+    setPlansModalOpen(false);
+  };
 
   useEffect(() => {
     if (conversationId) {
@@ -45,11 +67,14 @@ function AiChatBotWindow() {
 
   const initiateConversation = ({
     subject,
-    topic
+    topic,
+    level
   }: {
     subject: string;
     topic: string;
+    level: string;
   }) => {
+    console.log('initiateConversation', { subject, topic, level });
     setConnectionQuery({ subject, topic });
     // alert(JSON.stringify({ subject, topic }));
     startConversation({
@@ -62,8 +87,24 @@ function AiChatBotWindow() {
     });
   };
 
+  useEffect(() => {
+    if (limitReached) {
+      handleOpenLimitReached();
+    }
+  }, [limitReached]);
+
   return (
-    <div className="h-full flex flex-col gap-4 w-full justify-between bg-[#F9F9FB] overflow-hidden">
+    <div className="h-full flex flex-col gap-0 w-full justify-between bg-[#F9F9FB] overflow-hidden">
+      <LimitReachModel
+        isLimitModalOpen={limitReached && limitReachedModal}
+        handleOpenLimitReached={handleOpenLimitReached}
+        handleCloseLimitModal={handleCloseLimitModal}
+        handleOpenPlansModal={handleOpenPlansModal}
+      />
+      <PlansModal
+        togglePlansModal={isPlansModalOpen}
+        setTogglePlansModal={handleClosePlansModal}
+      />
       {isChatRoom ? (
         // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
         <Outlet />

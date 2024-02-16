@@ -3,7 +3,13 @@ import FindATutorButton from '../find-a-tutor';
 import { useRef, useState } from 'react';
 import useDynamicTextareaSize from './hook/useDynamicTextArea';
 
-const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
+const PromptInput = ({
+  onSubmit,
+  conversationId
+}: {
+  onSubmit: (message) => void;
+  conversationId: string;
+}) => {
   const inputRef = useRef();
   const [message, setMessage] = useState('');
   useDynamicTextareaSize(inputRef, message);
@@ -12,10 +18,18 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
     onSubmit(message);
     setMessage('');
   };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px] z-10">
       <div className="find-tutor-button flex justify-end w-full">
-        <FindATutorButton />
+        <FindATutorButton conversationId={conversationId} />
       </div>
       <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5">
         <div className="input-element w-full flex-1 flex">
@@ -26,6 +40,7 @@ const PromptInput = ({ onSubmit }: { onSubmit: (message) => void }) => {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ whiteSpace: 'pre-line' }}
+            onKeyDown={handleKeyDown}
             rows={1}
           />
         </div>

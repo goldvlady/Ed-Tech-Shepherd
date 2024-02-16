@@ -63,6 +63,15 @@ class ApiService {
     });
   };
 
+  static deleteAccount = async (id: string) => {
+    return await doFetch(
+      `${ApiService.baseEndpoint}/deleteAccount?userId=${id}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
   static getStudyPlanCourses = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getStudyPlanCourses`);
   };
@@ -326,6 +335,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/getFlashcardCount`, {
       method: 'POST',
       body: JSON.stringify({ studentId })
+    });
+  };
+
+  static checkQuizCount = async (userId: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getQuizCount`, {
+      method: 'POST',
+      body: JSON.stringify({ userId })
     });
   };
 
@@ -1064,6 +1080,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/setStudentOnboardStatus`, {
       method: 'POST',
       body: JSON.stringify({ status: status, userId: userId })
+    });
+  };
+  static saveTopicSummary = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/updateIndividualStudyTopic`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   };
 }

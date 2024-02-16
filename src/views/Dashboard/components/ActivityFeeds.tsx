@@ -193,7 +193,6 @@ function ActivityFeeds(props) {
 
     const filterByPeriod = (feed: any) => {
       const feedTime = new Date(feed.updatedAt);
-
       if (feedPeriod === 'all') {
         return true;
       } else if (feedPeriod === 'today') {
@@ -278,7 +277,7 @@ function ActivityFeeds(props) {
         {filteredFeeds?.length > 0 ? (
           filteredFeeds
             .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
-            .filter((f) => f.link) //
+            // .filter((f) => f.link)
             .map((feed: any, index) => (
               <>
                 <Root px={3} my={4} key={index}>
