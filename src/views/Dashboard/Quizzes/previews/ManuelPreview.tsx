@@ -678,14 +678,19 @@ const QuizPreviewer = ({
       alignItems={'center'}
       h={'100%'}
       maxH={'100%'}
-      overflowY={'auto'}
+      overflowY={{ md: 'auto' }}
     >
-      <Box w="70%" maxW="700px" mb={10} position={'relative'}>
+      <Box
+        w={{ md: '70%', base: '100%', sm: '100%' }}
+        maxW={{ md: '700px' }}
+        mb={10}
+        position={'relative'}
+      >
         {!isEmpty(questions) && (
           <Box
-            display={'flex'}
-            alignItems={'flex-start'}
-            justifyContent={'space-between'}
+            display={{ base: 'block', md: 'flex' }}
+            alignItems={{ base: 'flex-start', md: 'center' }}
+            justifyContent={{ base: 'center', md: 'space-between' }}
             w={'100%'}
           >
             <HStack justifyContent={'flex-start'} alignItems={'center'}>
@@ -726,7 +731,11 @@ const QuizPreviewer = ({
                 </Text>
               </Box>
             </HStack>
-            <HStack justifyContent={'flex-end'} alignItems={'center'}>
+            <HStack
+              justifyContent={'flex-end'}
+              alignItems={'center'}
+              marginTop={{ base: '20px' }}
+            >
               {!isNil(quizId) && !isEmpty(quizId) && (
                 <Button
                   width={'140px'}
@@ -736,7 +745,7 @@ const QuizPreviewer = ({
                   variant="solid"
                   colorScheme="primary"
                   onClick={onOpen}
-                  ml={5}
+                  ml={{ md: 5 }}
                   display={'flex'}
                   flexDirection={'row'}
                   justifyContent={'center'}
