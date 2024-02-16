@@ -13,7 +13,8 @@ function AiChatBotWindow() {
 
   const [connectionQuery, setConnectionQuery] = useState({
     subject: '',
-    topic: ''
+    topic: '',
+    level: ''
   });
   const studentId = user?._id;
   // If id is null, It mean user is not in the chat room
@@ -75,11 +76,12 @@ function AiChatBotWindow() {
     level: string;
   }) => {
     console.log('initiateConversation', { subject, topic, level });
-    setConnectionQuery({ subject, topic });
+    setConnectionQuery({ subject, topic, level });
     // alert(JSON.stringify({ subject, topic }));
     startConversation({
       subject,
       topic,
+      level,
       name: user?.name?.first,
       studentId: studentId,
       firebaseId: user?.firebaseId,

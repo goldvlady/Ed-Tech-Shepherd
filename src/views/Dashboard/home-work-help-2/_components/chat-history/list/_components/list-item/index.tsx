@@ -12,12 +12,14 @@ const ListItem = ({
   id,
   title = 'Chat title',
   topic,
-  subject
+  subject,
+  level
 }: {
   id: string;
   title: string;
   topic: string;
   subject: string;
+  level: string;
 }) => {
   const inputRef = useRef<HTMLInputElement | null>();
   const toast = useCustomToast();
@@ -64,7 +66,7 @@ const ListItem = ({
 
   const handleConversationClick = () => {
     setChatWindowParams({
-      connectionQuery: { topic, subject },
+      connectionQuery: { topic, subject, level },
       isNewWindow: false
     });
 
