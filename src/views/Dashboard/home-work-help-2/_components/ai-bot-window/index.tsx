@@ -66,11 +66,14 @@ function AiChatBotWindow() {
 
   const initiateConversation = ({
     subject,
-    topic
+    topic,
+    level
   }: {
     subject: string;
     topic: string;
+    level: string;
   }) => {
+    console.log('initiateConversation', { subject, topic, level });
     setConnectionQuery({ subject, topic });
     // alert(JSON.stringify({ subject, topic }));
     startConversation({
