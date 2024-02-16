@@ -82,8 +82,8 @@ export default function HourReminder(props) {
               {getTagTextByEventType(
                 data.data.type,
                 data.data.type === 'study'
-                  ? data.data.data.entity.deckname
-                  : data.data.data.offer.course.label
+                  ? data.data.data?.entity?.deckname
+                  : data.data.data?.offer.course.label
               )}
             </Text>
             <Text color="text.400" fontSize={14}>
