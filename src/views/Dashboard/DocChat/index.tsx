@@ -1379,7 +1379,7 @@ export default function DocChat() {
         'h-screen w-screen max-h-[calc(100vh-80px)] md:max-w-[calc(100vw-250px)] relative overflow-hidden'
       )}
     >
-      {docchatLimitReached && (
+      {user && docchatLimitReached && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>

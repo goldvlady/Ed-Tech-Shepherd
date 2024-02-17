@@ -237,7 +237,7 @@ const CustomTable: React.FC = () => {
   };
 
   useEffect(() => {
-    loadFlashCardModalAPIKey(studyDeckId);
+    loadFlashcardModal(studyDeckId);
     // eslint-disable-next-line
   }, [studyDeckId]);
 

@@ -367,7 +367,7 @@ export default function WelcomeWalkthrough({
     <>
       <PlansModal
         message={
-          !user.hadSubscription
+          user && !user.hadSubscription
             ? 'Start Your Free Trial!'
             : 'Pick a plan to access your AI Study Tools! 🚀'
         }
