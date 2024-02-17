@@ -36,7 +36,7 @@ import {
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import clsx from 'clsx';
 import { CLEAR_EDITOR_COMMAND, LexicalEditor as EditorType } from 'lexical';
-import { isEmpty, isNil, isString } from 'lodash';
+import { isEmpty, isNil, isString, truncate } from 'lodash';
 import moment from 'moment';
 import React, {
   useEffect,
@@ -1452,7 +1452,7 @@ export default function DocChat() {
                     <Header>
                       <FirstSection>
                         <div className="doc__name">
-                          <>{editedTitle}</>
+                          <>{truncate(editedTitle, { length: 50 })}</>
                         </div>
                         <div className="timestamp">
                           <p>Updated {currentTime}</p>

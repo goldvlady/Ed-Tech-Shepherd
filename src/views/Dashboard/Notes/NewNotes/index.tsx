@@ -95,6 +95,7 @@ import { firebaseAuth } from '../../../../firebase';
 import PlansModal from '../../../../components/PlansModal';
 import ShareModal from '../../../../components/ShareModal';
 import { RiRemoteControlLine } from '@remixicon/react';
+import { encodeQueryParams } from '../../../../helpers';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -733,14 +734,12 @@ const NewNote = () => {
     noteTitle: string,
     noteId: any
   ) => {
+    const query = encodeQueryParams({
+      noteId,
+      sid: user._id
+    });
     try {
-      navigate('/dashboard/docchat', {
-        state: {
-          documentUrl: noteUrl,
-          docTitle: noteTitle,
-          noteId: noteId
-        }
-      });
+      navigate(`/dashboard/docchat${query}`);
     } catch (error) {
       setLoadingDoc(false);
     }
