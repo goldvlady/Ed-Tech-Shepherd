@@ -43,7 +43,7 @@ const ChatMessage = ({
           className="text-sm w-full py-2 px-4 font-normal"
         />
         {type === 'bot' && lastMessage && (
-          <div className="question-suggestions absolute bottom-[-4%] w-full flex gap-2">
+          <div className="question-suggestions absolute bottom-[-3.5rem] w-full flex gap-2">
             <div
               role="button"
               className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
