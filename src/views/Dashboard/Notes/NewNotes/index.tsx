@@ -475,6 +475,7 @@ const NewNote = () => {
 
       const respText = await resp.text();
       try {
+        // console.log('data =========>>> ', respText);
         const respDetails: NoteServerResponse<{ data: NoteDetails }> =
           JSON.parse(respText);
 
@@ -493,7 +494,7 @@ const NewNote = () => {
           );
           return;
         }
-        if (!isEmpty(respDetails.data)) {
+        if (!isNil(respDetails?.data)) {
           const { data: note } = respDetails.data;
           if (note._id && note.topic && note.note) {
             setEditedTitle(note.topic);
@@ -746,10 +747,10 @@ const NewNote = () => {
   };
 
   const proceed = async () => {
-    setLoadingDoc(true);
     if (!saveDetails || !saveDetails.data) {
       return showToast(DEFAULT_NOTE_TITLE, 'Note not loaded', 'warning');
     }
+    setLoadingDoc(true);
     const note = saveDetails.data;
     const url = note.documentId ?? '';
     const topic = note.topic;
@@ -972,6 +973,7 @@ const NewNote = () => {
           saveCallback(draftNoteIdToUse, noteJSON);
           setCurrentTime(formatDate(saveDetails.data.updatedAt));
           setIsSavingNote(false);
+          setSaveDetails(saveDetails);
           draftNoteId.current.value = saveDetails.data['_id'];
         }
       });
