@@ -2,11 +2,13 @@ import { Avatar } from '@chakra-ui/avatar';
 import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
 
 const ChatMessage = ({
+  lastMessage,
   message,
   type,
   userName,
   userImage
 }: {
+  lastMessage?: boolean;
   message: string;
   type: 'user' | 'bot';
   userName?: string;
@@ -14,7 +16,7 @@ const ChatMessage = ({
 }) => {
   return (
     <div
-      className={`flex gap-3 ${
+      className={`flex gap-3 relative ${
         type === 'user' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
@@ -30,7 +32,7 @@ const ChatMessage = ({
         shadow={'md'}
       />
       <div
-        className={`message shadow-element rounded-md flex justify-center items-center overflow-hidden ${
+        className={`message shadow-element rounded-md flex justify-center items-center overflow-hidden overflow-y-visible relative ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >
@@ -38,6 +40,32 @@ const ChatMessage = ({
           source={message}
           className="text-sm w-full py-2 px-4 font-normal"
         />
+        {type === 'bot' && lastMessage && (
+          <div className="question-suggestions absolute bottom-[-7%] w-full flex gap-2">
+            <div
+              role="button"
+              className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
+              onClick={() => {
+                alert('I dont understand');
+              }}
+            >
+              <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">
+                I don't understand
+              </p>
+            </div>
+            <div
+              role="button"
+              className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
+              onClick={() => {
+                alert('Teach me more');
+              }}
+            >
+              <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">
+                Teach me more!
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       <div className="w-9 h-9 opacity-0 pointer-events-none shrink-0"></div>
     </div>
