@@ -94,7 +94,7 @@ function ChatRoom() {
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
         </header>
-        <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[10rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar relative scroll-smooth">
+        <div className="chat-area flex-1 overflow-y-scroll pt-[6rem] pb-[12rem] px-3 w-full mx-auto max-w-[728px] flex flex-col gap-3 no-scrollbar relative scroll-smooth">
           {messages
             ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
@@ -106,6 +106,14 @@ function ChatRoom() {
                 type={message.log.role === 'user' ? 'user' : 'bot'}
                 userImage={user.avatar}
                 userName={user.name.first + ' ' + user.name.last}
+                suggestionPromptsVisible={
+                  message.id === messages[messages.length - 1].id &&
+                  messages.length >= 4
+                }
+                sendSuggestedPrompt={(message: string) => {
+                  sendMessage(message);
+                  handleAutoScroll();
+                }}
               />
             ))}
           {currentChatRender}

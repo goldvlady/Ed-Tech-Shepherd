@@ -6,7 +6,7 @@ import useUserStore from '../../../../../../state/userStore';
 import { HEADER_KEY } from '../../../../../../config';
 
 // Fixed server URL for the WebSocket connection
-const SERVER_URL = 'https://ai.shepherd.study';
+const SERVER_URL = process.env.REACT_APP_AI_API;
 
 // Interface definitions for the chat log and chat message structures
 interface ChatLog {

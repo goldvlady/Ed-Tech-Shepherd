@@ -2,19 +2,23 @@ import { Avatar } from '@chakra-ui/avatar';
 import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
 
 const ChatMessage = ({
+  suggestionPromptsVisible, // When it is true, it shows the suggestion prompts i.e 'I don't understand' and 'Teach me more!'
   message,
   type,
   userName,
-  userImage
+  userImage,
+  sendSuggestedPrompt // This function is called when the user clicks on the suggestion prompts
 }: {
+  suggestionPromptsVisible?: boolean;
   message: string;
   type: 'user' | 'bot';
   userName?: string;
   userImage?: string;
+  sendSuggestedPrompt?: (message: string) => void;
 }) => {
   return (
     <div
-      className={`flex gap-3 ${
+      className={`flex gap-3 relative ${
         type === 'user' ? 'flex-row-reverse' : 'flex-row'
       }`}
     >
@@ -30,7 +34,7 @@ const ChatMessage = ({
         shadow={'md'}
       />
       <div
-        className={`message shadow-element rounded-md flex justify-center items-center overflow-hidden ${
+        className={`message shadow-element rounded-md flex justify-center items-center relative ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >
@@ -38,6 +42,32 @@ const ChatMessage = ({
           source={message}
           className="text-sm w-full py-2 px-4 font-normal"
         />
+        {type === 'bot' && suggestionPromptsVisible && (
+          <div className="question-suggestions absolute bottom-[-3.5rem] w-full flex gap-2">
+            <div
+              role="button"
+              className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
+              onClick={() => {
+                sendSuggestedPrompt?.("I don't understand");
+              }}
+            >
+              <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">
+                I don't understand
+              </p>
+            </div>
+            <div
+              role="button"
+              className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
+              onClick={() => {
+                sendSuggestedPrompt?.('Teach me more!');
+              }}
+            >
+              <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">
+                Teach me more!
+              </p>
+            </div>
+          </div>
+        )}
       </div>
       <div className="w-9 h-9 opacity-0 pointer-events-none shrink-0"></div>
     </div>
