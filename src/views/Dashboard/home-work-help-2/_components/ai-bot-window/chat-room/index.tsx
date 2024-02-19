@@ -106,7 +106,9 @@ function ChatRoom() {
                 type={message.log.role === 'user' ? 'user' : 'bot'}
                 userImage={user.avatar}
                 userName={user.name.first + ' ' + user.name.last}
-                lastMessage={message.id === messages[messages.length - 1].id}
+                suggestionPromptsVisible={
+                  message.id === messages[messages.length - 1].id
+                }
                 sendSuggestedPrompt={(message: string) => {
                   sendMessage(message);
                   handleAutoScroll();

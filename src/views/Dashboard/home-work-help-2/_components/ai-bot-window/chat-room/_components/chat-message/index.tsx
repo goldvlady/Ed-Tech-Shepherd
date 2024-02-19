@@ -2,14 +2,14 @@ import { Avatar } from '@chakra-ui/avatar';
 import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
 
 const ChatMessage = ({
-  lastMessage,
+  suggestionPromptsVisible,
   message,
   type,
   userName,
   userImage,
   sendSuggestedPrompt
 }: {
-  lastMessage?: boolean;
+  suggestionPromptsVisible?: boolean;
   message: string;
   type: 'user' | 'bot';
   userName?: string;
@@ -42,7 +42,7 @@ const ChatMessage = ({
           source={message}
           className="text-sm w-full py-2 px-4 font-normal"
         />
-        {type === 'bot' && lastMessage && (
+        {type === 'bot' && suggestionPromptsVisible && (
           <div className="question-suggestions absolute bottom-[-3.5rem] w-full flex gap-2">
             <div
               role="button"
