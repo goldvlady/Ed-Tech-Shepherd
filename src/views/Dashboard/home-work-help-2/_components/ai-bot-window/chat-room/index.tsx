@@ -107,7 +107,8 @@ function ChatRoom() {
                 userImage={user.avatar}
                 userName={user.name.first + ' ' + user.name.last}
                 suggestionPromptsVisible={
-                  message.id === messages[messages.length - 1].id
+                  message.id === messages[messages.length - 1].id &&
+                  messages.length >= 4
                 }
                 sendSuggestedPrompt={(message: string) => {
                   sendMessage(message);
