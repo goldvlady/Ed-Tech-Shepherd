@@ -6,13 +6,15 @@ const ChatMessage = ({
   message,
   type,
   userName,
-  userImage
+  userImage,
+  sendSuggestedPrompt
 }: {
   lastMessage?: boolean;
   message: string;
   type: 'user' | 'bot';
   userName?: string;
   userImage?: string;
+  sendSuggestedPrompt?: (message: string) => void;
 }) => {
   return (
     <div
@@ -32,7 +34,7 @@ const ChatMessage = ({
         shadow={'md'}
       />
       <div
-        className={`message shadow-element rounded-md flex justify-center items-center overflow-hidden overflow-y-visible relative ${
+        className={`message shadow-element rounded-md flex justify-center items-center relative ${
           type === 'user' ? '' : 'bg-white'
         }`}
       >
@@ -41,12 +43,12 @@ const ChatMessage = ({
           className="text-sm w-full py-2 px-4 font-normal"
         />
         {type === 'bot' && lastMessage && (
-          <div className="question-suggestions absolute bottom-[-7%] w-full flex gap-2">
+          <div className="question-suggestions absolute bottom-[-4%] w-full flex gap-2">
             <div
               role="button"
               className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
               onClick={() => {
-                alert('I dont understand');
+                sendSuggestedPrompt?.("I don't understand");
               }}
             >
               <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">
@@ -57,7 +59,7 @@ const ChatMessage = ({
               role="button"
               className="question-suggestion p-2 border rounded-full cursor-pointer select-none hover:shadow transition-shadow"
               onClick={() => {
-                alert('Teach me more');
+                sendSuggestedPrompt?.('Teach me more!');
               }}
             >
               <p className="question-suggestion-text text-[#6E7682] text-sm font-normal">

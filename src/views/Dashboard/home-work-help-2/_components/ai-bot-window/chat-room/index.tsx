@@ -107,6 +107,10 @@ function ChatRoom() {
                 userImage={user.avatar}
                 userName={user.name.first + ' ' + user.name.last}
                 lastMessage={message.id === messages[messages.length - 1].id}
+                sendSuggestedPrompt={(message: string) => {
+                  sendMessage(message);
+                  handleAutoScroll();
+                }}
               />
             ))}
           {currentChatRender}
