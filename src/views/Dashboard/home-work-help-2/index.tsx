@@ -3,7 +3,6 @@ import AiChatBotWindow from './_components/ai-bot-window';
 import ChatHistory from './_components/chat-history';
 
 const Component = () => {
-  console.log('I AM PARENT, I dont re-render on URL change, I am memoized.');
   return (
     <div className="w-full h-full flex gap-[1px] overflow-x-hidden">
       <ChatHistory />

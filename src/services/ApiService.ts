@@ -42,6 +42,13 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/me`);
   };
 
+  static toggleUserRole = async (id: string, userRole: string | null) => {
+    return doFetch(`${ApiService.baseEndpoint}/toggleUserRole`, {
+      method: 'POST',
+      body: JSON.stringify({ userId: id, role: userRole })
+    });
+  };
+
   static generateShareLink = async (body: { apiKey: string }) => {
     return doFetch(`${ApiService.baseEndpoint}/generateShareLink`, {
       method: 'POST',
