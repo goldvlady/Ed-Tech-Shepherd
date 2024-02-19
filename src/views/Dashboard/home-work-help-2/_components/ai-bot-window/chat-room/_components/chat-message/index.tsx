@@ -2,12 +2,12 @@ import { Avatar } from '@chakra-ui/avatar';
 import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
 
 const ChatMessage = ({
-  suggestionPromptsVisible,
+  suggestionPromptsVisible, // When it is true, it shows the suggestion prompts i.e 'I don't understand' and 'Teach me more!'
   message,
   type,
   userName,
   userImage,
-  sendSuggestedPrompt
+  sendSuggestedPrompt // This function is called when the user clicks on the suggestion prompts
 }: {
   suggestionPromptsVisible?: boolean;
   message: string;
