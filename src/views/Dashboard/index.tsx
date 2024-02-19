@@ -302,7 +302,7 @@ export default function Index() {
                       {/* You have no quizzes at this moment. */}
                       You have no quizzes yet
                     </Text>
-                    <Link to="/dashboard/flashcards">
+                    <Link to="/dashboard/quizzes/create">
                       <CustomButton buttonText="Create a Quiz" width="100%" />
                     </Link>
                   </VStack>

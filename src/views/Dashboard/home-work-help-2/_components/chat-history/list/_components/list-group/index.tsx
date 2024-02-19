@@ -19,6 +19,7 @@ function ListGroup({
             id={conversation.id}
             title={conversation.title}
             key={conversation.id}
+            level={conversation.level}
           />
         ))}
       </div>
