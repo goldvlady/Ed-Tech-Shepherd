@@ -398,7 +398,6 @@ const ProfileSwitchModal = ({
                                   user._id,
                                   selectedProfile
                                 );
-                                console.log('toggleUserRole', resp);
                                 navigate(
                                   selectedProfile === 'student'
                                     ? '/dashboard'
