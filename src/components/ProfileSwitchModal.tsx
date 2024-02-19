@@ -394,6 +394,11 @@ const ProfileSwitchModal = ({
                             <Button
                               onClick={async () => {
                                 await disconnectAndReset();
+                                const resp = await ApiService.toggleUserRole(
+                                  user._id,
+                                  selectedProfile
+                                );
+                                console.log('toggleUserRole', resp);
                                 navigate(
                                   selectedProfile === 'student'
                                     ? '/dashboard'

@@ -43,7 +43,7 @@ class ApiService {
   };
 
   static toggleUserRole = async (id: string, userRole: string | null) => {
-    return doFetch(`${ApiService.baseEndpoint}/toggleUserRole`, {
+    return doFetch(`${ApiService.baseEndpoint}/toggleUserRoleHandler`, {
       method: 'POST',
       body: JSON.stringify({ userId: id, role: userRole })
     });
