@@ -5,7 +5,6 @@ import LibraryCardList from './components/LibraryCardList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
-import { IoIosArrowRoundBack } from 'react-icons/io';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,7 +19,7 @@ import {
   TagLabel,
   Text
 } from '@chakra-ui/react';
-import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -319,23 +318,12 @@ const Library: React.FC = () => {
               </Flex>
             </Stack>
           ) : (
-            ''
-          )}
-
-          {displayMode !== 'subjects' && (
-            <Flex
-              alignItems={'center'}
-              onClick={handleBackButtonClick}
-              _hover={{ cursor: 'pointer' }}
-              marginBottom={'20px'}
-            >
-              <IoIosArrowRoundBack size="50px" />
-            </Flex>
+            <Box width={{ base: '100%', md: '200px' }} height="52px" />
           )}
 
           <Breadcrumb
             spacing="8px"
-            separator={<ChevronLeftIcon color="gray.500" />}
+            separator={<ChevronRightIcon color="gray.500" />}
             marginBottom="20px"
           >
             {breadcrumbNav.map((item, index) => (
@@ -362,7 +350,7 @@ const Library: React.FC = () => {
                       }
                     }}
                   >
-                    <Text fontSize="16px" fontFamily="Inter">
+                    <Text fontSize="20px" fontFamily="Inter">
                       {item.label}
                     </Text>
                   </BreadcrumbLink>
