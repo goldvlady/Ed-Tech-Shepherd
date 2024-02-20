@@ -3,7 +3,8 @@ import React, {
   useState,
   ChangeEvent,
   useCallback,
-  useEffect
+  useEffect,
+  useMemo
 } from 'react';
 import axios from 'axios';
 import {
@@ -130,6 +131,7 @@ import { parseISO, format, parse } from 'date-fns';
 import SciPhiService from '../../../services/SciPhiService'; // SearchRagResponse // SearchRagOptions,
 
 import userStore from '../../../state/userStore';
+import ShepherdSpinner from '../components/shepherd-spinner';
 
 function CoursePlan() {
   const {
@@ -159,23 +161,30 @@ function CoursePlan() {
   } = resourceStore();
   const { fetchSingleFlashcard } = flashcardStore();
   const {
-    studyPlans,
+    studyPlans: storePlans,
     fetchPlans,
     fetchPlanResources,
     studyPlanResources,
     fetchPlanReport,
     studyPlanReport,
     fetchUpcomingPlanEvent,
-    studyPlanUpcomingEvent
+    studyPlanUpcomingEvent,
+    isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = userStore();
+  const plansFromStorage = sessionStorage.getItem('studyPlans');
+  const storedStudyPlans = plansFromStorage ? JSON.parse(plansFromStorage) : [];
+
   // Combine related state variables into a single state object
   const [state, setState] = useState({
+    studyPlans: storedStudyPlans,
+    isPageLoading: false,
     selectedTopic: '',
     topics: null,
     topicResource: null,
     selectedPlan: null,
-    planResource: null,
+    planResource: studyPlanResources,
+    planReport: studyPlanReport,
     showSubjects: false,
     page: 1,
     limit: 100,
@@ -204,63 +213,6 @@ function CoursePlan() {
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
     { label: "Doesn't Repeat", value: 'none' }
-  ];
-  const resourceData = [
-    {
-      title: 'Summary',
-      items: [
-        {
-          title: 'Covalent Bonds',
-          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
-          duration: 25
-        },
-        {
-          title: 'Chemical Bonds',
-          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
-          duration: 30
-        }
-      ]
-    },
-    {
-      title: 'Videos',
-      items: [
-        {
-          title: 'Covalent Bonds',
-          link: 'https://www.youtube.com/watch?v=h24UmH38_LI&ab_channel=FuseSchool-GlobalEducation',
-          duration: 2
-        },
-        {
-          title: 'Chemical Bonds',
-          link: 'https://www.sciencedirect.com/topics/chemistry',
-          duration: 8
-        },
-        {
-          title: 'What are Covalent Bonds',
-          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
-          duration: 9
-        }
-      ]
-    },
-    {
-      title: 'Podcasts',
-      items: [
-        {
-          title: 'Covalent Bonds',
-          link: 'https://www.youtube.com/watch?v=h24UmH38_LI&ab_channel=FuseSchool-GlobalEducation',
-          duration: 25
-        },
-        {
-          title: 'Chemical Bonds',
-          link: 'https://www.sciencedirect.com/topics/chemistry',
-          duration: 48
-        },
-        {
-          title: 'What is Covalence',
-          link: 'https://www.sciencedirect.com/topics/chemistry/covalent-bond',
-          duration: 4
-        }
-      ]
-    }
   ];
 
   const toast = useCustomToast();
@@ -343,17 +295,7 @@ function CoursePlan() {
         return 'black';
     }
   }
-  function getIconByDataset(dataset) {
-    switch (dataset) {
-      case 'Bing Search':
-        return <SiMicrosoftbing size={'10px'} />;
-      case 'wikipedia':
-        return <SiWikipedia />;
 
-      default:
-        return <GrResources />;
-    }
-  }
   function getBackgroundColorForStatus(status) {
     switch (status) {
       case 'Done':
@@ -378,15 +320,7 @@ function CoursePlan() {
 
   const selectedPlanRef = useRef(null);
   const selectedTopicRef = useRef(null);
-  const fetchReportData = async (id) => {
-    console.log(id);
 
-    try {
-      await fetchPlanReport(state.selectedPlan);
-    } catch (error) {
-      console.error('Error fetching study plan report:', error);
-    }
-  };
   const fetchResources = async (id) => {
     try {
       await fetchPlanResources(id);
@@ -396,38 +330,68 @@ function CoursePlan() {
   };
 
   useEffect(() => {
+    // Fetch plans only if session storage is empty
+    if (state.studyPlans.length === 0) {
+      const fetchData = async () => {
+        try {
+          await fetchPlans(state.page, state.limit);
+          updateState({ studyPlans: storePlans });
+          console.log(storePlans);
+
+          // Update session storage only if storePlans are different from the plans in storage
+          if (JSON.stringify(storePlans) !== plansFromStorage) {
+            sessionStorage.setItem('studyPlans', JSON.stringify(storePlans));
+          }
+        } catch (error) {
+          console.error('Error fetching plans:', error);
+        }
+      };
+
+      fetchData();
+    }
+  }, []);
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (state.selectedPlan) {
-          const [plansResponse, resourcesResponse, reportResponse] =
-            await Promise.all([
-              fetchPlans(state.page, state.limit),
-              fetchPlanResources(state.selectedPlan),
-              fetchPlanReport(state.selectedPlan)
-            ]);
-          updateState({ planResource: resourcesResponse });
+          const [resourcesResponse, reportResponse] = await Promise.all([
+            // fetchPlans(state.page, state.limit),
+            fetchPlanResources(state.selectedPlan),
+            fetchPlanReport(state.selectedPlan)
+          ]);
+          updateState({
+            planResource: resourcesResponse,
+            planReport: studyPlanReport
+          });
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
+      } catch (error) {}
     };
-
     fetchData();
   }, [state.selectedPlan]);
 
-  function getSubject(id) {
-    const labelFromCourseList = courseList
-      .map((course) => (course._id === id ? course.label : null))
-      .filter((label) => label !== null);
+  useEffect(() => {
+    sessionStorage.setItem('studyPlans', JSON.stringify(state.studyPlans));
+  }, [state.studyPlans]);
 
-    const labelFromStudyPlanCourses = studyPlanCourses
-      .map((course) => (course._id === id ? course.label : null))
-      .filter((label) => label !== null);
+  const getSubject = useMemo(() => {
+    return (id) => {
+      if (!courseList || !studyPlanCourses) {
+        return null; // Return null if either courseList or studyPlanCourses is undefined
+      }
 
-    const allLabels = [...labelFromCourseList, ...labelFromStudyPlanCourses];
+      const labelFromCourseList = courseList
+        .filter((course) => course._id === id)
+        .map((course) => course.label);
 
-    return allLabels.length > 0 ? allLabels[0] : null;
-  }
+      const labelFromStudyPlanCourses = studyPlanCourses
+        .filter((course) => course._id === id)
+        .map((course) => course.label);
+
+      const allLabels = [...labelFromCourseList, ...labelFromStudyPlanCourses];
+
+      return allLabels.length > 0 ? allLabels[0] : null;
+    };
+  }, [courseList, studyPlanCourses]);
   useEffect(() => {
     const { pathname } = location;
     const planIdFromURL = pathname.split('planId=')[1];
@@ -468,10 +432,11 @@ function CoursePlan() {
     }
   }, [state.selectedTopic]);
   console.log(state.topicResource);
+  console.log(state.topics);
 
   const doFetchTopics = useCallback(() => {
     if (state.selectedPlan) {
-      const selectedPlanData = studyPlans.find(
+      const selectedPlanData = state.studyPlans.find(
         (plan) => plan._id === state.selectedPlan
       );
 
@@ -481,17 +446,17 @@ function CoursePlan() {
         // setTopics(topics);
       }
     }
-  }, [state.selectedPlan, studyPlans]);
+  }, [state.selectedPlan, storePlans]);
 
   useEffect(() => {
     doFetchTopics();
   }, [doFetchTopics]);
-  useEffect(() => {
-    const events = async () => {
-      await fetchUpcomingPlanEvent();
-    };
-    events();
-  }, []);
+  // useEffect(() => {
+  //   const events = async () => {
+  //     await fetchUpcomingPlanEvent();
+  //   };
+  //   events();
+  // }, []);
   console.log(studyPlanReport);
 
   const clearIdFromURL = () => {
@@ -652,8 +617,6 @@ function CoursePlan() {
       return { error: error.message, message: error.message };
     }
   };
-  console.log(state.topics?.schedules);
-  console.log(studyPlans);
 
   const saveTopicSummary = async (id: string) => {
     const payload = {
@@ -714,9 +677,9 @@ function CoursePlan() {
     grouped.get(testDate).push(topic);
     return grouped;
   }, new Map());
+
   return (
     <>
-      {' '}
       <Flex
         alignItems={'center'}
         onClick={() => navigate(-1)}
@@ -756,7 +719,7 @@ function CoursePlan() {
           </Box>
 
           <Box overflowY="scroll">
-            {studyPlans.map((plan) => (
+            {state.studyPlans.map((plan) => (
               <Box
                 mb={2}
                 border={

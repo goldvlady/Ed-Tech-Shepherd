@@ -57,7 +57,6 @@ export default create<StudyPlanStore>((set) => ({
   fetchPlanResources: async (planId: string) => {
     set({ isLoading: true });
     try {
-      set({ isLoading: true });
       const response = await ApiService.getStudyPlanResources(planId);
       const { data } = await response.json();
 
