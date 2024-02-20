@@ -437,9 +437,9 @@ function CoursePlan() {
   console.log(state.topicResource);
   console.log(state.topics);
 
-  const doFetchTopics = useCallback(() => {
+  const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
-      const selectedPlanData = state.studyPlans.find(
+      const selectedPlanData = await state.studyPlans.find(
         (plan) => plan._id === state.selectedPlan
       );
 
