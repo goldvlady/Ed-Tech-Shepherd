@@ -455,7 +455,7 @@ export default function DocChat() {
         authSocket = socketWithAuth({
           studentId,
           documentId,
-          firebaseId: user.firebaseId,
+          firebaseId: user?.firebaseId,
           namespace: 'doc-chat'
         }).connect();
 
