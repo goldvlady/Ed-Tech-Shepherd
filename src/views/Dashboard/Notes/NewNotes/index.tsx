@@ -95,6 +95,7 @@ import { firebaseAuth } from '../../../../firebase';
 import PlansModal from '../../../../components/PlansModal';
 import ShareModal from '../../../../components/ShareModal';
 import { RiRemoteControlLine } from '@remixicon/react';
+import { encodeQueryParams } from '../../../../helpers';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -474,6 +475,7 @@ const NewNote = () => {
 
       const respText = await resp.text();
       try {
+        // console.log('data =========>>> ', respText);
         const respDetails: NoteServerResponse<{ data: NoteDetails }> =
           JSON.parse(respText);
 
@@ -492,7 +494,7 @@ const NewNote = () => {
           );
           return;
         }
-        if (!isEmpty(respDetails.data)) {
+        if (!isNil(respDetails?.data)) {
           const { data: note } = respDetails.data;
           if (note._id && note.topic && note.note) {
             setEditedTitle(note.topic);
@@ -733,24 +735,22 @@ const NewNote = () => {
     noteTitle: string,
     noteId: any
   ) => {
+    const query = encodeQueryParams({
+      noteId,
+      sid: user._id
+    });
     try {
-      navigate('/dashboard/docchat', {
-        state: {
-          documentUrl: noteUrl,
-          docTitle: noteTitle,
-          noteId: noteId
-        }
-      });
+      navigate(`/dashboard/docchat${query}`);
     } catch (error) {
       setLoadingDoc(false);
     }
   };
 
   const proceed = async () => {
-    setLoadingDoc(true);
     if (!saveDetails || !saveDetails.data) {
       return showToast(DEFAULT_NOTE_TITLE, 'Note not loaded', 'warning');
     }
+    setLoadingDoc(true);
     const note = saveDetails.data;
     const url = note.documentId ?? '';
     const topic = note.topic;
@@ -973,6 +973,7 @@ const NewNote = () => {
           saveCallback(draftNoteIdToUse, noteJSON);
           setCurrentTime(formatDate(saveDetails.data.updatedAt));
           setIsSavingNote(false);
+          setSaveDetails(saveDetails);
           draftNoteId.current.value = saveDetails.data['_id'];
         }
       });
