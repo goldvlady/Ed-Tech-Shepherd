@@ -332,7 +332,7 @@ const Library: React.FC = () => {
                 isCurrentPage={index === breadcrumbNav.length - 1}
               >
                 {index === breadcrumbNav.length - 1 ? (
-                  <Text fontSize="20px" fontFamily="Inter" color="#0D66DC">
+                  <Text fontSize="14px" fontFamily="Inter" color="#0D66DC">
                     {' '}
                     {item.label}{' '}
                   </Text>
@@ -350,7 +350,7 @@ const Library: React.FC = () => {
                       }
                     }}
                   >
-                    <Text fontSize="20px" fontFamily="Inter">
+                    <Text fontSize="14px" fontFamily="Inter">
                       {item.label}
                     </Text>
                   </BreadcrumbLink>
