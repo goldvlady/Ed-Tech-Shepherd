@@ -186,6 +186,7 @@ export interface User extends TimestampedEntity {
   hasActiveSubscription: boolean;
   hadSubscription: boolean;
   onboardCompleted: boolean;
+  userRole: 'student' | 'tutor' | 'both';
 }
 
 export interface Student extends TimestampedEntity {

@@ -67,14 +67,15 @@ const Login: React.FC = () => {
       }
     }
     if (
-      appUser?.tutor &&
-      !appUser.tutor.isActive &&
-      appUser?.type.includes('student')
+      (appUser?.tutor &&
+        !appUser.tutor.isActive &&
+        appUser?.type.includes('student')) ||
+      (appUser?.type.includes('student') && !appUser.tutor)
     ) {
       const resp = await ApiService.toggleUserRole(appUser._id, 'student');
       path = '/dashboard';
     }
-    navigate(path);
+    window.location.href = path;
   }, [appUser, navigate]);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
