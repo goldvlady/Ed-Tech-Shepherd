@@ -2,6 +2,7 @@ import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
 import librarySubjectStore from '../../../state/librarySubjectStore';
 import LibraryCardList from './components/LibraryCardList';
+import ProviderList from './components/ProviderList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
@@ -29,18 +30,19 @@ const Library: React.FC = () => {
   const location = useLocation();
 
   const [hasSearched, setHasSearched] = useState(false);
-  const [displayMode, setDisplayMode] = useState('subjects');
+  const [displayMode, setDisplayMode] = useState('providers');
+  const [selectedProviderId, setSelectedProviderId] = useState(null);
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const [selectedTopicId, setSelectedTopicId] = useState(null);
   const [selectedDeckId, setSelectedDeckId] = useState(null);
 
   const [breadcrumbNav, setBreadcrumbNav] = useState<
     Array<{ label: string; mode: string }>
-  >([{ label: 'Subjects', mode: 'subjects' }]);
+  >([{ label: 'Providers', mode: 'providers' }]);
 
   const navigationHistory = useRef<
     { label: string; mode: string; path: string }[]
-  >([{ label: 'Subjects', mode: 'subjects', path: '/dashboard/library' }]);
+  >([{ label: 'Providers', mode: 'providers', path: '/dashboard/library' }]);
 
   const updateNavigationHistory = (mode, label, path) => {
     const currentIndex = navigationHistory.current.findIndex(
@@ -57,19 +59,27 @@ const Library: React.FC = () => {
   };
 
   const updateBreadcrumbNav = () => {
-    const newBreadcrumbNav = [{ label: 'Subjects', mode: 'subjects' }];
+    const newBreadcrumbNav = [{ label: 'Providers', mode: 'providers' }];
     switch (displayMode) {
+      case 'subjects':
+        newBreadcrumbNav.push({ label: 'Subjects', mode: 'subjects' });
+        break;
       case 'topics':
-        newBreadcrumbNav.push({ label: 'Topics', mode: 'topics' });
+        newBreadcrumbNav.push(
+          { label: 'Subjects', mode: 'subjects' },
+          { label: 'Topics', mode: 'topics' }
+        );
         break;
       case 'decks':
         newBreadcrumbNav.push(
+          { label: 'Subjects', mode: 'subjects' },
           { label: 'Topics', mode: 'topics' },
           { label: 'Decks', mode: 'decks' }
         );
         break;
       case 'cards':
         newBreadcrumbNav.push(
+          { label: 'Subjects', mode: 'subjects' },
           { label: 'Topics', mode: 'topics' },
           { label: 'Decks', mode: 'decks' },
           { label: 'Cards', mode: 'cards' }
@@ -81,26 +91,27 @@ const Library: React.FC = () => {
     setBreadcrumbNav(newBreadcrumbNav);
   };
 
-  const handleBackButtonClick = () => {
-    if (navigationHistory.current.length > 1) {
-      navigationHistory.current.pop(); // Remove the current state
-      const previousState =
-        navigationHistory.current[navigationHistory.current.length - 1];
-      setDisplayMode(previousState.mode);
-      navigate(previousState.path);
-    }
-  };
-
   useEffect(() => {
     updateBreadcrumbNav();
-  }, [displayMode, selectedSubjectId, selectedTopicId, selectedDeckId]);
+  }, [
+    displayMode,
+    selectedProviderId,
+    selectedSubjectId,
+    selectedTopicId,
+    selectedDeckId
+  ]);
 
   useEffect(() => {
     const displayModes = {
+      provider: {
+        label: 'Providers',
+        mode: 'providers',
+        path: '/dashboard/library'
+      },
       subjects: {
         label: 'Subjects',
         mode: 'subjects',
-        path: '/dashboard/library'
+        path: `/dashboard/library/providers/${selectedProviderId}`
       },
       topics: {
         label: 'Topics',
@@ -126,7 +137,19 @@ const Library: React.FC = () => {
         displayModes[displayMode].path
       );
     }
-  }, [selectedSubjectId, selectedTopicId, selectedDeckId, displayMode]);
+  }, [
+    selectedProviderId,
+    selectedSubjectId,
+    selectedTopicId,
+    selectedDeckId,
+    displayMode
+  ]);
+
+  const handleProviderClick = (providerId) => {
+    setSelectedProviderId(providerId);
+    setDisplayMode('subjects');
+    navigate(`/dashboard/library/providers/${providerId}`);
+  };
 
   const handleSubjectClick = (subjectId) => {
     setSelectedSubjectId(subjectId);
@@ -164,6 +187,10 @@ const Library: React.FC = () => {
     if (pathSegments.length >= 3) {
       const [, , type, id] = pathSegments;
       switch (type) {
+        case 'providers':
+          setDisplayMode('subjects');
+          setSelectedProviderId(id);
+          break;
         case 'subjects':
           setDisplayMode('topics');
           setSelectedSubjectId(id);
@@ -177,14 +204,16 @@ const Library: React.FC = () => {
           setSelectedDeckId(id);
           break;
         default:
-          setDisplayMode('subjects');
+          setDisplayMode('providers');
+          setSelectedProviderId(null);
           setSelectedSubjectId(null);
           setSelectedTopicId(null);
           setSelectedDeckId(null);
           break;
       }
     } else {
-      setDisplayMode('subjects');
+      setDisplayMode('providers');
+      setSelectedProviderId(null);
       setSelectedSubjectId(null);
       setSelectedTopicId(null);
       setSelectedDeckId(null);
@@ -331,34 +360,33 @@ const Library: React.FC = () => {
                 key={index}
                 isCurrentPage={index === breadcrumbNav.length - 1}
               >
-                {index === breadcrumbNav.length - 1 ? (
-                  <Text fontSize="14px" fontFamily="Inter" color="#0D66DC">
-                    {' '}
-                    {item.label}{' '}
+                <BreadcrumbLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const historyItem = navigationHistory.current.find(
+                      (h) => h.mode === item.mode
+                    );
+                    if (historyItem) {
+                      setDisplayMode(historyItem.mode);
+                      navigate(historyItem.path);
+                    }
+                  }}
+                >
+                  <Text fontSize="20px" fontFamily="Inter">
+                    {item.label}
                   </Text>
-                ) : (
-                  <BreadcrumbLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const historyItem = navigationHistory.current.find(
-                        (h) => h.mode === item.mode
-                      );
-                      if (historyItem) {
-                        setDisplayMode(historyItem.mode);
-                        navigate(historyItem.path);
-                      }
-                    }}
-                  >
-                    <Text fontSize="14px" fontFamily="Inter">
-                      {item.label}
-                    </Text>
-                  </BreadcrumbLink>
-                )}
+                </BreadcrumbLink>
               </BreadcrumbItem>
             ))}
           </Breadcrumb>
           <Box>
+            {displayMode === 'providers' && (
+              <ProviderList
+                providers={[{ _id: '1', name: 'Shepherd' }]}
+                onSelectProvider={handleProviderClick}
+              />
+            )}
             {displayMode === 'subjects' && (
               <SubjectList
                 subjects={librarySubjects}
