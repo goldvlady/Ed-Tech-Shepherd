@@ -1055,6 +1055,12 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static deleteStudyPlan = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteStudyPlan?id=${id}`, {
+      method: 'POST'
+    });
+  };
   static getStudyPlans = async (page: number, limit: number) => {
     return doFetch(
       `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
