@@ -27,7 +27,6 @@ interface ToggleProps {
   setTogglePlansModal: (state: boolean) => void;
   togglePlansModal: boolean;
 }
-
 interface PriceTier {
   tier: string;
   price: string;

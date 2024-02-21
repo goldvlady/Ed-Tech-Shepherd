@@ -853,6 +853,7 @@ const StudyBox = () => {
             >
               {/* Content for frame-child7 */}
             </DeckOverLap>
+
             <FlashCard
               cardStyle={cardStyle}
               study={currentStudy}

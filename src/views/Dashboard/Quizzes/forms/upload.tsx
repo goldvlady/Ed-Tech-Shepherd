@@ -130,6 +130,22 @@ const UploadQuizForm = ({
     []
   );
 
+  function getFileNameFromUrl(url) {
+    let fileName = '';
+
+    // Use the URL constructor for parsing the URL if it's an absolute URL
+    try {
+      const pathname = new URL(url).pathname;
+      fileName = pathname.split('/').pop(); // Get the last part of the path
+    } catch (error) {
+      // If the URL is not absolute, fallback to a simple string manipulation approach
+      fileName = url.substring(url.lastIndexOf('/') + 1);
+    }
+
+    // Decode URI component to handle encoded file names
+    return decodeURIComponent(fileName);
+  }
+
   const handleOnSubmit = async () => {
     try {
       setIsUploadingFile(true);
@@ -160,9 +176,7 @@ const UploadQuizForm = ({
       }
 
       if (isNil(ingestedDocument)) {
-        const title = decodeURIComponent(
-          (localData?.fileUrl?.match(/\/([^/]+)(?=\.\w+\?)/) || [])[1] || ''
-        )?.replace('uploads/', '');
+        const title = getFileNameFromUrl(localData?.fileUrl);
         const response = await saveDocument(
           {
             title: isNil(title) || isEmpty(title) ? localData?.fileUrl : title,
@@ -294,7 +308,7 @@ const UploadQuizForm = ({
         />
 
         <FormHelperText textColor={'text.300'}>
-          Shepherd supports .pdf, .ppt, .jpg & .txt document formats
+          Shepherd supports .pdf & .jpg document formats
         </FormHelperText>
       </FormControl>
 

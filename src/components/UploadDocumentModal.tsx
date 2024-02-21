@@ -89,7 +89,7 @@ const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
                       <p className="text-sm leading-5 text-gray-600">
                         Shepherd supports{' '}
                         <span className="text-secondaryGray font-semibold">
-                          .pdf, .ppt, .jpg & .txt
+                          .pdf & .jpg
                         </span>{' '}
                         document formats
                       </p>

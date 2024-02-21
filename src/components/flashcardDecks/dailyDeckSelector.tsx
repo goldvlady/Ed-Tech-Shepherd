@@ -39,7 +39,8 @@ const DailyDeckSelector = () => {
               </Text>
               <Flex align="center">
                 <Text fontSize="sm" color="gray.600">
-                  {flashcard.questions.length} questions
+                  {flashcard.questions.length} question
+                  {flashcard.questions.length > 1 ? 's' : ''}
                 </Text>
                 {flashcard.studyPeriod === 'spacedRepetition' && (
                   <Box

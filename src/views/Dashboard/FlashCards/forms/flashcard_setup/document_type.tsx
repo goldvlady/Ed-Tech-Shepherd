@@ -65,7 +65,7 @@ const FlashcardFromDocumentSetup = ({
           : 'Spaced repetition',
       value:
         localData.studyType && localData.studyType === 'quickPractice'
-          ? 'doesntRepeat'
+          ? 'noRepeat'
           : 'spacedRepetition'
     }
   ];
@@ -184,7 +184,7 @@ const FlashcardFromDocumentSetup = ({
         </FormLabel>
         <FileUpload isLoading={isLoading} onFileSelect={onHandleFile} />
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>
-          Shepherd supports .pdf, .ppt, .jpg & .txt document formats
+          Shepherd supports .pdf & .jpg document formats
         </FormLabel>
       </FormControl>
       {/* <FormControl mb={8}>

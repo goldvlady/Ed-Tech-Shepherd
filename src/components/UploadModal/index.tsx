@@ -60,6 +60,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
           <ModalBody>
             <DragAndDrop
               accept={accept}
+              file={file}
               onFileUpload={(file: File) => {
                 // Check if the file size exceeds the limit
                 if (!file || file.size > fileSizeLimitBytes) {

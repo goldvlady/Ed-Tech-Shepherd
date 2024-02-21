@@ -102,7 +102,7 @@ function AccSettings() {
                 </Button>
               </TabList>
             </Box>
-            <Box width={{ md: '900px', width: 'auto' }} px={{ md: 0, lg: 6 }}>
+            <Box width={{ base: '100%' }} px={{ md: 0, lg: 6 }}>
               <TabPanels>
                 <TabPanel>
                   <MyProfile
