@@ -11,7 +11,6 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Select,
   Box,
   Flex,
   Tabs,
@@ -20,6 +19,18 @@ import {
   Tab,
   TabPanel
 } from '@chakra-ui/react';
+import SelectComponent from '../../../../components/Select';
+
+const studyTypeOptions = [
+  { value: 'longTermRetention', label: 'Long Term Retention' },
+  { value: 'quickPractice', label: 'Quick Practice' }
+];
+
+const levelOptions = [
+  { value: 'beginner', label: 'Beginner' },
+  { value: 'intermediate', label: 'Intermediate' },
+  { value: 'advanced', label: 'Advanced' }
+];
 
 const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   const { createFlashCard, fetchFlashcards, flashcards } = flashcardStore();
@@ -30,24 +41,36 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
     selectedDeckId: ''
   });
 
+  const flashcardOptions = flashcards.map((flashcard) => ({
+    value: flashcard._id,
+    label: flashcard.deckname
+  }));
+
   useEffect(() => {
     fetchFlashcards();
   }, [fetchFlashcards]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleSelectChange = (name, option) => {
     if (name === 'selectedDeckId') {
       const selectedDeck = flashcards.find(
-        (flashcard) => flashcard._id === value
+        (flashcard) => flashcard._id === option.value
       );
       setFormData((prev) => ({
         ...prev,
-        deckname: selectedDeck ? selectedDeck.deckname : '',
-        selectedDeckId: value
+        selectedDeckId: option ? option.value : '',
+        deckname: selectedDeck ? selectedDeck.deckname : ''
       }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: option ? option.value : ''
+      }));
     }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (isNewDeck) => {
@@ -120,30 +143,29 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                     </FormControl>
                     <FormControl mb={4}>
                       <FormLabel>Study Type</FormLabel>
-                      <Select
+                      <SelectComponent
                         name="studyType"
-                        value={formData.studyType}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Study Type</option>
-                        <option value="longTermRetention">
-                          Long Term Retention
-                        </option>
-                        <option value="quickPractice">Quick Practice</option>
-                      </Select>
+                        options={studyTypeOptions}
+                        onChange={(option) =>
+                          handleSelectChange('studyType', option)
+                        }
+                        defaultValue={studyTypeOptions.find(
+                          (option) => option.value === formData.studyType
+                        )}
+                      />
                     </FormControl>
                     <FormControl mb={4}>
                       <FormLabel>Level</FormLabel>
-                      <Select
+                      <SelectComponent
                         name="level"
-                        value={formData.level}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Level</option>
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                      </Select>
+                        options={levelOptions}
+                        onChange={(option) =>
+                          handleSelectChange('level', option)
+                        }
+                        defaultValue={levelOptions.find(
+                          (option) => option.value === formData.level
+                        )}
+                      />
                     </FormControl>
                     <Button onClick={() => handleSubmit(true)}>
                       Create Deck
@@ -154,45 +176,42 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                   <Flex direction="column" width={'full'}>
                     <FormControl mb={4}>
                       <FormLabel>Deck Name</FormLabel>
-                      <Select
+                      <SelectComponent
                         name="selectedDeckId"
-                        value={formData.selectedDeckId}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Deck</option>
-                        {flashcards?.map((flashcard) => (
-                          <option key={flashcard._id} value={flashcard._id}>
-                            {flashcard.deckname}
-                          </option>
-                        ))}
-                      </Select>
+                        options={flashcardOptions}
+                        onChange={(option) =>
+                          handleSelectChange('selectedDeckId', option)
+                        }
+                        defaultValue={flashcardOptions.find(
+                          (option) => option.value === formData.selectedDeckId
+                        )}
+                      />
                     </FormControl>
                     <FormControl mb={4}>
                       <FormLabel>Study Type</FormLabel>
-                      <Select
+                      <SelectComponent
                         name="studyType"
-                        value={formData.studyType}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Study Type</option>
-                        <option value="longTermRetention">
-                          Long Term Retention
-                        </option>
-                        <option value="quickPractice">Quick Practice</option>
-                      </Select>
+                        options={studyTypeOptions}
+                        onChange={(option) =>
+                          handleSelectChange('studyType', option)
+                        }
+                        defaultValue={studyTypeOptions.find(
+                          (option) => option.value === formData.studyType
+                        )}
+                      />
                     </FormControl>
                     <FormControl mb={4}>
                       <FormLabel>Level</FormLabel>
-                      <Select
+                      <SelectComponent
                         name="level"
-                        value={formData.level}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Level</option>
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                      </Select>
+                        options={levelOptions}
+                        onChange={(option) =>
+                          handleSelectChange('level', option)
+                        }
+                        defaultValue={levelOptions.find(
+                          (option) => option.value === formData.level
+                        )}
+                      />
                     </FormControl>
                     <Button onClick={() => handleSubmit(false)}>
                       Update Deck
