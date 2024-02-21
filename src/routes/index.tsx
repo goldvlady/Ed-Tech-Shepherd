@@ -17,7 +17,7 @@ import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-win
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
-const OnboardStudent = lazy(() => import('../views/OnboardStudent'));
+const OnboardStudent = lazy(() => import('../views/OnboardStudent/index'));
 const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
 const ForgotPassword = lazy(() => import('../views/ForgotPassword'));
 const Login = lazy(() => import('../views/Login'));
@@ -46,11 +46,13 @@ const TakeQuizzes = lazy(() => import('../views/Dashboard/Quizzes/take'));
 const Tutor = lazy(() => import('../views/Dashboard/Tutor'));
 const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
-const TutorDashboard = lazy(() => import('../views/TutorDashboard'));
+const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
 const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
 const Client = lazy(() => import('../views/TutorDashboard/Clients/client'));
-const TutorOffers = lazy(() => import('../views/TutorDashboard/Offers'));
-const TutorBounties = lazy(() => import('../views/TutorDashboard/Bounties'));
+const TutorOffers = lazy(() => import('../views/TutorDashboard/Offers/index'));
+const TutorBounties = lazy(
+  () => import('../views/TutorDashboard/Bounties/index')
+);
 const TutorSettings = lazy(
   () => import('../views/TutorDashboard/AccountSettings')
 );
@@ -63,10 +65,10 @@ const PinnedNotes = lazy(
 );
 const SendTutorOffer = lazy(() => import('../views/Dashboard/SendTutorOffer'));
 const Offer = lazy(() => import('../views/Dashboard/Offer'));
-const DashboardIndex = lazy(() => import('../views/Dashboard'));
+const DashboardIndex = lazy(() => import('../views/Dashboard/index'));
 const Marketplace = lazy(() => import('../views/Dashboard/Marketplace'));
 const MyTutors = lazy(() => import('../views/Dashboard/MyTutors'));
-const Bounties = lazy(() => import('../views/Dashboard/Bounties'));
+const Bounties = lazy(() => import('../views/Dashboard/Bounties/index'));
 const StudentBounty = lazy(() => import('../views/Dashboard/Bounties/Bounty'));
 const BookmarkedTutors = lazy(
   () => import('../views/Dashboard/BookmarkedTutors')
