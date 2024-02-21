@@ -85,7 +85,7 @@ const defaultItems = [
         
              What&apos;s also super cool is - You can also upload Anki flashcards
              (<em>wink</em> Med-students). We also use a pretty cool
-             Spaced-repetition algorithm to prompted to study (via email) so you
+             Spaced-repetition algorithm to prompt you to study (via email) so you
              never forget. You can also share these with your friends!`,
       `Here is my favorite, generating a quiz. You can generate a quiz from a topic or file in many different formats`
     ],
@@ -367,7 +367,7 @@ export default function WelcomeWalkthrough({
     <>
       <PlansModal
         message={
-          !user.hadSubscription
+          user && !user.hadSubscription
             ? 'Start Your Free Trial!'
             : 'Pick a plan to access your AI Study Tools! 🚀'
         }

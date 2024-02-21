@@ -57,6 +57,11 @@ function StudyPlans() {
   );
 
   const displayPlans = filteredPlans.length > 0 ? filteredPlans : studyPlans;
+  useEffect(() => {
+    if (sessionStorage.getItem('studyPlans')) {
+      sessionStorage.removeItem('studyPlans');
+    }
+  }, []);
 
   function getSubject(id) {
     const labelFromCourseList = courseList

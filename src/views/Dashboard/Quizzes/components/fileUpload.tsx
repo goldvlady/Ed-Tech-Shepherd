@@ -442,6 +442,17 @@ const FileUploadModal = ({
     setUploadDocumentFile(null);
   };
 
+  function getFileNameFromUrl(url) {
+    // Use the URL constructor for parsing the URL if it's an absolute URL
+    try {
+      const pathname = new URL(url).pathname;
+      return pathname.split('/').pop(); // Get the last part of the path
+    } catch (error) {
+      // If the URL is not absolute, fallback to a simple string manipulation approach
+      return url.substring(url.lastIndexOf('/') + 1);
+    }
+  }
+
   // const doNothing = () => {
   //   return;
   // };
