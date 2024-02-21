@@ -48,15 +48,23 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
     selectedDeckId: '',
     studyPeriod: ''
   });
-
-  const flashcardOptions = flashcards.map((flashcard) => ({
-    value: flashcard._id,
-    label: flashcard.deckname
-  }));
+  const [flashcardOptions, setFlashcardOptions] = useState([]);
 
   useEffect(() => {
-    fetchFlashcards();
+    const fetchData = async () => {
+      await fetchFlashcards();
+    };
+    fetchData();
   }, [fetchFlashcards]);
+
+  useEffect(() => {
+    setFlashcardOptions(
+      flashcards.map((flashcard) => ({
+        value: flashcard._id,
+        label: flashcard.deckname
+      }))
+    );
+  }, [flashcards]);
 
   const handleSelectChange = (name, option) => {
     if (name === 'selectedDeckId') {
