@@ -32,13 +32,21 @@ const levelOptions = [
   { value: 'advanced', label: 'Advanced' }
 ];
 
+const studyPeriodOptions = [
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Once a week' },
+  { value: 'biweekly', label: 'Twice a week' },
+  { value: 'spacedRepetition', label: 'Spaced repetition' }
+];
+
 const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   const { createFlashCard, fetchFlashcards, flashcards } = flashcardStore();
   const [formData, setFormData] = useState({
     deckname: '',
     studyType: '',
     level: '',
-    selectedDeckId: ''
+    selectedDeckId: '',
+    studyPeriod: ''
   });
 
   const flashcardOptions = flashcards.map((flashcard) => ({
@@ -59,6 +67,13 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
         ...prev,
         selectedDeckId: option ? option.value : '',
         deckname: selectedDeck ? selectedDeck.deckname : ''
+      }));
+    } else if (name === 'studyType') {
+      const studyPeriod = option.value === 'quickPractice' ? 'noRepeat' : '';
+      setFormData((prev) => ({
+        ...prev,
+        [name]: option ? option.value : '',
+        studyPeriod: studyPeriod
       }));
     } else {
       setFormData((prev) => ({
@@ -154,6 +169,21 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                         )}
                       />
                     </FormControl>
+                    {formData.studyType === 'longTermRetention' && (
+                      <FormControl mb={4}>
+                        <FormLabel>Study Period</FormLabel>
+                        <SelectComponent
+                          name="studyPeriod"
+                          options={studyPeriodOptions}
+                          onChange={(option) =>
+                            handleSelectChange('studyPeriod', option)
+                          }
+                          defaultValue={studyPeriodOptions.find(
+                            (option) => option.value === formData.studyPeriod
+                          )}
+                        />
+                      </FormControl>
+                    )}
                     <FormControl mb={4}>
                       <FormLabel>Level</FormLabel>
                       <SelectComponent
@@ -200,6 +230,21 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
                         )}
                       />
                     </FormControl>
+                    {formData.studyType === 'longTermRetention' && (
+                      <FormControl mb={4}>
+                        <FormLabel>Study Period</FormLabel>
+                        <SelectComponent
+                          name="studyPeriod"
+                          options={studyPeriodOptions}
+                          onChange={(option) =>
+                            handleSelectChange('studyPeriod', option)
+                          }
+                          defaultValue={studyPeriodOptions.find(
+                            (option) => option.value === formData.studyPeriod
+                          )}
+                        />
+                      </FormControl>
+                    )}
                     <FormControl mb={4}>
                       <FormLabel>Level</FormLabel>
                       <SelectComponent
