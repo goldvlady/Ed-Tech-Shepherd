@@ -1095,7 +1095,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />
             </div>
-            <div className="veerbal-box pt-20 relative h-full">
+            <div className="box pt-20 relative h-full overflow-y-scroll">
               <Outlet />
               {children}
             </div>
