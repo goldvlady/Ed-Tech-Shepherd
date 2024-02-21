@@ -229,6 +229,7 @@ const AutocompleteWindow = ({
                 .toLowerCase()
                 .includes(filterKeyword.keyword.toLowerCase())
             )
+            .sort((a, b) => a.level - b.level) // Sort by item.level in ascending order
             .map((item) => (
               <AutocompleteItem
                 title={item.label}
