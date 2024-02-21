@@ -10,7 +10,7 @@ import { SimpleGrid, Box, Button, Flex, Select, Text } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import CustomSelect from '../../../../components/CustomSelect';
+import SelectComponent, { Option } from '../../../../components/Select';
 import { capitalize } from 'lodash';
 
 const StyledImage = styled(Box)`
@@ -46,22 +46,28 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
   const { fetchLibraryCards, isLoading, pagination, libraryCards } =
     libraryCardStore();
   // const { user } = userStore();
-
-  const { createFlashCard, fetchFlashcards, flashcards, editFlashcard } =
-    flashcardStore();
+  const { createFlashCard, editFlashcard } = flashcardStore();
   // State for tracking selected cards and modal visibility
   const [selectedCards, setSelectedCards] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState('');
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Option | null>(
+    null
+  );
   const toast = useCustomToast();
 
   const hasMore = pagination.page * pagination.limit < pagination.count;
   const loadMore = () => {
     const nextPage = pagination.page + 1;
-    fetchLibraryCards(deckId, selectedDifficulty, nextPage);
+    fetchLibraryCards(deckId, selectedDifficulty?.value || '', nextPage);
   };
 
-  const difficulties = ['all', 'easy', 'medium', 'hard', 'very hard'];
+  const difficulties: Option[] = [
+    { value: '', label: 'All' },
+    { value: 'easy', label: 'Easy' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'hard', label: 'Hard' },
+    { value: 'very hard', label: 'Very Hard' }
+  ];
 
   // useEffect(() => {
   //   fetchFlashcards()
@@ -69,7 +75,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
 
   useEffect(() => {
     if (deckId) {
-      fetchLibraryCards(deckId, selectedDifficulty, 1);
+      fetchLibraryCards(deckId, selectedDifficulty?.value || '', 1);
     }
   }, [deckId, selectedDifficulty]);
 
@@ -171,9 +177,8 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
     toggleModal();
   };
 
-  const handleDifficultyChange = (e) => {
-    const value = e.target.value === 'all' ? '' : e.target.value;
-    setSelectedDifficulty(value);
+  const handleDifficultyChange = (option: Option) => {
+    setSelectedDifficulty(option);
   };
 
   if (isLoading && !libraryCards?.length) {
@@ -191,14 +196,13 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       <Flex justify="row" justifyContent="space-between" mb="4">
         {
           <Box width={{ base: '60%', sm: '50%', md: '40%', lg: '30%' }}>
-            <CustomSelect
+            <SelectComponent
               placeholder="Filter by difficulty"
-              onChange={handleDifficultyChange}
-            >
-              {difficulties.map((difficulty) => (
-                <option value={difficulty}>{capitalize(difficulty)}</option>
-              ))}
-            </CustomSelect>
+              options={difficulties}
+              onChange={(option) => handleDifficultyChange(option as Option)}
+              defaultValue={selectedDifficulty}
+              isClearable
+            />
           </Box>
         }
         {selectedCards.length > 0 && (
