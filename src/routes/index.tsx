@@ -150,9 +150,11 @@ const userLayouts = {
 const RenderLayout = () => {
   const matchedRoute = useRoutes(userRoutes.both);
 
-  const isStudentRoute = [...studentRoutes].some(
-    (route) => route.path === matchedRoute?.props?.match?.route?.path
-  );
+  const isStudentRoute = [
+    { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
+    { path: 'ace-homework', element: <HomeWorkHelp /> },
+    ...studentRoutes
+  ].some((route) => route.path === matchedRoute?.props?.match?.route?.path);
   const isTutorRoute = tutorRoutes.some(
     (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
@@ -180,7 +182,14 @@ const AuthAction = (props: any) => {
 const userRoutes = {
   student: studentRoutes,
   tutor: tutorRoutes,
-  both: [...[...studentRoutes], ...tutorRoutes]
+  both: [
+    ...[
+      { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
+      { path: 'ace-homework', element: <HomeWorkHelp /> },
+      ...studentRoutes
+    ],
+    ...tutorRoutes
+  ]
 };
 
 const RequireAuth = ({
@@ -492,7 +501,18 @@ const AppRoutes: React.FC = () => {
           </Suspense>
         }
       />
-
+      <Route path="/" element={<DashboardLayout children />}>
+        <Route
+          path="/dashboard/ace-homework"
+          element={
+            <Suspense fallback={<SharedLoading />}>
+              <HomeWorkHelp />
+            </Suspense>
+          }
+        >
+          <Route path=":id" element={<ChatRoom />} />
+        </Route>
+      </Route>
       {/* <Route
         path="/dashboard/ace-homework/:id"
         element={
@@ -553,16 +573,6 @@ const AppRoutes: React.FC = () => {
               }
             />
           ))}
-        <Route
-          path="ace-homework"
-          element={
-            <Suspense fallback={<SharedLoading />}>
-              <HomeWorkHelp />
-            </Suspense>
-          }
-        >
-          <Route path=":id" element={<ChatRoom />} />
-        </Route>
       </Route>
     </Routes>
   );

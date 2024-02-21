@@ -4,6 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import ApiService from '../../../../../../services/ApiService';
 import useUserStore from '../../../../../../state/userStore';
 import { HEADER_KEY } from '../../../../../../config';
+import { useSearchQuery } from '../../../../../../hooks';
+import { firebaseAuth } from '../../../../../../firebase';
+import { useNavigate } from 'react-router';
 
 // Fixed server URL for the WebSocket connection
 const SERVER_URL = process.env.REACT_APP_AI_API;
@@ -56,7 +59,11 @@ const useChatManager = (
   const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
     `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
   const query = useQueryClient();
-
+  // stuff NEEDED for share to work.
+  const search = useSearchQuery();
+  const shareable = search.get('shareable');
+  const apiKey = search.get('apiKey');
+  const navigate = useNavigate();
   // State hooks for managing chat messages, current chat content, and conversation ID
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentChat, setCurrentChat] = useState<string>('');
@@ -173,32 +180,70 @@ const useChatManager = (
           return;
         }
         debugLog('FETCH HISTORY', { limit, offset });
-        const data = await ApiService.getConversionById({ conversationId: id });
+        if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
+          const data = await ApiService.getConversationByIdAndAPIKey({
+            conversationId: id,
+            apiKey
+          });
 
-        setMessages((prevMessages) => {
-          if (offset === 0) {
-            // When offset is 0, replace the first X messages with new data,
-            // where X is the length of the data received.
-            return [...data, ...prevMessages.slice(data.length)];
-          } else {
-            // When offset isn't 0, replace messages starting from the offset position
-            // with the new data, ensuring no duplicates and preserving the sequence.
-            // This might require adjusting depending on your specific use case or data structure.
-            const updatedMessages = [...prevMessages];
+          setMessages((prevMessages) => {
+            if (offset === 0) {
+              // When offset is 0, replace the first X messages with new data,
+              // where X is the length of the data received.
+              return [...data, ...prevMessages.slice(data.length)];
+            } else {
+              // When offset isn't 0, replace messages starting from the offset position
+              // with the new data, ensuring no duplicates and preserving the sequence.
+              // This might require adjusting depending on your specific use case or data structure.
+              const updatedMessages = [...prevMessages];
 
-            data.forEach((newMessage, index) => {
-              const replaceIndex = offset + index;
-              if (replaceIndex < updatedMessages.length) {
-                // Replace existing message at specific index
-                updatedMessages[replaceIndex] = newMessage;
-              } else {
-                // If beyond the current list, append
-                updatedMessages.push(newMessage);
-              }
-            });
-            return updatedMessages;
+              data.forEach((newMessage, index) => {
+                const replaceIndex = offset + index;
+                if (replaceIndex < updatedMessages.length) {
+                  // Replace existing message at specific index
+                  updatedMessages[replaceIndex] = newMessage;
+                } else {
+                  // If beyond the current list, append
+                  updatedMessages.push(newMessage);
+                }
+              });
+              return updatedMessages;
+            }
+          });
+        } else {
+          const token = await firebaseAuth.currentUser?.getIdToken();
+          if (!token) {
+            navigate('/signup');
           }
-        });
+          const data = await ApiService.getConversionById({
+            conversationId: id
+          });
+
+          setMessages((prevMessages) => {
+            if (offset === 0) {
+              // When offset is 0, replace the first X messages with new data,
+              // where X is the length of the data received.
+              return [...data, ...prevMessages.slice(data.length)];
+            } else {
+              // When offset isn't 0, replace messages starting from the offset position
+              // with the new data, ensuring no duplicates and preserving the sequence.
+              // This might require adjusting depending on your specific use case or data structure.
+              const updatedMessages = [...prevMessages];
+
+              data.forEach((newMessage, index) => {
+                const replaceIndex = offset + index;
+                if (replaceIndex < updatedMessages.length) {
+                  // Replace existing message at specific index
+                  updatedMessages[replaceIndex] = newMessage;
+                } else {
+                  // If beyond the current list, append
+                  updatedMessages.push(newMessage);
+                }
+              });
+              return updatedMessages;
+            }
+          });
+        }
       } catch (error) {
         setError(error.message);
       } finally {
@@ -207,7 +252,7 @@ const useChatManager = (
 
       // socketRef.current.emit('fetch_history', { limit, offset });
     },
-    [conversationId]
+    [conversationId, apiKey, navigate, shareable]
   );
 
   // useCallback for adding custom event listeners to the socket

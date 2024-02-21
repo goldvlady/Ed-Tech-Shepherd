@@ -9,12 +9,15 @@ import ChatInfoDropdown from './_components/chat-info-dropdown';
 import { useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
+import { useSearchQuery } from '../../../../../../hooks';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
   const { user } = useUserStore();
+  const search = useSearchQuery();
+  const apiKey = search.get('apiKey');
   const studentId = user?._id;
   const query = useQueryClient();
 
@@ -52,12 +55,22 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
+    } else if (apiKey) {
+      startConversation(
+        {
+          conversationId: id
+        },
+        {
+          conversationInitializer: CONVERSATION_INITIALIZER,
+          isNewConversation: false
+        }
+      );
     }
 
     query.invalidateQueries({
       queryKey: ['chatHistory', { studentId }]
     });
-  }, [id]);
+  }, [id, apiKey]);
 
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
@@ -105,8 +118,10 @@ function ChatRoom() {
                 key={message.id}
                 message={message.log.content}
                 type={message.log.role === 'user' ? 'user' : 'bot'}
-                userImage={user.avatar}
-                userName={user.name.first + ' ' + user.name.last}
+                userImage={user ? user.avatar : null}
+                userName={
+                  user ? user.name.first + ' ' + user.name.last : 'John Doe'
+                }
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
                   messages.length >= 4
