@@ -150,11 +150,9 @@ const userLayouts = {
 const RenderLayout = () => {
   const matchedRoute = useRoutes(userRoutes.both);
 
-  const isStudentRoute = [
-    { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
-    { path: 'ace-homework', element: <HomeWorkHelp /> },
-    ...studentRoutes
-  ].some((route) => route.path === matchedRoute?.props?.match?.route?.path);
+  const isStudentRoute = [...studentRoutes].some(
+    (route) => route.path === matchedRoute?.props?.match?.route?.path
+  );
   const isTutorRoute = tutorRoutes.some(
     (route) => route.path === matchedRoute?.props?.match?.route?.path
   );
@@ -182,14 +180,7 @@ const AuthAction = (props: any) => {
 const userRoutes = {
   student: studentRoutes,
   tutor: tutorRoutes,
-  both: [
-    ...[
-      { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
-      { path: 'ace-homework', element: <HomeWorkHelp /> },
-      ...studentRoutes
-    ],
-    ...tutorRoutes
-  ]
+  both: [...[...studentRoutes], ...tutorRoutes]
 };
 
 const RequireAuth = ({
