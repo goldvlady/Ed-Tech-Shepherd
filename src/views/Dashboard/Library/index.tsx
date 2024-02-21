@@ -373,7 +373,7 @@ const Library: React.FC = () => {
                     }
                   }}
                 >
-                  <Text fontSize="20px" fontFamily="Inter">
+                  <Text fontSize="18px" fontFamily="Inter">
                     {item.label}
                   </Text>
                 </BreadcrumbLink>
