@@ -58,12 +58,14 @@ const AddToDeckModal = ({ isOpen, onClose, onSubmit }) => {
   }, [fetchFlashcards]);
 
   useEffect(() => {
-    setFlashcardOptions(
-      flashcards.map((flashcard) => ({
-        value: flashcard._id,
-        label: flashcard.deckname
-      }))
-    );
+    if (flashcards) {
+      setFlashcardOptions(
+        flashcards.map((flashcard) => ({
+          value: flashcard._id,
+          label: flashcard.deckname
+        }))
+      );
+    }
   }, [flashcards]);
 
   const handleSelectChange = (name, option) => {
