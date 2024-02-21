@@ -99,6 +99,7 @@ function ChatRoom() {
             ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
             )
+            .sort((a, b) => a.id - b.id)
             .map((message) => (
               <ChatMessage
                 key={message.id}
