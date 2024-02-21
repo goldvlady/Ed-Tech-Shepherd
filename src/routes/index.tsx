@@ -57,7 +57,7 @@ const TutorSettings = lazy(
 const NewNote = lazy(() => import('../views/Dashboard/Notes/NewNotes'));
 const FlashCard = lazy(() => import('../views/Dashboard/FlashCards'));
 
-const Notes = lazy(() => import('../views/Dashboard/Notes'));
+const Notes = lazy(() => import('../views/Dashboard/Notes/index'));
 const PinnedNotes = lazy(
   () => import('../views/Dashboard/Notes/PinnedNotes/PinnedNotes')
 );
