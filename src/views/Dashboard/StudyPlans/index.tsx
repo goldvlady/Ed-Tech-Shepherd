@@ -26,14 +26,18 @@ import resourceStore from '../../../state/resourceStore';
 import moment from 'moment';
 import Pagination from '../components/Pagination';
 import ShepherdSpinner from '../components/shepherd-spinner';
+import ApiService from '../../../services/ApiService';
+import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 
 function StudyPlans() {
-  const { fetchPlans, studyPlans, pagination, isLoading } = studyPlanStore();
+  const { fetchPlans, studyPlans, pagination, isLoading, deleteStudyPlan } =
+    studyPlanStore();
   const { courses: courseList, studyPlanCourses } = resourceStore();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [tutorGrid] = useAutoAnimate();
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const doFetchStudyPlans = useCallback(async () => {
@@ -51,7 +55,36 @@ function StudyPlans() {
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
+  const handleDeletePlan = async (id: string) => {
+    // console.log(id);
 
+    try {
+      const resp: any = await deleteStudyPlan(id);
+      // console.log(resp);
+
+      if (resp.status === 200) {
+        // setIsCompleted(true);
+        // setLoading(false);
+        toast({
+          title: 'Plan Deleted Successfully',
+          position: 'top-right',
+          status: 'success',
+          isClosable: true
+        });
+        // fetchPlans(page, limit);
+      } else {
+        // setLoading(false);
+        toast({
+          title: 'Failed to delete, try again',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+    } catch (error: any) {
+      // setLoading(false);
+    }
+  };
   const filteredPlans = studyPlans.filter((plan) =>
     plan.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -139,6 +172,7 @@ function StudyPlans() {
                 scoreColor="green"
                 date={moment(plan.createdAt).format('DD MMM, YYYY')}
                 handleClick={() => navigate(`planId=${plan._id}`)}
+                handleDelete={() => handleDeletePlan(plan._id)}
               />
             ))}
           </SimpleGrid>

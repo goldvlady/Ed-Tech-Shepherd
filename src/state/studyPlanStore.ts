@@ -15,6 +15,7 @@ type StudyPlanStore = {
   fetchPlanReport: (planId: string) => Promise<void>;
   fetchUpcomingPlanEvent: () => Promise<void>;
   createStudyPlan: (data: any) => Promise<boolean>;
+  deleteStudyPlan: (planId: string) => Promise<void>;
 };
 
 export default create<StudyPlanStore>((set) => ({
@@ -99,6 +100,31 @@ export default create<StudyPlanStore>((set) => ({
       return false;
     } catch (error) {
       return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  deleteStudyPlan: async (planId: string) => {
+    try {
+      set({ isLoading: true });
+
+      // Make the API call to delete the study plan
+      const response: any = await ApiService.deleteStudyPlan(planId);
+
+      if (response.status === 200) {
+        // If deletion is successful, update the studyPlans state by filtering out the deleted plan
+        set((state) => ({
+          studyPlans: state.studyPlans.filter((plan) => plan._id !== planId)
+        }));
+
+        return response;
+      } else {
+        // Handle other response statuses if needed
+        return response;
+      }
+    } catch (error) {
+      // Handle errors
+      return error;
     } finally {
       set({ isLoading: false });
     }
