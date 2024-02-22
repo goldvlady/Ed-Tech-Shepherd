@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
+import PlansModal from '../../../../../../components/PlansModal';
 
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
@@ -20,6 +21,8 @@ function ChatRoom() {
   const apiKey = search.get('apiKey');
   const studentId = user?._id;
   const query = useQueryClient();
+
+  const [openPricingModel, setOpenPricingModel] = useState(false); // It will open when user is signed out and try to chat
 
   const {
     startConversation,
@@ -143,14 +146,24 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PromptInput
-            disabled={apiKey ? true : false}
-            onSubmit={(message: string) => {
-              sendMessage(message);
-              handleAutoScroll();
-            }}
-            conversationId={id}
+          <PlansModal
+            togglePlansModal={openPricingModel}
+            setTogglePlansModal={() => null}
           />
+          <div
+            onClick={() => {
+              if (apiKey) setOpenPricingModel(true);
+            }}
+          >
+            <PromptInput
+              disabled={apiKey ? true : false}
+              onSubmit={(message: string) => {
+                sendMessage(message);
+                handleAutoScroll();
+              }}
+              conversationId={id}
+            />
+          </div>
         </footer>
       </div>
     </div>
