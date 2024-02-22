@@ -56,6 +56,7 @@ const useChatManager = (
   const [isLoading, setLoading] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
   const [error, setError] = useState(null);
+  const [title, setTitle] = useState(null);
   const CHAT_WINDOW_CONFIG_PARAMS_LOCAL_STORAGE_KEY =
     `CHAT_WINDOW_CONFIG_PARAMS_FOR_${namespace}`.toUpperCase();
   const query = useQueryClient();
@@ -306,6 +307,14 @@ const useChatManager = (
         debugLog('CHAT RESPONSE START', token);
       });
 
+      socketRef.current.on('new_title', (title: string) => {
+        console.log('New Title', title);
+        setTitle(title);
+        query.invalidateQueries({
+          queryKey: ['chatHistory', { studentId }]
+        });
+      });
+
       socketRef.current.on('chat response end', (newMessage: string) => {
         setMessages((prevMessages) => [
           ...prevMessages,
@@ -425,6 +434,7 @@ const useChatManager = (
     getChatWindowParams,
     setChatWindowToStale,
     isLoading,
+    title,
     error,
     currentSocket: socketRef?.current,
     limitReached,
