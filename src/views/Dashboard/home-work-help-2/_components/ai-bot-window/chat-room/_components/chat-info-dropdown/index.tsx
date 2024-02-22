@@ -15,7 +15,7 @@ import { useCustomToast } from '../../../../../../../../components/CustomCompone
 import { cn } from '../../../../../../../../library/utils';
 import { useNavigate } from 'react-router';
 
-function ChatInfoDropdown({ id }: { id: string }) {
+function ChatInfoDropdown({ id, disabled }: { id: string; disabled: boolean }) {
   const toast = useCustomToast();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -79,53 +79,61 @@ function ChatInfoDropdown({ id }: { id: string }) {
   };
 
   return (
-    <DropdownMenu>
-      {renameMode.enabled ? (
-        <input
-          ref={inputRef}
-          onBlur={handleRenameOnBlur}
-          defaultValue={renameMode.title}
-          className="px-2 py-1 rounded-md text-black text-sm font-medium focus-visible:ring-0 max-w-[60%] w-[30ch] mt-[2px] mb-[2px] border-none"
-        />
-      ) : (
-        <DropdownMenuTrigger asChild disabled={renaming || deleting}>
-          <div
-            className={cn('w-full flex justify-center', {
-              'opacity-50': renaming || deleting,
-              'cursor-not-allowed': renaming && deleting
-            })}
-          >
-            <ConversationTitle title={renameMode.title} />
-          </div>
-        </DropdownMenuTrigger>
-      )}
+    <div
+      className={cn({
+        'pointer-events-none': disabled,
+        grayscale: disabled,
+        'cursor-not-allowed': renaming || deleting || disabled
+      })}
+    >
+      <DropdownMenu>
+        {renameMode.enabled ? (
+          <input
+            ref={inputRef}
+            onBlur={handleRenameOnBlur}
+            defaultValue={renameMode.title}
+            className="px-2 py-1 rounded-md text-black text-sm font-medium focus-visible:ring-0 max-w-[60%] w-[30ch] mt-[2px] mb-[2px] border-none"
+          />
+        ) : (
+          <DropdownMenuTrigger asChild disabled={renaming || deleting}>
+            <div
+              className={cn('w-full flex justify-center', {
+                'opacity-50': renaming || deleting,
+                'cursor-not-allowed': renaming && deleting
+              })}
+            >
+              <ConversationTitle title={renameMode.title} />
+            </div>
+          </DropdownMenuTrigger>
+        )}
 
-      <DropdownMenuContent className="w-[180px] bg-white rounded-md shadow-md">
-        <DropdownMenuGroup className="p-2">
-          <DropdownMenuItem
-            className="
+        <DropdownMenuContent className="w-[180px] bg-white rounded-md shadow-md">
+          <DropdownMenuGroup className="p-2">
+            <DropdownMenuItem
+              className="
             flex items-center
             text-sm
             text-[#212224]
             rounded-md
             hover:bg-[#F2F4F7]
           "
-            onClick={handleRename}
-          >
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="flex items-center
+              onClick={handleRename}
+            >
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center
             text-sm
             rounded-md
             hover:bg-[#F2F4F7] text-[#DB0B0B]"
-            onClick={() => handleDelete(id)}
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+              onClick={() => handleDelete(id)}
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
