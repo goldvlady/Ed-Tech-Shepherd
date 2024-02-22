@@ -150,7 +150,6 @@ function ChatRoom() {
             togglePlansModal={openPricingModel}
             setTogglePlansModal={() => setOpenPricingModel(false)}
           />
-
           <PromptInput
             disabled={apiKey ? true : false}
             onSubmit={(message: string) => {
