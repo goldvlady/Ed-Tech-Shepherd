@@ -5,10 +5,12 @@ import useDynamicTextareaSize from './hook/useDynamicTextArea';
 
 const PromptInput = ({
   onSubmit,
-  conversationId
+  conversationId,
+  disabled
 }: {
   onSubmit: (message) => void;
   conversationId: string;
+  disabled?: boolean;
 }) => {
   const inputRef = useRef();
   const [message, setMessage] = useState('');
@@ -29,7 +31,7 @@ const PromptInput = ({
   return (
     <div className="w-full h-full flex gap-5 flex-col items-center justify-center max-w-[600px] z-10">
       <div className="find-tutor-button flex justify-end w-full">
-        <FindATutorButton conversationId={conversationId} />
+        <FindATutorButton conversationId={conversationId} disabled={disabled} />
       </div>
       <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5">
         <div className="input-element w-full flex-1 flex">
@@ -42,12 +44,14 @@ const PromptInput = ({
             style={{ whiteSpace: 'pre-line' }}
             onKeyDown={handleKeyDown}
             rows={1}
+            disabled={disabled}
           />
         </div>
         <div className="submit-button">
           <button
             className="w-[28px] h-[28px] rounded-full bg-[#207DF7] flex items-center justify-center"
             onClick={handleSendMessage}
+            disabled={disabled}
           >
             <RightArrowIcon />
           </button>

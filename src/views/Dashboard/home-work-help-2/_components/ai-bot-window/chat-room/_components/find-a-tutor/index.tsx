@@ -9,14 +9,26 @@ import {
 } from '@radix-ui/react-dialog';
 import BountyForm from './form';
 import { memo, useState } from 'react';
+import { cn } from '../../../../../../../../library/utils';
 
-function FindATutorButton({ conversationId }: { conversationId: string }) {
+function FindATutorButton({
+  conversationId,
+  disabled
+}: {
+  conversationId: string;
+  disabled: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
   return (
-    <div>
+    <div
+      className={cn({
+        'pointer-events-none': disabled,
+        'grayscale': disabled
+      })}
+    >
       <Root open={open} onOpenChange={setOpen}>
-        <Trigger asChild>
+        <Trigger asChild disabled={disabled}>
           <Button
             variant="outline"
             borderRadius="full"
@@ -31,6 +43,7 @@ function FindATutorButton({ conversationId }: { conversationId: string }) {
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)'
             }}
+            disabled={disabled}
           >
             Find a Shepherd
           </Button>

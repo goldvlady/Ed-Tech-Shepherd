@@ -102,7 +102,7 @@ function ChatRoom() {
           }}
         ></div>
         <header className="flex justify-center absolute top-[4%] items-center w-full z-10">
-          <ChatInfoDropdown id={id} />
+          <ChatInfoDropdown id={id} disabled={apiKey ? true : false} />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
@@ -143,6 +143,7 @@ function ChatRoom() {
             }}
           ></div>
           <PromptInput
+            disabled={apiKey ? true : false}
             onSubmit={(message: string) => {
               sendMessage(message);
               handleAutoScroll();
