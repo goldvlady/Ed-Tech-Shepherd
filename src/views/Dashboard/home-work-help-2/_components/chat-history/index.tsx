@@ -11,15 +11,11 @@ import { useSearchQuery } from '../../../../../hooks';
 
 // TODO: This component is rerendering on url id change, To fix it first we need to work in routes and then memoize this component
 function ChatHistoryContent() {
-  const search = useSearchQuery();
-  const apiKey = search.get('apiKey');
   const user = useUserStore((state) => state.user);
   const userId = user?._id;
   const { data: conversations, isLoading } = useStudentConversations({
     studentId: userId
   });
-
-  if (Boolean(apiKey)) return null;
 
   return (
     <div className="h-full p-4 no-scrollbar flex flex-col w-[348px]">
@@ -46,6 +42,8 @@ const ChatHistory = () => {
   const [sidebarClosed, setSidebarClosed] = useState(
     () => window.screen.width < 1175
   );
+  const search = useSearchQuery();
+  const apiKey = search.get('apiKey');
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -65,6 +63,8 @@ const ChatHistory = () => {
       window.removeEventListener('resize', resizeListener);
     };
   }, []);
+
+  if (Boolean(apiKey)) return null;
 
   return (
     <div

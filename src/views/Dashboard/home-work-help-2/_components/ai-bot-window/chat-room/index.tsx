@@ -143,14 +143,16 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PromptInput
-            disabled={apiKey ? true : false}
-            onSubmit={(message: string) => {
-              sendMessage(message);
-              handleAutoScroll();
-            }}
-            conversationId={id}
-          />
+          {apiKey ? null : (
+            <PromptInput
+              disabled={apiKey ? true : false}
+              onSubmit={(message: string) => {
+                sendMessage(message);
+                handleAutoScroll();
+              }}
+              conversationId={id}
+            />
+          )}
         </footer>
       </div>
     </div>
