@@ -689,11 +689,14 @@ const StudyBox = () => {
       const curr = prev[currentStudyIndex];
       curr.currentStep = curr.currentStep + 1;
       prev[currentStudyIndex] = curr;
-      setSavedScore((prev) => ({
-        ...prev,
-        score: (prev.score || 0) + 1,
-        passed: (prev.passed || 0) + 1
-      }));
+      setSavedScore((prevScore) => {
+        console.log(prevScore, 'prevScore');
+        return {
+          ...prevScore,
+          score: (prevScore.score || 0) + 1,
+          passed: (prevScore.passed || 0) + 1
+        };
+      });
       setCorrectAnswerCount((prev) => prev + 1);
       return [...prev];
     });

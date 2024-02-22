@@ -1,3 +1,4 @@
+import React from 'react';
 import { saveMarkdownAsPDF } from '../../library/fs';
 import ApiService from '../../services/ApiService';
 import FlashModal from '../../views/Dashboard/FlashCards/components/FlashModal';

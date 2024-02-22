@@ -394,11 +394,25 @@ const ProfileSwitchModal = ({
                             <Button
                               onClick={async () => {
                                 await disconnectAndReset();
-                                navigate(
-                                  selectedProfile === 'student'
-                                    ? '/dashboard'
-                                    : '/dashboard/tutordashboard'
+                                const resp = await ApiService.toggleUserRole(
+                                  user._id,
+                                  selectedProfile
                                 );
+                                const data = await resp.json();
+                                if (
+                                  data.message ===
+                                  'User role updated successfully'
+                                ) {
+                                  console.log('RESP', data);
+                                  if (data.data.userRole === 'tutor') {
+                                    // navigate('/dashboard/tutordashboard', {});
+                                    window.location.href =
+                                      '/dashboard/tutordashboard';
+                                  } else if (data.data.userRole === 'student') {
+                                    // navigate('/dashboard');
+                                    window.location.href = '/dashboard';
+                                  }
+                                }
                               }}
                               isDisabled={
                                 selectedProfile === '' ||

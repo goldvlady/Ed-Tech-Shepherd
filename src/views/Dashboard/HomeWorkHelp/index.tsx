@@ -68,7 +68,9 @@ import { firebaseAuth } from '../../../firebase';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
+  // Prompt value
   const [inputValue, setInputValue] = useState('');
+  // Prompt value
   const toast = useCustomToast();
   const search = useSearchQuery();
   const shareable = search.get('shareable');
@@ -177,6 +179,7 @@ const HomeWorkHelp = () => {
       setIsSubmitted(true);
     }
   }, [planSubject, planTopic]);
+
   useEffect(() => {
     if (certainConversationId || conversationId) {
       const authSocket = socketWithAuth({
@@ -196,6 +199,7 @@ const HomeWorkHelp = () => {
     }
   }, [certainConversationId, freshConversationId, conversationId]);
 
+  // 1st Step to initiate the chat - after selecting the subject and topic
   useEffect(() => {
     if (isSubmitted) {
       const authSocket = socketWithAuth({
@@ -214,6 +218,7 @@ const HomeWorkHelp = () => {
     return () => setIsSubmitted(false);
   }, [isSubmitted]);
 
+  // 2nd Step to initiate the chat - after selecting the subject and topic
   useEffect(() => {
     if (socket && !messages.length) {
       socket.on('ready', (ready) => {
@@ -250,6 +255,7 @@ const HomeWorkHelp = () => {
       setAceHomeWork(true);
     }
   }, [newQ]);
+
   useEffect(() => {
     if (socket) {
       socket.on('chat response start', async (token: string) => {

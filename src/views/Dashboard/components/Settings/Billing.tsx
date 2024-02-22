@@ -493,7 +493,7 @@ function Billing(props) {
 
           <Divider />
           <Flex gap={4} direction="column" py={2}>
-            <Flex width={'100%'} alignItems="center">
+            {/* <Flex width={'100%'} alignItems="center">
               <Stack spacing={'2px'}>
                 <Text
                   fontSize="14px"
@@ -512,7 +512,7 @@ function Billing(props) {
                 </Text>
               </Stack>
               <Spacer /> <RiArrowRightSLine size="24px" color="#969CA6" />
-            </Flex>
+            </Flex> */}
             <Flex width={'100%'} alignItems="center">
               <Stack spacing={'2px'}>
                 <Text
