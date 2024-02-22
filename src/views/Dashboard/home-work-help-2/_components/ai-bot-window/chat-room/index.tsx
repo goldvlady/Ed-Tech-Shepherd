@@ -148,22 +148,20 @@ function ChatRoom() {
           ></div>
           <PlansModal
             togglePlansModal={openPricingModel}
-            setTogglePlansModal={() => null}
+            setTogglePlansModal={() => setOpenPricingModel(false)}
           />
-          <div
+
+          <PromptInput
+            disabled={apiKey ? true : false}
+            onSubmit={(message: string) => {
+              sendMessage(message);
+              handleAutoScroll();
+            }}
+            conversationId={id}
             onClick={() => {
               if (apiKey) setOpenPricingModel(true);
             }}
-          >
-            <PromptInput
-              disabled={apiKey ? true : false}
-              onSubmit={(message: string) => {
-                sendMessage(message);
-                handleAutoScroll();
-              }}
-              conversationId={id}
-            />
-          </div>
+          />
         </footer>
       </div>
     </div>

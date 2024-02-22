@@ -2,15 +2,18 @@ import { RightArrowIcon } from '../../../../../../../../components/icons';
 import FindATutorButton from '../find-a-tutor';
 import { useRef, useState } from 'react';
 import useDynamicTextareaSize from './hook/useDynamicTextArea';
+import { cn } from '../../../../../../../../library/utils';
 
 const PromptInput = ({
   onSubmit,
   conversationId,
-  disabled
+  disabled,
+  onClick
 }: {
   onSubmit: (message) => void;
   conversationId: string;
   disabled?: boolean;
+  onClick?: () => void;
 }) => {
   const inputRef = useRef();
   const [message, setMessage] = useState('');
@@ -33,11 +36,21 @@ const PromptInput = ({
       <div className="find-tutor-button flex justify-end w-full">
         <FindATutorButton conversationId={conversationId} disabled={disabled} />
       </div>
-      <div className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5">
+      <div
+        className="input-box flex gap-2 flex-row items-center bg-white rounded-md shadow-element w-full px-4 py-2.5"
+        onClick={() => {
+          if (onClick) onClick();
+        }}
+      >
         <div className="input-element w-full flex-1 flex">
           <textarea
             ref={inputRef}
-            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
+            className={cn(
+              'w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none',
+              {
+                'pointer-events-none': disabled
+              }
+            )}
             placeholder="Ask a question?"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
