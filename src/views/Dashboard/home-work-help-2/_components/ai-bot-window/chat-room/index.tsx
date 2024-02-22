@@ -159,8 +159,7 @@ function ChatRoom() {
             }}
             conversationId={id}
             onClick={() => {
-              alert(studentId);
-              if (apiKey) setOpenPricingModel(true);
+              if (apiKey && !studentId) setOpenPricingModel(true);
             }}
           />
         </footer>
