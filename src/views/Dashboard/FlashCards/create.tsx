@@ -341,6 +341,7 @@ const CreateFlashPage = () => {
           onConfirm={() => onSubmitFlashcard()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
+          isCompleted={isCompleted}
         ></QuestionsPreview>
       );
     }
