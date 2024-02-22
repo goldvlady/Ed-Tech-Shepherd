@@ -23,8 +23,7 @@ function FindATutorButton({
   return (
     <div
       className={cn({
-        'pointer-events-none': disabled,
-        'grayscale': disabled
+        'pointer-events-none': disabled
       })}
     >
       <Root open={open} onOpenChange={setOpen}>
