@@ -1,5 +1,6 @@
 import { Avatar } from '@chakra-ui/avatar';
 import CustomMarkdownView from '../../../../../../../../components/CustomComponents/CustomMarkdownView';
+import { cn } from '../../../../../../../../library/utils';
 
 const ChatMessage = ({
   suggestionPromptsVisible, // When it is true, it shows the suggestion prompts i.e 'I don't understand' and 'Teach me more!'
@@ -34,9 +35,14 @@ const ChatMessage = ({
         shadow={'md'}
       />
       <div
-        className={`message shadow-element rounded-md flex justify-center items-center relative ${
-          type === 'user' ? '' : 'bg-white'
-        }`}
+        className={cn(
+          'message shadow-element rounded-md flex justify-center items-center relative',
+          {
+            'bg-[#F9FBFF]': type === 'user',
+            'bg-[#ffffff]': type === 'bot',
+            'text-[#072D5F]': type === 'user'
+          }
+        )}
       >
         <CustomMarkdownView
           source={message}

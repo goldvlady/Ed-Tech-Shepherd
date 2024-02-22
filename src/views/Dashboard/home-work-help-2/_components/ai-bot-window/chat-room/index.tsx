@@ -124,7 +124,8 @@ function ChatRoom() {
                 }
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
-                  messages.length >= 4
+                  messages.length >= 4 &&
+                  (apiKey ? false : true)
                 }
                 sendSuggestedPrompt={(message: string) => {
                   sendMessage(message);
