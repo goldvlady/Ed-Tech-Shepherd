@@ -22,7 +22,7 @@ function ChatRoom() {
   const studentId = user?._id;
   const query = useQueryClient();
 
-  const [openPricingModel, setOpenPricingModel] = useState(false); // It will open when user is signed out and try to chat
+  const [openPricingModel, setOpenPricingModel] = useState(false); // It will open when conversation is in share mode and user try to chat
 
   const {
     startConversation,
@@ -159,6 +159,7 @@ function ChatRoom() {
             }}
             conversationId={id}
             onClick={() => {
+              alert(studentId);
               if (apiKey) setOpenPricingModel(true);
             }}
           />
