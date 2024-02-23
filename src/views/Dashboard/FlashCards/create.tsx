@@ -40,6 +40,7 @@ import {
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import ImageOcclusion from './forms/flashcard_setup/manual-occlusion-2';
 
 const Wrapper = styled(Box)`
   select {
@@ -249,7 +250,7 @@ const CreateFlashPage = () => {
   ]);
 
   useEffect(() => {
-    if (flashcardData.hasSubmitted) {
+    if (flashcardData?.hasSubmitted) {
       if (settings.type !== TypeEnum.FLASHCARD) {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }
@@ -261,7 +262,7 @@ const CreateFlashPage = () => {
       //   setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
       // }
     }
-  }, [flashcardData.hasSubmitted, settings.type, settings.source]);
+  }, [flashcardData?.hasSubmitted, settings.type, settings.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     if (
@@ -325,7 +326,7 @@ const CreateFlashPage = () => {
       return <AnkiType />;
     }
     if (settings.source === SourceEnum.IMAGE_OCCLUSION) {
-      return <h1>Image Occlusion</h1>;
+      return <ImageOcclusion />;
     }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
@@ -592,18 +593,20 @@ const CreateFlashPage = () => {
             )}
           </VStack>
           {/* Render the right item here */}
-          <VStack
-            borderLeft="1px solid #E7E8E9"
-            top="60px"
-            width={`${boxWidth / 2}px`}
-            maxWidth={`${boxWidth / 2}px`}
-            right="0"
-            bottom={'0'}
-            position={'fixed'}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            {renderPreview()}
-          </VStack>
+          {false && (
+            <VStack
+              borderLeft="1px solid #E7E8E9"
+              top="60px"
+              width={`${boxWidth / 2}px`}
+              maxWidth={`${boxWidth / 2}px`}
+              right="0"
+              bottom={'0'}
+              position={'fixed'}
+              display={{ base: 'none', md: 'flex' }}
+            >
+              {renderPreview()}
+            </VStack>
+          )}
         </HStack>
       </Wrapper>
     </Box>
