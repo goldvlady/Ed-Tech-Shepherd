@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React from 'react';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PlansModal from '../../../components/PlansModal';
 import { FlashCardModal } from '../../../components/flashcardDecks';
@@ -86,7 +87,8 @@ export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
   MANUAL = 'manual',
-  ANKI = 'anki'
+  ANKI = 'anki',
+  IMAGE_OCCLUSION = 'image_occlusion'
 }
 
 type SettingsType = {
@@ -322,6 +324,9 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.ANKI) {
       return <AnkiType />;
     }
+    if (settings.source === SourceEnum.IMAGE_OCCLUSION) {
+      return <h1>Image Occlusion</h1>;
+    }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
@@ -500,6 +505,12 @@ const CreateFlashPage = () => {
                       user.subscription.tier === 'Premium' && (
                         <Radio value={SourceEnum.ANKI}>
                           <Text color="#585F68">Anki</Text>
+                        </Radio>
+                      )}
+                    {user.subscription &&
+                      user.subscription.tier === 'Premium' && (
+                        <Radio value={SourceEnum.IMAGE_OCCLUSION}>
+                          <Text color="#585F68">Image Occlusion</Text>
                         </Radio>
                       )}
                   </HStack>

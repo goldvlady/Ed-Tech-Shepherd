@@ -26,7 +26,8 @@ export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
   MANUAL = 'manual',
-  ANKI = 'anki'
+  ANKI = 'anki',
+  IMAGE_OCCLUSION = 'image_occlusion'
 }
 export enum QuestionGenerationStatusEnum {
   INIT = 'INIT',
