@@ -282,6 +282,13 @@ class ApiService {
     }
   };
 
+  static createOcclusionCard = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getSingleFlashcard = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
   };

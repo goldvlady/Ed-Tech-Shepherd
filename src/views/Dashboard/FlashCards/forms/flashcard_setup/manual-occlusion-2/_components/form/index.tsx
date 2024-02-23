@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Input } from '../../../../../../../../components/ui/input';
 import ImageUploader from './_components/image-uploader';
 import Occlusion from './_components/occlusion';
+import ApiService from '../../../../../../../../services/ApiService';
 
 const INITIAL_STATE = {
   title: '',
@@ -31,13 +32,16 @@ function Form() {
     setFormState(INITIAL_STATE);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const payload = {
       imageUrl: formState.imageURL,
       labels: formState.occlusion.elements,
       title: formState.title
     };
-    console.log(payload);
+    // console.log(payload);
+    await ApiService.createOcclusionCard(payload)
+      .then((res) => res.json())
+      .then((data) => console.log(data));
     resetForm();
   };
 
