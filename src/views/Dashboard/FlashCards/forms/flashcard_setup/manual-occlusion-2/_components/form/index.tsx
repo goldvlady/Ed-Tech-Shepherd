@@ -3,18 +3,21 @@ import { Input } from '../../../../../../../../components/ui/input';
 import ImageUploader from './_components/image-uploader';
 import Occlusion from './_components/occlusion';
 
+const INITIAL_STATE = {
+  title: '',
+  imageURL: '',
+  imageUploader: {
+    open: false
+  },
+  occlusion: {
+    open: false,
+    elements: []
+  }
+};
+
 function Form() {
-  const [formState, setFormState] = useState({
-    title: '',
-    imageURL: '',
-    imageUploader: {
-      open: false
-    },
-    occlusion: {
-      open: false,
-      elements: []
-    }
-  });
+  const [formState, setFormState] = useState(INITIAL_STATE);
+
   useEffect(() => {
     if (formState.imageURL) {
       setFormState((prevState) => ({
@@ -23,6 +26,21 @@ function Form() {
       }));
     }
   }, [formState.imageURL]);
+
+  const resetForm = () => {
+    setFormState(INITIAL_STATE);
+  };
+
+  const handleSubmit = () => {
+    const payload = {
+      imageUrl: formState.imageURL,
+      labels: formState.occlusion.elements,
+      title: formState.title
+    };
+    console.log(payload);
+    resetForm();
+  };
+
   return (
     <div>
       <Input
@@ -38,6 +56,14 @@ function Form() {
         }}
       />
       <Occlusion
+        // Set occulsion elements in top level state
+        setElements={(elements) => {
+          setFormState((prevState) => ({
+            ...prevState,
+            occlusion: { ...prevState.occlusion, elements }
+          }));
+        }}
+        // Open and close occlusion occulsion. It usually opens when an image URI is available
         open={formState.occlusion.open}
         close={() => {
           setFormState((prevState) => ({
@@ -46,7 +72,11 @@ function Form() {
             imageURL: ''
           }));
         }}
+        // Selected Image URI
         imageURI={formState.imageURL}
+        // Occlusion elements
+        elements={formState.occlusion.elements}
+        handleSubmit={handleSubmit}
       />
     </div>
   );

@@ -9,11 +9,17 @@ import InteractionWindow from './_components/interaction-window';
 function Occlusion({
   open,
   close,
-  imageURI
+  imageURI,
+  elements,
+  setElements,
+  handleSubmit
 }: {
   open: boolean;
   close: () => void;
   imageURI: string;
+  elements: any[];
+  setElements: (elements: any[]) => void;
+  handleSubmit: () => void;
 }) {
   return (
     <Dialog
@@ -31,11 +37,17 @@ function Occlusion({
           <button onClick={close}>Close</button>
         </header>
 
-        <InteractionWindow imageURI={imageURI} />
+        <InteractionWindow
+          imageURI={imageURI}
+          elements={elements}
+          setElements={setElements}
+        />
 
         <footer className="flex justify-between w-full p-2">
-          <div>Resize</div>
-          <Button className="bg-blue-600 text-white">Save</Button>
+          {/* <div>Resize</div> */}
+          <Button className="bg-blue-600 text-white" onClick={handleSubmit}>
+            Save
+          </Button>
         </footer>
       </DialogContent>
     </Dialog>

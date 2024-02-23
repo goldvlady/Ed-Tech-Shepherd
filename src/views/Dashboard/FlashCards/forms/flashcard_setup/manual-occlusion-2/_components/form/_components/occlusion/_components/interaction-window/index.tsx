@@ -2,15 +2,22 @@ import { useState } from 'react';
 import Sidebar from '../sidebar';
 import OcclusionWorkSpace from '../occlusion-workspace';
 
-function InteractionWindow({ imageURI }: { imageURI: string }) {
+function InteractionWindow({
+  imageURI,
+  elements,
+  setElements
+}: {
+  imageURI: string;
+  elements: any[];
+  setElements: (elements: any[]) => void;
+}) {
   const [mode, setMode] = useState<'draggable' | 'resizable'>('draggable');
-  const [items, setItems] = useState([]);
 
   const addItem = () => {
-    setItems([
-      ...items,
+    setElements([
+      ...elements,
       {
-        order: items.length,
+        order: elements.length,
         label: '',
         isRevealed: false,
         position: { x: 0, y: 42, width: 40, height: 40 }
@@ -25,9 +32,9 @@ function InteractionWindow({ imageURI }: { imageURI: string }) {
       </div>
       <OcclusionWorkSpace
         imageURI={imageURI}
-        items={items}
+        items={elements}
         mode={mode}
-        setItems={setItems}
+        setItems={setElements}
       />
     </div>
   );
