@@ -351,6 +351,11 @@ export interface LibraryCardData {
   explainer?: string;
 }
 
+export interface LibraryProviderData {
+  name: string;
+  _id: string;
+}
+
 export interface LibrarySubjectData {
   name: string;
   _id: string;
