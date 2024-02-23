@@ -970,6 +970,7 @@ const NewNote = () => {
         // save new draft note details for update
         if (saveDetails?.data) {
           setNoteId(saveDetails.data['_id']);
+          setNoteParamId(saveDetails.data['_id']);
           saveCallback(draftNoteIdToUse, noteJSON);
           setCurrentTime(formatDate(saveDetails.data.updatedAt));
           setIsSavingNote(false);
@@ -1010,6 +1011,7 @@ const NewNote = () => {
 
   useEffect(() => {
     if (!isEmpty(params?.id)) {
+      console.log('setNoteParamId', params.id);
       setNoteParamId(params?.id as string);
     } else {
       clearEditor();
@@ -1371,7 +1373,7 @@ const NewNote = () => {
     >
       <StyledNoteContainer
         className={clsx('_note-container', {
-          'absolute inset-0 top-[80px] bg-white z-10 transition-all max-h-[calc(100dvh-80px)] overflow-y-hidden':
+          'absolute inset-0 top-[13rem] bg-white z-10 transition-all max-h-[calc(100dvh-13rem)] overflow-y-hidden':
             isFullScreen
         })}
       >
@@ -1418,7 +1420,7 @@ const NewNote = () => {
                 />
               ) : (
                 <div
-                  className={clsx('custom-scroll', {
+                  className={clsx('custom-scroll', 'w-full', {
                     'note-editor-test': false,
                     'opacity-40 pointer-events-none': !isEditorLoaded
                   })}
