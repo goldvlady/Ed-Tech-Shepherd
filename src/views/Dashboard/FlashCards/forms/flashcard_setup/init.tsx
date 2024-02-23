@@ -81,7 +81,7 @@ const FlashCardSetupInit = ({
   }, []);
 
   useEffect(() => {
-    if (flashcardData.documentId) {
+    if (flashcardData?.documentId) {
       setLocalData((prevState) => ({
         ...prevState,
 
@@ -90,7 +90,7 @@ const FlashCardSetupInit = ({
       }));
     }
     // eslint-disable-next-line
-  }, [flashcardData.documentId]);
+  }, [flashcardData?.documentId]);
 
   useEffect(() => {
     if (flashcardData.deckname) {

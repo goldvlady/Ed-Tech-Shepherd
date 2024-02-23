@@ -593,7 +593,7 @@ const CreateFlashPage = () => {
             )}
           </VStack>
           {/* Render the right item here */}
-          {false && (
+          {true && (
             <VStack
               borderLeft="1px solid #E7E8E9"
               top="60px"

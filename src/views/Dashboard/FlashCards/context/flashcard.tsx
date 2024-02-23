@@ -288,9 +288,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       const responseData = {
         title: reqData.topic as string,
         student: user?._id as string,
-        documentUrl: reqData.documentId as string
+        documentUrl: reqData?.documentId as string
       };
-      let documentId = reqData.ingestId || reqData.documentId;
+      let documentId = reqData.ingestId || reqData?.documentId;
       if (ingestDoc && !reqData.ingestId) {
         const fileInfo = new FileProcessingService(responseData);
         // const {
@@ -502,13 +502,13 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           firebaseId: user?.firebaseId,
           ...(reqData.level && { difficulty: reqData.level }),
           ...(reqData.noteDoc && { note: reqData.noteDoc }),
-          ...(reqData.documentId &&
+          ...(reqData?.documentId &&
             reqData.startPage && { start_page: reqData.startPage }),
-          ...(reqData.documentId &&
+          ...(reqData?.documentId &&
             reqData.endPage && { end_page: reqData.startPage })
         };
         let response;
-        if (reqData.documentId) {
+        if (reqData?.documentId) {
           response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
           const requestFunc = !reqData.noteDoc
@@ -528,7 +528,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         handleError(onDone);
       } finally {
-        if (!reqData.documentId) {
+        if (!reqData?.documentId) {
           setIsLoading(false);
         }
       }
