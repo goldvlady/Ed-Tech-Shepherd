@@ -24,6 +24,7 @@ function ImageUploader({ setImage }: { setImage: (image: string) => void }) {
   };
 
   const handleUpload = () => {
+    if (!imageURI) return;
     setOpen(false);
     setImage(imageURI);
     setImageURI('');

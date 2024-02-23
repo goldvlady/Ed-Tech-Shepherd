@@ -1,27 +1,46 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Input } from '../../../../../../../../components/ui/input';
 import ImageUploader from './_components/image-uploader';
+import Occlusion from './_components/occlusion';
 
 function Form() {
   const [formState, setFormState] = useState({
     title: '',
     imageURL: '',
-    elements: [],
     imageUploader: {
       open: false
     },
     occlusion: {
-      open: false
+      open: false,
+      elements: []
     }
   });
+  useEffect(() => {
+    if (formState.imageURL) {
+      setFormState((prevState) => ({
+        ...prevState,
+        occlusion: { ...prevState.occlusion, open: true }
+      }));
+    }
+  }, [formState.imageURL]);
   return (
     <div>
       <Input placeholder="e.g Heart Diagram" />
-      <img src={formState.imageURL} alt="image" />
       <ImageUploader
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
         }}
+      />
+      <Occlusion
+        open={formState.occlusion.open}
+        close={() => {
+          setFormState((prevState) => ({
+            ...prevState,
+            occlusion: { ...prevState.occlusion, open: false },
+            imageURL: ''
+          }));
+        }}
+        imageURI={formState.imageURL}
       />
     </div>
   );
