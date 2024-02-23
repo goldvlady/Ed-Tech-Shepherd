@@ -366,6 +366,7 @@ const EditFlashCard = () => {
           onConfirm={() => onOpen()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
+          isCompleted={isCompleted}
         ></QuestionsPreview>
       );
     }
@@ -501,13 +502,13 @@ const EditFlashCard = () => {
                   value={settings.source}
                 >
                   <HStack align="start" spacing={7}>
-                    <Radio value={SourceEnum.DOCUMENT}>
+                    <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
                       <Text color="#585F68">Document</Text>
                     </Radio>
-                    <Radio value={SourceEnum.SUBJECT}>
+                    <Radio value={SourceEnum.SUBJECT} isDisabled={isCompleted}>
                       <Text color="#585F68">Auto</Text>
                     </Radio>
-                    <Radio value={SourceEnum.MANUAL}>
+                    <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
                       <Text color="#585F68">Manual</Text>
                     </Radio>
                   </HStack>

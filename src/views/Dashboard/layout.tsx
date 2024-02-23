@@ -1,3 +1,5 @@
+// Student layout
+
 import BarnImg from '../../assets/Barn.svg';
 import AskIcon from '../../assets/avatar-male.svg';
 import BellDot from '../../assets/belldot.svg';
@@ -320,6 +322,9 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         position="fixed"
         top="0"
         {...rest}
+        style={{
+          zIndex: 30
+        }}
       >
         <Box display={{ base: 'none', md: 'flex' }} gap={2}>
           <Flex
@@ -650,12 +655,12 @@ const SidebarContent = ({
 
   return (
     <Box
+      className="overflow-hidden"
       transition="3s ease"
       bg={useColorModeValue('white', 'gray.900')}
-      borderRight="1px"
       borderRightColor={useColorModeValue('gray.200', 'gray.700')}
       w={{ base: 'full', md: 60 }}
-      pos="fixed"
+      // pos="fixed"
       h="full"
       {...rest}
     >
@@ -1038,9 +1043,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         setToggleOnboardModal={setToggleOnboardModal}
       />
       <FlashCardEventNotifier />
-      <Flex direction="column" bg="white">
-        <Grid templateColumns={{ base: '1fr', md: '250px 1fr' }}>
-          <Box w="full" flexShrink={0} overflowY="auto">
+      <div className="flex flex-col w-full h-full relative bg-white">
+        <div className="h-full flex w-full">
+          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
             <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
@@ -1085,19 +1090,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 />
               </DrawerContent>
             </Drawer>
-          </Box>
-
-          <Box flex="1" overflowY="auto">
-            <Box width={'100%'} zIndex="2">
+          </div>
+          <div className="flex-1 overflow-y-hidden h-full">
+            <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />
-            </Box>
-            <Box pt={20}>
+            </div>
+            <div className="box pt-20 relative h-full overflow-y-scroll">
               <Outlet />
               {children}
-            </Box>
-          </Box>
-        </Grid>
-      </Flex>
+            </div>
+          </div>
+        </div>
+      </div>
       {togglePlansModal && (
         <PlansModal
           togglePlansModal={togglePlansModal}

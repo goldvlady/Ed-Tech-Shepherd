@@ -8,6 +8,10 @@ type SearchAction = (query: string) => void;
 export const useTitle = (title: string) =>
   (document.title = title ? `${title} - Shepherd Tutors` : 'Shepherd Tutors');
 
+export function useQueryParams() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export const useSearch = (
   action: SearchAction,
   throttleTime = 1000
@@ -52,7 +56,7 @@ export function useSearchQuery() {
 }
 
 export function useCopyToClipboard({ timeout = 2000 }: { timeout?: number }) {
-  const [isCopied, setIsCopied] = React.useState<Boolean>(false);
+  const [isCopied, setIsCopied] = React.useState<boolean>(false);
   const toast = useCustomToast();
 
   const copyToClipboard = (value: string) => {

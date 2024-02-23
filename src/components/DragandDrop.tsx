@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Text, Icon, Spinner, BoxProps } from '@chakra-ui/react';
+import { Box, Text, Icon, Spinner, BoxProps, Progress } from '@chakra-ui/react';
 import { FiUpload, FiTrash2 } from 'react-icons/fi';
 
 interface DragAndDropProps extends BoxProps {
@@ -11,6 +11,12 @@ interface DragAndDropProps extends BoxProps {
   onDelete?: () => void;
   onFileUpload: (file: File) => void;
   maxSize?: string;
+  progress?: number;
+  countdown?: {
+    active: boolean;
+    message: string;
+  };
+  setProgress?: any;
 }
 
 const DragAndDrop: React.FC<DragAndDropProps> = ({
@@ -21,6 +27,9 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
   onDelete,
   isLoading = false,
   maxSize,
+  progress,
+  countdown,
+  setProgress,
   ...rest
 }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -43,7 +52,8 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           : decodeURIComponent(new URL(file).pathname).split('/').pop();
       setFileSelected(true);
       setFileName(fileName as string);
-    } else if (!file && (fileSelected || fileName)) {
+      console.log('file ==>', file);
+    } else if (!file) {
       setFileSelected(false);
       setFileName('');
     }

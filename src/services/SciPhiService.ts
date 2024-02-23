@@ -20,7 +20,7 @@ interface SearchRagResponse {
   }>;
 }
 class SciPhiService {
-  private baseUrl: string = 'https://api.sciphi.ai/search_rag';
+  private baseUrl = 'https://api.sciphi.ai/search_rag';
   private apiKey: string = SCIPHI_API_KEY;
   async searchRag(options: SearchRagOptions): Promise<SearchRagResponse> {
     try {

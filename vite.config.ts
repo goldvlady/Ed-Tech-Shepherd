@@ -14,7 +14,7 @@ const loadVite = ({ mode }: any) => {
     },
 
     server: {
-      port: PORT && isNaN(parseInt(PORT)) === false ? parseInt(PORT) : 3001
+      port: PORT && isNaN(parseInt(PORT)) === false ? parseInt(PORT) : 3000
     },
     optimizeDeps: {
       esbuildOptions: {

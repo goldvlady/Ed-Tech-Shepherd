@@ -182,6 +182,9 @@ export const HeaderButton = styled.div`
 
 export const HeaderWrapper = styled(Box)`
   && {
+    position: sticky;
+    top: 0;
+    z-index: 2;
   }
 `;
 
@@ -204,14 +207,14 @@ export const HeaderButtonText = styled.p`
 
 export const StyledEditor = styled(Editor)`
   && {
-    ${tw`mt-2 relative w-[1100px]`};
+    ${tw`mt-2 relative w-[90vw]`};
 
     .toolbar {
       ${tw`z-1 rounded-tl-none rounded-tr-none static border-b border-gray-200 shadow-xl`};
     }
 
     .editor-container {
-      ${tw`rounded-none max-h-[calc(100dvh-80px)] p-4 md:p-0 overflow-y-auto`};
+      ${tw`rounded-none max-h-[calc(100dvh-12.5rem)] p-4 md:p-0 overflow-y-auto`};
       ::-webkit-scrollbar {
         width: 0px;
       }

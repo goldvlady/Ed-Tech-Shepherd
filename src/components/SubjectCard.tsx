@@ -2,15 +2,19 @@ import React from 'react';
 import { Box, Button, Divider, Flex, Spacer, Text } from '@chakra-ui/react';
 import { IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useNavigate } from 'react-router';
+import { IoTrash } from 'react-icons/io5';
 function SubjectCard({
+  key,
   title,
   subjectId,
   score,
   scoreColor,
   date,
-  handleClick
+  handleClick,
+  handleDelete
 }) {
   const navigate = useNavigate();
+
   return (
     <Box
       maxW="sm"
@@ -24,7 +28,7 @@ function SubjectCard({
       <Box>
         <Flex>
           <Text fontSize="16px" fontWeight="500" p={4}>
-            {title}
+            {title.length > 23 ? `${title.slice(0, 20)}...` : title}
           </Text>
           <Spacer />{' '}
           <Button
@@ -69,13 +73,21 @@ function SubjectCard({
             ></Box>
           </Box>
         </Box>
-        <Flex m={4}>
+        <Flex mx={4} my={2}>
           {' '}
           <Text color="#6E7682" fontSize="12px">
             Created {date}
           </Text>
           <Spacer />
-          <IoIosArrowDroprightCircle color="#ECEDEF" />
+          {/* <IoIosArrowDroprightCircle color="#ECEDEF" /> */}
+          <IoTrash
+            color="grey"
+            onClick={(e) => {
+              e.stopPropagation();
+              // console.log(score);
+              handleDelete();
+            }}
+          />
         </Flex>
       </Box>
     </Box>
