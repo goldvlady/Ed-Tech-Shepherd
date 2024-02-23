@@ -59,7 +59,7 @@ export default function HourReminder(props) {
     <>
       {' '}
       <Box
-        bgColor={getBgColorByEventType(data.data.type)}
+        bgColor={getBgColorByEventType(data?.data?.type)}
         py={2}
         px={7}
         pb={2}
@@ -71,7 +71,7 @@ export default function HourReminder(props) {
           <Box display="flex">
             <Text
               textTransform={'uppercase'}
-              color={getTagTextColorByEventType(data.data.type)}
+              color={getTagTextColorByEventType(data?.data?.type)}
               fontSize={10}
               bgColor={data.data.type === ' study' ? '#F0FDF4' : '#FFF5F0'}
               borderRadius="3px"
@@ -90,7 +90,7 @@ export default function HourReminder(props) {
               {getTextByEventType(data.data.type)}
             </Text>
             <Text fontSize={14} fontWeight={500} color="#F53535" ml={10}>
-              {convertUtcToUserTime(data.data.data.startDate)}
+              {convertUtcToUserTime(data?.data?.data?.startDate)}
             </Text>
           </Box>
 
@@ -104,7 +104,7 @@ export default function HourReminder(props) {
                 fontSize={12}
                 px={2}
                 py={0}
-                onClick={() => fetchSingleFlashcard(data.data.data.entityId)}
+                onClick={() => fetchSingleFlashcard(data?.data?.data?.entityId)}
               >
                 Practice
               </Button>
