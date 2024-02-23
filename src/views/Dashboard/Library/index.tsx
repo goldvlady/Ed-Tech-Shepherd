@@ -319,12 +319,12 @@ const Library: React.FC = () => {
               >
                 Library
               </Text>
-              <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
+              {/* <Tag ml="10px" borderRadius="5" background="#f7f8fa" size="md">
                 <TagLabel fontWeight={'bold'}>
                   {' '}
                   {librarySubjects?.length || 0}
                 </TagLabel>
-              </Tag>
+              </Tag> */}
             </Box>
           </Flex>
 
