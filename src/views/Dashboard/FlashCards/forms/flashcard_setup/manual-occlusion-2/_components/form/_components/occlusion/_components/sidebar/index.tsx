@@ -24,7 +24,10 @@ function Sidebar({
           Crop
         </div>
         <div
-          onClick={() => addItem()}
+          onClick={() => {
+            setMode('draggable');
+            addItem();
+          }}
           className={cn(
             'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform'
           )}

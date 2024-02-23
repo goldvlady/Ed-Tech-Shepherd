@@ -25,7 +25,13 @@ function Form() {
   }, [formState.imageURL]);
   return (
     <div>
-      <Input placeholder="e.g Heart Diagram" />
+      <Input
+        placeholder="e.g Heart Diagram"
+        value={formState.title}
+        onChange={(e) => {
+          setFormState({ ...formState, title: e.target.value });
+        }}
+      />
       <ImageUploader
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
