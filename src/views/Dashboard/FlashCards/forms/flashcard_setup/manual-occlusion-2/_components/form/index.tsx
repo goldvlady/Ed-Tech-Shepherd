@@ -77,6 +77,7 @@ function Form() {
         // Occlusion elements
         elements={formState.occlusion.elements}
         handleSubmit={handleSubmit}
+        resetForm={resetForm}
       />
     </div>
   );

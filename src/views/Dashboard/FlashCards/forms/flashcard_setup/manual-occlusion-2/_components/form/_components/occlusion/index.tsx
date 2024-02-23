@@ -12,7 +12,8 @@ function Occlusion({
   imageURI,
   elements,
   setElements,
-  handleSubmit
+  handleSubmit,
+  resetForm
 }: {
   open: boolean;
   close: () => void;
@@ -20,6 +21,7 @@ function Occlusion({
   elements: any[];
   setElements: (elements: any[]) => void;
   handleSubmit: () => void;
+  resetForm: () => void;
 }) {
   return (
     <Dialog
@@ -34,7 +36,14 @@ function Occlusion({
             <span>Undo</span>
             <span>Redo</span>
           </div>
-          <button onClick={close}>Close</button>
+          <button
+            onClick={() => {
+              resetForm();
+              close();
+            }}
+          >
+            Close
+          </button>
         </header>
 
         <InteractionWindow
