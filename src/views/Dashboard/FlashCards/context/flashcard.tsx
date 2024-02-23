@@ -236,15 +236,15 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       options: [], // Initialized options as empty array
       answer: ''
     };
-    if (flashcardData.numQuestions && !questions.length) {
-      const numQuestions = flashcardData.numQuestions;
+    if (flashcardData?.numQuestions && !questions?.length) {
+      const numQuestions = flashcardData?.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
       for (let i = 0; i < numQuestions; i++) {
         generatedQuestions.push(questionsEmptyState);
       }
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numQuestions, questions]);
+  }, [flashcardData?.numQuestions, questions]);
   const resetFlashcard = useCallback(() => {
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);

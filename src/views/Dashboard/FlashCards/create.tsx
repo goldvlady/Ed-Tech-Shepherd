@@ -342,6 +342,7 @@ const CreateFlashPage = () => {
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
           isCompleted={isCompleted}
+          setFlashcardData={setFlashcardData}
         ></QuestionsPreview>
       );
     }

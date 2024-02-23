@@ -56,7 +56,7 @@ const InitSetupPreview = ({
           isActive={activeBadge === TypeEnum.FLASHCARD}
           onClick={() => handleBadgeClick(TypeEnum.FLASHCARD)}
         />
-        <OptionBadge
+        {/* <OptionBadge
           text="Mnemonics"
           icon={(isActive) => (
             <svg
@@ -77,7 +77,7 @@ const InitSetupPreview = ({
           )}
           isActive={activeBadge === TypeEnum.MNEOMONIC}
           onClick={() => handleBadgeClick(TypeEnum.MNEOMONIC)}
-        />
+        /> */}
       </HStack>
     </Box>
   );

@@ -31,7 +31,8 @@ const FlashcardFromDocumentSetup = ({
     flashcardData,
     setFlashcardData,
     goToNextStep,
-    generateFlashcardQuestions
+    generateFlashcardQuestions,
+    isLoading: isLoadingFlashcardQuestions
   } = useFlashcardWizard();
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<typeof flashcardData>({
@@ -309,7 +310,7 @@ const FlashcardFromDocumentSetup = ({
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
-          isDisabled={!isValid}
+          isDisabled={isLoadingFlashcardQuestions || !isValid}
           colorScheme="primary"
           size="sm"
           ml="auto"
