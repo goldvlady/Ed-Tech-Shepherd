@@ -2,6 +2,7 @@ import LoaderOverlay from '../../../../components/loaderOverlay';
 import TitleCard from './TitleCard';
 import { SimpleGrid } from '@chakra-ui/react';
 import React from 'react';
+import { capitalize } from 'lodash';
 
 interface LibraryProviderProps {
   providers: Array<{ _id: string; name: string }>;
@@ -21,7 +22,7 @@ const ProviderList: React.FC<LibraryProviderProps> = ({
       {providers.map((provider) => (
         <TitleCard
           key={provider._id}
-          data={{ name: provider.name }}
+          data={{ name: capitalize(provider.name) }}
           onClick={() => onSelectProvider(provider._id)}
         />
       ))}

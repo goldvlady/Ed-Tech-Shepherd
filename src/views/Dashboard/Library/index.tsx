@@ -1,6 +1,7 @@
 import LoaderOverlay from '../../../components/loaderOverlay';
 import { useSearch } from '../../../hooks';
 import librarySubjectStore from '../../../state/librarySubjectStore';
+import libraryProviderStore from '../../../state/libraryProviderStore';
 import LibraryCardList from './components/LibraryCardList';
 import ProviderList from './components/ProviderList';
 import SubjectList from './components/SubjectList';
@@ -172,10 +173,16 @@ const Library: React.FC = () => {
   const { fetchLibrarySubjects, isLoading, librarySubjects } =
     librarySubjectStore();
 
+  const {
+    fetchLibraryProviders,
+    libraryProviders,
+    isLoading: providersLoading
+  } = libraryProviderStore();
+
   const actionFunc = useCallback(
     (query: string) => {
       if (!hasSearched) setHasSearched(true);
-      fetchLibrarySubjects({ search: query });
+      fetchLibrarySubjects(selectedProviderId, { search: query });
     },
     [fetchLibrarySubjects, hasSearched]
   );
@@ -221,13 +228,20 @@ const Library: React.FC = () => {
   }, [location]);
 
   useEffect(() => {
-    fetchLibrarySubjects();
+    fetchLibrarySubjects(selectedProviderId);
+  }, [fetchLibrarySubjects, selectedProviderId]);
+
+  useEffect(() => {
+    fetchLibraryProviders();
     // eslint-disable-next-line
   }, []);
 
   return (
     <>
-      {isLoading && !librarySubjects?.length && <LoaderOverlay />}
+      {providersLoading && !libraryProviders?.length && <LoaderOverlay />}
+      {displayMode === 'subjects' && isLoading && !librarySubjects?.length && (
+        <LoaderOverlay />
+      )}
 
       {!librarySubjects?.length && !hasSearched && !isLoading ? (
         <Box
@@ -383,7 +397,7 @@ const Library: React.FC = () => {
           <Box>
             {displayMode === 'providers' && (
               <ProviderList
-                providers={[{ _id: '1', name: 'Shepherd' }]}
+                providers={libraryProviders}
                 onSelectProvider={handleProviderClick}
               />
             )}
