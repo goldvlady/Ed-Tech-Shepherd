@@ -15,7 +15,7 @@ function InteractionWindow({ imageURI }: { imageURI: string }) {
     // }
   ]);
 
-  const addItem = (e: any) => {
+  const addItem = () => {
     setItems([
       ...items,
       {
