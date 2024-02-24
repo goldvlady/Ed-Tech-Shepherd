@@ -356,7 +356,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
-          isDisabled={!isValid}
+          isDisabled={flashcardData.hasSubmitted || !isValid}
           colorScheme="primary"
           size="sm"
           ml="auto"

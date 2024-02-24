@@ -124,11 +124,58 @@ const UploadQuizForm = ({
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
       >
     ) => {
-      const { name, value } = e.target;
-      setLocalData((prevState) => ({ ...prevState, [name]: value }));
+      const { name, value, type } = e.target;
+      if (
+        name === 'count' &&
+        localData.end_page &&
+        localData.end_page <= 40 &&
+        Number(value) > 50
+      ) {
+        setLocalData((prevState) => ({
+          ...prevState,
+          [name]: Number(50)
+        }));
+      } else if (
+        (name === 'count' && !localData.end_page && Number(value) > 100) ||
+        (name === 'count' &&
+          localData.end_page &&
+          localData.end_page > 40 &&
+          Number(value) > 100)
+      ) {
+        setLocalData((prevState) => ({
+          ...prevState,
+          [name]: Number(100)
+        }));
+      } else if (
+        name === 'count' &&
+        !localData.end_page &&
+        !localData.start_page &&
+        localData.count > 100
+      ) {
+        setLocalData((prevState) => ({
+          ...prevState,
+          [name]: Number(100)
+        }));
+      }
+      setLocalData((prevState) => ({
+        ...prevState,
+        [name]:
+          type === 'number' ||
+          name === 'count' ||
+          name === 'start_page' ||
+          name === 'end_page'
+            ? Number(value)
+            : value
+      }));
     },
-    []
+    [localData.end_page]
   );
+
+  const isError =
+    localData.count < 1 ||
+    (localData.end_page && localData.end_page <= 40 && localData.count > 50) ||
+    (localData.end_page && localData.end_page > 40 && localData.count > 100) ||
+    (!localData.end_page && !localData.start_page && localData.count > 100);
 
   function getFileNameFromUrl(url) {
     let fileName = '';
@@ -291,6 +338,13 @@ const UploadQuizForm = ({
         <FileUpload
           show={openModal}
           setShow={setOpenModal}
+          acceptString="JPEG, JPG, PNG, TIFF and PDF"
+          accept={{
+            'image/jpeg': ['.jpg', '.jpeg'],
+            'application/pdf': ['.pdf'],
+            'image/png': ['.png'],
+            'image/tiff': ['.tiff', '.tif']
+          }}
           onIngestedDocument={(ingestedDocument) =>
             setIngestedDocument(ingestedDocument)
           }
@@ -308,7 +362,7 @@ const UploadQuizForm = ({
         />
 
         <FormHelperText textColor={'text.300'}>
-          Shepherd supports .pdf & .jpg document formats
+          Shepherd supports .pdf, .tiff, .png & .jpg document formats
         </FormHelperText>
       </FormControl>
 
@@ -340,7 +394,8 @@ const UploadQuizForm = ({
           Number of questions
           <Tooltip
             hasArrow
-            label="Number of questions to create"
+            label="Quick tip! For docs under 40 pages, request a max 50 quizzes. For longer ones, double it up to 100 quizzes! Let's ace those tests!
+            "
             placement="right-end"
           >
             <QuestionIcon mx={2} w={3} h={3} />
@@ -349,11 +404,14 @@ const UploadQuizForm = ({
         <Input
           textColor={'text.700'}
           height={'48px'}
+          className={isError && '!border-red-600 !border-spacing-2'}
           name="count"
           onChange={handleChange}
           type="text"
           value={localData.count}
           color={'text.200'}
+          min="1"
+          max={localData.end_page && localData.end_page <= 40 ? 50 : 100}
         />
       </FormControl>
 
@@ -382,20 +440,20 @@ const UploadQuizForm = ({
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>Start Page (Optional)</FormLabel>
         <Input
-          type="number"
+          type="text"
           name="start_page"
           placeholder="Start Page Number"
-          value={localData.startPage}
+          value={localData.start_page}
           onChange={handleChange}
         />
       </FormControl>
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>End Page (Optional)</FormLabel>
         <Input
-          type="number"
+          type="text"
           name="end_page"
           placeholder="End Page Number"
-          value={localData.endPage}
+          value={localData.end_page}
           onChange={handleChange}
         />
       </FormControl>
@@ -423,7 +481,7 @@ const UploadQuizForm = ({
             // disabledByFileOrDocument ||
             // localData.count < 1 ||
             // disabledByTitle
-            disabledByFileOrDocument || disabledByTitle
+            disabledByFileOrDocument || disabledByTitle || isError
           }
           isLoading={isUploadingFile}
         >

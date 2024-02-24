@@ -64,7 +64,7 @@ const ChatHistory = () => {
     };
   }, []);
 
-  if (Boolean(apiKey)) return null;
+  if (apiKey) return null;
 
   return (
     <div
