@@ -49,7 +49,7 @@ const FlashcardFromDocumentSetup = ({
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
 
   useEffect(() => {
-    if (flashcardData.deckname) {
+    if (flashcardData?.deckname) {
       setLocalData(flashcardData);
     }
     // eslint-disable-next-line
@@ -183,9 +183,13 @@ const FlashcardFromDocumentSetup = ({
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Upload a source document
         </FormLabel>
-        <FileUpload isLoading={isLoading} onFileSelect={onHandleFile} />
+        <FileUpload
+          accept=".jpg,.jpeg,.pdf,.png,.tiff,.tif"
+          isLoading={isLoading}
+          onFileSelect={onHandleFile}
+        />
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>
-          Shepherd supports .pdf & .jpg document formats
+          Shepherd supports .pdf, .tiff, .png & .jpg document formats
         </FormLabel>
       </FormControl>
       {/* <FormControl mb={8}>

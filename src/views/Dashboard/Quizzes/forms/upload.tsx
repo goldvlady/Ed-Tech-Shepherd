@@ -168,7 +168,7 @@ const UploadQuizForm = ({
             : value
       }));
     },
-    [localData.end_page]
+    [localData.end_page, localData.count, localData.start_page]
   );
 
   const isError =
