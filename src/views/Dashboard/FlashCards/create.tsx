@@ -487,18 +487,18 @@ const CreateFlashPage = () => {
                   value={settings.source}
                 >
                   <HStack align="start" spacing={7}>
-                    <Radio value={SourceEnum.DOCUMENT}>
+                    <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
                       <Text color="#585F68">Document</Text>
                     </Radio>
-                    <Radio value={SourceEnum.SUBJECT}>
+                    <Radio value={SourceEnum.SUBJECT} isDisabled={isCompleted}>
                       <Text color="#585F68">Auto</Text>
                     </Radio>
-                    <Radio value={SourceEnum.MANUAL}>
+                    <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
                       <Text color="#585F68">Manual</Text>
                     </Radio>
                     {user.subscription &&
                       user.subscription.tier === 'Premium' && (
-                        <Radio value={SourceEnum.ANKI}>
+                        <Radio value={SourceEnum.ANKI} isDisabled={isCompleted}>
                           <Text color="#585F68">Anki</Text>
                         </Radio>
                       )}
