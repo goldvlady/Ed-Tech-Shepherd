@@ -80,6 +80,7 @@ function Form() {
         <br /> occlusion. Add an image to begin.
       </p>
       <ImageUploader
+        // deckName={formState.title}
         deckName={formState.title}
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
