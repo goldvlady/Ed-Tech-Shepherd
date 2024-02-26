@@ -5,8 +5,7 @@ import {
   DialogContent,
   DialogTrigger
 } from '../../../../../../../../../../components/ui/dialog';
-import { Input } from '../../../../../../../../../../components/ui/input';
-import { UploadIcon, TrashIcon } from '@radix-ui/react-icons';
+import { UploadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../../../library/utils';
 import { useDropzone } from 'react-dropzone';
 
@@ -89,7 +88,7 @@ function ImageUploader({
                 }
               )}
             >
-              <input {...getInputProps()} disabled={deckName.trim() === ''} />
+              <input {...getInputProps()} />
               {imageName ? (
                 <div className="flex flex-col justify-center items-center gap-1">
                   <p className="text-xs max-w-[32ch] truncate text-[#207DF7]">
@@ -135,19 +134,6 @@ function ImageUploader({
               <Button onClick={handleUpload}>Upload</Button>
             </div>
           </div>
-          {/* <Input type="file" onChange={handleImageChange} />
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setOpen(false);
-                setImageURI('');
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpload}>Upload</Button>
-          </div> */}
         </DialogContent>
       </Dialog>
     </div>
