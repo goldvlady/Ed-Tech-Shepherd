@@ -1,40 +1,30 @@
 import ApiService from '../services/ApiService';
 import { SearchQueryParams, Pagination } from '../types';
-import { LibrarySubjectData } from '../types';
+import { LibraryProviderData } from '../types';
 import { create } from 'zustand';
 
 type Store = {
-  librarySubjects: LibrarySubjectData[] | null;
+  libraryProviders: LibraryProviderData[] | null;
   isLoading: boolean;
   pagination: Pagination;
-  fetchLibrarySubjects: (
-    providerId: string,
-    queryParams?: SearchQueryParams
-  ) => Promise<void>;
-  librarySubject?: LibrarySubjectData | null;
+  fetchLibraryProviders: (queryParams?: SearchQueryParams) => Promise<void>;
 };
 
 export default create<Store>((set) => ({
-  librarySubjects: null,
+  libraryProviders: null,
   isLoading: false,
   pagination: { limit: 30, page: 1, count: 100 },
 
-  fetchLibrarySubjects: async (
-    providerId: string,
-    queryParams?: SearchQueryParams
-  ) => {
+  fetchLibraryProviders: async (queryParams?: SearchQueryParams) => {
     try {
       const params = queryParams || ({} as SearchQueryParams);
       if (!params.page) params.page = 1;
       if (!params.limit) params.limit = 30;
       set({ isLoading: true });
-      const response = await ApiService.getLibrarySubjects({
-        providerId,
-        ...params
-      });
+      const response = await ApiService.getLibraryProviders(params);
       const { data, meta } = await response.json();
 
-      set({ librarySubjects: data, pagination: meta?.pagination });
+      set({ libraryProviders: data, pagination: meta?.pagination });
     } catch (error) {
       // Handle or log error
     } finally {
