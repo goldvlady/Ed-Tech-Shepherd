@@ -7,8 +7,6 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router';
 import { database, storage } from '../../../firebase';
-import { snip, uploadFile } from '../../../helpers/file.helpers';
-
 import { ref as dbRef, onValue, off, DataSnapshot } from 'firebase/database';
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import {
@@ -46,8 +44,7 @@ import {
   TabPanel,
   Center,
   Link,
-  HStack,
-  Spinner
+  HStack
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
@@ -80,7 +77,7 @@ import styled from 'styled-components';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import CalendarDateInput from '../../../components/CalendarDateInput';
+import { snip } from '../../../helpers/file.helpers';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -120,13 +117,10 @@ function CreateStudyPlans() {
   const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [docLoading, setDocLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  const { user, fetchUserDocuments } = userStore();
-
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const btnRef = useRef();
@@ -160,7 +154,7 @@ function CreateStudyPlans() {
     e.preventDefault();
     setIsDragOver(false);
     const files = e.dataTransfer.files[0];
-
+    handleUploadInput(files);
     // Handle dropped files here
 
     // const fileChecked = doesTitleExist(files?.name);
@@ -216,47 +210,58 @@ function CreateStudyPlans() {
   //   }
   // };
 
-  // Function to add a new test date to the list
-
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-    if (file?.size > 10000000) {
+
+    // Check if the file size exceeds the limit
+    if (file.size > fileSizeLimitBytes) {
+      // Set the modal state and messages
+      // setPlansModalMessage(
+      //   !hasActiveSubscription
+      //     ? `Let's get you on a plan so you can upload larger files!`
+      //     : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
+      // );
+      // setPlansModalSubMessage(
+      //   !hasActiveSubscription
+      //     ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+      //     : 'Consider upgrading to upload larger files.'
+      // );
+      // setTogglePlansModal(true);
+
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
         position: 'top',
         isClosable: true
       });
-      return;
     } else {
-      setDocLoading(true);
-      const readableFileName = file.name
-        .toLowerCase()
-        .replace(/\.pdf$/, '')
-        .replace(/_/g, ' ');
-      const uploadEmitter = uploadFile(file, {
-        studentID: user._id, // Assuming user._id is always defined
-        documentID: readableFileName // Assuming readableFileName is the file's name
-      });
+      setLoading(true);
 
-      uploadEmitter.on('progress', (progress: number) => {
-        // Update the progress. Assuming progress is a percentage (0 to 100)
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-        setDocLoading(true);
-      });
+      // setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+        },
+        (error) => {
+          setIsLoading(false);
 
-      uploadEmitter.on('complete', async (uploadFile) => {
-        // Assuming uploadFile contains the fileUrl and other necessary details.
-        const documentURL = uploadFile.fileUrl;
-        setDocLoading(false);
-        setFileName(readableFileName);
-        setSyllabusUrl(documentURL);
-      });
-      uploadEmitter.on('error', (error) => {
-        setDocLoading(false);
-        // setCvUploadPercent(0);
-        toast({ title: error.message + error.cause, status: 'error' });
-      });
+          toast({ title: error.message + error.cause, status: 'error' });
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIsLoading(false);
+            setSyllabusUrl(downloadURL);
+            setFileName(snip(file.name));
+            console.log('done', downloadURL);
+          });
+        }
+      );
     }
   };
 
@@ -481,13 +486,12 @@ function CreateStudyPlans() {
     const unsubscribe = onValue(
       jobRef,
       (snapshot: DataSnapshot) => {
-        console.log('Received snapshot:', snapshot.val());
         const job: StudyPlanJob | null = snapshot.val();
 
+        // If the job exists and its status is 'success', pass the study plan to the callback.
         if (job && job.status === 'success' && job.studyPlan) {
-          console.log('Received study plan:', job.studyPlan);
           callback(null, job.studyPlan);
-          off(jobRef);
+          off(jobRef); // Stop listening for changes once the job is successfully retrieved.
         } else if (job && job.status === 'failed') {
           callback(new Error('Job failed'));
           off(jobRef);
@@ -797,8 +801,6 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
-  console.log(docLoading);
-
   return (
     <Grid
       templateColumns={[
@@ -830,9 +832,9 @@ function CreateStudyPlans() {
         </Flex>
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
-          <Flex alignItems="center" gap={1}>
-            <Box boxSize={12} rounded="full" overflow="hidden" bg="#287ce6">
-              {/* <Logo /> */}
+          <Flex alignItems="center">
+            <Box boxSize={12} rounded="full" overflow="hidden">
+              <Logo />
             </Box>
             <Box>
               <Text fontWeight="500" fontSize={'16px'}>
@@ -948,15 +950,10 @@ function CreateStudyPlans() {
                     </Flex>
                   ) : (
                     <Flex direction={'column'} alignItems={'center'}>
-                      {docLoading ? (
-                        <Spinner />
-                      ) : (
-                        <RiUploadCloud2Fill
-                          className="h-8 w-8"
-                          color="gray.500"
-                        />
-                      )}
-
+                      <RiUploadCloud2Fill
+                        className="h-8 w-8"
+                        color="gray.500"
+                      />
                       <Text
                         mb="2"
                         fontSize="sm"
@@ -1037,25 +1034,13 @@ function CreateStudyPlans() {
                         >
                           Test {index + 1}
                         </Text>
-                        {/* <DatePicker
+                        <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
                           value={format(date, 'MM-dd-yyyy')}
                           onChange={(newDate) => {
                             const updatedTestDates = [...testDate];
                             updatedTestDates[index] = newDate;
-                            setTestDate(updatedTestDates);
-                          }}
-                        /> */}
-                        <CalendarDateInput
-                          // disabledDate={{ before: today }}
-                          inputProps={{
-                            placeholder: 'Select Testt Date'
-                          }}
-                          value={date}
-                          onChange={(value) => {
-                            const updatedTestDates = [...testDate];
-                            updatedTestDates[index] = value;
                             setTestDate(updatedTestDates);
                           }}
                         />
