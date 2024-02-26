@@ -242,7 +242,7 @@ export default function QuestionsPreview({
                   isLoading={isLoading}
                   onClick={() => {
                     navigate('/dashboard/flashcards');
-                    setFlashcardData(null);
+                    resetFlashcard();
                     setQuestions([]);
                   }}
                   borderRadius="10px"

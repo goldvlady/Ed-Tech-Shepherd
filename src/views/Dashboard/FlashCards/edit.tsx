@@ -274,7 +274,7 @@ const EditFlashCard = () => {
   ]);
 
   useEffect(() => {
-    if (flashcardData.hasSubmitted) {
+    if (flashcardData?.hasSubmitted) {
       if (settings.type !== TypeEnum.FLASHCARD) {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }

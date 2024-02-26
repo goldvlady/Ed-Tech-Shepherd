@@ -39,7 +39,7 @@ const FlashcardFirstPart = ({ isAutomated }: { isAutomated?: boolean }) => {
   });
 
   useEffect(() => {
-    if (flashcardData.deckname) {
+    if (flashcardData?.deckname) {
       setLocalData(flashcardData);
     }
   }, [flashcardData]);
