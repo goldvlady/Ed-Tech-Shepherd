@@ -1,15 +1,37 @@
+import { cn } from '../../../../../../../../library/utils';
+
 function Progress() {
   return (
-    <div className="w-full flex justify-between my-6">
+    <div className="w-full flex justify-between my-6 mb-8 gap-2 items-center">
+      <Dot active={true}/>
+      <Line />
       <Dot />
-      <Dot />
+      <Line />
       <Dot />
     </div>
   );
 }
 
-const Dot = () => {
-  return <div className="w-2 h-2 rounded-full bg-[#E0E0E0]"></div>;
+const Line = () => {
+  return <div className="flex-1 h-[3px] bg-[#E5E5E5]"></div>;
+};
+
+const Dot = ({ active }: { active?: boolean }) => {
+  return (
+    <div
+      className={cn(
+        'w-[24px] h-[24px] rounded-full border-2 bg-[#EFF0F0] border-[#E2E3E4] flex items-center justify-center transition-colors',
+        active && 'bg-[#BAD7FD] border-[#7AA7FB]'
+      )}
+    >
+      <div
+        className={cn(
+          'center-dot clear-start w-[8px] h-[8px] bg-[#CDD1D5] rounded-full transition-colors',
+          active && 'bg-[#207DF7]'
+        )}
+      ></div>
+    </div>
+  );
 };
 
 export default Progress;
