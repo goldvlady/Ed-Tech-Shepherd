@@ -18,7 +18,7 @@ function InteractionWindow({
       ...elements,
       {
         order: elements.length,
-        label: '',
+        label: 'Label Placeholder',
         isRevealed: false,
         position: { x: 0, y: 42, width: 40, height: 40 }
       }

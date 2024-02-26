@@ -3,6 +3,7 @@ import { Input } from '../../../../../../../../components/ui/input';
 import ImageUploader from './_components/image-uploader';
 import Occlusion from './_components/occlusion';
 import ApiService from '../../../../../../../../services/ApiService';
+import CardSavedDialog from '../card-saved-dialog';
 
 const INITIAL_STATE = {
   title: '',
@@ -13,6 +14,10 @@ const INITIAL_STATE = {
   occlusion: {
     open: false,
     elements: []
+  },
+  afterSubmission: {
+    open: false,
+    data: {}
   }
 };
 
@@ -41,8 +46,15 @@ function Form() {
     // console.log(payload);
     await ApiService.createOcclusionCard(payload)
       .then((res) => res.json())
-      .then((data) => console.log(data));
-    resetForm();
+      .then((data) => {
+        setFormState((prevState) => ({
+          title: '',
+          imageURL: '',
+          imageUploader: { open: false },
+          occlusion: { open: false, elements: [] },
+          afterSubmission: { open: true, data }
+        }));
+      });
   };
 
   return (
@@ -83,6 +95,7 @@ function Form() {
         handleSubmit={handleSubmit}
         resetForm={resetForm}
       />
+      <CardSavedDialog open={formState.afterSubmission.open} />
     </div>
   );
 }
