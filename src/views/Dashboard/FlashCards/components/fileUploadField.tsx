@@ -8,9 +8,15 @@ import ShepherdSpinner from '../../components/shepherd-spinner';
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   isLoading?: boolean;
+  accept?: string;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
+const FileUpload: React.FC<FileUploadProps> = ({
+  onFileSelect,
+  isLoading,
+  accept
+}) => {
+  const defaultAccept = '*/*';
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
 
@@ -68,6 +74,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
         ref={inputFile}
         style={{ display: 'none' }}
         onChange={onFileChange}
+        accept={accept ? accept : defaultAccept}
       />
 
       <Box

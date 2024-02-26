@@ -93,7 +93,7 @@ const FlashCardSetupInit = ({
   }, [flashcardData?.documentId]);
 
   useEffect(() => {
-    if (flashcardData.deckname) {
+    if (flashcardData?.deckname) {
       setLocalData(flashcardData);
     }
     // eslint-disable-next-line
@@ -112,11 +112,11 @@ const FlashCardSetupInit = ({
     { label: 'Twice a week', value: 'biweekly' },
     {
       label:
-        localData.studyType && localData.studyType === 'quickPractice'
+        localData?.studyType && localData.studyType === 'quickPractice'
           ? "Doesn't repeat"
           : 'Spaced repetition',
       value:
-        localData.studyType && localData.studyType === 'quickPractice'
+        localData?.studyType && localData.studyType === 'quickPractice'
           ? 'noRepeat'
           : 'spacedRepetition'
     }
@@ -142,20 +142,22 @@ const FlashCardSetupInit = ({
   );
 
   const isValid = useMemo(() => {
-    const { timerDuration, hasSubmitted, ...data } = localData;
-    let payload: { [key: string]: any } = { ...data };
-    if (flashcardData.noteDoc) {
-      return [
-        localData.deckname,
-        localData.numQuestions,
-        localData.studyType
-      ].every(Boolean);
-    }
-    if (isAutomated) {
-      payload = { ...payload };
-    }
+    if (localData) {
+      const { timerDuration, hasSubmitted, ...data } = localData;
+      let payload: { [key: string]: any } = { ...data };
+      if (flashcardData?.noteDoc) {
+        return [
+          localData.deckname,
+          localData.numQuestions,
+          localData.studyType
+        ].every(Boolean);
+      }
+      if (isAutomated) {
+        payload = { ...payload };
+      }
 
-    return Object.values(payload).every(Boolean);
+      return Object.values(payload).every(Boolean);
+    }
   }, [localData, isAutomated, flashcardData]);
 
   const handleDone = (success: boolean) => {
@@ -232,7 +234,7 @@ const FlashCardSetupInit = ({
                 type="text"
                 name="subject"
                 placeholder="e.g. Chemistry"
-                value={localData.subject}
+                value={localData?.subject}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               />
@@ -250,7 +252,7 @@ const FlashCardSetupInit = ({
                 type="text"
                 name="topic"
                 placeholder="e.g. Bonds"
-                value={localData.topic}
+                value={localData?.topic}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               />
@@ -265,7 +267,7 @@ const FlashCardSetupInit = ({
             name="level"
             placeholder="Select Level"
             defaultValue={levelOptions.find(
-              (option) => option.value === localData.level
+              (option) => option.value === localData?.level
             )}
             options={levelOptions}
             size={'md'}
@@ -296,7 +298,7 @@ const FlashCardSetupInit = ({
             type="number"
             name="startPage"
             placeholder="Start Page Number"
-            value={localData.startPage}
+            value={localData?.startPage}
             onChange={handleChange}
             _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           />
@@ -309,7 +311,7 @@ const FlashCardSetupInit = ({
             type="number"
             name="endPage"
             placeholder="End Page Number"
-            value={localData.endPage}
+            value={localData?.endPage}
             onChange={handleChange}
             _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           />
@@ -328,7 +330,7 @@ const FlashCardSetupInit = ({
           type="text"
           name="deckname"
           placeholder="e.g. Deckname"
-          value={localData.deckname}
+          value={localData?.deckname}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
@@ -341,7 +343,7 @@ const FlashCardSetupInit = ({
         </FormLabel>
         <RadioGroup
           name="studyType"
-          value={localData.studyType}
+          value={localData?.studyType}
           onChange={(value) => {
             if (value === 'longTermRetention') {
               handleChange({
@@ -369,7 +371,7 @@ const FlashCardSetupInit = ({
         </RadioGroup>
       </FormControl>
 
-      {localData.studyType === 'longTermRetention' && (
+      {localData?.studyType === 'longTermRetention' && (
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             How often would you like to study?
@@ -378,7 +380,7 @@ const FlashCardSetupInit = ({
             name="studyPeriod"
             placeholder="Select study period"
             defaultValue={studyPeriodOptions.find(
-              (option) => option.value === localData.studyPeriod
+              (option) => option.value === localData?.studyPeriod
             )}
             tagVariant="solid"
             options={studyPeriodOptions}
@@ -405,7 +407,7 @@ const FlashCardSetupInit = ({
           id="numberInput"
           name="numQuestions"
           placeholder="Number of questions"
-          value={localData.numQuestions}
+          value={localData?.numQuestions}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />

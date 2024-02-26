@@ -605,7 +605,10 @@ const NotesDirectory: React.FC = () => {
 
       <UploadModal
         isOpen={openUploadModal}
-        onClose={() => setOpenUploadModal(false)}
+        onClose={() => {
+          setOpenUploadModal(false);
+          setFile(null);
+        }}
         accept="application/pdf"
         isLoading={isUploadingFile}
         progress={progress}

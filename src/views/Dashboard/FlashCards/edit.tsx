@@ -286,7 +286,7 @@ const EditFlashCard = () => {
       //   setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
       // }
     }
-  }, [flashcardData.hasSubmitted, settings.type, settings.source]);
+  }, [flashcardData?.hasSubmitted, settings?.type, settings?.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     if (
