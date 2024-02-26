@@ -2,7 +2,7 @@ import { cn } from '../../../../../../../../library/utils';
 
 function Progress() {
   return (
-    <div className="w-full flex justify-between my-6 mb-8 gap-2 items-center">
+    <div className="w-full flex justify-between my-6 gap-2 items-center">
       <Dot active={true}/>
       <Line />
       <Dot />

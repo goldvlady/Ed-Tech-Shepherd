@@ -4,6 +4,7 @@ import ImageUploader from './_components/image-uploader';
 import Occlusion from './_components/occlusion';
 import ApiService from '../../../../../../../../services/ApiService';
 import CardSavedDialog from '../card-saved-dialog';
+import { Label } from '../../../../../../../../components/ui/label';
 
 const INITIAL_STATE = {
   title: '',
@@ -59,14 +60,27 @@ function Form() {
 
   return (
     <div>
+      <Label
+        htmlFor="deckname"
+        className="text-[#5C5F64] font-medium text-xs mb-2"
+      >
+        Deckname
+      </Label>
       <Input
+        id="deckname"
         placeholder="e.g Heart Diagram"
         value={formState.title}
+        className="mt-2 max-h-none h-12 py-3 pb-3.5 border-[#E4E5E7] focus:ring-0 focus-visible:ring-0"
         onChange={(e) => {
           setFormState({ ...formState, title: e.target.value });
         }}
       />
+      <p className="my-6 font-medium text-[16px] text-[#585F68]">
+        Study annotated images and diagrams with image
+        <br /> occlusion. Add an image to begin.
+      </p>
       <ImageUploader
+        deckName={formState.title}
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
         }}

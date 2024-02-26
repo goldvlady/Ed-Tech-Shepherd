@@ -6,8 +6,16 @@ import {
   DialogTrigger
 } from '../../../../../../../../../../components/ui/dialog';
 import { Input } from '../../../../../../../../../../components/ui/input';
+import { UploadIcon } from '@radix-ui/react-icons';
+import { cn } from '../../../../../../../../../../library/utils';
 
-function ImageUploader({ setImage }: { setImage: (image: string) => void }) {
+function ImageUploader({
+  setImage,
+  deckName
+}: {
+  setImage: (image: string) => void;
+  deckName: string;
+}) {
   const [open, setOpen] = useState(false);
   const [imageURI, setImageURI] = useState('');
 
@@ -35,9 +43,12 @@ function ImageUploader({ setImage }: { setImage: (image: string) => void }) {
       <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
         <DialogTrigger asChild>
           <Button
-            className="bg-blue-600 text-white"
-            onClick={() => console.log('Add Image')}
+            disabled={deckName.trim() === ''}
+            className={cn('bg-[#207DF7] text-white h-10 w-32 cursor-pointer', {
+              'cursor-not-allowed': deckName === ''
+            })}
           >
+            <UploadIcon className="w-5 h-5 mr-2" />
             Add Image
           </Button>
         </DialogTrigger>
