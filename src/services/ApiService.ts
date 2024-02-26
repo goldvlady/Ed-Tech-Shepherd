@@ -144,6 +144,13 @@ class ApiService {
     });
   };
 
+  static getLibraryProviders = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryProviders`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getLibrarySubjects = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getLibrarySubjects`, {
       method: 'POST',
