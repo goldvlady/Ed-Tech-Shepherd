@@ -1,4 +1,13 @@
+import {
+  BoxModelIcon,
+  CropIcon,
+  DragHandleDots2Icon,
+  PlayIcon,
+  TextIcon as Text
+} from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../../../../../library/utils';
+import React from 'react';
+import { IconProps } from '@radix-ui/react-icons/dist/types';
 
 function Sidebar({
   mode,
@@ -12,58 +21,71 @@ function Sidebar({
   return (
     <div className="sidebar">
       <div className="shadow-lg flex flex-col gap-4 p-2 rounded-md">
-        <div
+        <TextIcon
+          icon={<CropIcon className="w-8 h-8 text-[#444444]" />}
+          label="Crop"
           onClick={() => setMode('resizable')}
-          className={cn(
-            'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform',
-            {
-              'bg-blue-600 text-white': mode === 'resizable'
-            }
-          )}
-        >
-          Crop
-        </div>
-        <div
+          active={mode === 'resizable'}
+        />
+        <TextIcon
+          label="Add"
+          icon={<BoxModelIcon className="w-8 h-8 text-[#444444]" />}
+          onClick={() => {
+            addItem();
+            setMode('draggable');
+          }}
+        />
+
+        <TextIcon
+          label="Drag"
+          icon={<DragHandleDots2Icon className="w-8 h-8 text-[#444444]" />}
           onClick={() => {
             setMode('draggable');
-            addItem();
           }}
-          className={cn(
-            'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform'
-          )}
-        >
-          Add
-        </div>
-        <div
-          onClick={() => setMode('draggable')}
-          className={cn(
-            'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform',
-            {
-              'bg-blue-600 text-white': mode === 'draggable'
-            }
-          )}
-        >
-          Drag
-        </div>
-        <div
-          onClick={() => console.log('Text')}
-          className={cn(
-            'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform'
-          )}
-        >
-          Text
-        </div>
-        <div
-          onClick={() => console.log('Preview')}
-          className={cn(
-            'w-10 h-10  text-xs border flex justify-center items-center rounded-sm cursor-pointer hover:scale-110 transition-transform'
-          )}
-        >
-          Preview
-        </div>
+          active={mode === 'draggable'}
+        />
+        <TextIcon
+          label="Text"
+          icon={<Text className="w-8 h-8 text-[#444444]" />}
+          active={mode === 'text'}
+        />
+
+        <TextIcon
+          label="Preview"
+          icon={<PlayIcon className="w-8 h-8 text-[#444444]" />}
+          active={mode === 'preview'}
+        />
       </div>
     </div>
   );
 }
+const TextIcon = ({
+  label,
+  icon,
+  onClick,
+  active
+}: {
+  label: string;
+  icon: IconProps;
+  onClick?: () => void;
+  active?: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2 items-center justify-center cursor-pointer hover:scale-110 transition-all duration-400',
+        {
+          'border rounded-md py-2': active
+        }
+      )}
+      onClick={onClick}
+    >
+      <div className="icon">
+        <>{icon}</>
+      </div>
+      <span className="text-[#212224] text-[10px] font-normal">{label}</span>
+    </div>
+  );
+};
 
 export default Sidebar;
