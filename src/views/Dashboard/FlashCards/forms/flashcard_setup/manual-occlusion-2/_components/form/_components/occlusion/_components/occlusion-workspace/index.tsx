@@ -11,8 +11,8 @@ function OcclusionWorkSpace({
 }: {
   imageURI: string;
   items: any[];
-  mode: 'draggable' | 'resizable' | 'preview';
-  setItems: (items: any[]) => void;
+  mode?: 'draggable' | 'resizable' | 'preview';
+  setItems?: (items: any[]) => void;
 }) {
   return (
     <div
@@ -22,7 +22,7 @@ function OcclusionWorkSpace({
         backgroundSize: '100% 100%'
       }}
     >
-      {items.map((item, index) => (
+      {items?.map((item, index) => (
         <Draggable
           disabled={mode !== 'draggable'}
           key={item.order}

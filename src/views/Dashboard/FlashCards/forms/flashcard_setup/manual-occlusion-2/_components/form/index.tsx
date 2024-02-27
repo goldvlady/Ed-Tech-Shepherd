@@ -5,6 +5,7 @@ import Occlusion from './_components/occlusion';
 import ApiService from '../../../../../../../../services/ApiService';
 import CardSavedDialog from '../card-saved-dialog';
 import { Label } from '../../../../../../../../components/ui/label';
+import StudySession from '../study-session';
 
 const INITIAL_STATE = {
   title: '',
@@ -126,6 +127,10 @@ function Form() {
         open={formState.afterSubmission.open}
         cancel={resetForm}
         startStudySession={startStudySession}
+      />
+      <StudySession
+        open={formState.studySession.open}
+        data={formState.afterSubmission.data}
       />
     </div>
   );
