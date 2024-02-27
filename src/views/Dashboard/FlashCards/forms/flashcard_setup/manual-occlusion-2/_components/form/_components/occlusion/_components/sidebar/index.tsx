@@ -73,9 +73,9 @@ const TextIcon = ({
   return (
     <div
       className={cn(
-        'flex flex-col rounded-md gap-2 items-center justify-center cursor-pointer hover:scale-95 transition-all duration-400',
+        'flex flex-col rounded-md gap-2 items-center justify-center cursor-pointer border-b hover:border-blue-500 transition-all duration-400',
         {
-          'border py-2': active
+          'border py-2 ': active
         }
       )}
       onClick={onClick}
