@@ -47,6 +47,7 @@ import { IoCreateOutline } from 'react-icons/io5';
 import ShareModalMenu from '../../../components/ShareModalMenu';
 import useUserStore from '../../../state/userStore';
 import moment from 'moment';
+import { useFlashcardWizard } from './context/flashcard';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -164,6 +165,9 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards,
     dailyFlashcards
   } = flashcardStore();
+
+  const { setFlashcardData, setQuestions, resetFlashcard } =
+    useFlashcardWizard();
   const { user } = useUserStore();
   const options: Option[] = tags.map((tag) => ({
     label: tag,
@@ -391,9 +395,10 @@ const CustomTable: React.FC = () => {
           { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
         ];
 
-        const { color, backgroundColor } = colorRanges.find(
-          (range) => percentage <= range.max && percentage >= range.min
-        ) as ColorRange;
+        const { color, backgroundColor } =
+          (colorRanges?.find(
+            (range) => percentage <= range.max && percentage >= range.min
+          ) as ColorRange) ?? {};
         return (
           <Box width={'fit-content'}>
             <Box
@@ -847,7 +852,11 @@ const CustomTable: React.FC = () => {
               marginLeft={'20px'}
               borderRadius={'10px'}
               colorScheme={'primary'}
-              onClick={() => navigate('/dashboard/flashcards/create')}
+              onClick={() => {
+                navigate('/dashboard/flashcards/create');
+                setQuestions([]);
+                resetFlashcard();
+              }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

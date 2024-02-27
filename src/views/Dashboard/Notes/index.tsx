@@ -52,6 +52,7 @@ import { FaCalendarAlt } from 'react-icons/fa';
 import { IoChatboxEllipsesOutline } from 'react-icons/io5';
 import { MultiSelect } from 'react-multi-select-component';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MAX_FILE_NAME_LENGTH } from '../../../helpers/constants';
 
 const YourFlashCardIcon = () => (
   <StyledImage marginRight="10px">
@@ -136,11 +137,12 @@ const NotesDirectory: React.FC = () => {
     setMinimized
   } = useFlashcardWizard();
   const [multiSelected, setMultiSelected] = useState<any>([]);
-
+  const [confirmReady, setConfirmReady] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const { user } = userStore();
 
   useEffect(() => {
-    if (flashcardData.documentId || flashcardData.noteDoc) {
+    if (flashcardData?.documentId || flashcardData?.noteDoc) {
       setMinimized(false);
     }
     return () => {
@@ -170,6 +172,11 @@ const NotesDirectory: React.FC = () => {
   } = documentStore();
 
   const [selectedContent, setSelectedContent] = useState<Array<string>>([]);
+  const [progress, setProgress] = useState(0);
+  const [countdown, setCountdown] = useState({
+    active: false,
+    message: ''
+  });
 
   const handleSelectChange = (id: string, checked: boolean) => {
     setSelectedContent((prevselectedContent) => {
@@ -598,17 +605,52 @@ const NotesDirectory: React.FC = () => {
 
       <UploadModal
         isOpen={openUploadModal}
-        onClose={() => setOpenUploadModal(false)}
+        onClose={() => {
+          setOpenUploadModal(false);
+          setFile(null);
+        }}
         accept="application/pdf"
         isLoading={isUploadingFile}
+        progress={progress}
+        countdown={countdown}
+        setProgress={setProgress}
+        confirmReady={confirmReady}
+        file={file}
+        setFile={setFile}
         onUpload={(file) => {
           const uploadEmitter = uploadFile(file, {
             studentID: user?._id as string,
             documentID: file.name
           });
+
+          let readableFileName = file.name
+            .toLowerCase()
+            .replace(/\.pdf$/, '')
+            .replace(/_/g, ' ');
+
+          if (readableFileName.length > MAX_FILE_NAME_LENGTH) {
+            readableFileName = readableFileName.substring(
+              0,
+              MAX_FILE_NAME_LENGTH
+            );
+            setCountdown((prev) => ({
+              active: true,
+              message: `The file name has been truncated to ${MAX_FILE_NAME_LENGTH} characters`
+            }));
+            setProgress(5);
+          }
+
+          setCountdown(() => ({
+            active: true,
+            message: 'Uploading... your document is being uploaded'
+          }));
+
           uploadEmitter.on('progress', (progress: number) => {
             if (!isUploadingFile) {
               setIsUploadingFile(true);
+
+              setProgress(progress);
+              setLoading(true);
             }
           });
           uploadEmitter.on('complete', async (responseData: UploadMetadata) => {
@@ -629,12 +671,19 @@ const NotesDirectory: React.FC = () => {
                   status: 'success',
                   position: 'top-right'
                 });
+                setFile(null);
+                setConfirmReady(true);
+                setCountdown((prev) => ({
+                  active: false,
+                  message: 'Document uploaded'
+                }));
               } else {
                 toast({
                   title: 'Failed to save document',
                   status: 'error',
                   position: 'top-right'
                 });
+                setConfirmReady(false);
               }
               setIsUploadingFile(false);
             } catch (error) {

@@ -454,13 +454,12 @@ function CoursePlan() {
   useEffect(() => {
     doFetchTopics();
   }, [doFetchTopics]);
-  // useEffect(() => {
-  //   const events = async () => {
-  //     await fetchUpcomingPlanEvent();
-  //   };
-  //   events();
-  // }, []);
-  console.log(studyPlanReport);
+  useEffect(() => {
+    const events = async () => {
+      await fetchUpcomingPlanEvent();
+    };
+    events();
+  }, []);
 
   const clearIdFromURL = () => {
     const { pathname } = location;

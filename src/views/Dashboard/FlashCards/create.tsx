@@ -125,6 +125,27 @@ const CreateFlashPage = () => {
   const { user }: any = userStore();
   const { hasActiveSubscription } = userStore.getState();
   const location = useLocation();
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const boxWidth = useBoxWidth(wrapperRef);
+
+  const {
+    flashcardData,
+    questions,
+    goToStep,
+    setFlashcardData,
+    resetFlashcard,
+    isLoading: loading,
+    currentStep,
+    settings,
+    setSettings,
+    setMinimized
+  } = useFlashcardWizard();
+
+  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [switchonMobile, setSwitchMobile] = useState(true);
+  const { type: activeBadge } = settings;
 
   const [isHovering, setIsHovering] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
@@ -151,27 +172,6 @@ const CreateFlashPage = () => {
   //   type: TypeEnum.INIT,
   //   source: SourceEnum.SUBJECT
   // });
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-
-  const boxWidth = useBoxWidth(wrapperRef);
-
-  const {
-    flashcardData,
-    questions,
-    goToStep,
-    setFlashcardData,
-    resetFlashcard,
-    isLoading: loading,
-    currentStep,
-    settings,
-    setSettings,
-    setMinimized
-  } = useFlashcardWizard();
-
-  const { createFlashCard, isLoading, fetchFlashcards } = flashcardStore();
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [switchonMobile, setSwitchMobile] = useState(true);
-  const { type: activeBadge } = settings;
 
   const queryParams = new URLSearchParams(location.search);
 
@@ -247,7 +247,7 @@ const CreateFlashPage = () => {
   ]);
 
   useEffect(() => {
-    if (flashcardData.hasSubmitted) {
+    if (flashcardData?.hasSubmitted) {
       if (settings.type !== TypeEnum.FLASHCARD) {
         setSettings((value) => ({ ...value, type: TypeEnum.FLASHCARD }));
       }
@@ -259,7 +259,7 @@ const CreateFlashPage = () => {
       //   setSettings((value) => ({ ...value, source: SourceEnum.MANUAL }));
       // }
     }
-  }, [flashcardData.hasSubmitted, settings.type, settings.source]);
+  }, [flashcardData?.hasSubmitted, settings.type, settings.source]);
 
   const handleBadgeClick = (badge: TypeEnum) => {
     if (
@@ -341,6 +341,8 @@ const CreateFlashPage = () => {
           onConfirm={() => onSubmitFlashcard()}
           activeBadge={activeBadge}
           handleBadgeClick={handleBadgeClick}
+          isCompleted={isCompleted}
+          setFlashcardData={setFlashcardData}
         ></QuestionsPreview>
       );
     }
@@ -485,18 +487,18 @@ const CreateFlashPage = () => {
                   value={settings.source}
                 >
                   <HStack align="start" spacing={7}>
-                    <Radio value={SourceEnum.DOCUMENT}>
+                    <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
                       <Text color="#585F68">Document</Text>
                     </Radio>
-                    <Radio value={SourceEnum.SUBJECT}>
+                    <Radio value={SourceEnum.SUBJECT} isDisabled={isCompleted}>
                       <Text color="#585F68">Auto</Text>
                     </Radio>
-                    <Radio value={SourceEnum.MANUAL}>
+                    <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
                       <Text color="#585F68">Manual</Text>
                     </Radio>
                     {user.subscription &&
                       user.subscription.tier === 'Premium' && (
-                        <Radio value={SourceEnum.ANKI}>
+                        <Radio value={SourceEnum.ANKI} isDisabled={isCompleted}>
                           <Text color="#585F68">Anki</Text>
                         </Radio>
                       )}

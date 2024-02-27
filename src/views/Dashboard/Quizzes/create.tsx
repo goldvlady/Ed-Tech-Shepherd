@@ -642,7 +642,7 @@ const CreateQuizPage = () => {
                 </Tab>
                 {false && (
                   <Tab _selected={{ color: '#207DF7' }} flex="1">
-                    Text
+                    Topic
                   </Tab>
                 )}
                 <Tab

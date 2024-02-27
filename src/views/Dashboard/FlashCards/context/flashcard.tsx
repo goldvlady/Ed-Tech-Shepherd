@@ -1,5 +1,5 @@
-import { useToast } from '@chakra-ui/react';
-import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { Box, CloseButton, Icon, useToast, Text, Flex } from '@chakra-ui/react';
+import { InfoIcon } from '@chakra-ui/icons';
 import PlansModal from '../../../../components/PlansModal';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import useFlashcardQuestionsJob from '../../../../hooks/useFlashcardQuestionJobs';
@@ -141,8 +141,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const toast = useToast();
 
-  const { user } = userStore();
-
+  const { hasActiveSubscription, user } = userStore();
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
@@ -168,6 +167,71 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     []
   );
+
+  const checkFlashcardLimit = async (requestedCount) => {
+    const flashcardCountResponse = await ApiService.checkFlashcardCount(
+      user.student._id
+    );
+    const userFlashcardCount = await flashcardCountResponse.json();
+    const limit = hasActiveSubscription
+      ? user.subscription?.subscriptionMetadata?.flashcard_limit || 50000
+      : 40; // Default limit to 40 if on free tier
+    const remainingQuota = limit - userFlashcardCount.count;
+
+    // Check if the user is completely out of generation space
+    if (remainingQuota <= 0) {
+      setPlansModalMessage(
+        !hasActiveSubscription
+          ? "Let's get you on a plan so you can generate flashcards! "
+          : "You've hit the limit for flashcard generation on your current plan! 🚀"
+      );
+      setPlansModalSubMessage(
+        !hasActiveSubscription
+          ? 'Get started today for free!'
+          : "Let's upgrade your plan so you can keep generating more."
+      );
+      setTogglePlansModal(true);
+      return { canProceed: false, adjustedCount: 0 };
+    } else if (requestedCount > remainingQuota) {
+      // If the user requests more questions than their remaining quota
+      toast({
+        render: ({ onClose }) => (
+          <Box
+            color="white"
+            p={4}
+            bg="blue.500"
+            borderRadius="md"
+            position="relative"
+          >
+            <Flex align="start">
+              <Icon as={InfoIcon} color="white" w={5} h={5} mt="1" mr={3} />
+              <Box flex="1">
+                <Text fontSize="md" mr={6} ml={8}>
+                  You've requested {requestedCount} flashcards, but you can only
+                  generate {remainingQuota} more under your current plan.
+                </Text>
+                <Text fontSize="sm" mt={4} mr={6} ml={6}>
+                  Consider upgrading your plan for more flashcard generations.
+                </Text>
+              </Box>
+            </Flex>
+            <CloseButton
+              position="absolute"
+              top="1"
+              right="1"
+              onClick={onClose}
+              color="white"
+            />
+          </Box>
+        ),
+        isClosable: true
+      });
+      return { canProceed: true, adjustedCount: remainingQuota };
+    }
+
+    return { canProceed: true, adjustedCount: requestedCount };
+  };
+
   const cancelQuestionGeneration = useCallback(() => {
     cancelRequest = true;
     setIsLoading(false);
@@ -236,15 +300,15 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       options: [], // Initialized options as empty array
       answer: ''
     };
-    if (flashcardData.numQuestions && !questions.length) {
-      const numQuestions = flashcardData.numQuestions;
+    if (flashcardData?.numQuestions && !questions?.length) {
+      const numQuestions = flashcardData?.numQuestions;
       const generatedQuestions: FlashcardQuestion[] = [];
       for (let i = 0; i < numQuestions; i++) {
         generatedQuestions.push(questionsEmptyState);
       }
       setQuestions(generatedQuestions);
     }
-  }, [flashcardData.numQuestions, questions]);
+  }, [flashcardData?.numQuestions, questions]);
   const resetFlashcard = useCallback(() => {
     setFlashcardData(defaultFlashcardData);
     setQuestions([]);
@@ -354,40 +418,20 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const loadMoreQuestions = useCallback(
     async (count = 5) => {
-      // Subscription and flashcard limit check
-      const { hasActiveSubscription } = userStore.getState();
-      const flashcardCountResponse = await ApiService.checkFlashcardCount(
-        user.student._id
-      );
-      const userFlashcardCount = await flashcardCountResponse.json();
-
-      if (
-        (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
-        (user.subscription?.subscriptionMetadata?.flashcard_limit &&
-          userFlashcardCount.count >=
-            user.subscription.subscriptionMetadata.flashcard_limit)
-      ) {
-        setPlansModalMessage(
-          !hasActiveSubscription
-            ? "Let's get you on a plan so you can generate flashcards! "
-            : "You've hit the limit for flashcard generation on your current plan! 🚀"
-        );
-        setPlansModalSubMessage(
-          !hasActiveSubscription
-            ? 'Get started today for free!'
-            : "Let's upgrade your plan so you can keep generating more."
-        );
-        setTogglePlansModal(true); // Show the PlansModal
-        setIsLoading(false);
-        return;
-      }
       try {
+        const { canProceed, adjustedCount } = await checkFlashcardLimit(count);
+
+        if (!canProceed) {
+          setIsLoading(false);
+          return;
+        }
+
         setIsLoading(true);
         // Construct the AI request body
         const aiData: AIRequestBody = {
           topic: flashcardData.topic,
           subject: flashcardData.subject,
-          count,
+          count: adjustedCount,
           firebaseId: user?.firebaseId,
           ...(flashcardData.level && { difficulty: flashcardData.level }),
           ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
@@ -490,8 +534,15 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     ) => {
       let reqData = data || flashcardData;
       try {
+        const { canProceed, adjustedCount } = await checkFlashcardLimit(
+          reqData.numQuestions
+        );
+        if (!canProceed) {
+          return;
+        }
+        reqData.numQuestions = adjustedCount;
         data = data || ({} as FlashcardData);
-        reqData = { ...flashcardData, ...data };
+        reqData = { ...flashcardData, ...data, numQuestions: adjustedCount };
         setIsLoading(true);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
         const aiData: AIRequestBody = {

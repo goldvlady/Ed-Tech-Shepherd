@@ -7,9 +7,12 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  Button
+  Button,
+  Box,
+  Progress,
+  Text
 } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import userStore from '../../state/userStore';
 import PlansModal from '../PlansModal';
 
@@ -21,6 +24,15 @@ interface UploadModalProps {
   accept?: string;
   onClose: () => void;
   onUpload: (file: File) => void; // Callback function for when the "Upload" button is clicked
+  progress?: number;
+  countdown?: {
+    active: boolean;
+    message: string;
+  };
+  setProgress?: any;
+  confirmReady?: boolean;
+  file?: any;
+  setFile?: any;
   // You can add more props as needed
 }
 
@@ -29,17 +41,59 @@ const UploadModal: React.FC<UploadModalProps> = ({
   onClose,
   onUpload,
   isLoading,
-  accept
+  accept,
+  progress,
+  countdown,
+  setProgress,
+  confirmReady,
+  file,
+  setFile
 }) => {
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
-
-  const [file, setFile] = useState<File | null>(null);
 
   const hasFile = Boolean(file);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+
+  const CountdownProgressBar = ({
+    confirmReady,
+    countdown
+  }: {
+    confirmReady: boolean;
+    countdown: { active: boolean; message: string };
+  }) => {
+    // const [progress, setProgress] = useState(0);
+
+    const randomSeed = (min = 1, max = 10) =>
+      Math.floor(Math.random() * (max - min + 5) + min);
+
+    useEffect(() => {
+      if (confirmReady) {
+        setProgress(() => 500);
+      } else {
+        const interval = setInterval(() => {
+          setProgress((prevProgress) => prevProgress + randomSeed());
+        }, 1000);
+
+        return () => clearInterval(interval);
+      }
+    }, [confirmReady]);
+
+    return (
+      <div>
+        <Progress
+          size="lg"
+          hasStripe
+          value={progress}
+          max={500}
+          colorScheme="green"
+        />
+        <Text>{countdown.message}</Text>
+      </div>
+    );
+  };
 
   if (togglePlansModal) {
     return (
@@ -61,6 +115,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
             <DragAndDrop
               accept={accept}
               file={file}
+              progress={progress}
+              countdown={countdown}
+              setProgress={setProgress}
               onFileUpload={(file: File) => {
                 // Check if the file size exceeds the limit
                 if (!file || file.size > fileSizeLimitBytes) {
@@ -82,6 +139,14 @@ const UploadModal: React.FC<UploadModalProps> = ({
               }}
             />
           </ModalBody>
+          <Box my={2} mx={5}>
+            {countdown.active && (
+              <CountdownProgressBar
+                confirmReady={confirmReady}
+                countdown={countdown}
+              />
+            )}
+          </Box>
           <ModalFooter>
             <Button
               isLoading={isLoading}

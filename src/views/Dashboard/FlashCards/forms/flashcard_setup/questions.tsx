@@ -119,8 +119,6 @@ const FlashCardQuestionsPage = ({ showConfirm }: { showConfirm?: boolean }) => {
     }
   }, [currentQuestionIndex]);
 
-  const questionsCount = flashcardData.numQuestions;
-
   const handleQuestionSubmit = useCallback(() => {
     // setQuestions((prevQuestions) => {
     //   const updatedQuestions = [...prevQuestions];

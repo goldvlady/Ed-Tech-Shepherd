@@ -186,6 +186,7 @@ export interface User extends TimestampedEntity {
   hasActiveSubscription: boolean;
   hadSubscription: boolean;
   onboardCompleted: boolean;
+  userRole: 'student' | 'tutor' | 'both';
 }
 
 export interface Student extends TimestampedEntity {
@@ -349,6 +350,11 @@ export interface LibraryCardData {
   front: string;
   back: string;
   explainer?: string;
+}
+
+export interface LibraryProviderData {
+  name: string;
+  _id: string;
 }
 
 export interface LibrarySubjectData {
@@ -584,6 +590,20 @@ export interface QuizData {
   currentStudy?: MinimizedStudy;
   tags: string[];
 }
+
+export interface ConversationHistory {
+  createdAt: string;
+  deletedAt: string;
+  id: string;
+  level: string;
+  reference: string;
+  referenceId: string;
+  subject: string;
+  title: string;
+  topic: string;
+  updatedAt: string;
+}
+
 export type StudyPlanTopic = {
   mainTopic: string;
   subTopics: string[];

@@ -1,8 +1,11 @@
 import useIsMobile from '../../../../helpers/useIsMobile';
 import OptionBadge from '../components/optionBadge';
 import QuestionReviewCard from '../components/question_preview_card';
-import { useFlashcardWizard, FlashcardQuestion } from '../context/flashcard';
-import { ModeEnum } from '../context/flashcard';
+import {
+  useFlashcardWizard,
+  FlashcardQuestion,
+  ModeEnum
+} from '../context/flashcard';
 import { TypeEnum } from '../create';
 import {
   Box,
@@ -13,19 +16,23 @@ import {
   Flex,
   Input
 } from '@chakra-ui/react';
-import { ChangeEvent } from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, ChangeEvent, SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function QuestionsPreview({
   activeBadge,
   handleBadgeClick,
   onConfirm,
-  isLoading
+  isLoading,
+  isCompleted,
+  setFlashcardData
 }: {
   activeBadge?: TypeEnum;
   handleBadgeClick: (v: TypeEnum) => void;
   onConfirm: () => void;
   isLoading: boolean;
+  isCompleted: boolean;
+  setFlashcardData?: React.Dispatch<SetStateAction<any>>;
 }) {
   const {
     questions,
@@ -37,11 +44,12 @@ export default function QuestionsPreview({
     mode,
     loadMoreQuestions,
     resetFlashcard,
-    addQuestionsToFlashcard
+    addQuestionsToFlashcard,
+    setQuestions
   } = useFlashcardWizard();
 
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const isMobile = useIsMobile();
 
@@ -172,7 +180,7 @@ export default function QuestionsPreview({
                 isActive={activeBadge === TypeEnum.FLASHCARD}
                 onClick={() => handleBadgeClick(TypeEnum.FLASHCARD)}
               />
-              <OptionBadge
+              {/* <OptionBadge
                 text={isMobile ? '' : 'Mnemonics'}
                 icon={(isActive) => (
                   <svg
@@ -193,7 +201,7 @@ export default function QuestionsPreview({
                 )}
                 isActive={activeBadge === TypeEnum.MNEOMONIC}
                 onClick={() => handleBadgeClick(TypeEnum.MNEOMONIC)}
-              />
+              /> */}
             </HStack>
             <HStack>
               <Button
@@ -207,21 +215,51 @@ export default function QuestionsPreview({
               >
                 Reset
               </Button>
-              <Button
-                isDisabled={
-                  questions.filter((question) => question.question).length === 0
-                }
-                isLoading={isLoading}
-                onClick={() => onConfirm()}
-                borderRadius="10px"
-                p="10px 25px"
-                fontSize="14px"
-                lineHeight="20px"
-                variant="solid"
-                colorScheme="primary"
-              >
-                {mode === ModeEnum.CREATE ? 'Confirm' : 'Save'}
-              </Button>
+              {!isCompleted && (
+                <Button
+                  isDisabled={
+                    questions.filter((question) => question.question).length ===
+                    0
+                  }
+                  isLoading={isLoading}
+                  onClick={() => onConfirm()}
+                  borderRadius="10px"
+                  p="10px 25px"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  variant="solid"
+                  colorScheme="primary"
+                >
+                  {mode === ModeEnum.CREATE ? 'Confirm' : 'Save'}
+                </Button>
+              )}
+              {isCompleted && (
+                <Button
+                  isDisabled={
+                    questions.filter((question) => question.question).length ===
+                    0
+                  }
+                  isLoading={isLoading}
+                  onClick={() => {
+                    navigate('/dashboard/flashcards');
+                    resetFlashcard();
+                    setQuestions([]);
+                  }}
+                  borderRadius="10px"
+                  border="1px solid #EDF2F7"
+                  p="10px 25px"
+                  fontSize="14px"
+                  lineHeight="20px"
+                  variant="solid"
+                  colorScheme="blackAlpha"
+                  bg="white"
+                  _hover={{
+                    bg: 'white'
+                  }}
+                >
+                  <Text color="#000">Exit</Text>
+                </Button>
+              )}
             </HStack>
           </HStack>
         </VStack>

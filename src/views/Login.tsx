@@ -31,6 +31,7 @@ import React, { useCallback, useEffect } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import ApiService from '../services/ApiService';
 
 const Root = styled(Box)``;
 
@@ -50,27 +51,31 @@ const Login: React.FC = () => {
   const auth = getAuth();
   const { user: appUser, fetchUser } = userStore();
 
-  const handleNavigation = useCallback(() => {
+  const handleNavigation = useCallback(async () => {
     let path = '/dashboard';
     sessionStorage.setItem('Just Signed in', 'true');
     if (appUser?.type.includes('tutor')) {
+      const resp = await ApiService.toggleUserRole(appUser._id, 'tutor');
       path = '/dashboard/tutordashboard';
     }
     if (appUser?.signedUpAsTutor) {
       if (appUser?.tutor) {
+        const resp = await ApiService.toggleUserRole(appUser._id, 'tutor');
         path = '/dashboard/tutordashboard';
       } else {
         path = '/complete_profile';
       }
     }
     if (
-      appUser?.tutor &&
-      !appUser.tutor.isActive &&
-      appUser?.type.includes('student')
+      (appUser?.tutor &&
+        !appUser.tutor.isActive &&
+        appUser?.type.includes('student')) ||
+      (appUser?.type.includes('student') && !appUser.tutor)
     ) {
+      const resp = await ApiService.toggleUserRole(appUser._id, 'student');
       path = '/dashboard';
     }
-    navigate(path);
+    window.location.href = path;
   }, [appUser, navigate]);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {

@@ -65,6 +65,7 @@ const DocumentListWrapper = styled.div`
 
 interface ShowProps {
   show?: boolean;
+  acceptString?: string;
   setShow?: (show: boolean) => void;
   setShowHelp?: (showHelp: boolean) => void;
   okayButton?: boolean;
@@ -148,6 +149,7 @@ const FileUploadModal = ({
   setShow,
   cancelButton = true,
   okayButton,
+  acceptString,
   FootCustomButton,
   continueButton = true,
   onFileSelect = () => null,
@@ -330,13 +332,14 @@ const FileUploadModal = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: {
-      'text/plain': ['.txt'],
-      'application/pdf': ['.pdf'],
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      ...accept
-    },
+    accept: accept
+      ? accept
+      : {
+          'text/plain': ['.txt'],
+          'application/pdf': ['.pdf'],
+          'image/jpeg': ['.jpeg', '.jpg'],
+          'application/vnd.ms-powerpoint': ['.ppt']
+        },
     maxSize: fileSizeLimitBytes,
     onDragEnter: () => {
       setIsDragOver(true);
@@ -693,7 +696,8 @@ const FileUploadModal = ({
                             fontSize="xs"
                             color={isDragOver ? 'white' : 'gray.500'}
                           >
-                            DOC, TXT, or PDF (MAX: {fileSizeLimitMB}MB)
+                            {acceptString ? acceptString : 'DOC, TXT, or PDF'}{' '}
+                            (MAX: {fileSizeLimitMB}MB)
                           </Text>
                         </PDFTextContainer>
                       </Flex>

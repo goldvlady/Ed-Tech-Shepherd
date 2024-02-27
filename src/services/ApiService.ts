@@ -14,7 +14,9 @@ import {
   processDocument,
   createDocchatFlashCards,
   chatHomeworkHelp,
-  chatHistory
+  chatHistory,
+  getConversionById,
+  getConversionByIdAndAPIKey
 } from './AI';
 
 // Suppose these functions are in 'apiFunctions.ts' file
@@ -27,6 +29,8 @@ class ApiService {
   static createDocchatFlashCards = createDocchatFlashCards;
   static chatHomeworkHelp = chatHomeworkHelp;
   static chatHistory = chatHistory;
+  static getConversionById = getConversionById;
+  static getConversationByIdAndAPIKey = getConversionByIdAndAPIKey;
 
   static getResources = async () => {
     return doFetch(`${ApiService.baseEndpoint}/resources`);
@@ -38,6 +42,13 @@ class ApiService {
 
   static getUser = async () => {
     return doFetch(`${ApiService.baseEndpoint}/me`);
+  };
+
+  static toggleUserRole = async (id: string, userRole: string | null) => {
+    return doFetch(`${ApiService.baseEndpoint}/toggleUserRoleHandler`, {
+      method: 'POST',
+      body: JSON.stringify({ userId: id, role: userRole })
+    });
   };
 
   static generateShareLink = async (body: { apiKey: string }) => {
@@ -128,6 +139,13 @@ class ApiService {
 
   static getMnemonics = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
+  static getLibraryProviders = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/getLibraryProviders`, {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -1053,6 +1071,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createStudyPlan`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static deleteStudyPlan = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/deleteStudyPlan?id=${id}`, {
+      method: 'POST'
     });
   };
   static getStudyPlans = async (page: number, limit: number) => {

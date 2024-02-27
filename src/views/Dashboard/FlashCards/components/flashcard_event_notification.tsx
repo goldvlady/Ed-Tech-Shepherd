@@ -79,9 +79,9 @@ const FlashCardEventNotifier = () => {
             >
               {questionGenerationStatus ===
               QuestionGenerationStatusEnum.SUCCESSFUL
-                ? ` Your ${flashcardData.deckname} flashcard questions have generated
+                ? ` Your ${flashcardData?.deckname} flashcard questions have generated
               successfully`
-                : ` Your ${flashcardData.deckname} flashcard questions failed to generate`}
+                : ` Your ${flashcardData?.deckname} flashcard questions failed to generate`}
             </Text>
 
             <Text
