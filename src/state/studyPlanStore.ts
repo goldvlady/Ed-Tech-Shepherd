@@ -10,7 +10,14 @@ type StudyPlanStore = {
 
   isLoading: boolean;
   pagination: { page: number; limit: number; total: number };
-  fetchPlans: (page: number, limit: number) => Promise<void>;
+  fetchPlans: (
+    page: number,
+    limit: number,
+    minReadinessScore?: number,
+    maxReadinessScore?: number,
+    title?: string,
+    subject?: string
+  ) => Promise<void>;
   fetchPlanResources: (planId: string) => Promise<void>;
   fetchPlanReport: (planId: string) => Promise<void>;
   fetchUpcomingPlanEvent: () => Promise<void>;
@@ -26,20 +33,47 @@ export default create<StudyPlanStore>((set) => ({
   isLoading: false,
   pagination: { limit: 10, page: 1, total: 100 },
 
-  fetchPlans: async (page: number, limit: number) => {
+  fetchPlans: async (
+    page: number,
+    limit: number,
+    minReadinessScore?: number,
+    maxReadinessScore?: number,
+    title?: string,
+    subject?: string
+  ) => {
     set({ isLoading: true });
+    console.log(
+      page,
+      limit,
+      minReadinessScore,
+      maxReadinessScore,
+      title,
+      subject
+    );
+
     try {
-      set({ isLoading: true });
-      const response = await ApiService.getStudyPlans(page, limit);
+      let response;
+
+      const apiUrl = ApiService.getStudyPlans(
+        page,
+        limit,
+        minReadinessScore,
+        maxReadinessScore,
+        title,
+        subject
+      );
+
+      response = await apiUrl;
       const { data, meta } = await response.json();
 
       set({ studyPlans: data, pagination: meta.pagination });
     } catch (error) {
-      // console.log(error)
+      console.error('Error fetching study plans:', error);
     } finally {
       set({ isLoading: false });
     }
   },
+
   fetchUpcomingPlanEvent: async () => {
     set({ isLoading: true });
     try {
@@ -108,18 +142,15 @@ export default create<StudyPlanStore>((set) => ({
     try {
       set({ isLoading: true });
 
-      // Make the API call to delete the study plan
       const response: any = await ApiService.deleteStudyPlan(planId);
 
       if (response.status === 200) {
-        // If deletion is successful, update the studyPlans state by filtering out the deleted plan
         set((state) => ({
           studyPlans: state.studyPlans.filter((plan) => plan._id !== planId)
         }));
 
         return response;
       } else {
-        // Handle other response statuses if needed
         return response;
       }
     } catch (error) {
