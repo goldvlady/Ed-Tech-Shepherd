@@ -6,18 +6,51 @@ import {
 import OcclusionWorkSpace from '../form/_components/occlusion/_components/occlusion-workspace';
 import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
+import { cn } from '../../../../../../../../library/utils';
 
 function StudySession({ open, data }: { open: boolean; data: any }) {
-  const [studySession, setStudySession] = useState(data);
+  const [studySession, setStudySession] = useState({
+    title: '',
+    imageUrl: '',
+    labels: []
+  });
+  const [sessionStarted, setSessionStarted] = useState({
+    started: false,
+    data: {}
+  });
+  const [answered, setAnswered] = useState(false);
+  const [score, setScore] = useState({
+    right: 0,
+    wrong: 0,
+    notRemembered: 0
+  });
+  const [quizOver, setQuizOver] = useState(false);
 
-  console.log(studySession);
+  console.log(score);
   useEffect(() => {
     if (open) {
       setStudySession(data);
     } else {
-      setStudySession({});
+      setStudySession({
+        title: '',
+        imageUrl: '',
+        labels: []
+      });
     }
   }, [open]);
+
+  const onItemClicked = (item: any) => {
+    setStudySession((prevState) => ({
+      ...prevState,
+      labels: prevState.labels.map((label: any) => {
+        if (label.order === item.order) {
+          return { ...label, isRevealed: true };
+        }
+        return label;
+      })
+    }));
+    setAnswered(true);
+  };
 
   return (
     <Dialog open={open}>
@@ -31,8 +64,24 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
           </div>
           <div className="right flex items-center gap-3">
             <div>
-              <Button>
-                <span className="inline-block mr-2">
+              <Button
+                className={
+                  sessionStarted.started ? 'bg-[red] text-[white]' : ''
+                }
+                onClick={() => {
+                  if (sessionStarted.started) {
+                    setSessionStarted({ started: false, data: {} });
+                    setScore({ right: 0, wrong: 0, notRemembered: 0 });
+                    return;
+                  }
+                  setSessionStarted({ started: true, data: studySession });
+                }}
+              >
+                <span
+                  className={cn('inline-block mr-2', {
+                    hidden: sessionStarted.started
+                  })}
+                >
                   <svg
                     width="14"
                     height="20"
@@ -46,8 +95,12 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
                     />
                   </svg>
                 </span>
-
-                <span>Start</span>
+                {sessionStarted.started && (
+                  <span className="inline-block mr-2 rounded-full w-5 h-5 bg-white/50">
+                    9
+                  </span>
+                )}
+                <span>{sessionStarted.started ? 'Stop' : 'Start'}</span>
               </Button>
             </div>
             <div>
@@ -59,7 +112,49 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
           <OcclusionWorkSpace
             imageURI={studySession.imageUrl}
             items={studySession.labels}
+            itemClick={onItemClicked}
+            studyMode={true}
+            studySessionStarted={sessionStarted.started}
           />
+          <div
+            className={cn(
+              'score-maker flex justify-between p-4 transition-opacity',
+              !sessionStarted.started
+                ? 'opacity-0 pointer-events-none'
+                : 'opacity-100 pointer-events-auto'
+            )}
+          >
+            <Button
+              disabled={!answered}
+              className="bg-green-200 text-green-500"
+              onClick={() => {
+                setScore({ ...score, right: score.right + 1 });
+                setAnswered(false);
+              }}
+            >
+              Got it right
+            </Button>
+            <Button
+              disabled={!answered}
+              className="bg-orange-200 text-orange-500"
+              onClick={() => {
+                setScore({ ...score, notRemembered: score.notRemembered + 1 });
+                setAnswered(false);
+              }}
+            >
+              Didn&apos;t remember
+            </Button>
+            <Button
+              disabled={!answered}
+              className="bg-red-200 text-red-500"
+              onClick={() => {
+                setScore({ ...score, wrong: score.wrong + 1 });
+                setAnswered(false);
+              }}
+            >
+              Got it wrong
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
