@@ -844,9 +844,9 @@ function CreateStudyPlans() {
         </Flex>
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
-          <Flex alignItems="center">
-            <Box boxSize={12} rounded="full" overflow="hidden">
-              <Logo />
+          <Flex alignItems="center" gap={1}>
+            <Box boxSize={12} rounded="full" overflow="hidden" bg="#287ce6">
+              {/* <Logo /> */}
             </Box>
             <Box>
               <Text fontWeight="500" fontSize={'16px'}>
