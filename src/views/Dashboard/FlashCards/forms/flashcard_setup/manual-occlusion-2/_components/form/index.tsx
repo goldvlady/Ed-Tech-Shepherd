@@ -19,6 +19,9 @@ const INITIAL_STATE = {
   afterSubmission: {
     open: false,
     data: {}
+  },
+  studySession: {
+    open: false
   }
 };
 
@@ -53,9 +56,18 @@ function Form() {
           imageURL: '',
           imageUploader: { open: false },
           occlusion: { open: false, elements: [] },
-          afterSubmission: { open: true, data }
+          afterSubmission: { open: true, data },
+          studySession: { open: false }
         }));
       });
+  };
+
+  const startStudySession = () => {
+    setFormState((prevState) => ({
+      ...prevState,
+      afterSubmission: { ...prevState.afterSubmission, open: false },
+      studySession: { open: true }
+    }));
   };
 
   return (
@@ -110,7 +122,11 @@ function Form() {
         handleSubmit={handleSubmit}
         resetForm={resetForm}
       />
-      <CardSavedDialog open={formState.afterSubmission.open} />
+      <CardSavedDialog
+        open={formState.afterSubmission.open}
+        cancel={resetForm}
+        startStudySession={startStudySession}
+      />
     </div>
   );
 }
