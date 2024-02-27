@@ -1,6 +1,7 @@
 import Draggable from 'react-draggable';
 import { ResizableBox } from 'react-resizable';
 import { cn } from '../../../../../../../../../../../../library/utils';
+import { CornerBottomRightIcon } from '@radix-ui/react-icons';
 
 function OcclusionWorkSpace({
   imageURI,
@@ -63,10 +64,12 @@ function OcclusionWorkSpace({
             handle={
               <div
                 className={cn(
-                  'w-[10px] h-[10px] bg-red-500 absolute bottom-0 right-0 cursor-se-resize',
+                  'w-[10px] h-[10px] absolute bottom-0 right-0 cursor-se-resize',
                   mode === 'resizable' ? 'block' : 'hidden'
                 )}
-              />
+              >
+                <CornerBottomRightIcon />
+              </div>
             }
           >
             <div
@@ -75,7 +78,7 @@ function OcclusionWorkSpace({
                 height: `${item.position.height}px`,
                 cursor: mode === 'draggable' ? 'move' : 'auto'
               }}
-              className="inline-block margin-0 bg-[#BAD7FD] text-black text-center"
+              className="inline-block margin-0 bg-[#BAD7FD] text-black text-center rounded-sm"
             ></div>
           </ResizableBox>
         </Draggable>

@@ -25,7 +25,7 @@ function Occlusion({
 }) {
   return (
     <Dialog
-      open={true}
+      open={open}
       onOpenChange={(open) => {
         if (!open) close();
       }}
