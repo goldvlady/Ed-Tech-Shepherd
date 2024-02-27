@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../sidebar';
 import OcclusionWorkSpace from '../occlusion-workspace';
+import { cn } from '../../../../../../../../../../../../library/utils';
 
 function InteractionWindow({
   imageURI,
@@ -11,7 +12,9 @@ function InteractionWindow({
   elements: any[];
   setElements: (elements: any[]) => void;
 }) {
-  const [mode, setMode] = useState<'draggable' | 'resizable'>('draggable');
+  const [mode, setMode] = useState<'draggable' | 'resizable' | 'preview'>(
+    'draggable'
+  );
 
   const addItem = () => {
     setElements([
@@ -26,8 +29,8 @@ function InteractionWindow({
   };
 
   return (
-    <div className="w-full flex-1 relative flex justify-center items-center shrink-0">
-      <div className="sidebar absolute left-0 h-full flex items-center">
+    <div className="w-full flex-1 relative flex justify-center items-center shrink-0 overflow-hidden">
+      <div className={cn('sidebar absolute left-0 h-full flex items-center')}>
         <Sidebar mode={mode} setMode={setMode} addItem={addItem} />
       </div>
       <OcclusionWorkSpace

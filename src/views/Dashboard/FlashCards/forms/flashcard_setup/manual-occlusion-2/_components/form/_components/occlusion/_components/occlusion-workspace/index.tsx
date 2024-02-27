@@ -11,7 +11,7 @@ function OcclusionWorkSpace({
 }: {
   imageURI: string;
   items: any[];
-  mode: 'draggable' | 'resizable';
+  mode: 'draggable' | 'resizable' | 'preview';
   setItems: (items: any[]) => void;
 }) {
   return (
