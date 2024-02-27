@@ -377,103 +377,115 @@ function CreateStudyPlans() {
       }
     });
 
+    console.log(isDragging);
+
     return (
       <div
         ref={(node) => drag(drop(node))}
-        style={{ opacity: isDragging ? 0.5 : 1 }}
+        style={{
+          opacity: isDragging ? 0.5 : 1,
+          boxShadow: isDragging ? '0 4px 8px 0 rgba(0,0,0,0.1)' : 'none', // Apply shadow when dragging
+          transition: 'box-shadow 0.2s ease' // Add transition for smoother effect
+        }}
       >
-        <Box
-          bg="white"
-          p={4}
-          rounded="md"
-          shadow="md"
-          key={index}
-          // index={index}
-          // moveTopic={moveTopic}
-          // updateMainTopic={updateMainTopic}
-          // handleRemoveFile={handleRemoveFile}
-          // handleUploadTopicFile={handleUploadTopicFile}
-          // deleteMainTopic={deleteMainTopic}
-          // topic={topic}
-        >
-          <Editable
-            value={topic.topics[0].mainTopic}
-            fontSize="16px"
-            fontWeight="500"
-            mb={2}
-            color="text.300"
-            onChange={(newMainTopic) => updateMainTopic(index, newMainTopic)}
+        {isDragging ? (
+          <Box boxSize={'2px'} borderBottom="1px solid black">
+            ggg
+          </Box>
+        ) : (
+          <Box
+            bg="white"
+            p={4}
+            rounded="md"
+            shadow="md"
+            key={index}
+            // index={index}
+            // moveTopic={moveTopic}
+            // updateMainTopic={updateMainTopic}
+            // handleRemoveFile={handleRemoveFile}
+            // handleUploadTopicFile={handleUploadTopicFile}
+            // deleteMainTopic={deleteMainTopic}
+            // topic={topic}
           >
-            <EditablePreview />
-            <EditableInput />
-          </Editable>
-
-          <UnorderedList
-            listStyleType="disc"
-            listStylePosition="inside"
-            color="gray.700"
-            fontSize={14}
-          >
-            {topic.topics[0]?.subTopics?.map((item, index) => (
-              <ListItem key={index}>{item}</ListItem>
-            ))}
-          </UnorderedList>
-          <Divider my={2} />
-          <Flex justify="space-between" gap={1}>
-            <Box color="green.500">
-              <Icon as={FaCheckCircle} />
-            </Box>
-            <Flex
-              direction="row"
-              overflowX={'scroll'}
-              className="custom-scroll"
-              mr={'auto'}
+            <Editable
+              value={topic.topics[0].mainTopic}
+              fontSize="16px"
+              fontWeight="500"
+              mb={2}
+              color="text.300"
+              onChange={(newMainTopic) => updateMainTopic(index, newMainTopic)}
             >
-              {topic.topics[0].topicUrls &&
-                topic.topics[0].topicUrls.map((file, index) => (
-                  <>
-                    <Flex
-                      fontSize={10}
-                      color="gray.700"
-                      alignItems={'center'}
-                      gap={1}
-                      whiteSpace="nowrap"
-                    >
-                      <Text>{`${
-                        file.name?.length > 10
-                          ? `${file.name.slice(0, 10)}...`
-                          : file.name
-                      } `}</Text>
-                      <CloseIcon
-                        boxSize={1.5}
-                        onClick={(e) => handleRemoveFile(index, index)}
-                      />
-                      {index !== topicUrls.length - 1 && `,`}
-                    </Flex>
-                  </>
-                ))}
-            </Flex>
-            <HStack color="gray.500" spacing={3}>
-              <label htmlFor={`fileInput-${index}`}>
-                <Icon as={FaFileAlt} boxSize={3} />
-              </label>
-              <input
-                type="file"
-                id={`fileInput-${index}`}
-                style={{ display: 'none' }}
-                onChange={(e) =>
-                  handleUploadTopicFile(index, e.target.files[0])
-                }
-              />
+              <EditablePreview />
+              <EditableInput />
+            </Editable>
 
-              <Icon
-                as={FaTrashAlt}
-                boxSize={3}
-                onClick={() => deleteMainTopic(index)}
-              />
-            </HStack>
-          </Flex>
-        </Box>
+            <UnorderedList
+              listStyleType="disc"
+              listStylePosition="inside"
+              color="gray.700"
+              fontSize={14}
+            >
+              {topic.topics[0]?.subTopics?.map((item, index) => (
+                <ListItem key={index}>{item}</ListItem>
+              ))}
+            </UnorderedList>
+            <Divider my={2} />
+            <Flex justify="space-between" gap={1}>
+              <Box color="green.500">
+                <Icon as={FaCheckCircle} />
+              </Box>
+              <Flex
+                direction="row"
+                overflowX={'scroll'}
+                className=""
+                mr={'auto'}
+              >
+                {topic.topics[0].topicUrls &&
+                  topic.topics[0].topicUrls.map((file, index) => (
+                    <>
+                      <Flex
+                        fontSize={10}
+                        color="gray.700"
+                        alignItems={'center'}
+                        gap={1}
+                        whiteSpace="nowrap"
+                      >
+                        <Text>{`${
+                          file.name?.length > 10
+                            ? `${file.name.slice(0, 10)}...`
+                            : file.name
+                        } `}</Text>
+                        <CloseIcon
+                          boxSize={1.5}
+                          onClick={(e) => handleRemoveFile(index, index)}
+                        />
+                        {index !== topicUrls.length - 1 && `,`}
+                      </Flex>
+                    </>
+                  ))}
+              </Flex>
+              <HStack color="gray.500" spacing={3}>
+                <label htmlFor={`fileInput-${index}`}>
+                  <Icon as={FaFileAlt} boxSize={3} />
+                </label>
+                <input
+                  type="file"
+                  id={`fileInput-${index}`}
+                  style={{ display: 'none' }}
+                  onChange={(e) =>
+                    handleUploadTopicFile(index, e.target.files[0])
+                  }
+                />
+
+                <Icon
+                  as={FaTrashAlt}
+                  boxSize={3}
+                  onClick={() => deleteMainTopic(index)}
+                />
+              </HStack>
+            </Flex>
+          </Box>
+        )}
       </div>
     );
   };

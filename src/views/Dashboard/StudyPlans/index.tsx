@@ -15,7 +15,13 @@ import {
   Input,
   Button,
   Spacer,
-  SimpleGrid
+  SimpleGrid,
+  RangeSlider,
+  RangeSliderTrack,
+  RangeSliderFilledTrack,
+  RangeSliderThumb,
+  HStack,
+  VStack
 } from '@chakra-ui/react';
 
 import { useNavigate } from 'react-router';
@@ -28,6 +34,10 @@ import Pagination from '../components/Pagination';
 import ShepherdSpinner from '../components/shepherd-spinner';
 import ApiService from '../../../services/ApiService';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
+import { MdCancel, MdGraphicEq } from 'react-icons/md';
+import Select, { components } from 'react-select';
+import { FiChevronDown } from 'react-icons/fi';
+import { GiCancel } from 'react-icons/gi';
 
 function StudyPlans() {
   const { fetchPlans, studyPlans, pagination, isLoading, deleteStudyPlan } =
@@ -39,7 +49,17 @@ function StudyPlans() {
   const navigate = useNavigate();
   const toast = useCustomToast();
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [minScore, setMinScore] = useState(0);
+  const [maxScore, setMaxScore] = useState(100);
+  const [subject, setSubject] = useState<string>();
 
+  const DropdownIndicator = (props) => {
+    return (
+      <components.DropdownIndicator {...props}>
+        <Box as={FiChevronDown} color={'text.400'} />
+      </components.DropdownIndicator>
+    );
+  };
   const doFetchStudyPlans = useCallback(async () => {
     await fetchPlans(page, limit);
   }, [fetchPlans, page, limit]);
@@ -52,19 +72,11 @@ function StudyPlans() {
     fetchPlans(nextPage, limit);
   };
 
-  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
   const handleDeletePlan = async (id: string) => {
-    // console.log(id);
-
     try {
       const resp: any = await deleteStudyPlan(id);
-      // console.log(resp);
 
       if (resp.status === 200) {
-        // setIsCompleted(true);
-        // setLoading(false);
         toast({
           title: 'Plan Deleted Successfully',
           position: 'top-right',
@@ -85,17 +97,6 @@ function StudyPlans() {
       // setLoading(false);
     }
   };
-  const filteredPlans = studyPlans.filter((plan) =>
-    plan.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const displayPlans = filteredPlans.length > 0 ? filteredPlans : studyPlans;
-  useEffect(() => {
-    if (sessionStorage.getItem('studyPlans')) {
-      sessionStorage.removeItem('studyPlans');
-    }
-  }, []);
-
   function getSubject(id) {
     const labelFromCourseList = courseList
       .map((course) => (course._id === id ? course.label : null))
@@ -109,27 +110,55 @@ function StudyPlans() {
 
     return allLabels.length > 0 ? allLabels[0] : null;
   }
+  const handleScoreChange = (newMinScore, newMaxScore) => {
+    setMinScore(newMinScore);
+    setMaxScore(newMaxScore);
+    fetchPlans(page, limit, newMinScore, newMaxScore, searchTerm, subject);
+  };
 
-  if (isLoading) {
-    return (
-      <Box
-        p={5}
-        textAlign="center"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}
-      >
-        <ShepherdSpinner />
-      </Box>
-    );
-  }
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+    fetchPlans(page, limit, minScore, maxScore, newSearchTerm, subject);
+  };
 
+  const handleSubjectChange = (selectedOption) => {
+    const newSubject = getSubject(selectedOption);
+    setSubject(newSubject);
+    fetchPlans(page, limit, minScore, maxScore, searchTerm, newSubject);
+  };
+
+  const subjectOptions: any = studyPlanCourses.map((item, index) => ({
+    value: item._id,
+    label: item.label,
+    id: item._id
+  }));
+
+  // if (isLoading) {
+  //   return (
+  //     <Box
+  //       p={5}
+  //       textAlign="center"
+  //       style={{
+  //         display: 'flex',
+  //         justifyContent: 'center',
+  //         alignItems: 'center',
+  //         height: '100vh'
+  //       }}
+  //     >
+  //       <ShepherdSpinner />
+  //     </Box>
+  //   );
+  // }
+  const clearFilters = () => {
+    setMinScore(0);
+    setMaxScore(100);
+    setSearchTerm('');
+    setSubject('');
+  };
   return (
     <>
-      <Flex p={3}>
+      <Flex p={3} justifyContent="space-between">
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
             Study Plans
@@ -138,23 +167,93 @@ function StudyPlans() {
             Chart success: Monitor your personalized study plans.
           </Text>
         </Box>
-        <Spacer />
-        <Flex gap={2}>
+
+        <Flex gap={2} alignItems="center">
+          <MdCancel size={'100px'} color="lightgray" onClick={clearFilters} />
+          <Box fontSize={{ base: 'sm', md: 'md' }}>
+            <Select
+              value={subject}
+              onChange={(option: any) => {
+                handleSubjectChange(option.id);
+              }}
+              options={subjectOptions}
+              placeholder={subject ? subject : 'Select Subject'}
+              components={{ DropdownIndicator }}
+              isSearchable
+              styles={{
+                container: (provided) => ({
+                  ...provided,
+                  width: '150px'
+                }),
+                control: (provided) => ({
+                  ...provided,
+                  borderRadius: '40px',
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  textAlign: 'left',
+                  borderColor: '#E2E8F0'
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  marginTop: '2px'
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isFocused ? '#F2F4F7' : 'transparent',
+                  ':active': {
+                    backgroundColor: '#F2F4F7'
+                  }
+                })
+              }}
+            />
+          </Box>
+          <Text> {minScore}</Text>
+          <RangeSlider
+            aria-label={['min', 'max']}
+            defaultValue={[minScore, maxScore]}
+            onChangeEnd={(values) => handleScoreChange(values[0], values[1])}
+          >
+            <RangeSliderTrack>
+              <RangeSliderFilledTrack />
+            </RangeSliderTrack>
+            <RangeSliderThumb index={0}>
+              <Box color="tomato" as={MdGraphicEq} />
+            </RangeSliderThumb>
+            <RangeSliderThumb index={1} />
+          </RangeSlider>
+          <Text> {maxScore}</Text>
+
           <Input
             type="text"
             placeholder="Search by title..."
             value={searchTerm}
             onChange={handleSearchChange}
+            w="full"
           />
-          {displayPlans.length > 0 && (
-            <Button onClick={() => navigate('/dashboard/create-study-plans')}>
+          {studyPlans.length > 0 && (
+            <Button
+              onClick={() => navigate('/dashboard/create-study-plans')}
+              w="full"
+            >
               Create New
             </Button>
           )}
         </Flex>
       </Flex>
-
-      {displayPlans.length > 0 ? (
+      {isLoading ? (
+        <Box
+          p={5}
+          textAlign="center"
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh'
+          }}
+        >
+          <ShepherdSpinner />
+        </Box>
+      ) : studyPlans.length > 0 ? (
         <>
           <SimpleGrid
             columns={{ base: 1, md: 2, lg: 3 }}
@@ -163,7 +262,7 @@ function StudyPlans() {
             mt={4}
             p={2}
           >
-            {displayPlans.map((plan: any) => (
+            {studyPlans.map((plan: any) => (
               <SubjectCard
                 key={plan._id}
                 title={plan.title || getSubject(plan.course)}
