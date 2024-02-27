@@ -10,7 +10,7 @@ import {
   OPEN_ENDED,
   TRUE_FALSE
 } from '../../../../types';
-import { QuestionIcon } from '@chakra-ui/icons';
+import { QuestionIcon, InfoIcon } from '@chakra-ui/icons';
 import {
   Box,
   FormControl,
@@ -18,7 +18,11 @@ import {
   HStack,
   Button,
   FormLabel,
-  Tooltip
+  Tooltip,
+  Flex,
+  Icon,
+  Text,
+  CloseButton
 } from '@chakra-ui/react';
 import { isEmpty, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
@@ -31,7 +35,7 @@ const TopicQuizForm = ({
   uploadingState
 }) => {
   const toast = useCustomToast();
-  const { user } = userStore();
+  const { hasActiveSubscription, user } = userStore();
   const dummyData = {
     subject: '',
     topic: '',
@@ -62,25 +66,27 @@ const TopicQuizForm = ({
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateQuestions = async () => {
     try {
       handleSetUploadingState(true);
       setIsLoading(true);
+      setIsGenerating(true);
 
-      const { hasActiveSubscription } = userStore.getState();
       const quizCountResponse = await ApiService.checkQuizCount(user._id);
       const userQuizCount = await quizCountResponse.json();
 
-      if (
-        (!hasActiveSubscription && userQuizCount.count >= 40) ||
-        (user.subscription?.subscriptionMetadata?.quiz_limit &&
-          userQuizCount.count >=
-            user.subscription.subscriptionMetadata.quiz_limit)
-      ) {
+      const limit = hasActiveSubscription
+        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
+        : 40; // Default limit to 40 if on free tier
+      const quizzesRemaining = limit - userQuizCount.count;
+
+      if (quizzesRemaining <= 0) {
+        // User has reached or exceeded their limit
         setPlansModalMessage(
           !hasActiveSubscription
-            ? "Let's get you on a plan so you can generate quizzes! "
+            ? "Let's get you on a plan so you can generate more questions! "
             : "Looks like you've filled up your quiz store! 🚀"
         );
         setPlansModalSubMessage(
@@ -88,8 +94,56 @@ const TopicQuizForm = ({
             ? 'Get started today for free!'
             : "Let's upgrade your plan so you can keep generating more."
         );
+        setIsLoading(false);
+        setIsGenerating(false);
         setTogglePlansModal(true); // Show the PlansModal
+        localData.count = 0;
+        setTogglePlansModal(true);
         return;
+      } else if (localData.count > quizzesRemaining) {
+        handleSetUploadingState(true);
+        // User has requested more quizzes than they are allowed to generate
+        const requestedAmount = localData.count;
+        toast({
+          render: ({ onClose }) => (
+            <Box
+              color="white"
+              p={4}
+              bg="blue.500"
+              borderRadius="md"
+              position="relative"
+            >
+              <Flex align="start">
+                <Icon as={InfoIcon} color="white" w={5} h={5} mt="1" mr={3} />
+                <Box flex="1">
+                  <Text fontSize="md" mr={6} ml={8}>
+                    You've requested {requestedAmount} question
+                    {requestedAmount > 1 ? 's' : ''}, but can only generate{' '}
+                    {quizzesRemaining} more under your current plan.
+                  </Text>
+                  <Text fontSize="sm" mt={4} mr={6} ml={6}>
+                    Consider upgrading your plan for more question generations.
+                  </Text>
+                </Box>
+              </Flex>
+              <CloseButton
+                position="absolute"
+                top="1"
+                right="1"
+                onClick={onClose}
+                color="white"
+              />
+            </Box>
+          ),
+          isClosable: true
+        });
+        // Adjust the requested quiz count to the maximum allowed
+        setLocalData((prevState) => ({
+          ...prevState,
+          count: quizzesRemaining
+        }));
+
+        localData.count = quizzesRemaining;
       }
       const result = await ApiService.generateQuizQuestion(user._id, {
         ...localData,
@@ -110,6 +164,7 @@ const TopicQuizForm = ({
       });
     } finally {
       handleSetUploadingState(false);
+      setIsGenerating(false);
     }
   };
 
@@ -252,12 +307,13 @@ const TopicQuizForm = ({
           colorScheme="primary"
           onClick={handleGenerateQuestions}
           isDisabled={
+            isGenerating ||
             uploadingState ||
             localData.count < 1 ||
             isEmpty(localData.topic) ||
             isEmpty(localData.subject)
           }
-          isLoading={isLoading}
+          isLoading={isLoading || isGenerating}
           ml={5}
         >
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />

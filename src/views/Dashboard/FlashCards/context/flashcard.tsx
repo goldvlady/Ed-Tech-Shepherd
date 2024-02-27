@@ -207,8 +207,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
               <Icon as={InfoIcon} color="white" w={5} h={5} mt="1" mr={3} />
               <Box flex="1">
                 <Text fontSize="md" mr={6} ml={8}>
-                  You've requested {requestedCount} flashcards, but you can only
-                  generate {remainingQuota} more under your current plan.
+                  You've requested {requestedCount} flashcard
+                  {remainingQuota > 1 ? 's' : ''}, but you can only generate
+                  {remainingQuota} more under your current plan.
                 </Text>
                 <Text fontSize="sm" mt={4} mr={6} ml={6}>
                   Consider upgrading your plan for more flashcard generations.
