@@ -176,7 +176,6 @@ const UploadQuizForm = ({
     (localData.end_page && localData.end_page <= 40 && localData.count > 50) ||
     (localData.end_page && localData.end_page > 40 && localData.count > 100) ||
     (!localData.end_page && !localData.start_page && localData.count > 100);
-
   function getFileNameFromUrl(url) {
     let fileName = '';
 
