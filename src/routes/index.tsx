@@ -584,6 +584,9 @@ const AppRoutes: React.FC = () => {
               }
             />
           ))}
+        {!isAuthenticated && (
+          <Route path="*" element={<Navigate to={'/login'} />} />
+        )}
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
