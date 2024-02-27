@@ -4,7 +4,7 @@ import { IoIosArrowDroprightCircle } from 'react-icons/io';
 import { useNavigate } from 'react-router';
 import { IoTrash } from 'react-icons/io5';
 function SubjectCard({
-  key,
+  // key,
   title,
   subjectId,
   score,

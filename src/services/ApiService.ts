@@ -1079,10 +1079,36 @@ class ApiService {
       method: 'POST'
     });
   };
-  static getStudyPlans = async (page: number, limit: number) => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`
+  static getStudyPlans = async (
+    page: number,
+    limit: number,
+    minReadinessScore?: number,
+    maxReadinessScore?: number,
+    title?: string,
+    subject?: string
+  ) => {
+    console.log(
+      page,
+      limit,
+      minReadinessScore,
+      maxReadinessScore,
+      title,
+      subject
     );
+
+    let apiUrl = `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`;
+    if (minReadinessScore !== undefined && maxReadinessScore !== undefined) {
+      apiUrl += `&minReadinessScore=${minReadinessScore}&maxReadinessScore=${maxReadinessScore}`;
+    }
+    if (title) {
+      apiUrl += `&title=${title}`;
+    }
+
+    if (subject) {
+      apiUrl += `&course=${subject}`;
+    }
+
+    return doFetch(apiUrl);
   };
   static getStudyPlanResources = async (planId: string) => {
     return doFetch(

@@ -219,6 +219,16 @@ const RequireAuth = ({
   return isAuthenticated ? authenticated : unAuthenticated;
 };
 
+const NotFound = () => {
+  return (
+    <div className="w-full h-screen flex items-center justify-center flex-col">
+      <div className="text-center">
+        <p className="text-xl text-muted-foreground">Page Not Found</p>
+      </div>
+    </div>
+  );
+};
+
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { fetchNotifications, fetchUserDocuments } = userStore();
@@ -574,7 +584,11 @@ const AppRoutes: React.FC = () => {
               }
             />
           ))}
+        {!isAuthenticated && (
+          <Route path="*" element={<Navigate to={'/login'} />} />
+        )}
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

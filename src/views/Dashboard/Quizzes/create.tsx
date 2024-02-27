@@ -638,7 +638,7 @@ const CreateQuizPage = () => {
                   Upload
                 </Tab>
                 <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Text
+                  Topic
                 </Tab>
                 {false && (
                   <Tab _selected={{ color: '#207DF7' }} flex="1">
