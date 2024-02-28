@@ -1,4 +1,4 @@
-import { ResetIcon } from '@radix-ui/react-icons';
+import { ReloadIcon, ResetIcon } from '@radix-ui/react-icons';
 import { Button } from '../../../../../../../../../../components/ui/button';
 import {
   Dialog,
@@ -6,6 +6,7 @@ import {
   DialogClose
 } from '../../../../../../../../../../components/ui/dialog';
 import InteractionWindow from './_components/interaction-window';
+import { cn } from '../../../../../../../../../../library/utils';
 
 function Occlusion({
   open,
@@ -14,7 +15,8 @@ function Occlusion({
   elements,
   setElements,
   handleSubmit,
-  resetForm
+  resetForm,
+  submitting
 }: {
   open: boolean;
   close: () => void;
@@ -23,6 +25,7 @@ function Occlusion({
   setElements: (elements: any[]) => void;
   handleSubmit: () => void;
   resetForm: () => void;
+  submitting: boolean;
 }) {
   return (
     <Dialog
@@ -31,13 +34,19 @@ function Occlusion({
         if (!open) close();
       }}
     >
-      <DialogContent className="bg-white p-0 flex flex-col w-[894px] max-w-4xl">
+      <DialogContent
+        aria-disabled={submitting}
+        className={cn('bg-white p-0 flex flex-col w-[894px] max-w-4xl', {
+          'opacity-90': submitting,
+          '[&_div]:pointer-events-none': submitting
+        })}
+      >
         <header className="flex p-4 justify-between">
           <div className="flex gap-1 items-center">
-            <span className='px-1 py-0.5 rounded bg-[#F3F5F6] cursor-pointer'>
+            <span className="px-1 py-0.5 rounded bg-[#F3F5F6] cursor-pointer">
               <ResetIcon className="w-4 h-4 hover:scale-105" />
             </span>
-            <span className='px-1 py-0.5 rounded bg-[#F3F5F6] cursor-pointer scale-x-[-1]'>
+            <span className="px-1 py-0.5 rounded bg-[#F3F5F6] cursor-pointer scale-x-[-1]">
               <ResetIcon className="w-4 h-4 hover:scale-105" />
             </span>
           </div>
@@ -60,8 +69,13 @@ function Occlusion({
         />
 
         <footer className="flex justify-between w-full p-4">
-          <div className='text-xs opacity-50'>Resize</div>
-          <Button className="bg-blue-600 text-white" onClick={handleSubmit}>
+          <div className="text-xs opacity-50">Resize</div>
+          <Button
+            disabled={submitting}
+            className="bg-blue-600 text-white"
+            onClick={handleSubmit}
+          >
+            {submitting && <ReloadIcon className="w-4 h-4 mr-2 animate-spin" />}
             Save
           </Button>
         </footer>

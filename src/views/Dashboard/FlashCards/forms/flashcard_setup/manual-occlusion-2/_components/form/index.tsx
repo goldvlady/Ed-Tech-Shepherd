@@ -6,6 +6,8 @@ import ApiService from '../../../../../../../../services/ApiService';
 import CardSavedDialog from '../card-saved-dialog';
 import { Label } from '../../../../../../../../components/ui/label';
 import StudySession from '../study-session';
+import { useMutation } from '@tanstack/react-query';
+import { cn } from '../../../../../../../../library/utils';
 
 const INITIAL_STATE = {
   title: '',
@@ -28,6 +30,20 @@ const INITIAL_STATE = {
 
 function Form() {
   const [formState, setFormState] = useState(INITIAL_STATE);
+  const { mutate, isPending } = useMutation({
+    mutationFn: ApiService.createOcclusionCard,
+    onSuccess: async (res) => {
+      let data = await res.json();
+      setFormState(() => ({
+        title: '',
+        imageURL: '',
+        imageUploader: { open: false },
+        occlusion: { open: false, elements: [] },
+        afterSubmission: { open: true, data },
+        studySession: { open: false }
+      }));
+    }
+  });
 
   useEffect(() => {
     if (formState.imageURL) {
@@ -48,19 +64,8 @@ function Form() {
       labels: formState.occlusion.elements,
       title: formState.title
     };
-    // console.log(payload);
-    await ApiService.createOcclusionCard(payload)
-      .then((res) => res.json())
-      .then((data) => {
-        setFormState((prevState) => ({
-          title: '',
-          imageURL: '',
-          imageUploader: { open: false },
-          occlusion: { open: false, elements: [] },
-          afterSubmission: { open: true, data },
-          studySession: { open: false }
-        }));
-      });
+
+    mutate(payload);
   };
 
   const startStudySession = () => {
@@ -122,9 +127,11 @@ function Form() {
         elements={formState.occlusion.elements}
         handleSubmit={handleSubmit}
         resetForm={resetForm}
+        submitting={isPending}
       />
       <CardSavedDialog
         open={formState.afterSubmission.open}
+        // open={true}
         cancel={resetForm}
         startStudySession={startStudySession}
       />
