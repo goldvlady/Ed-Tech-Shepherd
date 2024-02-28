@@ -112,8 +112,6 @@ const SendTutorOffer = () => {
   const { courses: courseList } = resourceStore();
   const navigate = useNavigate();
   const formikRef = useRef<FormikProps<any>>(null);
-  const formikk = useFormikContext();
-  console.log(formikk);
 
   const [loadingTutor, setLoadingTutor] = useState(false);
   const [tutor, setTutor] = useState<Tutor | null>(null);
@@ -210,12 +208,9 @@ const SendTutorOffer = () => {
     }));
   }
   const today = useMemo(() => new Date(), []);
-  console.log(formikRef.current?.values);
 
   const MainForm = () => {
     const formik = useFormikContext();
-    console.log(formik.values);
-
     return (
       <>
         <Form>
