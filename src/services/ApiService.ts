@@ -290,10 +290,35 @@ class ApiService {
   };
 
   static createOcclusionCard = async (data: any) => {
-    return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/createOcclusionCard`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
+  static getOcclusionCard = async (id: string) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCard?id=${id}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
+  static editOcclusionCard = async (data: any) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusion?id=${data._id}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
   };
 
   static getSingleFlashcard = async (id: string) => {

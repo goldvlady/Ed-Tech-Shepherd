@@ -8,7 +8,8 @@ import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 function StudySession({
   open,
@@ -52,6 +53,10 @@ function StudySession({
     }
   });
 
+  const { mutate, isPending: isSubmittingQuiz } = useMutation({
+    mutationFn: ApiService.editOcclusionCard
+  });
+
   useEffect(() => {
     if (isSuccess) {
       setStudySession(data);
@@ -78,8 +83,12 @@ function StudySession({
   const handleQuizOver = () => {
     if (numberOfBubbledChecked === 0) {
       setQuizOver(true);
+      mutate(data, {
+        onSuccess: () => {
+          close();
+        }
+      });
       setSessionStarted({ started: false, data: {} });
-      close();
     }
   };
 
@@ -114,6 +123,7 @@ function StudySession({
           <div className="right flex items-center gap-3">
             <div>
               <Button
+                disabled={isSubmittingQuiz}
                 className={
                   sessionStarted.started ? 'bg-[red] text-[white]' : ''
                 }
@@ -145,8 +155,12 @@ function StudySession({
                   </svg>
                 </span>
                 {sessionStarted.started && (
-                  <span className="inline-block mr-2 rounded-full w-5 h-5 bg-white/50">
-                    {numberOfBubbledChecked}
+                  <span className="inline-flex mr-2 rounded-full w-5 h-5 bg-white/50 items-center justify-center">
+                    {isSubmittingQuiz ? (
+                      <ReloadIcon className="animate-spin" />
+                    ) : (
+                      numberOfBubbledChecked
+                    )}
                   </span>
                 )}
                 <span>{sessionStarted.started ? 'Stop' : 'Start'}</span>
