@@ -550,6 +550,7 @@ function MyProfile(props) {
               </Box>
             </Flex>
             <Text
+              whiteSpace="pre-wrap"
               color="#212224"
               fontSize="14px"
               fontWeight="400"
