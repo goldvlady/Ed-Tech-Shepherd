@@ -54,7 +54,7 @@ function SubjectCard({
             <Text mb={1}>Readiness Score</Text>
             <Spacer />
             <Text color="gray.700" fontSize="base" ml={2}>
-              {score}%
+              {Math.ceil(score)}%
             </Text>
           </Flex>{' '}
           <Box
