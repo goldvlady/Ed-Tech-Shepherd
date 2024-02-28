@@ -91,6 +91,7 @@ function OcclusionWorkSpace({
                 }}
                 className={cn(
                   'inline-block margin-0 bg-[#BAD7FD] text-black text-center rounded-sm transition-all',
+                  studyMode || mode === 'preview' ? 'opacity-100' : 'opacity-50',
                   studyMode && studySessionStarted && 'hover:scale-1 hover:shadow-xl cursor-pointer'
                 )}
               ></div>
