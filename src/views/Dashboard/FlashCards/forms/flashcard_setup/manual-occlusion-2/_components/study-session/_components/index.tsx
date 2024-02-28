@@ -5,46 +5,35 @@ import {
   DialogContent
 } from '../../../../../../../../../components/ui/dialog';
 
-function OccResultsDialog({
-  open,
-  close,
-  score
-}: {
+interface Score {
+  right: number;
+  wrong: number;
+  notRemembered: number;
+}
+
+interface Props {
   open: boolean;
   close: () => void;
-  score: {
-    right: number;
-    wrong: number;
-    notRemembered: number;
+  score: Score;
+}
+
+function calculatePercentage(score: Score) {
+  const total = score.notRemembered + score.right + score.wrong;
+  return {
+    notRemembered: Math.floor((score.notRemembered / total) * 100),
+    wrong: Math.floor((score.wrong / total) * 100),
+    right: Math.floor((score.right / total) * 100)
   };
-}) {
-  const [{ notRemembered, right, wrong }, setCurrentScore] = useState(score);
+}
+
+const OccResultsDialog: React.FC<Props> = ({ open, close, score }) => {
+  const [currentScore, setCurrentScore] = useState(calculatePercentage(score));
 
   useEffect(() => {
-    const dummyScore = { ...score };
-    // const dummyScore = {
-    //   right: 2,
-    //   wrong: 1,
-    //   notRemembered: 0
-    // };
-    setCurrentScore({
-      notRemembered: Math.floor(
-        (dummyScore.notRemembered /
-          (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-          100
-      ),
-      wrong: Math.floor(
-        (dummyScore.wrong /
-          (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-          100
-      ),
-      right: Math.floor(
-        (dummyScore.right /
-          (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-          100
-      )
-    });
-  }, [open]);
+    setCurrentScore(calculatePercentage(score));
+  }, [open, score]);
+
+  const { notRemembered, right, wrong } = currentScore;
 
   return (
     <Dialog open={open}>
@@ -67,33 +56,14 @@ function OccResultsDialog({
           </div>
           {/* Score */}
           <div className="flex justify-between w-[476px] mx-auto">
-            <div className="flex gap-2 mx-auto mt-6 items-center">
-              <div className="w-[12px] h-[12px] bg-[#4CAF50] rounded-sm" />
-              <span className="text-[#585F68] text-xs font-normal">
-                Got it right
-              </span>
-              <span className="text-[#585F68] ml-1 text-xs font-semibold">
-                {right || 0}%
-              </span>
-            </div>
-            <div className="flex gap-2 mx-auto mt-6 items-center">
-              <div className="w-[12px] h-[12px] bg-[#FB8441] rounded-sm" />
-              <span className="text-[#585F68] text-xs font-normal">
-                Didn't remember
-              </span>
-              <span className="text-[#585F68] ml-1 text-xs font-semibold">
-                {notRemembered || 0}%
-              </span>
-            </div>
-            <div className="flex gap-2 mx-auto mt-6 items-center">
-              <div className="w-[12px] h-[12px] bg-[#4CAF50] rounded-sm" />
-              <span className="text-[#585F68] text-xs font-normal">
-                Got it wrong
-              </span>
-              <span className="text-[#585F68] ml-1 text-xs font-semibold">
-                {wrong || 0}%
-              </span>
-            </div>
+            {/* Score details */}
+            <ScoreDetail color="#4CAF50" label="Got it right" score={right} />
+            <ScoreDetail
+              color="#FB8441"
+              label="Didn't remember"
+              score={notRemembered}
+            />
+            <ScoreDetail color="#4CAF50" label="Got it wrong" score={wrong} />
           </div>
           {/* Button */}
           <div className="flex w-[628px] mx-auto justify-between mt-8">
@@ -108,6 +78,20 @@ function OccResultsDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+const ScoreDetail: React.FC<{
+  color: string;
+  label: string;
+  score: number;
+}> = ({ color, label, score }) => (
+  <div className="flex gap-2 mx-auto mt-6 items-center">
+    <div className="w-[12px] h-[12px]" style={{ backgroundColor: color }} />
+    <span className="text-[#585F68] text-xs font-normal">{label}</span>
+    <span className="text-[#585F68] ml-1 text-xs font-semibold">
+      {score || 0}%
+    </span>
+  </div>
+);
 
 export default OccResultsDialog;
