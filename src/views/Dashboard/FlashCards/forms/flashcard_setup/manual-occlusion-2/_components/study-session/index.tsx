@@ -13,11 +13,17 @@ import { useQuery } from '@tanstack/react-query';
 function StudySession({
   open,
   id,
-  close
+  close,
+  setScore,
+  score,
+  setQuizOver
 }: {
   open: boolean;
   id: string;
   close: () => void;
+  setScore: (score: any) => void;
+  score: any;
+  setQuizOver: (quizOver: boolean) => void;
 }) {
   const [studySession, setStudySession] = useState({
     title: '',
@@ -30,11 +36,11 @@ function StudySession({
     data: {}
   });
   const [answered, setAnswered] = useState(false);
-  const [score, setScore] = useState({
-    right: 0,
-    wrong: 0,
-    notRemembered: 0
-  });
+  // const [score, setScore] = useState({
+  //   right: 0,
+  //   wrong: 0,
+  //   notRemembered: 0
+  // });
 
   const { isLoading, isSuccess, data } = useQuery({
     queryKey: ['occlusion-card', id],
@@ -50,9 +56,7 @@ function StudySession({
     if (isSuccess) {
       setStudySession(data);
     }
-  }, [open]);
-
-  const [quizOver, setQuizOver] = useState(false);
+  }, [open, isSuccess]);
 
   const numberOfBubbledChecked = studySession.labels.filter(
     (label: any) => !label.isRevealed

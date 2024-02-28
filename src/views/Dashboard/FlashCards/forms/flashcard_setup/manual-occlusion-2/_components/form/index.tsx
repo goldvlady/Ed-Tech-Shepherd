@@ -8,6 +8,7 @@ import { Label } from '../../../../../../../../components/ui/label';
 import StudySession from '../study-session';
 import { useMutation } from '@tanstack/react-query';
 import { cn } from '../../../../../../../../library/utils';
+import OccResultsDialog from '../study-session/_components';
 
 const INITIAL_STATE = {
   title: '',
@@ -27,6 +28,11 @@ const INITIAL_STATE = {
   },
   studySession: {
     open: false
+  },
+  score: {
+    right: 0,
+    wrong: 0,
+    notRemembered: 0
   }
 };
 
@@ -42,10 +48,12 @@ function Form() {
         imageUploader: { open: false },
         occlusion: { open: false, elements: [] },
         afterSubmission: { open: true, data },
-        studySession: { open: false }
+        studySession: { open: false },
+        score: { right: 0, wrong: 0, notRemembered: 0 }
       }));
     }
   });
+  const [quizOver, setQuizOver] = useState(false);
 
   useEffect(() => {
     if (formState.imageURL) {
@@ -145,6 +153,22 @@ function Form() {
             ...prevState,
             studySession: { open: false }
           }));
+        }}
+        score={formState.score}
+        setScore={(score) => {
+          setFormState((prevState) => ({
+            ...prevState,
+            score
+          }));
+        }}
+        setQuizOver={setQuizOver}
+      />
+      <OccResultsDialog
+        open={quizOver}
+        score={formState.score}
+        close={() => {
+          setQuizOver(false);
+          resetForm();
         }}
       />
     </div>
