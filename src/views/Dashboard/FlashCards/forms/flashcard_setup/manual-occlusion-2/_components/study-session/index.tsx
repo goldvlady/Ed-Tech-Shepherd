@@ -10,7 +10,15 @@ import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import { useQuery } from '@tanstack/react-query';
 
-function StudySession({ open, id }: { open: boolean; id: string }) {
+function StudySession({
+  open,
+  id,
+  close
+}: {
+  open: boolean;
+  id: string;
+  close: () => void;
+}) {
   const [studySession, setStudySession] = useState({
     title: '',
     imageUrl: '',
@@ -46,6 +54,10 @@ function StudySession({ open, id }: { open: boolean; id: string }) {
 
   const [quizOver, setQuizOver] = useState(false);
 
+  const numberOfBubbledChecked = studySession.labels.filter(
+    (label: any) => !label.isRevealed
+  ).length;
+
   const onItemClicked = (item: any) => {
     setStudySession((prevState) => ({
       ...prevState,
@@ -57,6 +69,32 @@ function StudySession({ open, id }: { open: boolean; id: string }) {
       })
     }));
     setAnswered(true);
+  };
+
+  const handleQuizOver = () => {
+    if (numberOfBubbledChecked === 0) {
+      setQuizOver(true);
+      setSessionStarted({ started: false, data: {} });
+      close();
+    }
+  };
+
+  const setRight = () => {
+    setScore({ ...score, right: score.right + 1 });
+    setAnswered(false);
+    handleQuizOver();
+  };
+
+  const setWrong = () => {
+    setScore({ ...score, wrong: score.wrong + 1 });
+    setAnswered(false);
+    handleQuizOver();
+  };
+
+  const setNotRemembered = () => {
+    setScore({ ...score, notRemembered: score.notRemembered + 1 });
+    setAnswered(false);
+    handleQuizOver();
   };
 
   return (
@@ -104,7 +142,7 @@ function StudySession({ open, id }: { open: boolean; id: string }) {
                 </span>
                 {sessionStarted.started && (
                   <span className="inline-block mr-2 rounded-full w-5 h-5 bg-white/50">
-                    9
+                    {numberOfBubbledChecked}
                   </span>
                 )}
                 <span>{sessionStarted.started ? 'Stop' : 'Start'}</span>
@@ -135,30 +173,21 @@ function StudySession({ open, id }: { open: boolean; id: string }) {
             <Button
               disabled={!answered}
               className="bg-[#EDF7EE] text-[#4CAF50] w-[217px] h-[54px] text-[16px] font-medium"
-              onClick={() => {
-                setScore({ ...score, right: score.right + 1 });
-                setAnswered(false);
-              }}
+              onClick={setRight}
             >
               Got it right
             </Button>
             <Button
               disabled={!answered}
               className="bg-[#FFEFE6] text-[#FB8441] w-[217px] h-[54px] text-[16px] font-medium"
-              onClick={() => {
-                setScore({ ...score, notRemembered: score.notRemembered + 1 });
-                setAnswered(false);
-              }}
+              onClick={setNotRemembered}
             >
               Didn&apos;t remember
             </Button>
             <Button
               disabled={!answered}
               className="bg-[#FEECEC] text-[#F53535] w-[217px] h-[54px] text-[16px] font-medium"
-              onClick={() => {
-                setScore({ ...score, wrong: score.wrong + 1 });
-                setAnswered(false);
-              }}
+              onClick={setWrong}
             >
               Got it wrong
             </Button>

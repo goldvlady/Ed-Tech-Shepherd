@@ -140,6 +140,12 @@ function Form() {
       <StudySession
         open={formState.studySession.open}
         id={formState.afterSubmission.data?._id}
+        close={() => {
+          setFormState((prevState) => ({
+            ...prevState,
+            studySession: { open: false }
+          }));
+        }}
       />
     </div>
   );
