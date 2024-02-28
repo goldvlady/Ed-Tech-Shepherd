@@ -641,6 +641,10 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/notifications`);
   };
 
+  static getTutorReviews = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/tutorReviews?tutor=${id}`);
+  };
+
   //Tutor Activity Feed
   static getTutorActivityFeed = async () => {
     return doFetch(`${ApiService.baseEndpoint}/getActivityFeed`);
