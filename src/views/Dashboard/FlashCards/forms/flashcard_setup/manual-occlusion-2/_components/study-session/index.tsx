@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent
@@ -8,13 +8,15 @@ import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
+import { useQuery } from '@tanstack/react-query';
 
-function StudySession({ open, data }: { open: boolean; data: any }) {
+function StudySession({ open, id }: { open: boolean; id: string }) {
   const [studySession, setStudySession] = useState({
     title: '',
     imageUrl: '',
     labels: []
   });
+
   const [sessionStarted, setSessionStarted] = useState({
     started: false,
     data: {}
@@ -25,37 +27,24 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
     wrong: 0,
     notRemembered: 0
   });
-  const [quizOver, setQuizOver] = useState(false);
 
-  console.log(score);
+  const { isLoading, isSuccess, data } = useQuery({
+    queryKey: ['occlusion-card', id],
+    queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
+    enabled: Boolean(id),
+    select: (data) => {
+      console.log('GET OCCL', data);
+      return data.card;
+    }
+  });
+
   useEffect(() => {
-    if (open) {
+    if (isSuccess) {
       setStudySession(data);
-      if (data._id) {
-        ApiService.getOcclusionCard(data._id)
-          .then((res) => res.json())
-          .then((res) => {
-            console.log('GET OCCL', res);
-          });
-      }
-    } else {
-      setStudySession({
-        title: '',
-        imageUrl: '',
-        labels: []
-      });
     }
   }, [open]);
 
-  // useEffect(() => {
-  //   if (sessionStarted.started && data.id) {
-  //     ApiService.getOcclusionCard(data.id)
-  //       .then((res) => res.json())
-  //       .then((res) => {
-  //         console.log('GET OCCL', res);
-  //       });
-  //   }
-  // }, []);
+  const [quizOver, setQuizOver] = useState(false);
 
   const onItemClicked = (item: any) => {
     setStudySession((prevState) => ({
@@ -127,6 +116,7 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
           </div>
         </header>
         <div className="body">
+          {isLoading && <div>Loading...</div>}
           <OcclusionWorkSpace
             imageURI={studySession.imageUrl}
             items={studySession.labels}
@@ -179,4 +169,4 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
   );
 }
 
-export default StudySession;
+export default memo(StudySession);

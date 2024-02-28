@@ -21,7 +21,9 @@ const INITIAL_STATE = {
   },
   afterSubmission: {
     open: false,
-    data: {}
+    data: {
+      _id: ''
+    }
   },
   studySession: {
     open: false
@@ -137,7 +139,7 @@ function Form() {
       />
       <StudySession
         open={formState.studySession.open}
-        data={formState.afterSubmission.data}
+        id={formState.afterSubmission.data?._id}
       />
     </div>
   );
