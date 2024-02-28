@@ -22,19 +22,27 @@ function OccResultsDialog({
 
   useEffect(() => {
     const dummyScore = { ...score };
+    // const dummyScore = {
+    //   right: 2,
+    //   wrong: 1,
+    //   notRemembered: 0
+    // };
     setCurrentScore({
-      notRemembered:
+      notRemembered: Math.floor(
         (dummyScore.notRemembered /
           (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-        100,
-      wrong:
+          100
+      ),
+      wrong: Math.floor(
         (dummyScore.wrong /
           (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-        100,
-      right:
+          100
+      ),
+      right: Math.floor(
         (dummyScore.right /
           (dummyScore.notRemembered + dummyScore.right + dummyScore.wrong)) *
-        100
+          100
+      )
     });
   }, [open]);
 
