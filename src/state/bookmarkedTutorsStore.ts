@@ -4,18 +4,27 @@ import { create } from 'zustand';
 
 type Store = {
   tutors: Array<BookmarkedTutor>;
+  tutorReviews: any;
   fetchBookmarkedTutors: () => Promise<void>;
   pagination: { page: number; limit: number; total: number };
+  fetchTutorReviews: (id: string) => Promise<void>;
 };
 
 export default create<Store>((set) => ({
   tutors: [],
+  tutorReviews: [],
   pagination: { page: 0, limit: 0, total: 0 },
   fetchBookmarkedTutors: async () => {
     const response = await ApiService.getBookmarkedTutors();
     const resp = await response.json();
 
     set({ tutors: resp.data.data, pagination: resp.data.meta.pagination });
+  },
+  fetchTutorReviews: async (id) => {
+    const response = await ApiService.getTutorReviews(id);
+    const resp = await response.json();
+
+    set({ tutorReviews: resp });
   }
 }));
 // type Store = {
