@@ -7,6 +7,7 @@ import OcclusionWorkSpace from '../form/_components/occlusion/_components/occlus
 import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
 import { cn } from '../../../../../../../../library/utils';
+import ApiService from '../../../../../../../../services/ApiService';
 
 function StudySession({ open, data }: { open: boolean; data: any }) {
   const [studySession, setStudySession] = useState({
@@ -30,6 +31,13 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
   useEffect(() => {
     if (open) {
       setStudySession(data);
+      if (data._id) {
+        ApiService.getOcclusionCard(data._id)
+          .then((res) => res.json())
+          .then((res) => {
+            console.log('GET OCCL', res);
+          });
+      }
     } else {
       setStudySession({
         title: '',
@@ -38,6 +46,16 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
       });
     }
   }, [open]);
+
+  // useEffect(() => {
+  //   if (sessionStarted.started && data.id) {
+  //     ApiService.getOcclusionCard(data.id)
+  //       .then((res) => res.json())
+  //       .then((res) => {
+  //         console.log('GET OCCL', res);
+  //       });
+  //   }
+  // }, []);
 
   const onItemClicked = (item: any) => {
     setStudySession((prevState) => ({
@@ -126,7 +144,7 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
           >
             <Button
               disabled={!answered}
-              className="bg-green-200 text-green-500"
+              className="bg-[#EDF7EE] text-[#4CAF50] w-[217px] h-[54px] text-[16px] font-medium"
               onClick={() => {
                 setScore({ ...score, right: score.right + 1 });
                 setAnswered(false);
@@ -136,7 +154,7 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
             </Button>
             <Button
               disabled={!answered}
-              className="bg-orange-200 text-orange-500"
+              className="bg-[#FFEFE6] text-[#FB8441] w-[217px] h-[54px] text-[16px] font-medium"
               onClick={() => {
                 setScore({ ...score, notRemembered: score.notRemembered + 1 });
                 setAnswered(false);
@@ -146,7 +164,7 @@ function StudySession({ open, data }: { open: boolean; data: any }) {
             </Button>
             <Button
               disabled={!answered}
-              className="bg-red-200 text-red-500"
+              className="bg-[#FEECEC] text-[#F53535] w-[217px] h-[54px] text-[16px] font-medium"
               onClick={() => {
                 setScore({ ...score, wrong: score.wrong + 1 });
                 setAnswered(false);
