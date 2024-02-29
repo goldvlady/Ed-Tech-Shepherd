@@ -8,6 +8,7 @@ import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
 import resourceStore from '../../state/resourceStore';
+import userStore from '../../state/userStore';
 import theme from '../../theme';
 import { Tutor } from '../../types';
 import {
@@ -25,10 +26,12 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   HStack,
+  Icon,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -60,6 +63,15 @@ import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import ShepherdSpinner from './components/shepherd-spinner';
+import { FaCcVisa, FaCcMastercard, FaCcAmex } from 'react-icons/fa';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../components/PaymentDialog';
+import ChoosePaymentMethodDialog, {
+  ChoosePaymentMethodDialogRef
+} from '../../components/ChoosePaymentMethodDialog';
+import { loadStripe } from '@stripe/stripe-js';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -77,7 +89,7 @@ const TutorOfferSchema = Yup.object().shape({
   rate: Yup.number()
     .required('Enter a rate')
     .min(1, 'Rate has to be greater than 0'),
-  //paymentOption: Yup.string().required('Choose a payment option'),
+  paymentMethod: Yup.object().required('Choose a payment method'),
   expirationDate: Yup.date().required('Select an expiration date'),
   contractStartDate: Yup.date().required('Select a start date'),
   contractEndDate: Yup.date().required('Select an end date')
@@ -85,16 +97,139 @@ const TutorOfferSchema = Yup.object().shape({
 
 const levels = ['A - Level', 'GCSE', 'Grade 12'];
 
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+);
+
 const SendTutorOffer = () => {
   useTitle('Send an offer');
 
-  const { courses: courseList } = resourceStore();
+  const { fetchUser, user } = userStore();
   const navigate = useNavigate();
   const formikRef = useRef<FormikProps<any>>(null);
   const [loadingTutor, setLoadingTutor] = useState(false);
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const { tutorId } = useParams() as { tutorId: string };
   const [isEditing, setIsEditing] = useState(true);
+  const tempFormValuesRef = useRef(null);
+  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
+  const [selectingPaymentMethod, setSelectingPaymentMethod] = useState(false);
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
+  const toast = useCustomToast();
+
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+
+  const selectPaymentMethod = async () => {
+    try {
+      setSelectingPaymentMethod(true);
+      if (choosePaymentDialogRef.current) {
+        choosePaymentDialogRef.current
+          .choosePaymentMethod()
+          .then((selectedPaymentMethod) => {
+            //as PaymentMethod??
+            const chosenPaymentMethod = selectedPaymentMethod;
+            formikRef.current?.setFieldValue(
+              'paymentMethod',
+              chosenPaymentMethod
+            );
+          });
+      }
+      setSelectingPaymentMethod(false);
+    } catch (error) {
+      return;
+    }
+  };
+
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+
+      const currentFormValues = formikRef.current?.values;
+      tempFormValuesRef.current = currentFormValues;
+      localStorage.setItem(
+        'tempFormValues',
+        JSON.stringify(tempFormValuesRef.current)
+      );
+
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
+        metadata: { offerId: 'sample string' } //remove
+      });
+
+      const { data } = await paymentIntent.json();
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        setSettingUpPaymentMethod(true);
+
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded': {
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            const savedFormValues = localStorage.getItem('tempFormValues');
+            if (savedFormValues) {
+              tempFormValuesRef.current = JSON.parse(savedFormValues);
+              formikRef.current?.setValues(tempFormValuesRef.current);
+            }
+            selectPaymentMethod();
+            break;
+          }
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
 
   const EditField = styled(Text).attrs({ onClick: () => setIsEditing(true) })`
     cursor: pointer;
@@ -188,6 +323,34 @@ const SendTutorOffer = () => {
 
   return (
     <Root className="container-fluid">
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
+      />
+      <ChoosePaymentMethodDialog
+        ref={choosePaymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until after your first lesson, You
+              may decide to cancel after your initial lesson.
+            </AlertDescription>
+          </Alert>
+        }
+      />
       <Box className="row">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
@@ -265,17 +428,22 @@ const SendTutorOffer = () => {
                 subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
               />
               <Formik
-                initialValues={{
-                  course: '',
-                  level: '',
-                  days: [],
-                  schedule: {},
-                  note: '',
-                  rate: tutor.rate,
-                  expirationDate: new Date(),
-                  contractStartDate: null,
-                  contractEndDate: null
-                }}
+                initialValues={
+                  localStorage.getItem('tempFormValues')
+                    ? JSON.parse(localStorage.getItem('tempFormValues'))
+                    : {
+                        course: '',
+                        level: '',
+                        days: [],
+                        schedule: {},
+                        note: '',
+                        rate: tutor.rate,
+                        expirationDate: new Date(),
+                        contractStartDate: null,
+                        contractEndDate: null,
+                        paymentMethod: null
+                      }
+                }
                 validationSchema={TutorOfferSchema}
                 innerRef={formikRef}
                 onSubmit={async (values, { setSubmitting }) => {
@@ -284,6 +452,7 @@ const SendTutorOffer = () => {
                     setIsEditing(false);
                     setSubmitting(false);
                   } else {
+                    localStorage.removeItem('tempFormValues');
                     await ApiService.createOffer({
                       ...values,
                       tutor: tutorId,
@@ -724,7 +893,66 @@ const SendTutorOffer = () => {
                             </AlertDescription>
                           </Alert>
                         </Box>
-                        <Box marginTop={'48px'} textAlign="right">
+                        {values.paymentMethod ? (
+                          <Flex
+                            marginTop="18px"
+                            alignItems="center"
+                            p="4"
+                            boxShadow="md"
+                            borderRadius="md"
+                            bg="gray.50"
+                          >
+                            <Icon
+                              as={
+                                values.paymentMethod.brand === 'visa'
+                                  ? FaCcVisa
+                                  : values.paymentMethod.brand === 'mastercard'
+                                  ? FaCcMastercard
+                                  : values.paymentMethod.brand === 'amex'
+                                  ? FaCcAmex
+                                  : null
+                              }
+                              w={8}
+                              h={8}
+                              color="blue.500"
+                              mr="4"
+                            />
+                            <Box>
+                              <Text fontWeight="bold">
+                                Card ending in {values.paymentMethod.last4}
+                              </Text>
+                              <Text>
+                                Expires {values.paymentMethod.expYear}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        ) : (
+                          ''
+                        )}
+                        <Box
+                          marginTop={'48px'}
+                          marginRight={'48px'}
+                          textAlign="right"
+                        >
+                          {isEmpty(user?.paymentMethods) && (
+                            <Button
+                              isLoading={settingUpPaymentMethod}
+                              onClick={setupPaymentMethod}
+                              size="md"
+                            >
+                              Add Payment Method
+                            </Button>
+                          )}
+                          {!isEmpty(user?.paymentMethods) && (
+                            <Button
+                              isDisabled={values.paymentMethod}
+                              isLoading={selectingPaymentMethod}
+                              onClick={selectPaymentMethod}
+                              size="md"
+                            >
+                              Choose Payment Method
+                            </Button>
+                          )}
                           <Button
                             isDisabled={Object.values(errors).length !== 0}
                             size="md"
