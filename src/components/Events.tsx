@@ -244,6 +244,25 @@ export default function Events({ event }: any) {
     navigate('/dashboard/tutordashboard/messages');
   };
 
+  const addEventToGoogleCalendar = () => {
+    const data = event.data;
+    const eventTitle = encodeURIComponent(
+      `${data?.offer?.course?.label} lesson with ${data?.offer?.tutor?.user?.name?.first} ${data?.offer?.tutor?.user?.name?.last}`
+    );
+
+    const formatForCalendar = (date) => {
+      return date.replace(/-|:|\.\d\d\d/g, '');
+    };
+
+    const startDate = formatForCalendar(data.startDate);
+    const endDate = formatForCalendar(data.endDate);
+    const location = encodeURIComponent(
+      data.conferenceHostRoomUrl || data.conferenceRoomUrl
+    );
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startDate}/${endDate}&details=&location=${location}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
@@ -338,9 +357,21 @@ export default function Events({ event }: any) {
           <ModalBody p={4}>
             <VStack spacing={4} width="full">
               <Button
+                colorScheme="green"
+                width="full"
+                onClick={addEventToGoogleCalendar}
+              >
+                Add to Google Calendar
+              </Button>
+              <Button
                 colorScheme="blue"
                 width="full"
-                onClick={() => handleJoinSession(event.data.url)}
+                onClick={() =>
+                  handleJoinSession(
+                    event.data.conferenceHostRoomUrl ||
+                      event.data.conferenceRoomUrl
+                  )
+                }
               >
                 Join the session
               </Button>
