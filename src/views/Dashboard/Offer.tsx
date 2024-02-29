@@ -1,19 +1,12 @@
-import ChoosePaymentMethodDialog, {
-  ChoosePaymentMethodDialogRef
-} from '../../components/ChoosePaymentMethodDialog';
 import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import PageTitle from '../../components/PageTitle';
 import Panel from '../../components/Panel';
-import PaymentDialog, {
-  PaymentDialogRef
-} from '../../components/PaymentDialog';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
-import { PaymentMethod } from '../../types';
 import {
   numberToDayOfWeekName,
   convertTimeToTimeZone,
@@ -45,7 +38,6 @@ import {
   VStack,
   useDisclosure
 } from '@chakra-ui/react';
-import { loadStripe } from '@stripe/stripe-js';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -92,10 +84,6 @@ export const scheduleOptions = [
   }
 ];
 
-const stripePromise = loadStripe(
-  process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
-);
-
 const Offer = () => {
   useTitle('Offer');
   const currentPath = window.location.pathname;
@@ -106,12 +94,8 @@ const Offer = () => {
 
   const { offerId } = useParams() as { offerId: string };
 
-  const { fetchUser, user } = userStore();
   const navigate = useNavigate();
-  const paymentDialogRef = useRef<PaymentDialogRef>(null);
-  const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
   const [loadingOffer, setLoadingOffer] = useState(false);
-  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
   const [offer, setOffer] = useState<any | null>(null);
   const [acceptingOffer, setAcceptingOffer] = useState(false);
   const [declineNote, setDeclineNote] = useState('');
@@ -135,10 +119,6 @@ const Offer = () => {
     onClose: onWithdrawOfferModalClose
   } = useDisclosure();
 
-  const url: URL = new URL(window.location.href);
-  const params: URLSearchParams = url.searchParams;
-  const clientSecret = params.get('setup_intent_client_secret');
-
   const loadOffer = useCallback(async () => {
     setLoadingOffer(true);
     const resp = await ApiService.getOffer(offerId);
@@ -148,8 +128,7 @@ const Offer = () => {
 
   const bookOffer = async () => {
     setBookingOffer(true);
-    const chosenPaymentMethod =
-      (await choosePaymentDialogRef.current?.choosePaymentMethod()) as PaymentMethod;
+    const chosenPaymentMethod = offer?.paymentMethod;
     const resp = await ApiService.bookOffer(
       offer?._id as string,
       chosenPaymentMethod?._id
@@ -201,6 +180,17 @@ const Offer = () => {
     // setOffer(await resp.json());
     switch (resp?.status) {
       case 200:
+        try {
+          await bookOffer();
+        } catch (error) {
+          toast({
+            title: 'Something went wrong',
+            status: 'error',
+            position: 'top',
+            isClosable: true
+          });
+          break;
+        }
         onOfferAcceptedModalOpen();
         break;
       case 400:
@@ -243,117 +233,14 @@ const Offer = () => {
     setWithdrawingOffer(false);
   };
 
-  const setupPaymentMethod = async () => {
-    try {
-      setSettingUpPaymentMethod(true);
-      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-        metadata: { offerId: offer?.id }
-      });
-
-      const { data } = await paymentIntent.json();
-
-      paymentDialogRef.current?.startPayment(
-        data.clientSecret,
-        `${window.location.href}`
-      );
-
-      setSettingUpPaymentMethod(false);
-    } catch (error) {
-      // console.log(error);
-    }
-  };
-
   useEffect(() => {
     loadOffer();
   }, [loadOffer]);
-
-  useEffect(() => {
-    if (clientSecret) {
-      (async () => {
-        setSettingUpPaymentMethod(true);
-
-        const stripe = await stripePromise;
-        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
-        await ApiService.addPaymentMethod(
-          setupIntent?.setupIntent?.payment_method as string
-        );
-        await fetchUser();
-        switch (setupIntent?.setupIntent?.status) {
-          case 'succeeded':
-            toast({
-              title: 'Your payment method has been saved.',
-              status: 'success',
-              position: 'top',
-              isClosable: true
-            });
-            bookOffer();
-            break;
-          case 'processing':
-            toast({
-              title:
-                "Processing payment details. We'll update you when processing is complete.",
-              status: 'loading',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          case 'requires_payment_method':
-            toast({
-              title:
-                'Failed to process payment details. Please try another payment method.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          default:
-            toast({
-              title: 'Something went wrong.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-        }
-        setSettingUpPaymentMethod(false);
-      })();
-    }
-    /* eslint-disable */
-  }, [clientSecret]);
 
   const loading = loadingOffer;
 
   return (
     <Root className="container-fluid">
-      <PaymentDialog
-        ref={paymentDialogRef}
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
-      <ChoosePaymentMethodDialog
-        ref={choosePaymentDialogRef}
-        // onclose
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
       <Box className="row">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
@@ -770,28 +657,6 @@ const Offer = () => {
                           Withdraw Offer
                         </Button>
                       )}
-                      {offer?.status === 'accepted' &&
-                        !offer?.completed &&
-                        isEmpty(user?.paymentMethods) && (
-                          <Button
-                            isLoading={settingUpPaymentMethod}
-                            onClick={setupPaymentMethod}
-                            size="md"
-                          >
-                            Book
-                          </Button>
-                        )}
-                      {offer?.status === 'accepted' &&
-                        !offer?.completed &&
-                        !isEmpty(user?.paymentMethods) && (
-                          <Button
-                            isLoading={bookingOffer}
-                            onClick={bookOffer}
-                            size="md"
-                          >
-                            Book
-                          </Button>
-                        )}
                     </HStack>
                   )}
                 </Panel>
