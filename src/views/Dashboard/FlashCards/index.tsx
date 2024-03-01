@@ -166,7 +166,8 @@ const CustomTable: React.FC = () => {
     dailyFlashcards
   } = flashcardStore();
 
-  const { setFlashcardData, setQuestions } = useFlashcardWizard();
+  const { setFlashcardData, setQuestions, resetFlashcard } =
+    useFlashcardWizard();
   const { user } = useUserStore();
   const options: Option[] = tags.map((tag) => ({
     label: tag,
@@ -854,7 +855,7 @@ const CustomTable: React.FC = () => {
               onClick={() => {
                 navigate('/dashboard/flashcards/create');
                 setQuestions([]);
-                setFlashcardData(null);
+                resetFlashcard();
               }}
             >
               <svg
