@@ -95,6 +95,20 @@ const TutorOfferSchema = Yup.object().shape({
   contractEndDate: Yup.date().required('Select an end date')
 });
 
+function convertDateStringsToDates(initialValues) {
+  const dateFields = ['contractStartDate', 'contractEndDate', 'expirationDate'];
+  const convertedValues = { ...initialValues };
+
+  dateFields.forEach((field) => {
+    const value = convertedValues[field];
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      convertedValues[field] = new Date(value);
+    }
+  });
+
+  return convertedValues;
+}
+
 const levels = ['A - Level', 'GCSE', 'Grade 12'];
 
 const stripePromise = loadStripe(
@@ -190,11 +204,6 @@ const SendTutorOffer = () => {
               position: 'top',
               isClosable: true
             });
-            const savedFormValues = localStorage.getItem('tempFormValues');
-            if (savedFormValues) {
-              tempFormValuesRef.current = JSON.parse(savedFormValues);
-              formikRef.current?.setValues(tempFormValuesRef.current);
-            }
             selectPaymentMethod();
             break;
           }
@@ -430,7 +439,9 @@ const SendTutorOffer = () => {
               <Formik
                 initialValues={
                   localStorage.getItem('tempFormValues')
-                    ? JSON.parse(localStorage.getItem('tempFormValues'))
+                    ? convertDateStringsToDates(
+                        JSON.parse(localStorage.getItem('tempFormValues'))
+                      )
                     : {
                         course: '',
                         level: '',
@@ -447,12 +458,12 @@ const SendTutorOffer = () => {
                 validationSchema={TutorOfferSchema}
                 innerRef={formikRef}
                 onSubmit={async (values, { setSubmitting }) => {
+                  localStorage.removeItem('tempFormValues');
                   if (isEditing) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     setIsEditing(false);
                     setSubmitting(false);
                   } else {
-                    localStorage.removeItem('tempFormValues');
                     await ApiService.createOffer({
                       ...values,
                       tutor: tutorId,
