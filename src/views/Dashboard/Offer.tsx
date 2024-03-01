@@ -785,12 +785,12 @@ const Offer = () => {
                       {
                         title: 'Send a Proposal',
                         subtitle:
-                          'Find your desired tutor and prepare an offer on your terms and send to the tutor'
+                          'Find your desired tutor, set your terms, provide payment details and send your offer to the tutor.'
                       },
                       {
                         title: 'Get a Response',
                         subtitle:
-                          'Proceed to provide your payment details once the tutor accepts your offer'
+                          'Your offer has been sent! Wait for the tutor to review and accept your offer.'
                       },
                       {
                         title: 'A Test-Run',
