@@ -150,8 +150,8 @@ function StudySession({
                 }
                 onClick={() => {
                   if (sessionStarted.started) {
-                    setSessionStarted({ started: false, data: {} });
-                    setScore({ right: 0, wrong: 0, notRemembered: 0 });
+                    setQuizOver(true);
+                    // setScore({ right: 0, wrong: 0, notRemembered: 0 });
                     return;
                   }
                   setSessionStarted({ started: true, data: studySession });

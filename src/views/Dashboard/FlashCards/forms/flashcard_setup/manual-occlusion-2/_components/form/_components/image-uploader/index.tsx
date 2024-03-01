@@ -53,7 +53,9 @@ function ImageUploader({
       <Dialog
         open={open}
         onOpenChange={(open) => {
-          setOpen(open);
+          if (open) {
+            setOpen(open);
+          }
           setImageName('');
         }}
       >

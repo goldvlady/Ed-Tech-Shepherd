@@ -28,12 +28,7 @@ function Occlusion({
   submitting: boolean;
 }) {
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        if (!open) close();
-      }}
-    >
+    <Dialog open={open}>
       <DialogContent
         aria-disabled={submitting}
         className={cn('bg-white p-0 flex flex-col w-[894px] max-w-4xl', {
