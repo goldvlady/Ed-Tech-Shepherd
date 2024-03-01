@@ -322,7 +322,7 @@ const SendTutorOffer = () => {
   const today = useMemo(() => new Date(), []);
 
   return (
-    <Root className="container-fluid">
+    <Root className="container-fluid" margin="25px">
       <PaymentDialog
         ref={paymentDialogRef}
         prefix={
@@ -929,13 +929,10 @@ const SendTutorOffer = () => {
                         ) : (
                           ''
                         )}
-                        <Box
-                          marginTop={'48px'}
-                          marginRight={'48px'}
-                          textAlign="right"
-                        >
+                        <Box marginTop={'18px'} textAlign="left">
                           {isEmpty(user?.paymentMethods) && (
                             <Button
+                              marginRight={'48px'}
                               isLoading={settingUpPaymentMethod}
                               onClick={setupPaymentMethod}
                               size="md"
@@ -945,7 +942,9 @@ const SendTutorOffer = () => {
                           )}
                           {!isEmpty(user?.paymentMethods) && (
                             <Button
-                              isDisabled={values.paymentMethod}
+                              hidden={values.paymentMethod}
+                              marginRight={'48px'}
+                              // isDisabled={values.paymentMethod}
                               isLoading={selectingPaymentMethod}
                               onClick={selectPaymentMethod}
                               size="md"
@@ -953,6 +952,8 @@ const SendTutorOffer = () => {
                               Choose Payment Method
                             </Button>
                           )}
+                        </Box>
+                        <Box marginTop={'48px'} textAlign="right">
                           <Button
                             isDisabled={Object.values(errors).length !== 0}
                             size="md"
