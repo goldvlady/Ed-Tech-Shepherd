@@ -21,6 +21,7 @@ const OnboardStudent = lazy(() => import('../views/OnboardStudent/index'));
 const OnboardTutor = lazy(() => import('../views/OnboardTutor'));
 const ForgotPassword = lazy(() => import('../views/ForgotPassword'));
 const Login = lazy(() => import('../views/Login'));
+const ActivateTutor = lazy(() => import('../views/ActivateTutor'));
 const PendingVerification = lazy(
   () => import('../views/VerificationPages/pending_verification')
 );
@@ -411,6 +412,15 @@ const AppRoutes: React.FC = () => {
         element={
           <Suspense fallback={<SharedLoading />}>
             <PendingActivation />
+          </Suspense>
+        }
+      />
+
+      <Route
+        path="activate_tutor"
+        element={
+          <Suspense fallback={<SharedLoading />}>
+            <ActivateTutor />
           </Suspense>
         }
       />

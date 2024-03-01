@@ -425,6 +425,16 @@ class ApiService {
     });
   };
 
+  static activateTutor = async (queryParams: {
+    apiKey: string;
+    tutorEmail: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/activateTutor?${queryString}`, {
+      method: 'POST'
+    });
+  };
+
   static getBookSessionData = async (data: any) => {
     return doFetch(
       `${ApiService.baseEndpoint}/getBookSessionData?${new URLSearchParams(
