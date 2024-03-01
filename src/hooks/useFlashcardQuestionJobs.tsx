@@ -44,7 +44,7 @@ function useFlashcardQuestionsJob(studentID: string) {
             if (callback) {
               callback(null, allFlashcards);
               off(jobRef);
-              remove(jobRef);
+              // remove(jobRef);
             }
           }
 
