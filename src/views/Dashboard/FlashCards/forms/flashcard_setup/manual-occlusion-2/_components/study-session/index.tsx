@@ -42,11 +42,6 @@ function StudySession({
     data: {}
   });
   const [answered, setAnswered] = useState(false);
-  // const [score, setScore] = useState({
-  //   right: 0,
-  //   wrong: 0,
-  //   notRemembered: 0
-  // });
 
   const { isLoading, isSuccess, data } = useQuery({
     queryKey: ['occlusion-card', id],
