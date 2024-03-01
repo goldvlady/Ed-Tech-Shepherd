@@ -6,10 +6,21 @@ import {
 import OcclusionWorkSpace from '../form/_components/occlusion/_components/occlusion-workspace';
 import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
-import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { cn } from '../../../../../../../../library/utils';
+
+interface StudySessionProps {
+  open: boolean;
+  id: string;
+  close: () => void;
+  setScore: (score: any) => void;
+  score: any;
+  setQuizOver: (quizOver: boolean) => void;
+  quizOver: boolean;
+  setOpenResults: (openResults: boolean) => void;
+}
 
 function StudySession({
   open,
@@ -20,17 +31,7 @@ function StudySession({
   setQuizOver,
   quizOver,
   setOpenResults
-}: {
-  open: boolean;
-  id: string;
-  close: () => void;
-  setScore: (score: any) => void;
-  score: any;
-  setQuizOver: (quizOver: boolean) => void;
-  quizOver: boolean;
-  setOpenResults: (openResults: boolean) => void;
-}) {
-  console.log('score', score);
+}: StudySessionProps) {
   const [studySession, setStudySession] = useState({
     title: '',
     imageUrl: '',
@@ -47,17 +48,12 @@ function StudySession({
     queryKey: ['occlusion-card', id],
     queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
     enabled: Boolean(id),
-    select: (data) => {
-      console.log('GET OCCL', data);
-      return data.card;
-    }
+    select: (data) => data.card
   });
 
   const { mutate, isPending: isSubmittingQuiz } = useMutation({
-    mutationFn: (data: { card: {}; percentages: {} }) => {
-      console.log('MUTATE', data);
-      return ApiService.editOcclusionCard(data.card).then((res) => res.json());
-    }
+    mutationFn: (data: { card: {}; percentages: {} }) =>
+      ApiService.editOcclusionCard(data.card).then((res) => res.json())
   });
 
   useEffect(() => {
@@ -104,8 +100,7 @@ function StudySession({
           percentages: {}
         },
         {
-          onSuccess: (data) => {
-            console.log('onSuccess', data);
+          onSuccess: () => {
             setSessionStarted({ started: false, data: {} });
             close();
             setOpenResults(true);
