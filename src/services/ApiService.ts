@@ -313,7 +313,7 @@ class ApiService {
   static editOcclusionCard = async (data: any) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusion?id=${data._id}`,
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${data._id}`,
       {
         method: 'POST',
         body: JSON.stringify(data)

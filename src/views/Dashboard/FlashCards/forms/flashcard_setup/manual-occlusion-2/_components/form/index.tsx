@@ -54,6 +54,7 @@ function Form() {
     }
   });
   const [quizOver, setQuizOver] = useState(false);
+  const [openResults, setOpenResults] = useState(false);
 
   useEffect(() => {
     if (formState.imageURL) {
@@ -161,13 +162,16 @@ function Form() {
             score
           }));
         }}
+        quizOver={quizOver}
         setQuizOver={setQuizOver}
+        setOpenResults={setOpenResults}
       />
       <OccResultsDialog
-        open={quizOver}
+        open={openResults}
         score={formState.score}
         close={() => {
           setQuizOver(false);
+          setOpenResults(false);
           resetForm();
         }}
       />

@@ -17,7 +17,9 @@ function StudySession({
   close,
   setScore,
   score,
-  setQuizOver
+  setQuizOver,
+  quizOver,
+  setOpenResults
 }: {
   open: boolean;
   id: string;
@@ -25,7 +27,10 @@ function StudySession({
   setScore: (score: any) => void;
   score: any;
   setQuizOver: (quizOver: boolean) => void;
+  quizOver: boolean;
+  setOpenResults: (openResults: boolean) => void;
 }) {
+  console.log('score', score);
   const [studySession, setStudySession] = useState({
     title: '',
     imageUrl: '',
@@ -54,7 +59,10 @@ function StudySession({
   });
 
   const { mutate, isPending: isSubmittingQuiz } = useMutation({
-    mutationFn: ApiService.editOcclusionCard
+    mutationFn: (data: { card: {}; percentages: {} }) => {
+      console.log('MUTATE', data);
+      return ApiService.editOcclusionCard(data.card).then((res) => res.json());
+    }
   });
 
   useEffect(() => {
@@ -83,14 +91,34 @@ function StudySession({
   const handleQuizOver = () => {
     if (numberOfBubbledChecked === 0) {
       setQuizOver(true);
-      mutate(data, {
-        onSuccess: () => {
-          close();
-        }
-      });
-      setSessionStarted({ started: false, data: {} });
     }
   };
+
+  useEffect(() => {
+    if (quizOver) {
+      mutate(
+        {
+          card: {
+            ...data,
+            score: {
+              passed: score.right,
+              failed: score.wrong,
+              notRemembered: score.notRemembered
+            }
+          },
+          percentages: {}
+        },
+        {
+          onSuccess: (data) => {
+            console.log('onSuccess', data);
+            setSessionStarted({ started: false, data: {} });
+            close();
+            setOpenResults(true);
+          }
+        }
+      );
+    }
+  }, [quizOver]);
 
   const setRight = () => {
     setScore({ ...score, right: score.right + 1 });
