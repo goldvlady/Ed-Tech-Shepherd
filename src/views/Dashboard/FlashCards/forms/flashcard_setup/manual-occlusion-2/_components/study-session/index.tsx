@@ -42,6 +42,7 @@ function StudySession({
     started: false,
     data: {}
   });
+
   const [answered, setAnswered] = useState(false);
 
   const { isLoading, isSuccess, data } = useQuery({
@@ -67,6 +68,8 @@ function StudySession({
   ).length;
 
   const onItemClicked = (item: any) => {
+    if (!sessionStarted.started) return;
+    if (answered) return;
     setStudySession((prevState) => ({
       ...prevState,
       labels: prevState.labels.map((label: any) => {
