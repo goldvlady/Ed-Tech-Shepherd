@@ -381,7 +381,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             setQuestionGenerationStatus(
               QuestionGenerationStatusEnum.SUCCESSFUL
             );
-            setTimeout(() => clearJobs(documentId as string), 5000);
+            // setTimeout(() => clearJobs(documentId as string), 500);
           }
         }
         setIsLoading(false);

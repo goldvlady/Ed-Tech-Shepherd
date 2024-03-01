@@ -1,6 +1,6 @@
 import { Checkbox, Flex } from '@chakra-ui/react';
-import { Select } from 'chakra-react-select';
-import React from 'react';
+import { GroupBase, Select, SelectInstance } from 'chakra-react-select';
+import React, { Ref } from 'react';
 import styled from 'styled-components';
 
 export interface Option {
@@ -27,7 +27,7 @@ const StyledSelect = styled(Select)`
   }
 `;
 
-const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
+const SelectComponent: React.FC<Props> = ({ options, ref, ...rest }) => {
   return (
     <StyledSelect
       options={(options as Option[]).map((o) => {
@@ -69,6 +69,11 @@ const SelectComponent: React.FC<Props> = ({ options, ...rest }) => {
         })
       }}
       {...rest}
+      ref={
+        ref as unknown as Ref<
+          SelectInstance<unknown, boolean, GroupBase<unknown>>
+        >
+      }
     />
   );
 };

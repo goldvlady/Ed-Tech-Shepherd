@@ -42,8 +42,15 @@ function useFlashcardQuestionsJob(studentID: string) {
         documentIdQuery,
         (snapshot: DataSnapshot) => {
           const jobsData = snapshot.val() || {};
+          const jobKeysToDelete: string[] = [];
           const filteredJobs = Object.values(jobsData).filter(
-            (job: any) => job.documentId === documentId
+            (job: any, index) => {
+              if (job.documentId === documentId) {
+                jobKeysToDelete.push(Object.keys(jobsData)[index]); // Collect keys for deletion
+                return true;
+              }
+              return false;
+            }
           );
 
           if (filteredJobs.length) {
@@ -72,12 +79,20 @@ function useFlashcardQuestionsJob(studentID: string) {
             if (callback) {
               callback(null, allFlashcards);
             }
+
+            jobKeysToDelete.forEach((key) => {
+              const jobRef = ref(
+                database,
+                `/flashcard-job/${studentID}/${key}`
+              );
+              remove(jobRef);
+            });
+            off(documentIdQuery); // Stop listening to changes
           }
 
           // // Collect flashcards from each job that matches the documentId
           // Object.values(jobsData).forEach((job) => {
           //   if (job.documentId === documentId && job.flashcards) {
-          //     allFlashcards.push(
           //       ...job.flashcards.map((question) => ({
           //         ...question,
           //         questionType: 'openEnded'
@@ -96,27 +111,17 @@ function useFlashcardQuestionsJob(studentID: string) {
   // Function to delete all jobs for a documentId
   const clearJobs = useCallback(
     (documentId: string) => {
+      console.log('Clearing jobs for documentId:', documentId);
       const jobsRef = ref(database, `/flashcards-job/${studentID}`);
-      const documentIdQuery = query(
-        jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
-      );
-      onValue(
-        documentIdQuery,
-        (snapshot: DataSnapshot) => {
-          const jobsData: { [key: string]: Job } = snapshot.val() || {};
-          // Iterate over each job and delete it if it matches the documentId
-          Object.keys(jobsData).forEach((jobKey) => {
-            if (jobsData[jobKey].documentId === documentId) {
-              remove(ref(database, `/flashcards-job/${studentID}/${jobKey}`));
-            }
-          });
-        },
-        (error) => {
-          // console.error('Firebase delete error:', error);
-        }
-      );
+
+      remove(jobsRef)
+        .then(() => {
+          console.log('Jobs cleared');
+          setFlashcardQuestions([]);
+        })
+        .catch((error) => {
+          console.error('Error clearing jobs:', error);
+        });
     },
     [studentID]
   );
