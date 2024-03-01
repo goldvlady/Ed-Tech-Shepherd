@@ -78,6 +78,7 @@ import { IoIosArrowRoundBack } from 'react-icons/io';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { snip } from '../../../helpers/file.helpers';
+import CalendarDateInput from '../../../components/CalendarDateInput';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -113,6 +114,7 @@ function CreateStudyPlans() {
     //   subTopics: ['Interval Recognition', 'Solfège']
     // }
   ]);
+  const today = moment();
   const [gradeLevel, setGradeLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
@@ -266,8 +268,14 @@ function CreateStudyPlans() {
   };
 
   const addTestDate = () => {
-    const newTestDates = [...testDate, new Date()];
-    setTestDate(newTestDates);
+    const lastTestDate = testDate[testDate.length - 1];
+
+    const today = moment().startOf('day');
+
+    const newTestDate = lastTestDate
+      ? moment(lastTestDate).add(1, 'days')
+      : today;
+    setTestDate([...testDate, newTestDate]);
   };
   const removeTestDate = (indexToRemove) => {
     const updatedTestDates = [...testDate];
@@ -1024,29 +1032,22 @@ function CreateStudyPlans() {
             >
               Enter your test dates
             </Text>
-            {/* <DatePicker
-              name="endDate"
-              placeholder="Select Test Date"
-              value={testDate ? format(testDate, 'dd-MM-yyyy') : ''}
-              onChange={(date) => setTestDate(date)}
-            /> */}
             <Flex direction={'column'} gap={2}>
               {testDate &&
                 testDate.map((date, index) => (
-                  <>
-                    <Flex key={index} align={'center'} gap={2}>
-                      <Box width="100%">
-                        <Text
-                          as="label"
-                          htmlFor="subjects"
-                          mb={2}
-                          display="block"
-                          fontWeight={'semibold'}
-                          color="#207df7"
-                        >
-                          Test {index + 1}
-                        </Text>
-                        <DatePicker
+                  <Box key={index}>
+                    <Text
+                      as="label"
+                      htmlFor="subjects"
+                      mb={1}
+                      display="block"
+                      fontWeight={'semibold'}
+                      color="#207df7"
+                    >
+                      Test {index + 1}
+                    </Text>
+                    <Flex align={'center'} gap={2}>
+                      {/* <DatePicker
                           name={`testDate-${index}`}
                           placeholder="Select Test Date"
                           value={format(date, 'MM-dd-yyyy')}
@@ -1055,15 +1056,41 @@ function CreateStudyPlans() {
                             updatedTestDates[index] = newDate;
                             setTestDate(updatedTestDates);
                           }}
-                        />
-                      </Box>
+                        /> */}
+                      <CalendarDateInput
+                        // disabledDate={{ before: today }}
+                        inputProps={{
+                          placeholder: 'Select Test Date'
+                        }}
+                        value={date}
+                        onChange={(value) => {
+                          const updatedTestDates = [...testDate];
+                          updatedTestDates[index] = value;
 
+                          if (
+                            index > 0 &&
+                            moment(value).isBefore(testDate[index - 1])
+                          ) {
+                            toast({
+                              title:
+                                'Test date cannot be before the previous test date',
+                              status: 'error',
+                              position: 'top',
+                              isClosable: true
+                            });
+
+                            return;
+                          }
+
+                          setTestDate(updatedTestDates);
+                        }}
+                      />{' '}
                       <MdCancel
                         onClick={() => removeTestDate(index)}
                         color={'gray'}
                       />
                     </Flex>
-                  </>
+                  </Box>
                 ))}
             </Flex>
             <Button
