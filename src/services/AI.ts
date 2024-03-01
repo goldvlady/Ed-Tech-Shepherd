@@ -1,4 +1,5 @@
 import { AI_API, HEADER_KEY } from '../config';
+import { languages } from '../helpers';
 import { AIServiceResponse } from '../views/Dashboard/Notes/types';
 import { isNil } from 'lodash';
 
@@ -8,6 +9,7 @@ type DocumentType = {
   studentId: string;
   documentId: string;
   subscriptionTier: any;
+  language: (typeof languages)[number];
 };
 
 export const fetchStudentDocuments = async (studentId: string) => {

@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
+import { languages } from '../../../../helpers';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -80,6 +81,7 @@ export type AIRequestBody = {
   note?: string;
   existingQuestions?: string[];
   firebaseId: string;
+  language: (typeof languages)[number];
 };
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
@@ -109,6 +111,7 @@ export interface FlashcardDataContextProps {
   ) => void;
   convertAnkiToShepherd: (base64string: string) => Promise<void>;
   generateFlashcardQuestions: (
+    lang: (typeof languages)[number],
     d?: FlashcardData,
     onDone?: (success: boolean) => void,
     ingestDoc?: boolean
@@ -120,7 +123,7 @@ export interface FlashcardDataContextProps {
   setMode: React.Dispatch<React.SetStateAction<ModeEnum>>;
   mode: ModeEnum;
   cancelQuestionGeneration: () => void;
-  loadMoreQuestions: (count: number) => void;
+  loadMoreQuestions: (count: number, lang: (typeof languages)[number]) => void;
   stageFlashcardForEdit: (flashcard: CurrentEditFlashcard) => void;
 }
 const FlashcardDataContext = createContext<
@@ -432,7 +435,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     [setQuestions, setCurrentStep, setQuestionGenerationStatus, handleError]
   );
   const loadMoreQuestions = useCallback(
-    async (count = 5) => {
+    async (count = 5, lang: (typeof languages)[number]) => {
       try {
         const { canProceed, adjustedCount } = await checkFlashcardLimit(count);
 
@@ -450,17 +453,25 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           firebaseId: user?.firebaseId,
           ...(flashcardData.level && { difficulty: flashcardData.level }),
           ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
-          existingQuestions: questions.map((q) => q.question)
+          existingQuestions: questions.map((q) => q.question),
+          language: lang
         };
         // Call the API to fetch more questions
-        const requestFunc = !flashcardData.noteDoc
-          ? ApiService.generateFlashcardQuestions
-          : ApiService.generateFlashcardQuestionsForNotes;
-        const response = await requestFunc(
-          aiData,
-          user?._id as string,
-          user?.firebaseId as string
-        );
+        let response: any;
+        if (!flashcardData.noteDoc) {
+          response = await ApiService.generateFlashcardQuestions(
+            aiData,
+            user?._id as string,
+            lang
+          );
+        } else {
+          response = await ApiService.generateFlashcardQuestionsForNotes(
+            aiData,
+            user?._id as string,
+            user?.firebaseId as string,
+            lang
+          );
+        }
         if (cancelRequest) {
           cancelRequest = false;
           return;
@@ -543,6 +554,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const generateFlashcardQuestions = useCallback(
     async (
+      lang: (typeof languages)[number],
       data?: FlashcardData,
       onDone?: (success: boolean) => void,
       ingestDoc = true
@@ -570,20 +582,29 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           ...(reqData.documentId &&
             reqData.startPage && { start_page: reqData.startPage }),
           ...(reqData.documentId &&
-            reqData.endPage && { end_page: reqData.startPage })
+            reqData.endPage && { end_page: reqData.startPage }),
+          language: lang
         };
         let response;
         if (reqData.documentId) {
           response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
-          const requestFunc = !reqData.noteDoc
-            ? ApiService.generateFlashcardQuestions
-            : ApiService.generateFlashcardQuestionsForNotes;
-          response = await requestFunc(
-            aiData,
-            user?._id as string,
-            user?.firebaseId as string
-          );
+          let response: any;
+          if (!reqData.noteDoc) {
+            response = await ApiService.generateFlashcardQuestions(
+              aiData,
+              user?._id as string,
+              lang
+            );
+          } else {
+            response = await ApiService.generateFlashcardQuestionsForNotes(
+              aiData,
+              user?._id as string,
+              user?.firebaseId as string,
+              lang
+            );
+          }
+
           if (cancelRequest) {
             cancelRequest = false;
           } else {

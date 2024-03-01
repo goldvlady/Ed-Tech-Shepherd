@@ -14,7 +14,8 @@ import {
   HStack,
   Spacer,
   Flex,
-  Spinner
+  Spinner,
+  Select
 } from '@chakra-ui/react';
 import React, {
   ChangeEvent,
@@ -25,6 +26,7 @@ import React, {
 } from 'react';
 import userStore from '../../../../../state/userStore';
 import PlansModal from '../../../../../components/PlansModal';
+import { languages } from '../../../../../helpers';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -55,6 +57,9 @@ const FlashCardSetupInit = ({
     hasSubmitted: false
   };
 
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
@@ -210,7 +215,7 @@ const FlashCardSetupInit = ({
           setTogglePlansModal(true); // Show the PlansModal
           return;
         }
-        generateFlashcardQuestions(data, handleDone);
+        generateFlashcardQuestions(preferredLanguage, data, handleDone);
         setIsGenerating(false);
       } catch (error) {
         setIsGenerating(false);
@@ -332,6 +337,29 @@ const FlashCardSetupInit = ({
 
   return (
     <Box bg="white" width="100%" mt="30px">
+      <FormControl mb={4}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Preferred Language
+        </FormLabel>
+        <Select
+          isRequired
+          id="language_select"
+          fontSize="14px"
+          name="language_select"
+          className="!pb-0"
+          paddingBottom={0}
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname

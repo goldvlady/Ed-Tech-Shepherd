@@ -1,5 +1,6 @@
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import SelectComponent, { Option } from '../../../../components/Select';
+import { languages } from '../../../../helpers';
 import {
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
@@ -15,7 +16,8 @@ import {
   Textarea,
   Input,
   HStack,
-  Button
+  Button,
+  Select
 } from '@chakra-ui/react';
 import {
   forEach,
@@ -40,7 +42,8 @@ const ManualQuizForm = ({
   title,
   handleSetTitle,
   uploadingState,
-  handleCreateUpdateQuiz
+  handleCreateUpdateQuiz,
+  setPreferredLang
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<
     Omit<QuizQuestion & { canEdit?: boolean }, 'options'> & {
@@ -190,6 +193,22 @@ const ManualQuizForm = ({
           ))}
         </HStack>
       )}
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Select
+          isRequired
+          name="language_select"
+          onChange={(e) => {
+            setPreferredLang(e.target.value);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input
