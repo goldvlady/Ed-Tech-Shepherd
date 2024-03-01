@@ -334,10 +334,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
   const handleError = useCallback(
-    (onDone?: (success: boolean) => void) => {
+    (onDone?: (success: boolean, error?: string) => void, error?: string) => {
       setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
       setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-      onDone && onDone(false);
+      onDone && onDone(false, error);
     },
     [setQuestionGenerationStatus, setFlashcardData]
   );
@@ -347,7 +347,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       reqData: FlashcardData,
       ingestDoc: boolean,
       aiData: AIRequestBody,
-      onDone?: (success: boolean) => void
+      onDone?: (success: boolean, error?: string) => void
     ) => {
       const responseData = {
         title: reqData.topic as string,
@@ -370,30 +370,44 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         // If there's an error, it's likely not a valid URL, so just use documentId as is
       }
-
-      watchJobs(documentId as string, (error, questions) => {
-        if (error) {
-          return handleError(onDone);
-        } else {
-          if (questions && questions.length) {
-            setQuestions(questions);
-            setCurrentStep(1);
-            setQuestionGenerationStatus(
-              QuestionGenerationStatusEnum.SUCCESSFUL
-            );
-            // setTimeout(() => clearJobs(documentId as string), 500);
-          }
-        }
-        setIsLoading(false);
-      });
-      return await ApiService.createDocchatFlashCards({
+      const response = await ApiService.createDocchatFlashCards({
         ...aiData,
         subscriptionTier: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
         studentId: user?._id as string,
         documentId: documentId as string
       });
+      const { status } = response;
+
+      if (status === 200) {
+        const { body } = await response.json();
+        const jobId = body.data.jobId;
+        console.log('Job id ===>', jobId);
+        if (!jobId) {
+          throw new Error('Job ID not found');
+        } else {
+          watchJobs(jobId as string, (error, questions) => {
+            if (error) {
+              throw new Error(error);
+            } else {
+              if (questions && questions.length) {
+                setQuestions(questions);
+                setCurrentStep(1);
+                setQuestionGenerationStatus(
+                  QuestionGenerationStatusEnum.SUCCESSFUL
+                );
+                // setTimeout(() => clearJobs(documentId as string), 500);
+              }
+            }
+            setIsLoading(false);
+          });
+        }
+      } else {
+        throw new Error('Failed to generate flashcards');
+      }
+
+      return response;
     },
-    [user, watchJobs, handleError, clearJobs]
+    [user, watchJobs, handleError]
   );
   // Handle the API response
   const handleResponse = useCallback(
@@ -576,8 +590,8 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
             await handleResponse(response, onDone);
           }
         }
-      } catch (error) {
-        handleError(onDone);
+      } catch (error: any) {
+        handleError(onDone, error.message);
       } finally {
         if (!reqData.documentId) {
           setIsLoading(false);

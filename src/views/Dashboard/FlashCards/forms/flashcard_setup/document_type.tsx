@@ -98,11 +98,13 @@ const FlashcardFromDocumentSetup = ({
     return Object.values(payload).every(Boolean);
   }, [localData]);
 
-  const handleDone = (success: boolean) => {
+  const handleDone = (success: boolean, error?: string) => {
+    const errorMessage = error || 'Failed to generate flashcard questions';
+    const title = success
+      ? 'Flashcard questions generated successfully'
+      : errorMessage;
     toast({
-      title: success
-        ? 'Flashcard questions generated successfully'
-        : 'Failed to generate flashcard questions',
+      title,
       position: 'top-right',
       status: success ? 'success' : 'error',
       isClosable: true
