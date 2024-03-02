@@ -54,7 +54,6 @@ function StudyPlanSummary(props) {
   // Define the start and end dates for the current month
   const currentMonthStart = moment().startOf('month');
   const currentMonthEnd = moment().endOf('month');
-  console.log(currentMonthStart, currentMonthEnd);
 
   // Update filtered events whenever studyPlanUpcomingEvent changes
   useEffect(() => {
@@ -173,7 +172,7 @@ function StudyPlanSummary(props) {
               Summary
             </Text>
             <Spacer />{' '}
-            <Menu>
+            {/* <Menu>
               <MenuButton
                 as={Button}
                 leftIcon={<RiCalendar2Fill />}
@@ -188,21 +187,21 @@ function StudyPlanSummary(props) {
                 {eventPeriod}
               </MenuButton>
               <MenuList minWidth={'auto'}>
-                <MenuItem onClick={() => setEventPeriod('all')}>All</MenuItem>
-                <MenuItem onClick={() => setEventPeriod('today')}>
+                <MenuItem onClick={() => setEventPeriod('All')}>All</MenuItem>
+                <MenuItem onClick={() => setEventPeriod('Today')}>
                   Today
                 </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('week')}>
+                <MenuItem onClick={() => setEventPeriod('This week')}>
                   This week
                 </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('nextWeek')}>
+                <MenuItem onClick={() => setEventPeriod('Next week')}>
                   Next week
                 </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('month')}>
+                <MenuItem onClick={() => setEventPeriod('This month')}>
                   This month
                 </MenuItem>
               </MenuList>
-            </Menu>
+            </Menu> */}
           </Flex>
 
           <ul className="space-y-3">
