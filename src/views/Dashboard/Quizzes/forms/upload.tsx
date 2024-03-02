@@ -11,6 +11,7 @@ import {
   MIXED,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  Prettify,
   QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
@@ -24,6 +25,7 @@ import {
   HStack,
   Button,
   Tooltip,
+  Select,
   Flex,
   Icon,
   Text,
@@ -34,6 +36,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import PlansModal from '../../../../components/PlansModal';
 import FileUpload from '../components/fileUpload';
 import { useToggle } from 'usehooks-ts';
+import { languages } from '../../../../helpers';
 
 type LocalDummyData = {
   subject: string;
@@ -81,6 +84,9 @@ const UploadQuizForm = ({
   ];
 
   const [localData, setLocalData] = useState<any>(dummyData);
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const toast = useCustomToast();
   const { handleIsLoadingQuizzes } = quizStore();
 
@@ -99,12 +105,16 @@ const UploadQuizForm = ({
   const [ingestedDocument, setIngestedDocument] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerateQuestions = async (data: LocalDummyData) => {
+  const handleGenerateQuestions = async (
+    data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>
+  ) => {
+    const { lang, ...d } = data;
     try {
       const result = await ApiService.generateQuizQuestionFromDocs({
-        ...data,
-        count: toNumber(data?.count),
-        subscriptionTier: user.subscription?.tier
+        ...d,
+        count: toNumber(d?.count),
+        subscriptionTier: user.subscription?.tier,
+        lang
       });
 
       const resultJson = await result.json();
@@ -302,7 +312,8 @@ const UploadQuizForm = ({
             'contentType',
             'documentID',
             'ingestDoc'
-          ]) as any)
+          ]) as any),
+          lang: preferredLanguage
         });
       } else {
         await handleGenerateQuestions({
@@ -314,7 +325,8 @@ const UploadQuizForm = ({
             'ingestDoc'
           ]) as any),
           studentId: user._id,
-          documentId: ingestedDocument?.value
+          documentId: ingestedDocument?.value,
+          lang: preferredLanguage
         });
       }
       watchJobs(
@@ -369,6 +381,23 @@ const UploadQuizForm = ({
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Select
+          isRequired
+          name="language_select"
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input
