@@ -19,6 +19,7 @@ import {
   Button,
   FormLabel,
   Tooltip,
+  Select,
   Flex,
   Icon,
   Text,
@@ -26,6 +27,7 @@ import {
 } from '@chakra-ui/react';
 import { isEmpty, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
+import { languages } from '../../../../helpers';
 
 const TopicQuizForm = ({
   handleSetTitle,
@@ -62,7 +64,9 @@ const TopicQuizForm = ({
     { label: 'Open Ended', value: OPEN_ENDED },
     { label: 'Mixed', value: MIXED }
   ];
-
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
@@ -145,11 +149,15 @@ const TopicQuizForm = ({
 
         localData.count = quizzesRemaining;
       }
-      const result = await ApiService.generateQuizQuestion(user._id, {
-        ...localData,
-        count: toNumber(localData.count),
-        firebaseId: user.firebaseId
-      });
+      const result = await ApiService.generateQuizQuestion(
+        user._id,
+        {
+          ...localData,
+          count: toNumber(localData.count),
+          firebaseId: user.firebaseId
+        },
+        preferredLanguage
+      );
       const { quizzes } = await result.json();
 
       await handleFormatQuizQuestionCallback(quizzes, localData.count, () => {
@@ -182,6 +190,23 @@ const TopicQuizForm = ({
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Select
+          isRequired
+          name="language_select"
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input

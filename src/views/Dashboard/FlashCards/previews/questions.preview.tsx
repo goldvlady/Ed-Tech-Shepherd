@@ -1,3 +1,5 @@
+import { QuestionIcon } from '@chakra-ui/icons';
+import { languages } from '../../../../helpers';
 import useIsMobile from '../../../../helpers/useIsMobile';
 import OptionBadge from '../components/optionBadge';
 import QuestionReviewCard from '../components/question_preview_card';
@@ -14,7 +16,11 @@ import {
   Text,
   VStack,
   Flex,
-  Input
+  Input,
+  FormControl,
+  FormLabel,
+  Select,
+  Tooltip
 } from '@chakra-ui/react';
 import { useState, useMemo, ChangeEvent, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -48,6 +54,9 @@ export default function QuestionsPreview({
     setQuestions
   } = useFlashcardWizard();
 
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -88,7 +97,7 @@ export default function QuestionsPreview({
   const handleLoadMore = async () => {
     setIsFetchingMore(true);
     try {
-      await loadMoreQuestions(5);
+      await loadMoreQuestions(5, preferredLanguage);
     } catch (error) {
       // console.error('Failed to fetch more questions:', error);
     } finally {
@@ -301,7 +310,38 @@ export default function QuestionsPreview({
             _placeholder={{ fontSize: '14px', lineHeight: '20px' }}
           />
         </Flex> */}
-
+        {filteredQuestions.filter((question) => question.question).length >
+          0 && (
+          <FormControl mb={4}>
+            <FormLabel textColor={'text.600'}>
+              Preferred Language*{' '}
+              <Tooltip
+                hasArrow
+                label="Preferred language to load more questions in!
+            "
+                placement="right-end"
+              >
+                <QuestionIcon mx={2} w={3} h={3} />
+              </Tooltip>
+            </FormLabel>
+            <Select
+              isRequired
+              name="language_select"
+              value={preferredLanguage}
+              onChange={(e) => {
+                setPreferredLanguage(
+                  e.target.value as typeof preferredLanguage
+                );
+              }}
+            >
+              {languages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <VStack spacing={10} width={'100%'}>
           {filteredQuestions
             .filter((question) => question.question)
