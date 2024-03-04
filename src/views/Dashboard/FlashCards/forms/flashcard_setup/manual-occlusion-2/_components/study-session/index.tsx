@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogContent
@@ -51,7 +51,8 @@ function StudySession({
     queryKey: ['occlusion-card', id],
     queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
     enabled: Boolean(id),
-    select: (data) => data.card
+    select: (data) => data.card,
+    refetchOnWindowFocus: false
   });
 
   const { mutate, isPending: isSubmittingQuiz } = useMutation({
@@ -64,6 +65,10 @@ function StudySession({
       setStudySession(data);
     }
   }, [open, isSuccess, isFetching]);
+
+  useEffect(() => {
+    setScore({ right: 0, wrong: 0, notRemembered: 0 });
+  }, [isFetching]);
 
   const numberOfBubbledChecked = studySession?.labels.filter(
     (label: any) => !label.isRevealed
