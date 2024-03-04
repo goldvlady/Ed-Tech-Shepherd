@@ -317,6 +317,7 @@ const FileUploadModal = ({
             : 'Consider upgrading to upload larger files.'
         );
         setTogglePlansModal(true);
+        return;
       } else {
         setAlreadyExist(false);
         setLoading(true);
@@ -340,7 +341,6 @@ const FileUploadModal = ({
           'image/jpeg': ['.jpeg', '.jpg'],
           'application/vnd.ms-powerpoint': ['.ppt']
         },
-    maxSize: fileSizeLimitBytes,
     onDragEnter: () => {
       setIsDragOver(true);
     },

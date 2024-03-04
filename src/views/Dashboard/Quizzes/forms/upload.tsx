@@ -11,10 +11,11 @@ import {
   MIXED,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  Prettify,
   QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
-import { QuestionIcon } from '@chakra-ui/icons';
+import { InfoIcon, QuestionIcon } from '@chakra-ui/icons';
 import {
   Box,
   FormControl,
@@ -23,13 +24,19 @@ import {
   Input,
   HStack,
   Button,
-  Tooltip
+  Tooltip,
+  Select,
+  Flex,
+  Icon,
+  Text,
+  CloseButton
 } from '@chakra-ui/react';
 import _, { isEmpty, isNil, toNumber, merge, omit } from 'lodash';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import PlansModal from '../../../../components/PlansModal';
 import FileUpload from '../components/fileUpload';
 import { useToggle } from 'usehooks-ts';
+import { languages } from '../../../../helpers';
 
 type LocalDummyData = {
   subject: string;
@@ -77,10 +84,14 @@ const UploadQuizForm = ({
   ];
 
   const [localData, setLocalData] = useState<any>(dummyData);
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const toast = useCustomToast();
   const { handleIsLoadingQuizzes } = quizStore();
 
-  const { user } = userStore();
+  const { hasActiveSubscription, user } = userStore();
+
   const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
   const { saveDocument } = documentStore();
@@ -92,13 +103,18 @@ const UploadQuizForm = ({
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [openModal, _, setOpenModal] = useToggle(false);
   const [ingestedDocument, setIngestedDocument] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerateQuestions = async (data: LocalDummyData) => {
+  const handleGenerateQuestions = async (
+    data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>
+  ) => {
+    const { lang, ...d } = data;
     try {
       const result = await ApiService.generateQuizQuestionFromDocs({
-        ...data,
-        count: toNumber(data?.count),
-        subscriptionTier: user.subscription?.tier
+        ...d,
+        count: toNumber(d?.count),
+        subscriptionTier: user.subscription?.tier,
+        lang
       });
 
       const resultJson = await result.json();
@@ -176,7 +192,6 @@ const UploadQuizForm = ({
     (localData.end_page && localData.end_page <= 40 && localData.count > 50) ||
     (localData.end_page && localData.end_page > 40 && localData.count > 100) ||
     (!localData.end_page && !localData.start_page && localData.count > 100);
-
   function getFileNameFromUrl(url) {
     let fileName = '';
 
@@ -195,22 +210,23 @@ const UploadQuizForm = ({
 
   const handleOnSubmit = async () => {
     try {
+      setIsGenerating(true);
       setIsUploadingFile(true);
       handleSetUploadingState(true);
-
-      const { hasActiveSubscription } = userStore.getState();
       const quizCountResponse = await ApiService.checkQuizCount(user._id);
       const userQuizCount = await quizCountResponse.json();
 
-      if (
-        (!hasActiveSubscription && userQuizCount.count >= 40) ||
-        (user.subscription?.subscriptionMetadata?.quiz_limit &&
-          userQuizCount.count >=
-            user.subscription.subscriptionMetadata.quiz_limit)
-      ) {
+      // Assume userQuizCount contains the total number of quizzes the user can generate and has generated
+      const limit = hasActiveSubscription
+        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
+        : 40; // Default limit to 40 if on free tier
+      const quizzesRemaining = limit - userQuizCount.count;
+
+      if (quizzesRemaining <= 0) {
+        // User has reached or exceeded their limit
         setPlansModalMessage(
           !hasActiveSubscription
-            ? "Let's get you on a plan so you can generate quizzes! "
+            ? "Let's get you on a plan so you can generate more questions! "
             : "Looks like you've filled up your quiz store! 🚀"
         );
         setPlansModalSubMessage(
@@ -218,10 +234,56 @@ const UploadQuizForm = ({
             ? 'Get started today for free!'
             : "Let's upgrade your plan so you can keep generating more."
         );
-        setTogglePlansModal(true); // Show the PlansModal
+        localData.count = 0;
+        setTogglePlansModal(true);
+        setIsGenerating(false);
+        setIsUploadingFile(false);
+        handleSetUploadingState(false);
         return;
-      }
+      } else if (localData.count > quizzesRemaining) {
+        // User has requested more quizzes than they are allowed to generate
+        const requestedAmount = localData.count;
+        toast({
+          render: ({ onClose }) => (
+            <Box
+              color="white"
+              p={4}
+              bg="blue.500"
+              borderRadius="md"
+              position="relative"
+            >
+              <Flex align="start">
+                <Icon as={InfoIcon} color="white" w={5} h={5} mt="1" mr={3} />
+                <Box flex="1">
+                  <Text fontSize="md" mr={6} ml={8}>
+                    You've requested {requestedAmount} question
+                    {requestedAmount > 1 ? 's' : ''}, but can only generate{' '}
+                    {quizzesRemaining} more under your current plan.
+                  </Text>
+                  <Text fontSize="sm" mt={4} mr={6} ml={6}>
+                    Consider upgrading your plan for more question generations.
+                  </Text>
+                </Box>
+              </Flex>
+              <CloseButton
+                position="absolute"
+                top="1"
+                right="1"
+                onClick={onClose}
+                color="white"
+              />
+            </Box>
+          ),
+          isClosable: true
+        });
+        // Adjust the requested quiz count to the maximum allowed
+        setLocalData((prevState) => ({
+          ...prevState,
+          count: quizzesRemaining
+        }));
 
+        localData.count = quizzesRemaining;
+      }
       if (isNil(ingestedDocument)) {
         const title = getFileNameFromUrl(localData?.fileUrl);
         const response = await saveDocument(
@@ -250,7 +312,8 @@ const UploadQuizForm = ({
             'contentType',
             'documentID',
             'ingestDoc'
-          ]) as any)
+          ]) as any),
+          lang: preferredLanguage
         });
       } else {
         await handleGenerateQuestions({
@@ -262,10 +325,10 @@ const UploadQuizForm = ({
             'ingestDoc'
           ]) as any),
           studentId: user._id,
-          documentId: ingestedDocument?.value
+          documentId: ingestedDocument?.value,
+          lang: preferredLanguage
         });
       }
-
       watchJobs(
         isNil(ingestedDocument)
           ? localData?.documentId
@@ -286,6 +349,7 @@ const UploadQuizForm = ({
             localData,
             () => {
               setIsUploadingFile(false);
+              setIsGenerating(false);
               handleIsLoadingQuizzes(false);
               handleSetUploadingState(false);
               setTimeout(
@@ -317,6 +381,23 @@ const UploadQuizForm = ({
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Select
+          isRequired
+          name="language_select"
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input
@@ -481,9 +562,12 @@ const UploadQuizForm = ({
             // disabledByFileOrDocument ||
             // localData.count < 1 ||
             // disabledByTitle
-            disabledByFileOrDocument || disabledByTitle || isError
+            disabledByFileOrDocument ||
+            disabledByTitle ||
+            isError ||
+            isGenerating
           }
-          isLoading={isUploadingFile}
+          isLoading={isUploadingFile || isGenerating}
         >
           <WardIcon className={'h-[20px] w-[20px] mx-2'} onClick={() => ''} />
           Generate

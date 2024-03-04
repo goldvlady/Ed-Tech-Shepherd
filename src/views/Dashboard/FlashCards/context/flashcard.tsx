@@ -16,6 +16,7 @@ import React, {
 } from 'react';
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
+import { languages } from '../../../../helpers';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -81,6 +82,7 @@ export type AIRequestBody = {
   note?: string;
   existingQuestions?: string[];
   firebaseId: string;
+  language: (typeof languages)[number];
 };
 export interface FlashcardDataContextProps {
   flashcardData: FlashcardData;
@@ -110,6 +112,7 @@ export interface FlashcardDataContextProps {
   ) => void;
   convertAnkiToShepherd: (base64string: string) => Promise<void>;
   generateFlashcardQuestions: (
+    lang: (typeof languages)[number],
     d?: FlashcardData,
     onDone?: (success: boolean) => void,
     ingestDoc?: boolean
@@ -121,7 +124,7 @@ export interface FlashcardDataContextProps {
   setMode: React.Dispatch<React.SetStateAction<ModeEnum>>;
   mode: ModeEnum;
   cancelQuestionGeneration: () => void;
-  loadMoreQuestions: (count: number) => void;
+  loadMoreQuestions: (count: number, lang: (typeof languages)[number]) => void;
   stageFlashcardForEdit: (flashcard: CurrentEditFlashcard) => void;
 }
 const FlashcardDataContext = createContext<
@@ -208,8 +211,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
               <Icon as={InfoIcon} color="white" w={5} h={5} mt="1" mr={3} />
               <Box flex="1">
                 <Text fontSize="md" mr={6} ml={8}>
-                  You've requested {requestedCount} flashcards, but you can only
-                  generate {remainingQuota} more under your current plan.
+                  You've requested {requestedCount} flashcard
+                  {remainingQuota > 1 ? 's' : ''}, but you can only generate
+                  {remainingQuota} more under your current plan.
                 </Text>
                 <Text fontSize="sm" mt={4} mr={6} ml={6}>
                   Consider upgrading your plan for more flashcard generations.
@@ -334,10 +338,10 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
   const handleError = useCallback(
-    (onDone?: (success: boolean) => void) => {
+    (onDone?: (success: boolean, error?: string) => void, error?: string) => {
       setQuestionGenerationStatus(QuestionGenerationStatusEnum.FAILED);
       setFlashcardData((prev) => ({ ...prev, hasSubmitted: false }));
-      onDone && onDone(false);
+      onDone && onDone(false, error);
     },
     [setQuestionGenerationStatus, setFlashcardData]
   );
@@ -347,7 +351,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       reqData: FlashcardData,
       ingestDoc: boolean,
       aiData: AIRequestBody,
-      onDone?: (success: boolean) => void
+      onDone?: (success: boolean, error?: string) => void
     ) => {
       const responseData = {
         title: reqData.topic as string,
@@ -370,30 +374,44 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error) {
         // If there's an error, it's likely not a valid URL, so just use documentId as is
       }
-
-      watchJobs(documentId as string, (error, questions) => {
-        if (error) {
-          return handleError(onDone);
-        } else {
-          if (questions && questions.length) {
-            setQuestions(questions);
-            setCurrentStep(1);
-            setQuestionGenerationStatus(
-              QuestionGenerationStatusEnum.SUCCESSFUL
-            );
-            setTimeout(() => clearJobs(documentId as string), 5000);
-          }
-        }
-        setIsLoading(false);
-      });
-      return await ApiService.createDocchatFlashCards({
+      const response = await ApiService.createDocchatFlashCards({
         ...aiData,
         subscriptionTier: user?.subscription?.tier, //passing to use in AWS lambda to control gpt version
         studentId: user?._id as string,
         documentId: documentId as string
       });
+      const { status } = response;
+
+      if (status === 200) {
+        const { body } = await response.json();
+        const jobId = body.data.jobId;
+        console.log('Job id ===>', jobId);
+        if (!jobId) {
+          throw new Error('Job ID not found');
+        } else {
+          watchJobs(jobId as string, (error, questions) => {
+            if (error) {
+              throw new Error(error);
+            } else {
+              if (questions && questions.length) {
+                setQuestions(questions);
+                setCurrentStep(1);
+                setQuestionGenerationStatus(
+                  QuestionGenerationStatusEnum.SUCCESSFUL
+                );
+                // setTimeout(() => clearJobs(documentId as string), 500);
+              }
+            }
+            setIsLoading(false);
+          });
+        }
+      } else {
+        throw new Error('Failed to generate flashcards');
+      }
+
+      return response;
     },
-    [user, watchJobs, handleError, clearJobs]
+    [user, watchJobs, handleError]
   );
   // Handle the API response
   const handleResponse = useCallback(
@@ -418,7 +436,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     [setQuestions, setCurrentStep, setQuestionGenerationStatus, handleError]
   );
   const loadMoreQuestions = useCallback(
-    async (count = 5) => {
+    async (count = 5, lang: (typeof languages)[number]) => {
       try {
         const { canProceed, adjustedCount } = await checkFlashcardLimit(count);
 
@@ -436,17 +454,25 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           firebaseId: user?.firebaseId,
           ...(flashcardData.level && { difficulty: flashcardData.level }),
           ...(flashcardData.noteDoc && { note: flashcardData.noteDoc }),
-          existingQuestions: questions.map((q) => q.question)
+          existingQuestions: questions.map((q) => q.question),
+          language: lang
         };
         // Call the API to fetch more questions
-        const requestFunc = !flashcardData.noteDoc
-          ? ApiService.generateFlashcardQuestions
-          : ApiService.generateFlashcardQuestionsForNotes;
-        const response = await requestFunc(
-          aiData,
-          user?._id as string,
-          user?.firebaseId as string
-        );
+        let response: any;
+        if (!flashcardData.noteDoc) {
+          response = await ApiService.generateFlashcardQuestions(
+            aiData,
+            user?._id as string,
+            lang
+          );
+        } else {
+          response = await ApiService.generateFlashcardQuestionsForNotes(
+            aiData,
+            user?._id as string,
+            user?.firebaseId as string,
+            lang
+          );
+        }
         if (cancelRequest) {
           cancelRequest = false;
           return;
@@ -529,6 +555,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const generateFlashcardQuestions = useCallback(
     async (
+      lang: (typeof languages)[number],
       data?: FlashcardData,
       onDone?: (success: boolean) => void,
       ingestDoc = true
@@ -555,29 +582,38 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           ...(reqData.noteDoc && { note: reqData.noteDoc }),
           ...(reqData?.documentId &&
             reqData.startPage && { start_page: reqData.startPage }),
-          ...(reqData?.documentId &&
-            reqData.endPage && { end_page: reqData.startPage })
+          ...(reqData.documentId &&
+            reqData.endPage && { end_page: reqData.startPage }),
+          language: lang
         };
         let response;
         if (reqData?.documentId) {
           response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
-          const requestFunc = !reqData.noteDoc
-            ? ApiService.generateFlashcardQuestions
-            : ApiService.generateFlashcardQuestionsForNotes;
-          response = await requestFunc(
-            aiData,
-            user?._id as string,
-            user?.firebaseId as string
-          );
+          let response: any;
+          if (!reqData.noteDoc) {
+            response = await ApiService.generateFlashcardQuestions(
+              aiData,
+              user?._id as string,
+              lang
+            );
+          } else {
+            response = await ApiService.generateFlashcardQuestionsForNotes(
+              aiData,
+              user?._id as string,
+              user?.firebaseId as string,
+              lang
+            );
+          }
+
           if (cancelRequest) {
             cancelRequest = false;
           } else {
             await handleResponse(response, onDone);
           }
         }
-      } catch (error) {
-        handleError(onDone);
+      } catch (error: any) {
+        handleError(onDone, error.message);
       } finally {
         if (!reqData?.documentId) {
           setIsLoading(false);

@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../../../components/CustomComponents/Custo
 import CustomSelect from '../../../../../components/CustomSelect';
 import PlansModal from '../../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import { languages } from '../../../../../helpers';
 import uploadFile from '../../../../../helpers/file.helpers';
 import ApiService from '../../../../../services/ApiService';
 import userStore from '../../../../../state/userStore';
@@ -17,7 +18,8 @@ import {
   Button,
   Text,
   HStack,
-  Spinner
+  Spinner,
+  Select
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
 
@@ -36,6 +38,9 @@ const FlashcardFromDocumentSetup = ({
     isLoading: isLoadingFlashcardQuestions
   } = useFlashcardWizard();
   const [isLoading, setIsLoading] = useState(false);
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
@@ -98,11 +103,13 @@ const FlashcardFromDocumentSetup = ({
     return Object.values(payload).every(Boolean);
   }, [localData]);
 
-  const handleDone = (success: boolean) => {
+  const handleDone = (success: boolean, error?: string) => {
+    const errorMessage = error || 'Failed to generate flashcard questions';
+    const title = success
+      ? 'Flashcard questions generated successfully'
+      : errorMessage;
     toast({
-      title: success
-        ? 'Flashcard questions generated successfully'
-        : 'Failed to generate flashcard questions',
+      title,
       position: 'top-right',
       status: success ? 'success' : 'error',
       isClosable: true
@@ -145,7 +152,7 @@ const FlashcardFromDocumentSetup = ({
           setTogglePlansModal(true); // Show the PlansModal
           return;
         }
-        generateFlashcardQuestions(localData, handleDone);
+        generateFlashcardQuestions(preferredLanguage, localData, handleDone);
         setIsGenerating(false);
       } catch (error) {
         setIsGenerating(false);
@@ -184,7 +191,27 @@ const FlashcardFromDocumentSetup = ({
       <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
         Set up flashcard
       </Text>
-
+      <FormControl my={4}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Preferred Language
+        </FormLabel>
+        <Select
+          isRequired
+          id="language_select"
+          name="language_select"
+          className="pt-1"
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl my={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Upload a source document

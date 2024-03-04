@@ -70,6 +70,7 @@ import clsx from 'clsx';
 import PlansModal from '../../../components/PlansModal';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { languages } from '../../../helpers';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
@@ -94,6 +95,9 @@ const CreateQuizPage = () => {
     handleToggleStartQuizModal,
     handleDeleteQuizQuestion: handleDeleteQuizQuestionService
   } = quizStore();
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
 
@@ -301,7 +305,7 @@ const CreateQuizPage = () => {
       }
     );
   };
-
+  // may need to handle
   const handleUpdateQuiz = async (
     quizId,
     payload: {
@@ -638,7 +642,7 @@ const CreateQuizPage = () => {
                   Upload
                 </Tab>
                 <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Text
+                  Topic
                 </Tab>
                 {false && (
                   <Tab _selected={{ color: '#207DF7' }} flex="1">
@@ -693,6 +697,7 @@ const CreateQuizPage = () => {
                     removeTag={handleRemoveTag}
                     title={title}
                     handleSetTitle={handleSetTitle}
+                    setPreferredLang={setPreferredLanguage}
                     isLoadingButton={isLoadingButton}
                     handleCreateUpdateQuiz={handleCreateUpdateQuiz}
                     uploadingState={uploadingState}

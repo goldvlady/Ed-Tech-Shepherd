@@ -652,11 +652,11 @@ const Offer = () => {
                     <VStack spacing={'24px'} alignItems="flex-start">
                       <Box>
                         <FormLabel>Course</FormLabel>
-                        <OfferValueText>{offer.course.label}</OfferValueText>
+                        <OfferValueText>{offer.course?.label}</OfferValueText>
                       </Box>
                       <Box>
                         <FormLabel>Level</FormLabel>
-                        <OfferValueText>{offer.level.label}</OfferValueText>
+                        <OfferValueText>{offer.level?.label}</OfferValueText>
                       </Box>
                       <Box>
                         <FormLabel>

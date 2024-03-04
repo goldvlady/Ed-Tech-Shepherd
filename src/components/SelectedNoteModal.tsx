@@ -401,42 +401,58 @@ const SelectedModal = ({
     return exists;
   }
 
-  const collectFileInput = async (e) => {
-    const inputFile = e.target.files[0];
-    const fileChecked = doesTitleExist(inputFile?.name);
+  function handleFileSizeExceed() {
+    const modalMessage = !hasActiveSubscription
+      ? `Let's get you on a plan so you can upload larger files!`
+      : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`;
+    const modalSubMessage = !hasActiveSubscription
+      ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
+      : 'Consider upgrading to upload larger files.';
+
+    setPlansModalMessage(modalMessage);
+    setPlansModalSubMessage(modalSubMessage);
+    setTogglePlansModal(true);
+  }
+
+  const collectFileInput = async (event) => {
+    const inputFile = event.target.files[0];
+
+    // Early return if no file is selected
+    if (!inputFile) {
+      console.error('No file selected.');
+      return;
+    }
+
     setProgress(0);
     setConfirmReady(false);
+    setAlreadyExist(false); // Default assumption
 
+    const fileChecked = doesTitleExist(inputFile.name);
     if (fileChecked) {
       setAlreadyExist(true);
-    } else {
-      // Check if the file size exceeds the limit
-      if (inputFile.size > fileSizeLimitBytes) {
-        // Set the modal state and messages
-        setPlansModalMessage(
-          !hasActiveSubscription
-            ? `Let's get you on a plan so you can upload larger files!`
-            : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
-        );
-        setPlansModalSubMessage(
-          !hasActiveSubscription
-            ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
-            : 'Consider upgrading to upload larger files.'
-        );
-        setTogglePlansModal(true);
-        // setShow(false);
-      } else {
-        setAlreadyExist(false);
-        setLoading(true);
-        try {
-          setFileName(snip(inputFile.name));
-          await handleInputFreshUpload(inputFile, user, inputFile.name);
-        } catch (error) {
-          // Handle errors
-        }
-      }
+      return; // Stop further processing if file already exists
+    }
+    // Check file size limit
+    if (inputFile.size > fileSizeLimitBytes) {
+      handleFileSizeExceed();
+      return;
+    }
+
+    // Proceed with file processing
+    setLoading(true);
+    try {
+      const fileNameSnippet = snip(inputFile.name);
+      setFileName(fileNameSnippet);
+      await handleInputFreshUpload(inputFile, user, inputFile.name);
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+      // Optionally, update the UI or state to reflect the error
+    } finally {
+      setLoading(false); // Ensure loading is false after operation completes or fails
     }
   };
+
+  // Function to handle actions when file size exceeds limi
 
   const handleSelected = async (e) => {
     setAlreadyExist(false);

@@ -36,7 +36,8 @@ import {
   Th,
   Thead,
   Tr,
-  VStack
+  VStack,
+  Avatar
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
@@ -49,6 +50,8 @@ import ShepherdSpinner from './components/shepherd-spinner';
 import useUserStore from '../../state/userStore';
 import ShareModal from '../../components/ShareModal';
 import { Helmet } from 'react-helmet';
+import { IconContext } from 'react-icons';
+import { AiFillStar } from 'react-icons/ai';
 function removeShareFromURL(baseUrl: string) {
   const url = new URL(baseUrl);
   const existingParams = new URLSearchParams(url.search);
@@ -104,8 +107,12 @@ export default function Tutor() {
   //   }
   // }, [tutorData]);
 
-  const { fetchBookmarkedTutors, tutors: bookmarkedTutors } =
-    bookmarkedTutorsStore();
+  const {
+    fetchBookmarkedTutors,
+    tutors: bookmarkedTutors,
+    fetchTutorReviews,
+    tutorReviews
+  } = bookmarkedTutorsStore();
   const doFetchBookmarkedTutors = useCallback(async () => {
     await fetchBookmarkedTutors();
   }, [fetchBookmarkedTutors]);
@@ -123,6 +130,11 @@ export default function Tutor() {
       doFetchBookmarkedTutors();
     }
   }, [doFetchBookmarkedTutors, apiKey, shareable]);
+  useEffect(() => {
+    if (tutorId) {
+      fetchTutorReviews(tutorId);
+    }
+  }, [tutorId]);
 
   const toggleBookmarkTutor = async (id: string) => {
     try {
@@ -152,6 +164,22 @@ export default function Tutor() {
       });
     }
   };
+
+  const renderStars = (rating: number) => {
+    const stars: JSX.Element[] = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <IconContext.Provider
+          key={i}
+          value={{ color: i <= rating ? 'gold' : 'gray', size: '2em' }}
+        >
+          <AiFillStar size={'14px'} />
+        </IconContext.Provider>
+      );
+    }
+    return stars;
+  };
+
   const sendOfferHandler = () => {
     if (user) {
       navigate(`/dashboard/tutor/${tutorId}/offer`);
@@ -306,7 +334,7 @@ export default function Tutor() {
                       >
                         ABOUT ME
                       </Text>
-                      <Text fontSize={'14px'} my={2}>
+                      <Text fontSize={'14px'} my={2} whiteSpace="pre-wrap">
                         {tutorData.description}
                       </Text>
                     </Box>
@@ -322,47 +350,58 @@ export default function Tutor() {
 
                         <TabPanels>
                           <TabPanel>
-                            {/* <Flex px={3} gap={0} direction={'row'} my={2}>
-                              <Avatar
-                                name="Kola Tioluwani"
-                                src="https://bit.ly/tioluwani-kolawole"
-                              />
+                            {tutorReviews.length > 0 ? (
+                              tutorReviews.map((review) => (
+                                <Flex
+                                  px={3}
+                                  gap={0}
+                                  direction={'row'}
+                                  my={2}
+                                  key={review._id}
+                                >
+                                  <Avatar
+                                    name={`${review?.student?.user?.name.first} ${review?.student?.user?.name.last}`}
+                                    src={review?.student?.user?.avatar}
+                                  />
 
-                              <Stack direction={'column'} px={4} spacing={1}>
-                                <Box>
-                                  <Image src={Star4} height="14px" />{' '}
-                                  <Text
-                                    fontSize={'16px'}
-                                    fontWeight={'500'}
-                                    mb={0}
+                                  <Stack
+                                    direction={'column'}
+                                    px={4}
+                                    spacing={1}
                                   >
-                                    Jennifer A. Peters
-                                  </Text>
-                                  <Text
-                                    fontWeight={400}
-                                    color={'#585F68'}
-                                    fontSize="14px"
-                                    mb={'2px'}
-                                  >
-                                    Quam eros suspendisse a pulvinar sagittis
-                                    mauris. Vel duis adipiscing id faucibuseltu
-                                    consectetur amet. Tempor dui quam
-                                    scelerisque at tempor aliquam. Vivamus
-                                    aenean hendrerit turpis velit pretium.
-                                  </Text>
-                                </Box>
+                                    <Box>
+                                      <Flex>{renderStars(review.rating)}</Flex>
+                                      <Text
+                                        fontSize={'16px'}
+                                        fontWeight={'500'}
+                                        mb={0}
+                                      >
+                                        {`${review?.student?.user?.name.first} ${review?.student?.user?.name.last}`}
+                                      </Text>
+                                      <Text
+                                        fontWeight={400}
+                                        color={'#585F68'}
+                                        fontSize="14px"
+                                        mb={'2px'}
+                                      >
+                                        {review.review}
+                                      </Text>
+                                    </Box>
 
-                                <Divider />
-                              </Stack>
-                            </Flex> */}
-                            <Text
-                              fontWeight={400}
-                              color={'#585F68'}
-                              fontSize="14px"
-                              mb={'2px'}
-                            >
-                              This tutor has no reviews yet
-                            </Text>
+                                    <Divider />
+                                  </Stack>
+                                </Flex>
+                              ))
+                            ) : (
+                              <Text
+                                fontWeight={400}
+                                color={'#585F68'}
+                                fontSize="14px"
+                                mb={'2px'}
+                              >
+                                This tutor has no reviews yet
+                              </Text>
+                            )}
                           </TabPanel>
                           <TabPanel>
                             {tutorData.qualifications.map((q) => (

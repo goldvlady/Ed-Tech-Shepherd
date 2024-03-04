@@ -14,28 +14,9 @@ import {
   Flex,
   Image,
   Link as ChakraLink,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
   Text,
   Input,
   Button,
-  Heading,
-  UnorderedList,
-  ListItem,
-  Icon,
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
   Spacer,
   List,
@@ -58,57 +39,16 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Tooltip,
   FormControl,
   FormLabel,
-  GridItem,
-  Card,
-  CardFooter,
   SimpleGrid,
   Spinner,
   Center
 } from '@chakra-ui/react';
-import {
-  FaPlus,
-  FaCheckCircle,
-  FaPencilAlt,
-  FaRocket,
-  FaSuitcase
-} from 'react-icons/fa';
+
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
-import { FiChevronDown } from 'react-icons/fi';
-import { SiMicrosoftbing, SiWikipedia } from 'react-icons/si';
-import { GrResources } from 'react-icons/gr';
-
-import {
-  ArrowLeftIcon,
-  ChevronDownIcon,
-  ChevronRightIcon
-} from '@chakra-ui/icons';
-import { IoIosArrowRoundBack } from 'react-icons/io';
-import SubjectCard from '../../../components/SubjectCard';
-import Events from '../../../components/Events';
 import ResourceIcon from '../../../assets/resources-plan.svg';
-import QuizIcon from '../../../assets/quiz-plan.svg';
-import Ribbon from '../../../assets/ribbon-grey.svg';
-import EmptyFlashcard from '../../../assets/no-flashcard.svg';
-import CloudDay from '../../../assets/day.svg';
-import CloudNight from '../../../assets/night.svg';
-import Summary from '../../../assets/summary.svg';
-import Flash from '../../../assets/flash.svg';
-import FlashcardIcon from '../../../assets/flashcard-plan.svg';
-import DocChatIcon from '../../../assets/dochat-plan.svg';
-import AiTutorIcon from '../../../assets/aitutor-plan.svg';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
 import flashcardStore from '../../../state/flashcardStore';
@@ -130,9 +70,11 @@ import { numberToDayOfWeekName } from '../../../util';
 import DatePicker from '../../../components/DatePicker';
 import { parseISO, format, parse } from 'date-fns';
 import SciPhiService from '../../../services/SciPhiService'; // SearchRagResponse // SearchRagOptions,
-
+import StudyPlanSummary from './components/summary';
 import userStore from '../../../state/userStore';
 import ShepherdSpinner from '../components/shepherd-spinner';
+import Analytics from './components/analytics';
+import Topics from './components/topics';
 
 function CoursePlan() {
   const {
@@ -145,14 +87,8 @@ function CoursePlan() {
     onOpen: onOpenCadence,
     onClose: onCloseCadence
   } = useDisclosure();
-  // const [selectedTopic, setSelectedTopic] = useState('');
-  // const [topics, setTopics] = useState(null);
-  // const [selectedPlan, setSelectedPlan] = useState(null);
-  // const [planResource, setPlanResource] = useState(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(100);
-  const btnRef = useRef();
+
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -160,7 +96,6 @@ function CoursePlan() {
     levels: levelOptions,
     studyPlanCourses
   } = resourceStore();
-  const { fetchSingleFlashcard } = flashcardStore();
   const {
     studyPlans: storePlans,
     fetchPlans,
@@ -178,7 +113,7 @@ function CoursePlan() {
 
   // Combine related state variables into a single state object
   const [state, setState] = useState({
-    studyPlans: storedStudyPlans,
+    studyPlans: storePlans,
     isPageLoading: false,
     selectedTopic: '',
     topics: null,
@@ -200,21 +135,6 @@ function CoursePlan() {
   // Batch state updates
   const updateState = (newState) =>
     setState((prevState) => ({ ...prevState, ...newState }));
-
-  const date = new Date();
-  const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
-  const month = moment().format('MMMM');
-  const monthday = date.getDate();
-  console.log(studyPlanCourses);
-
-  const hours = date.getHours();
-  const isDayTime = hours > 6 && hours < 20;
-  const frequencyOptions = [
-    { label: 'Daily', value: 'daily' },
-    { label: 'Weekly', value: 'weekly' },
-    { label: 'Monthly', value: 'monthly' },
-    { label: "Doesn't Repeat", value: 'none' }
-  ];
 
   const toast = useCustomToast();
 
@@ -283,41 +203,21 @@ function CoursePlan() {
     }
     /* eslint-disable */
   }, [clientSecret]);
+  const frequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: "Doesn't Repeat", value: 'none' }
+  ];
 
-  function getColorForStatus(status) {
-    switch (status) {
-      case 'Done':
-        return '#4CAF50';
-      case 'In progress':
-        return '#FB8441';
-      case 'To Do':
-        return '#f53535';
-      default:
-        return 'black';
-    }
-  }
+  // const handleUpdateTopicStatus = (status, topicId) => {
+  //   // Update the status for the specific topic by topicId
+  //   const updatedTopics = state.topics.map((topic) =>
+  //     topic._id === topicId ? { ...topic, status } : topic
+  //   );
 
-  function getBackgroundColorForStatus(status) {
-    switch (status) {
-      case 'Done':
-        return '#f1f9f1';
-      case 'In progress':
-        return '#fff2eb';
-      case 'To Do':
-        return '#fef0f0';
-      default:
-        return 'lightgrey';
-    }
-  }
-
-  const handleUpdateTopicStatus = (status, topicId) => {
-    // Update the status for the specific topic by topicId
-    const updatedTopics = state.topics.map((topic) =>
-      topic._id === topicId ? { ...topic, status } : topic
-    );
-
-    updateState({ topics: updatedTopics });
-  };
+  //   updateState({ topics: updatedTopics });
+  // };
 
   const selectedPlanRef = useRef(null);
   const selectedTopicRef = useRef(null);
@@ -371,6 +271,9 @@ function CoursePlan() {
     };
     fetchData();
   }, [state.selectedPlan]);
+  console.log(state.studyPlans);
+  console.log(state.topics);
+  console.log(storePlans);
 
   useEffect(() => {
     sessionStorage.setItem('studyPlans', JSON.stringify(state.studyPlans));
@@ -439,15 +342,11 @@ function CoursePlan() {
 
   const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
-      const selectedPlanData = await state.studyPlans.find(
+      const selectedPlanData = await storePlans.find(
         (plan) => plan._id === state.selectedPlan
       );
 
-      if (selectedPlanData) {
-        const topics = selectedPlanData;
-        updateState({ topics: topics });
-        // setTopics(topics);
-      }
+      updateState({ topics: selectedPlanData });
     }
   }, [state.selectedPlan, storePlans]);
 
@@ -469,75 +368,6 @@ function CoursePlan() {
   };
   const handlePlanSelection = (planId) => {
     updateState({ selectedPlan: planId });
-  };
-  const getTopicStatus = (topicId) => {
-    const selectedTopic = state.topics.progressLog[0].topicProgress.find(
-      (topic) => topic.topic === topicId
-    );
-
-    if (!selectedTopic) {
-      return 'Topic Not Found';
-    }
-
-    const isInProgress = selectedTopic.subTopicProgress.some(
-      (subTopic) => subTopic.completed
-    );
-
-    const isDone = selectedTopic.subTopicProgress.every(
-      (subTopic) => subTopic.completed
-    );
-
-    if (isDone) {
-      return 'Done';
-    } else if (isInProgress) {
-      return 'In Progress';
-    } else {
-      return 'To Do';
-    }
-  };
-  const getTopicResource = async (topic: string) => {
-    updateState({ isLoading: true });
-    try {
-      // Instantiate SciPhiService
-      const sciPhiService = new SciPhiService();
-
-      // Define search options
-      const searchOptions = {
-        query: topic
-      };
-
-      // Call searchRag method
-      const response = await sciPhiService.searchRag(searchOptions);
-      if (response) {
-        updateState({ isLoading: false, topicResource: response });
-      }
-    } catch (error) {
-      updateState({ isLoading: false });
-      console.error('Error searching topic:', error);
-    }
-  };
-
-  const findQuizzesByTopic = (topic) => {
-    // const topicKey = topic.toLowerCase();
-
-    if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
-      return studyPlanResources[topic].quizzes;
-    }
-
-    return [];
-  };
-  const findFlashcardsByTopic = (topic) => {
-    // const topicKey = topic.toLowerCase();
-
-    if (studyPlanResources[topic] && studyPlanResources[topic].flashcards) {
-      return studyPlanResources[topic].flashcards;
-    }
-    return [];
-  };
-  const findStudyEventsByTopic = (topic) => {
-    if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
-      return studyPlanResources[topic].studyEvent;
-    }
   };
 
   const timeOptions = Array.from({ length: 96 }, (_, index) => {
@@ -620,76 +450,8 @@ function CoursePlan() {
     }
   };
 
-  const saveTopicSummary = async (id: string) => {
-    const payload = {
-      topicId: id,
-      summary: state.topicResource?.response,
-      links: [
-        {
-          url: 'https://www.example.com',
-          title: 'Example Title',
-          summary: 'An example link related to the topic.'
-        },
-        {
-          url: 'https://www.anotherexample.com',
-          title: 'Another Example Title',
-          summary: 'Another example link related to the topic.'
-        }
-      ]
-    };
-    try {
-      const resp = await ApiService.saveTopicSummary(payload);
-      if (resp.status === 200) {
-        toast({
-          title: 'Topic summary saved successfully',
-          position: 'top-right',
-          status: 'success',
-          isClosable: true
-        });
-      } else {
-        toast({
-          title: `Couldn't save summary`,
-          position: 'top-right',
-          status: 'error',
-          isClosable: true
-        });
-      }
-    } catch (e) {
-      toast({
-        title: 'An unknown error occured',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
-  };
-
-  const groupedTopics = state.topics?.schedules.reduce((grouped, topic) => {
-    let testDate;
-    if (topic.topicMetaData && topic.topicMetaData.length > 0) {
-      testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
-    } else {
-      testDate = new Date(topic.endDate).toDateString();
-    }
-
-    if (!grouped.has(testDate)) {
-      grouped.set(testDate, []);
-    }
-
-    grouped.get(testDate).push(topic);
-    return grouped;
-  }, new Map());
-
   return (
     <>
-      <Flex
-        alignItems={'center'}
-        onClick={() => navigate(-1)}
-        _hover={{ cursor: 'pointer' }}
-      >
-        <IoIosArrowRoundBack />
-        <Text fontSize={12}>Back</Text>
-      </Flex>
       <Grid
         templateColumns={[
           '30% 45% 25%',
@@ -721,7 +483,7 @@ function CoursePlan() {
           </Box>
 
           <Box overflowY="scroll">
-            {state.studyPlans.map((plan) => (
+            {storePlans.map((plan) => (
               <Box
                 mb={2}
                 border={
@@ -779,9 +541,12 @@ function CoursePlan() {
           overflowY="scroll"
         >
           {state.isPageLoading ? (
-            <Center my="100px">
-              {' '}
-              <ShepherdSpinner />
+            <Center h="full">
+              <Flex direction="column" alignItems="center">
+                <ShepherdSpinner />
+
+                <Text>Loading up your study stash...</Text>
+              </Flex>
             </Center>
           ) : (
             <Tabs variant="soft-rounded" color="#F9F9FB">
@@ -791,635 +556,20 @@ function CoursePlan() {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <Box>
-                    <Box mb={6}>
-                      {groupedTopics &&
-                        Array.from(groupedTopics).map((testTopics) => (
-                          <>
-                            {' '}
-                            <Flex
-                              direction="column"
-                              gap={2}
-                              key={testTopics[0]}
-                            >
-                              {testTopics[1].map((topic) => (
-                                <>
-                                  <Box
-                                    bg="white"
-                                    rounded="md"
-                                    shadow="md"
-                                    key={topic._id}
-                                    ref={
-                                      topic._id === state.selectedTopic
-                                        ? selectedTopicRef
-                                        : null
-                                    }
-                                  >
-                                    <Flex alignItems={'center'} py={2} px={4}>
-                                      {' '}
-                                      <Text
-                                        fontSize="16px"
-                                        fontWeight="500"
-                                        mb={2}
-                                        color="text.200"
-                                      >
-                                        {topic.topicDetails.label}
-                                      </Text>
-                                      <Spacer />
-                                      <Badge
-                                        variant="subtle"
-                                        bgColor={`${getBackgroundColorForStatus(
-                                          getTopicStatus(topic.topicDetails._id)
-                                        )}`}
-                                        color={getColorForStatus(
-                                          getTopicStatus(topic.topicDetails._id)
-                                        )}
-                                        p={1}
-                                        letterSpacing="wide"
-                                        textTransform="none"
-                                        borderRadius={8}
-                                      >
-                                        {getTopicStatus(topic.topicDetails._id)}
-                                      </Badge>
-                                    </Flex>
-                                    <Divider />
-                                    <Box width={'100%'}>
-                                      <HStack
-                                        spacing={9}
-                                        p={4}
-                                        justifyContent="space-between"
-                                        textColor={'black'}
-                                      >
-                                        <Menu isLazy>
-                                          <MenuButton>
-                                            {' '}
-                                            <VStack>
-                                              <QuizIcon />
-                                              <Text
-                                                fontSize={12}
-                                                fontWeight={500}
-                                              >
-                                                Quizzes
-                                              </Text>
-                                            </VStack>
-                                          </MenuButton>
-                                          <MenuList
-                                            maxH={60}
-                                            overflowY="scroll"
-                                          >
-                                            {findQuizzesByTopic(
-                                              topic.topicDetails.label
-                                            ).map((quiz) => (
-                                              <>
-                                                <MenuItem
-                                                  key={quiz.id}
-                                                  onClick={() =>
-                                                    navigate(
-                                                      `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                                                    )
-                                                  }
-                                                >
-                                                  {quiz.title}
-                                                </MenuItem>
-                                              </>
-                                            ))}
-                                          </MenuList>
-                                        </Menu>
-                                        <Menu isLazy>
-                                          <MenuButton>
-                                            {' '}
-                                            <VStack>
-                                              <FlashcardIcon />
-                                              <Text
-                                                fontSize={12}
-                                                fontWeight={500}
-                                              >
-                                                Flashcards
-                                              </Text>
-                                            </VStack>
-                                          </MenuButton>
-                                          <MenuList
-                                            maxH={60}
-                                            overflowY="scroll"
-                                          >
-                                            {findFlashcardsByTopic(
-                                              topic.topicDetails.label
-                                            ).map((flashcard) => (
-                                              <>
-                                                <MenuItem
-                                                  key={flashcard.id}
-                                                  onClick={() =>
-                                                    fetchSingleFlashcard(
-                                                      flashcard.id
-                                                    )
-                                                  }
-                                                >
-                                                  {flashcard.deckname}
-                                                </MenuItem>
-                                              </>
-                                            ))}
-                                          </MenuList>
-                                        </Menu>
-
-                                        <VStack
-                                          onClick={() =>
-                                            navigate(
-                                              `/dashboard/ace-homework?subject=${getSubject(
-                                                state.topics.course
-                                              )}&topic=${
-                                                topic.topicDetails.label
-                                              }`
-                                            )
-                                          }
-                                        >
-                                          <AiTutorIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            AI Tutor
-                                          </Text>
-                                        </VStack>
-                                        <VStack
-                                          onClick={() => setShowNoteModal(true)}
-                                        >
-                                          <DocChatIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            Doc Chat
-                                          </Text>
-                                        </VStack>
-                                        <VStack
-                                          onClick={() => {
-                                            updateState({
-                                              selectedTopic: topic._id
-                                            });
-                                            getTopicResource(
-                                              topic.topicDetails.label
-                                            );
-                                            onOpenResource();
-                                          }}
-                                        >
-                                          <ResourceIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            Resources
-                                          </Text>
-                                        </VStack>
-                                      </HStack>
-                                      <Flex alignItems={'center'} px={4}>
-                                        <Badge
-                                          variant="subtle"
-                                          colorScheme="blue"
-                                          p={1}
-                                          letterSpacing="wide"
-                                          textTransform="none"
-                                          borderRadius={8}
-                                          cursor={'grab'}
-                                          onClick={() => {
-                                            updateState({
-                                              recurrenceStartDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.startDate
-                                              )
-                                            });
-                                            updateState({
-                                              recurrenceStartDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.startDate
-                                              ),
-                                              recurrenceEndDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.recurrence?.endDate
-                                              ),
-                                              selectedTopic: topic._id,
-                                              selectedStudyEvent:
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?._id
-                                            });
-
-                                            onOpenCadence();
-                                          }}
-                                        >
-                                          {studyPlanResources[
-                                            topic.topicDetails.label
-                                          ]
-                                            ? `
-                                        ${
-                                          findStudyEventsByTopic(
-                                            topic.topicDetails.label
-                                          )?.recurrence?.frequency
-                                        } 
-                                        from  ${moment(
-                                          findStudyEventsByTopic(
-                                            topic.topicDetails.label
-                                          )?.startDate
-                                        ).format('MM.DD.YYYY')} - ${moment(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.recurrence?.endDate
-                                              ).format('MM.DD.YYYY')}`
-                                            : '...'}
-                                        </Badge>
-
-                                        <Spacer />
-                                        <Button
-                                          size={'sm'}
-                                          my={4}
-                                          onClick={() => {
-                                            updateState({
-                                              selectedTopic:
-                                                topic.topicDetails.label
-                                            });
-
-                                            openBountyModal();
-                                          }}
-                                        >
-                                          Find a tutor
-                                        </Button>
-                                      </Flex>
-                                    </Box>
-                                  </Box>
-                                </>
-                              ))}
-                            </Flex>
-                            <Box
-                              bg="#e2e8f0"
-                              rounded="md"
-                              shadow="md"
-                              border="1px dotted #207df7"
-                              p={4}
-                              my={4}
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="space-between"
-                            >
-                              <Box>
-                                <Text
-                                  fontSize="16px"
-                                  fontWeight="500"
-                                  color="gray.700"
-                                >
-                                  Test Date:
-                                </Text>
-                                <Text fontSize="14px" color="gray.600">
-                                  {testTopics[0]}
-                                </Text>
-                              </Box>
-
-                              {/* Add any additional content or styling as needed */}
-                            </Box>
-                          </>
-                        ))}
-                    </Box>
-                  </Box>
+                  <Topics planTopics={state.topics} />
                 </TabPanel>
                 <TabPanel>
-                  <Box>
-                    {' '}
-                    <Card
-                      // height={{ base: 'auto', md: '275px' }}
-                      borderRadius={{ base: '5px', md: '10px' }}
-                      border="1px solid #eeeff2"
-                      position={'relative'}
-                      marginBottom={{ base: '26px', md: 'none' }}
-                    >
-                      {studyPlanReport?.studiedFlashcards > 0 ? (
-                        <>
-                          <Grid
-                            h={{ base: 'auto', md: 'auto' }}
-                            px={3}
-                            templateRows="repeat(1, 1fr)"
-                            templateColumns={{
-                              base: 'repeat(1, 1fr)',
-                              md: 'repeat(2, 1fr)'
-                            }}
-                            gap={1}
-                          >
-                            <GridItem
-                              borderBottom={'1px solid #eeeff2'}
-                              position="relative"
-                              p={2}
-                            >
-                              <Box>
-                                <Text
-                                  fontSize={{ base: 'md' }}
-                                  fontWeight={500}
-                                  color="text.400"
-                                >
-                                  Cards studied
-                                </Text>
-                                <Text
-                                  fontSize={{ base: 'xl', md: '2xl' }}
-                                  fontWeight={600}
-                                >
-                                  {studyPlanReport.studiedFlashcards}
-                                  <span
-                                    style={{
-                                      fontSize: 14,
-                                      fontWeight: '400',
-                                      color: '#6e7682'
-                                    }}
-                                  >
-                                    {' '}
-                                    cards
-                                  </span>
-                                </Text>
-                              </Box>
-                            </GridItem>
-
-                            <GridItem
-                              borderBottom={'1px solid #eeeff2'}
-                              position="relative"
-                              p={2}
-                            >
-                              <Box>
-                                <Text
-                                  fontSize={{ base: 'md' }}
-                                  fontWeight={500}
-                                  color="text.400"
-                                >
-                                  Time studied
-                                </Text>
-                                <Flex gap={1}>
-                                  <Text
-                                    fontSize={{ base: 'xl', md: '2xl' }}
-                                    fontWeight={600}
-                                  >
-                                    {studyPlanReport.flashcardStudyDuration}
-                                    <span
-                                      style={{
-                                        fontSize: 12,
-                                        fontWeight: '400',
-                                        color: '#6e7682'
-                                      }}
-                                    >
-                                      {' '}
-                                      hrs
-                                    </span>
-                                  </Text>{' '}
-                                  <Text
-                                    fontSize={{ base: 'xl', md: '2xl' }}
-                                    fontWeight={600}
-                                  >
-                                    {/* {
-                                  timeStudied(
-                                    studentReport.totalWeeklyStudyTime
-                                  ).minute
-                                } */}
-                                    0
-                                    <span
-                                      style={{
-                                        fontSize: 14,
-                                        fontWeight: '400',
-                                        color: '#6e7682'
-                                      }}
-                                    >
-                                      {' '}
-                                      mins
-                                    </span>
-                                  </Text>
-                                </Flex>
-                              </Box>
-                            </GridItem>
-                          </Grid>
-                          <Grid
-                            // h={{ base: 'auto', md: '140px' }}
-                            templateRows={{
-                              base: 'repeat(2, 1fr)',
-                              md: 'repeat(1, 1fr)'
-                            }}
-                            templateColumns={{
-                              base: 'repeat(1, 1fr)',
-                              md: 'repeat(2, 1fr)'
-                            }}
-                            gap={0}
-                          >
-                            <GridItem rowSpan={1} colSpan={1} p={3}>
-                              <Text
-                                fontSize={14}
-                                fontWeight={500}
-                                color="text.400"
-                                my={'auto'}
-                              >
-                                Flashcard performance
-                              </Text>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#4caf50"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it right</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.passPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#fb8441"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Didn't remember</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.notRememberedPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="red"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it wrong</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.failPercentage}%`}</Text>
-                              </Flex>
-                            </GridItem>
-                            <GridItem
-                              rowSpan={1}
-                              colSpan={1}
-                              position="relative"
-                              borderLeft="1px solid #eeeff2"
-                              p={3}
-                            >
-                              <Text
-                                fontSize={14}
-                                fontWeight={500}
-                                color="text.400"
-                                my={'auto'}
-                              >
-                                Quiz performance
-                              </Text>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#4caf50"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it right</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.passPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#fb8441"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Didn't remember</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.notRememberedPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="red"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it wrong</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.failPercentage}%`}</Text>
-                              </Flex>
-                            </GridItem>
-                          </Grid>
-                          <CardFooter
-                            bg="#f0f2f4"
-                            // h={"45px"}
-                            borderBottom="1px solid #eeeff2"
-                            borderBottomRadius={'10px'}
-                          >
-                            {/* <Flex
-                            h="16px"
-                            alignItems={'center'}
-                            gap={1}
-                            direction="row"
-                          >
-                            <Flash />
-                            <Text
-                              fontSize={14}
-                              fontWeight={400}
-                              color="text.300"
-                            >
-                              Current study streak:
-                            </Text>
-                            <Text fontSize="14px" fontWeight="500" color="#000">
-                              0 day
-                            </Text>
-                          </Flex> */}
-                          </CardFooter>
-                        </>
-                      ) : (
-                        <Box textAlign={'center'} px={20} mt={5} py={25}>
-                          <VStack spacing={5}>
-                            <EmptyFlashcard />
-                            <Text
-                              fontSize={13}
-                              fontWeight={500}
-                              color="text.400"
-                            >
-                              Monitor your study plan performance for the week.
-                              Start Practicing Today.
-                            </Text>
-                          </VStack>
-                        </Box>
-                      )}
-                    </Card>
-                  </Box>
+                  <Analytics studyPlanReport={studyPlanReport} />
                 </TabPanel>
               </TabPanels>
             </Tabs>
           )}
         </Box>
 
-        <Box py={8} px={4} className="schedule" bg="white" overflowY="auto">
-          <Flex
-            color="text.300"
-            fontSize={12}
-            fontWeight={400}
-            alignItems="center"
-            height="fit-content"
-            justifyContent="right"
-          >
-            <Box>{isDayTime ? <CloudDay /> : <CloudNight />}</Box>
-            <Box mt={1}>
-              <RxDotFilled />
-            </Box>
-            <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>
-          </Flex>
-          <Box my={4} fontSize={14}>
-            <Text fontWeight={500}>Hey {user.name?.first}</Text>
-            <Text color={'text.300'} fontSize={13}>
-              {` You have
-              ${studyPlanUpcomingEvent ? studyPlanUpcomingEvent.length : 0}
-              topics to study before your big-day.`}
-            </Text>
-          </Box>
-          <Box mt={4}>
-            <Text fontSize={12} p={3}>
-              Summary
-            </Text>
-            <ul className="space-y-3">
-              {studyPlanUpcomingEvent?.length > 0 ? (
-                studyPlanUpcomingEvent.map((event) => (
-                  <li
-                    className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
-                    onClick={() => {
-                      updateState({
-                        selectedTopic: event.metadata.topicId,
-                        selectedPlan: event.entityId
-                      });
-                    }}
-                  >
-                    <div
-                      className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
-                    />
-                    <div className="py-2 w-full">
-                      <div className="flex gap-x-1">
-                        <div className="min-w-0 flex-auto">
-                          <Text className="text-xs font-normal leading-6 text-gray-500">
-                            {event.topic.label}
-                          </Text>
-                          <Flex alignItems={'center'}>
-                            <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                              <span>{event.startTime}</span>
-
-                              {/* <>
-                                {' '}
-                                <ChevronRightIcon className="w-4 h-4" />
-                                <span>12:00 PM</span>
-                              </> */}
-                            </Text>
-                          </Flex>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <Text fontSize={12} textAlign="center" color={'text.300'}>
-                  no upcoming events
-                </Text>
-              )}
-            </ul>
-          </Box>
-        </Box>
+        <StudyPlanSummary
+          data={studyPlanUpcomingEvent}
+          updateState={updateState}
+        />
       </Grid>
       <PaymentDialog
         ref={paymentDialogRef}
@@ -1470,7 +620,6 @@ function CoursePlan() {
               state.topicResource ? (
                 <Box w="full">
                   <Flex alignItems={'center'} my={2}>
-                    {' '}
                     <Text
                       fontSize={'17px'}
                       fontWeight="500"
@@ -1479,28 +628,6 @@ function CoursePlan() {
                     >
                       Summary
                     </Text>
-                    <Spacer />{' '}
-                    <Button
-                      variant="outline"
-                      color={'#585F68'}
-                      size="sm"
-                      // bgColor={checkBookmarks() ? '#F0F6FE' : '#fff'}
-                      border="1px solid #E7E8E9"
-                      borderRadius="6px"
-                      fontSize="12px"
-                      leftIcon={<Ribbon />}
-                      // p={'2px 24px'}
-                      display="flex"
-                      _hover={{
-                        boxShadow: 'lg',
-                        transform: 'translateY(-2px)'
-                      }}
-                      disabled={user === null}
-                      style={{ pointerEvents: user ? 'auto' : 'none' }}
-                      onClick={() => saveTopicSummary(state.selectedTopic)}
-                    >
-                      Save
-                    </Button>
                   </Flex>
 
                   <Box
@@ -1597,7 +724,7 @@ function CoursePlan() {
             <Box width="100%">
               <FormControl id="startDay" marginBottom="20px">
                 <FormLabel>Start Date</FormLabel>
-                <DatePicker
+                {/* <DatePicker
                   name={'recurrenceStartDate'}
                   placeholder="Select Start Date"
                   selected={state.recurrenceStartDate}
@@ -1606,7 +733,17 @@ function CoursePlan() {
                     updateState({ recurrenceStartDate: newDate });
                   }}
                   minDate={new Date()}
-                />
+                /> */}
+                <CalendarDateInput
+                  // disabledDate={{ before: today }}
+                  inputProps={{
+                    placeholder: 'Select Start Date'
+                  }}
+                  value={state.recurrenceStartDate}
+                  onChange={(newDate) => {
+                    updateState({ recurrenceStartDate: newDate });
+                  }}
+                />{' '}
               </FormControl>
               <FormControl id="recurrenceEndDate" marginBottom="20px">
                 <FormLabel>End Date</FormLabel>

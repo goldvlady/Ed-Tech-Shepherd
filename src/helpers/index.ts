@@ -42,7 +42,22 @@ export const copierHandler = (copiedText = '', setSwitchView: any) => {
     setSwitchView(false);
   }, 700);
 };
-
+export const languages = [
+  'English',
+  'Spanish',
+  'French',
+  'Mandarin',
+  'Portuguese',
+  'Ukranian',
+  'Arabic',
+  'Hindi',
+  'German',
+  'Italian',
+  'Turkish',
+  'Vietnamese',
+  'Swahili',
+  'Polish'
+] as const;
 const getDateStringTest = (date: any) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return new Date(date).toLocaleDateString(undefined, options as any);

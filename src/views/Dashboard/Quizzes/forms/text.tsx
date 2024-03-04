@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import PlansModal from '../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../components/Select';
 import { WardIcon } from '../../../../components/icons';
+import { languages } from '../../../../helpers';
 import ApiService from '../../../../services/ApiService';
 import userStore from '../../../../state/userStore';
 import {
@@ -19,7 +20,8 @@ import {
   HStack,
   Button,
   Textarea,
-  Tooltip
+  Tooltip,
+  Select
 } from '@chakra-ui/react';
 import { isEmpty, includes, isNil, map, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
@@ -28,6 +30,9 @@ import { ChangeEvent, useCallback, useState } from 'react';
 
 const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   const toast = useCustomToast();
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState(false);
   const dummyData = {
@@ -83,11 +88,15 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
         setTogglePlansModal(true); // Show the PlansModal
         return;
       }
-      const result = await ApiService.generateQuizQuestion(user._id, {
-        ...localData,
-        count: toNumber(localData.count),
-        firebaseId: user.firebaseId
-      });
+      const result = await ApiService.generateQuizQuestion(
+        user._id,
+        {
+          ...localData,
+          count: toNumber(localData.count),
+          firebaseId: user.firebaseId
+        },
+        preferredLanguage
+      );
       const { quizzes } = await result.json();
 
       addQuestion(
@@ -159,6 +168,27 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel fontSize="12px" lineHeight="17px" color={'text.500'} mb={3}>
+          Preferred Language
+        </FormLabel>
+        <Select
+          isRequired
+          id="language_select"
+          name="language_select"
+          className="pt-1"
+          value={preferredLanguage}
+          onChange={(e) => {
+            setPreferredLanguage(e.target.value as typeof preferredLanguage);
+          }}
+        >
+          {languages.map((lang) => (
+            <option key={lang} value={lang}>
+              {lang}
+            </option>
+          ))}
+        </Select>
+      </FormControl>
       <FormControl mb={7}>
         <FormLabel color={'text.500'}>Enter a text</FormLabel>
         <Textarea

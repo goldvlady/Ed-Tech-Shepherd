@@ -1221,7 +1221,9 @@ code {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
     var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
+#language_select {
+  padding-bottom: 0px !important;
+}
 .model .left::after {
   --border-radius: 1rem;
   border: 10px solid white;

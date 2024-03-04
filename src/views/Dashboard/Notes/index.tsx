@@ -142,7 +142,7 @@ const NotesDirectory: React.FC = () => {
   const { user } = userStore();
 
   useEffect(() => {
-    if (flashcardData.documentId || flashcardData.noteDoc) {
+    if (flashcardData?.documentId || flashcardData?.noteDoc) {
       setMinimized(false);
     }
     return () => {
