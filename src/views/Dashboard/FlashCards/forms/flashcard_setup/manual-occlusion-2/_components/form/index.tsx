@@ -6,7 +6,7 @@ import ApiService from '../../../../../../../../services/ApiService';
 import CardSavedDialog from '../card-saved-dialog';
 import { Label } from '../../../../../../../../components/ui/label';
 import StudySession from '../study-session';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '../../../../../../../../library/utils';
 import OccResultsDialog from '../study-session/_components';
 
@@ -37,19 +37,30 @@ const INITIAL_STATE = {
 };
 
 function Form() {
+  const queryClient = useQueryClient();
   const [formState, setFormState] = useState(INITIAL_STATE);
   const { mutate, isPending } = useMutation({
     mutationFn: ApiService.createOcclusionCard,
     onSuccess: async (res) => {
       let data = await res.json();
+      console.log('data', data);
+
       setFormState((prevState) => ({
         ...prevState,
         afterSubmission: { open: true, data },
         occlusion: {
           ...prevState.occlusion,
           open: false
+        },
+        score: {
+          right: 0,
+          wrong: 0,
+          notRemembered: 0
         }
       }));
+      queryClient.invalidateQueries({
+        queryKey: ['occlusion-card', data._id]
+      });
     }
   });
   const [quizOver, setQuizOver] = useState(false);
@@ -106,7 +117,11 @@ function Form() {
     setOpenResults(false);
   };
 
-  const handleImageUploaderClose = () => {
+  const handleImageUploaderClose = ({ formReset }: { formReset?: boolean }) => {
+    if (formReset) {
+      resetForm();
+      return;
+    }
     setFormState((prevState) => {
       return {
         ...prevState,

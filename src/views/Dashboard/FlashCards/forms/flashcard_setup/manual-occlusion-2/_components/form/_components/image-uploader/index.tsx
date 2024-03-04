@@ -19,7 +19,7 @@ function ImageUploader({
   open: boolean;
   setImage: (image: string) => void;
   deckName: string;
-  handleClose: () => void;
+  handleClose: ({}) => void;
   handleOpen: () => void;
 }) {
   const [imageURI, setImageURI] = useState('');
@@ -56,7 +56,7 @@ function ImageUploader({
     if (!imageURI) return;
     setImage(imageURI);
     setImageURI('');
-    handleClose();
+    handleClose({});
     setImageName('');
   };
 
@@ -139,7 +139,9 @@ function ImageUploader({
               <Button
                 variant="outline"
                 onClick={() => {
-                  handleClose();
+                  handleClose({
+                    formReset: true
+                  });
                   setImageURI('');
                 }}
               >
