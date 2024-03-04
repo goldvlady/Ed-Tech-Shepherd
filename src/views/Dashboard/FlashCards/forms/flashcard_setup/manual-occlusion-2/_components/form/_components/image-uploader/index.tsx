@@ -88,8 +88,8 @@ function ImageUploader({
           </div>
           <div
             className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full'
-              // { 'pointer-events-none': imageName }
+              'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full',
+              { 'pointer-events-none': imageName }
             )}
             {...getRootProps()}
           >

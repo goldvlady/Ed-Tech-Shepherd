@@ -44,7 +44,11 @@ function Form() {
       let data = await res.json();
       setFormState((prevState) => ({
         ...prevState,
-        afterSubmission: { open: true, data }
+        afterSubmission: { open: true, data },
+        occlusion: {
+          ...prevState.occlusion,
+          open: false
+        }
       }));
     }
   });
