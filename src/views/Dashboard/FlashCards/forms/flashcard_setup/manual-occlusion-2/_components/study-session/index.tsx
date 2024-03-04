@@ -20,6 +20,7 @@ interface StudySessionProps {
   setQuizOver: (quizOver: boolean) => void;
   quizOver: boolean;
   setOpenResults: (openResults: boolean) => void;
+  resetForm: () => void;
 }
 
 function StudySession({
@@ -30,7 +31,8 @@ function StudySession({
   score,
   setQuizOver,
   quizOver,
-  setOpenResults
+  setOpenResults,
+  resetForm
 }: StudySessionProps) {
   const [studySession, setStudySession] = useState({
     title: '',
@@ -45,7 +47,7 @@ function StudySession({
 
   const [answered, setAnswered] = useState(false);
 
-  const { isLoading, isSuccess, data } = useQuery({
+  const { isLoading, isSuccess, data, isFetching } = useQuery({
     queryKey: ['occlusion-card', id],
     queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
     enabled: Boolean(id),
@@ -61,7 +63,7 @@ function StudySession({
     if (isSuccess) {
       setStudySession(data);
     }
-  }, [open, isSuccess, isLoading]);
+  }, [open, isSuccess, isFetching]);
 
   const numberOfBubbledChecked = studySession?.labels.filter(
     (label: any) => !label.isRevealed
@@ -195,14 +197,18 @@ function StudySession({
           </div>
         </header>
         <div className="body">
-          {isLoading && <div>Loading...</div>}
-          <OcclusionWorkSpace
-            imageURI={studySession?.imageUrl}
-            items={studySession?.labels}
-            itemClick={onItemClicked}
-            studyMode={true}
-            studySessionStarted={sessionStarted.started}
-          />
+          {isFetching ? (
+            <div>Loading...</div>
+          ) : (
+            <OcclusionWorkSpace
+              imageURI={studySession?.imageUrl}
+              items={studySession?.labels}
+              itemClick={onItemClicked}
+              studyMode={true}
+              studySessionStarted={sessionStarted.started}
+            />
+          )}
+
           <div
             className={cn(
               'score-maker flex justify-between p-4 transition-opacity',

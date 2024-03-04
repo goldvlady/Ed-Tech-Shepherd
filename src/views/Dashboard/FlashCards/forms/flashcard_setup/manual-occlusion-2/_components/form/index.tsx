@@ -237,6 +237,7 @@ function Form() {
         quizOver={quizOver}
         setQuizOver={setQuizOver}
         setOpenResults={setOpenResults}
+        resetForm={resetForm}
       />
       <OccResultsDialog
         id={formState.afterSubmission.data?._id}
