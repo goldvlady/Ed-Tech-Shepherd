@@ -95,6 +95,7 @@ function Form() {
       afterSubmission: { ...prevState.afterSubmission, open: false },
       studySession: { open: true }
     }));
+    setQuizOver(false);
   };
 
   const restartStudySession = () => {
@@ -103,6 +104,7 @@ function Form() {
       studySession: { open: true },
       score: { right: 0, wrong: 0, notRemembered: 0 }
     }));
+    setQuizOver(false);
     setOpenResults(false);
   };
 
