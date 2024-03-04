@@ -242,7 +242,7 @@ function CreateStudyPlans() {
       });
     } else {
       setDocLoading(true);
-      let readableFileName = file.name
+      const readableFileName = file.name
         .toLowerCase()
         .replace(/\.pdf$/, '')
         .replace(/_/g, ' ');
@@ -280,7 +280,7 @@ function CreateStudyPlans() {
     const newTestDate = lastTestDate
       ? moment(lastTestDate).add(1, 'days')
       : today;
-    setTestDate([...testDate, newTestDate]);
+    setTestDate([...testDate, '']);
   };
   const removeTestDate = (indexToRemove) => {
     const updatedTestDates = [...testDate];
@@ -851,20 +851,12 @@ function CreateStudyPlans() {
       //   p={10}
     >
       <Box
-        py={10}
+        py={2}
         px={4}
         className="create-syllabus custom-scroll"
         bg="white"
         overflowY="auto"
       >
-        <Flex
-          alignItems={'center'}
-          onClick={() => navigate(-1)}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <IoIosArrowRoundBack />
-          <Text fontSize={12}>Back</Text>
-        </Flex>
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
           <Flex alignItems="center" gap={1}>
@@ -1141,7 +1133,12 @@ function CreateStudyPlans() {
                 )
               }
               my={4}
-              isDisabled={testDate.length < 1}
+              isDisabled={
+                testDate.length < 1 ||
+                !testDate.every((date) =>
+                  moment(date, 'MM/DD/YYYY', true).isValid()
+                )
+              }
             >
               <Icon as={FaRocket} mr={2} />
               Generate Study Plan
