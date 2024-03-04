@@ -6,11 +6,13 @@ import { cn } from '../../../../../../../../../../../../library/utils';
 function InteractionWindow({
   imageURI,
   elements,
-  setElements
+  setElements,
+  removeElement
 }: {
   imageURI: string;
   elements: any[];
   setElements: (elements: any[]) => void;
+  removeElement: (index: number) => void;
 }) {
   const [mode, setMode] = useState<'draggable' | 'resizable' | 'preview'>(
     'draggable'
@@ -38,6 +40,7 @@ function InteractionWindow({
         items={elements}
         mode={mode}
         setItems={setElements}
+        removeItem={removeElement}
       />
     </div>
   );

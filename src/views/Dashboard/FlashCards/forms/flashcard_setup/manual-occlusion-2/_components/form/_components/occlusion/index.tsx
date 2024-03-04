@@ -16,7 +16,8 @@ function Occlusion({
   setElements,
   handleSubmit,
   resetForm,
-  submitting
+  submitting,
+  removeElement
 }: {
   open: boolean;
   close: () => void;
@@ -26,6 +27,7 @@ function Occlusion({
   handleSubmit: () => void;
   resetForm: () => void;
   submitting: boolean;
+  removeElement: (index: number) => void;
 }) {
   return (
     <Dialog open={open}>
@@ -61,6 +63,7 @@ function Occlusion({
           imageURI={imageURI}
           elements={elements}
           setElements={setElements}
+          removeElement={removeElement}
         />
 
         <footer className="flex justify-between w-full p-4">

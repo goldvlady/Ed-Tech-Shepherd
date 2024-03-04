@@ -139,6 +139,20 @@ function Form() {
     });
   };
 
+  const removeElement = (index: number) => {
+    console.log('removeElement', index);
+    const newElements = formState.occlusion.elements.filter(
+      (element, i) => i !== index
+    );
+    setFormState((prevState) => ({
+      ...prevState,
+      occlusion: {
+        ...prevState.occlusion,
+        elements: newElements
+      }
+    }));
+  };
+
   return (
     <div>
       <Label
@@ -194,6 +208,7 @@ function Form() {
         handleSubmit={handleSubmit}
         resetForm={resetForm}
         submitting={isPending}
+        removeElement={removeElement}
       />
       <CardSavedDialog
         open={formState.afterSubmission.open}

@@ -10,7 +10,8 @@ function OcclusionWorkSpace({
   setItems,
   itemClick,
   studyMode,
-  studySessionStarted
+  studySessionStarted,
+  removeItem
 }: {
   imageURI: string;
   items: any[];
@@ -19,6 +20,7 @@ function OcclusionWorkSpace({
   itemClick?: (item: any) => void;
   studyMode?: boolean;
   studySessionStarted?: boolean;
+  removeItem?: (index: number) => void;
 }) {
   return (
     <div
@@ -82,7 +84,10 @@ function OcclusionWorkSpace({
             >
               <div
                 onClick={() => {
-                  studyMode && studySessionStarted && itemClick && itemClick(item);
+                  studyMode &&
+                    studySessionStarted &&
+                    itemClick &&
+                    itemClick(item);
                 }}
                 style={{
                   width: `${item.position.width}px`,
@@ -90,11 +95,26 @@ function OcclusionWorkSpace({
                   cursor: mode === 'draggable' ? 'move' : 'auto'
                 }}
                 className={cn(
-                  'inline-block margin-0 bg-[#BAD7FD] text-black text-center rounded-sm transition-opacity',
-                  studyMode || mode === 'preview' ? 'opacity-100' : 'opacity-50',
-                  studyMode && studySessionStarted && 'hover:scale-1 hover:shadow-xl cursor-pointer'
+                  'inline-block margin-0 bg-[#BAD7FD] text-black text-center rounded-sm transition-opacity relative',
+                  studyMode || mode === 'preview'
+                    ? 'opacity-100'
+                    : 'opacity-50',
+                  studyMode &&
+                    studySessionStarted &&
+                    'hover:scale-1 hover:shadow-xl cursor-pointer'
                 )}
-              ></div>
+              >
+                {studyMode ? null : (
+                  <div
+                    onClick={() => {
+                      removeItem && removeItem(index);
+                    }}
+                    className="absolute top-[-1.5rem] right-[-1em] p-1 bg-transparent text-lg cursor-pointer"
+                  >
+                    &times;
+                  </div>
+                )}
+              </div>
             </ResizableBox>
           </Draggable>
         ))}
