@@ -7,7 +7,7 @@ import OcclusionWorkSpace from '../form/_components/occlusion/_components/occlus
 import { Button } from '../../../../../../../../components/ui/button';
 import { DotsHorizontal } from '../../../../../../../../components/icons';
 import ApiService from '../../../../../../../../services/ApiService';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../library/utils';
 
@@ -61,9 +61,9 @@ function StudySession({
     if (isSuccess) {
       setStudySession(data);
     }
-  }, [open, isSuccess]);
+  }, [open, isSuccess, isLoading]);
 
-  const numberOfBubbledChecked = studySession.labels.filter(
+  const numberOfBubbledChecked = studySession?.labels.filter(
     (label: any) => !label.isRevealed
   ).length;
 
@@ -85,6 +85,8 @@ function StudySession({
   const handleQuizOver = () => {
     if (numberOfBubbledChecked === 0) {
       setQuizOver(true);
+    } else {
+      setQuizOver(false);
     }
   };
 
@@ -195,8 +197,8 @@ function StudySession({
         <div className="body">
           {isLoading && <div>Loading...</div>}
           <OcclusionWorkSpace
-            imageURI={studySession.imageUrl}
-            items={studySession.labels}
+            imageURI={studySession?.imageUrl}
+            items={studySession?.labels}
             itemClick={onItemClicked}
             studyMode={true}
             studySessionStarted={sessionStarted.started}

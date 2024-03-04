@@ -87,6 +87,15 @@ function Form() {
     }));
   };
 
+  const restartStudySession = () => {
+    setFormState((prevState) => ({
+      ...prevState,
+      studySession: { open: true },
+      score: { right: 0, wrong: 0, notRemembered: 0 }
+    }));
+    setOpenResults(false);
+  };
+
   return (
     <div>
       <Label
@@ -167,6 +176,7 @@ function Form() {
         setOpenResults={setOpenResults}
       />
       <OccResultsDialog
+        id={formState.afterSubmission.data?._id}
         open={openResults}
         score={formState.score}
         close={() => {
@@ -174,6 +184,7 @@ function Form() {
           setOpenResults(false);
           resetForm();
         }}
+        restartStudySession={restartStudySession}
       />
     </div>
   );

@@ -4,6 +4,9 @@ import {
   Dialog,
   DialogContent
 } from '../../../../../../../../../components/ui/dialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import ApiService from '../../../../../../../../../services/ApiService';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 interface Score {
   right: number;
@@ -15,6 +18,8 @@ interface Props {
   open: boolean;
   close: () => void;
   score: Score;
+  restartStudySession: () => void;
+  id: string;
 }
 
 function calculatePercentage(score: Score) {
@@ -26,14 +31,40 @@ function calculatePercentage(score: Score) {
   };
 }
 
-const OccResultsDialog: React.FC<Props> = ({ open, close, score }) => {
+const OccResultsDialog: React.FC<Props> = ({
+  id,
+  open,
+  close,
+  score,
+  restartStudySession
+}) => {
+  const queryClient = useQueryClient();
   const [currentScore, setCurrentScore] = useState(calculatePercentage(score));
+  const { mutate, isPending } = useMutation({
+    mutationFn: (occId: string) =>
+      ApiService.resetOcclusionCard(occId).then((res) => res.json())
+  });
 
   useEffect(() => {
     setCurrentScore(calculatePercentage(score));
   }, [open, score]);
 
   const { notRemembered, right, wrong } = currentScore;
+
+  const handleRestart = () => {
+    if (id) {
+      mutate(id, {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({
+            queryKey: ['occlusion-card', id]
+          });
+          setTimeout(() => {
+            restartStudySession();
+          }, 100);
+        }
+      });
+    }
+  };
 
   return (
     <Dialog open={open}>
@@ -67,7 +98,14 @@ const OccResultsDialog: React.FC<Props> = ({ open, close, score }) => {
           </div>
           {/* Button */}
           <div className="flex w-[628px] mx-auto justify-between mt-8">
-            <Button className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium">
+            <Button
+              className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium"
+              disabled={isPending}
+              onClick={handleRestart}
+            >
+              {isPending ? (
+                <ReloadIcon className="w-4 h-4 animate-spin mr-2" />
+              ) : null}
               Restart Flashcard
             </Button>
             <Button className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium">
