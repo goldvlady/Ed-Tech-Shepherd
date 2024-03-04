@@ -17,7 +17,8 @@ function Occlusion({
   handleSubmit,
   resetForm,
   submitting,
-  removeElement
+  removeElement,
+  afterSubmission
 }: {
   open: boolean;
   close: () => void;
@@ -28,6 +29,7 @@ function Occlusion({
   resetForm: () => void;
   submitting: boolean;
   removeElement: (index: number) => void;
+  afterSubmission?: any;
 }) {
   return (
     <Dialog open={open}>

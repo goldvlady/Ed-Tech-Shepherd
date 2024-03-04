@@ -6,7 +6,7 @@ import ApiService from '../../../../../../../../services/ApiService';
 import CardSavedDialog from '../card-saved-dialog';
 import { Label } from '../../../../../../../../components/ui/label';
 import StudySession from '../study-session';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '../../../../../../../../library/utils';
 import OccResultsDialog from '../study-session/_components';
 
@@ -63,6 +63,41 @@ function Form() {
       });
     }
   });
+  const { data: occlusionCardData, isSuccess: occlusionCardDataLoaded } =
+    useQuery({
+      queryKey: ['occlusion-card', formState.afterSubmission.data?._id],
+      queryFn: () =>
+        ApiService.getOcclusionCard(formState.afterSubmission.data?._id).then(
+          (res) => res.json()
+        ),
+      enabled: Boolean(formState.afterSubmission.data?._id),
+      select: (data) => data.card
+    });
+  const { mutate: updateOcclusion, isPending: isUpdating } = useMutation({
+    mutationFn: (data: { card: {}; percentages: {}; id: string }) =>
+      ApiService.editOcclusionCard(data.card).then((res) => res.json()),
+    onSuccess: (data, variables) => {
+      setFormState((prevState) => ({
+        ...prevState,
+        occlusion: {
+          ...prevState.occlusion,
+          open: false
+        },
+        afterSubmission: {
+          data: prevState.afterSubmission.data,
+          open: true
+        },
+        score: {
+          right: 0,
+          wrong: 0,
+          notRemembered: 0
+        }
+      }));
+      queryClient.invalidateQueries({
+        queryKey: ['occlusion-card', variables.id]
+      });
+    }
+  });
   const [quizOver, setQuizOver] = useState(false);
   const [openResults, setOpenResults] = useState(false);
 
@@ -85,6 +120,27 @@ function Form() {
       labels: formState.occlusion.elements,
       title: formState.title
     };
+
+    if (formState.afterSubmission.data?._id) {
+      if (occlusionCardDataLoaded) {
+        updateOcclusion({
+          card: {
+            ...occlusionCardData,
+            score: {
+              passed: 0,
+              failed: 0,
+              notRemembered: 0
+            },
+            imageUrl: formState.imageURL,
+            labels: formState.occlusion.elements
+          },
+          percentages: {},
+          id: formState.afterSubmission.data._id
+        });
+      }
+
+      return;
+    }
 
     mutate(payload);
   };
@@ -209,8 +265,9 @@ function Form() {
         elements={formState.occlusion.elements}
         handleSubmit={handleSubmit}
         resetForm={resetForm}
-        submitting={isPending}
+        submitting={isPending || isUpdating}
         removeElement={removeElement}
+        afterSubmission={formState.afterSubmission}
       />
       <CardSavedDialog
         open={formState.afterSubmission.open}
