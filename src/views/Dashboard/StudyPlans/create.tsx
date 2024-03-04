@@ -44,7 +44,8 @@ import {
   TabPanel,
   Center,
   Link,
-  HStack
+  HStack,
+  Spinner
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
@@ -77,7 +78,7 @@ import styled from 'styled-components';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { snip } from '../../../helpers/file.helpers';
+import uploadFile, { snip } from '../../../helpers/file.helpers';
 import CalendarDateInput from '../../../components/CalendarDateInput';
 
 const FileName = styled.span`
@@ -119,10 +120,13 @@ function CreateStudyPlans() {
   const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [docLoading, setDocLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
+  const { user, fetchUserDocuments } = userStore();
+
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const btnRef = useRef();
@@ -237,33 +241,34 @@ function CreateStudyPlans() {
         isClosable: true
       });
     } else {
-      setLoading(true);
+      setDocLoading(true);
+      let readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+      const uploadEmitter = uploadFile(file, {
+        studentID: user._id, // Assuming user._id is always defined
+        documentID: readableFileName // Assuming readableFileName is the file's name
+      });
 
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadEmitter.on('progress', (progress: number) => {
+        // Update the progress. Assuming progress is a percentage (0 to 100)
 
-      // setIsLoading(true);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-        },
-        (error) => {
-          setIsLoading(false);
+        setDocLoading(true);
+      });
 
-          toast({ title: error.message + error.cause, status: 'error' });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setIsLoading(false);
-            setSyllabusUrl(downloadURL);
-            setFileName(snip(file.name));
-            console.log('done', downloadURL);
-          });
-        }
-      );
+      uploadEmitter.on('complete', async (uploadFile) => {
+        // Assuming uploadFile contains the fileUrl and other necessary details.
+        const documentURL = uploadFile.fileUrl;
+        setDocLoading(false);
+        setFileName(readableFileName);
+        setSyllabusUrl(documentURL);
+      });
+      uploadEmitter.on('error', (error) => {
+        setDocLoading(false);
+        // setCvUploadPercent(0);
+        toast({ title: error.message + error.cause, status: 'error' });
+      });
     }
   };
 
@@ -367,6 +372,8 @@ function CreateStudyPlans() {
     topic,
     ...props
   }) => {
+    console.log(topic);
+
     const [{ isDragging }, drag] = useDrag({
       type: 'TOPIC',
       item: { index },
@@ -415,83 +422,89 @@ function CreateStudyPlans() {
             // deleteMainTopic={deleteMainTopic}
             // topic={topic}
           >
-            <Editable
-              value={topic.topics[0].mainTopic}
-              fontSize="16px"
-              fontWeight="500"
-              mb={2}
-              color="text.300"
-              onChange={(newMainTopic) => updateMainTopic(index, newMainTopic)}
-            >
-              <EditablePreview />
-              <EditableInput />
-            </Editable>
-
-            <UnorderedList
-              listStyleType="disc"
-              listStylePosition="inside"
-              color="gray.700"
-              fontSize={14}
-            >
-              {topic.topics[0]?.subTopics?.map((item, index) => (
-                <ListItem key={index}>{item}</ListItem>
-              ))}
-            </UnorderedList>
-            <Divider my={2} />
-            <Flex justify="space-between" gap={1}>
-              <Box color="green.500">
-                <Icon as={FaCheckCircle} />
-              </Box>
-              <Flex
-                direction="row"
-                overflowX={'scroll'}
-                className=""
-                mr={'auto'}
-              >
-                {topic.topics[0].topicUrls &&
-                  topic.topics[0].topicUrls.map((file, index) => (
-                    <>
-                      <Flex
-                        fontSize={10}
-                        color="gray.700"
-                        alignItems={'center'}
-                        gap={1}
-                        whiteSpace="nowrap"
-                      >
-                        <Text>{`${
-                          file.name?.length > 10
-                            ? `${file.name.slice(0, 10)}...`
-                            : file.name
-                        } `}</Text>
-                        <CloseIcon
-                          boxSize={1.5}
-                          onClick={(e) => handleRemoveFile(index, index)}
-                        />
-                        {index !== topicUrls.length - 1 && `,`}
-                      </Flex>
-                    </>
-                  ))}
-              </Flex>
-              <HStack color="gray.500" spacing={3}>
-                <label htmlFor={`fileInput-${index}`}>
-                  <Icon as={FaFileAlt} boxSize={3} />
-                </label>
-                <input
-                  type="file"
-                  id={`fileInput-${index}`}
-                  style={{ display: 'none' }}
-                  onChange={(e) =>
-                    handleUploadTopicFile(index, e.target.files[0])
+            {topic.topics && (
+              <>
+                {' '}
+                <Editable
+                  value={topic?.topics[0]?.mainTopic}
+                  fontSize="16px"
+                  fontWeight="500"
+                  mb={2}
+                  color="text.300"
+                  onChange={(newMainTopic) =>
+                    updateMainTopic(index, newMainTopic)
                   }
-                />
+                >
+                  <EditablePreview />
+                  <EditableInput />
+                </Editable>
+                <UnorderedList
+                  listStyleType="disc"
+                  listStylePosition="inside"
+                  color="gray.700"
+                  fontSize={14}
+                >
+                  {topic?.topics[0]?.subTopics?.map((item, index) => (
+                    <ListItem key={index}>{item}</ListItem>
+                  ))}
+                </UnorderedList>
+                <Divider my={2} />
+                <Flex justify="space-between" gap={1}>
+                  <Box color="green.500">
+                    <Icon as={FaCheckCircle} />
+                  </Box>
+                  <Flex
+                    direction="row"
+                    overflowX={'scroll'}
+                    className=""
+                    mr={'auto'}
+                  >
+                    {topic?.topics[0]?.topicUrls &&
+                      topic?.topics[0]?.topicUrls.map((file, index) => (
+                        <>
+                          <Flex
+                            fontSize={10}
+                            color="gray.700"
+                            alignItems={'center'}
+                            gap={1}
+                            whiteSpace="nowrap"
+                          >
+                            <Text>{`${
+                              file.name?.length > 10
+                                ? `${file.name.slice(0, 10)}...`
+                                : file.name
+                            } `}</Text>
+                            <CloseIcon
+                              boxSize={1.5}
+                              onClick={(e) => handleRemoveFile(index, index)}
+                            />
+                            {index !== topicUrls.length - 1 && `,`}
+                          </Flex>
+                        </>
+                      ))}
+                  </Flex>
+                  <HStack color="gray.500" spacing={3}>
+                    <label htmlFor={`fileInput-${index}`}>
+                      <Icon as={FaFileAlt} boxSize={3} />
+                    </label>
+                    <input
+                      type="file"
+                      id={`fileInput-${index}`}
+                      style={{ display: 'none' }}
+                      onChange={(e) =>
+                        handleUploadTopicFile(index, e.target.files[0])
+                      }
+                    />
 
-                <Icon
-                  as={FaTrashAlt}
-                  boxSize={3}
-                  onClick={() => deleteMainTopic(index)}
-                />
-              </HStack>
-            </Flex>
+                    <Icon
+                      as={FaTrashAlt}
+                      boxSize={3}
+                      onClick={() => deleteMainTopic(index)}
+                    />
+                  </HStack>
+                </Flex>
+              </>
+            )}
           </Box>
         )}
       </div>
@@ -671,6 +684,8 @@ function CreateStudyPlans() {
       });
     }
   };
+
+  console.log(syllabusData);
 
   const deleteTopicFromWeek = (weekIndex, topicIndex) => {
     const updatedStudyPlan = [...studyPlanData];
@@ -970,10 +985,15 @@ function CreateStudyPlans() {
                     </Flex>
                   ) : (
                     <Flex direction={'column'} alignItems={'center'}>
-                      <RiUploadCloud2Fill
-                        className="h-8 w-8"
-                        color="gray.500"
-                      />
+                      {docLoading ? (
+                        <Spinner />
+                      ) : (
+                        <RiUploadCloud2Fill
+                          className="h-8 w-8"
+                          color="gray.500"
+                        />
+                      )}
+
                       <Text
                         mb="2"
                         fontSize="sm"
