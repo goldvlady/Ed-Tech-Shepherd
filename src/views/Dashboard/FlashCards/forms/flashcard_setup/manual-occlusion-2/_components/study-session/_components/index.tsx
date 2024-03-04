@@ -20,6 +20,7 @@ interface Props {
   score: Score;
   restartStudySession: () => void;
   id: string;
+  handleEditImage: () => void;
 }
 
 function calculatePercentage(score: Score) {
@@ -36,7 +37,8 @@ const OccResultsDialog: React.FC<Props> = ({
   open,
   close,
   score,
-  restartStudySession
+  restartStudySession,
+  handleEditImage
 }) => {
   const queryClient = useQueryClient();
   const [currentScore, setCurrentScore] = useState(calculatePercentage(score));
@@ -108,7 +110,7 @@ const OccResultsDialog: React.FC<Props> = ({
               ) : null}
               Restart Flashcard
             </Button>
-            <Button className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium">
+            <Button className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium" onClick={handleEditImage}>
               Edit Image
             </Button>
           </div>

@@ -10,15 +10,26 @@ import { cn } from '../../../../../../../../../../library/utils';
 import { useDropzone } from 'react-dropzone';
 
 function ImageUploader({
+  open,
   setImage,
-  deckName
+  deckName,
+  handleClose,
+  handleOpen
 }: {
+  open: boolean;
   setImage: (image: string) => void;
   deckName: string;
+  handleClose: () => void;
+  handleOpen: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [imageURI, setImageURI] = useState('');
   const [imageName, setImageName] = useState('');
+
+  console.log('imageURI', {
+    imageURI,
+    imageName,
+    deckName
+  });
 
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -43,9 +54,10 @@ function ImageUploader({
 
   const handleUpload = () => {
     if (!imageURI) return;
-    setOpen(false);
     setImage(imageURI);
     setImageURI('');
+    handleClose();
+    setImageName('');
   };
 
   return (
@@ -54,7 +66,7 @@ function ImageUploader({
         open={open}
         onOpenChange={(open) => {
           if (open) {
-            setOpen(open);
+            handleOpen();
           }
           setImageName('');
         }}
@@ -76,8 +88,8 @@ function ImageUploader({
           </div>
           <div
             className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full',
-              { 'pointer-events-none': imageName }
+              'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full'
+              // { 'pointer-events-none': imageName }
             )}
             {...getRootProps()}
           >
@@ -127,7 +139,7 @@ function ImageUploader({
               <Button
                 variant="outline"
                 onClick={() => {
-                  setOpen(false);
+                  handleClose();
                   setImageURI('');
                 }}
               >

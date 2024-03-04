@@ -42,14 +42,9 @@ function Form() {
     mutationFn: ApiService.createOcclusionCard,
     onSuccess: async (res) => {
       let data = await res.json();
-      setFormState(() => ({
-        title: '',
-        imageURL: '',
-        imageUploader: { open: false },
-        occlusion: { open: false, elements: [] },
-        afterSubmission: { open: true, data },
-        studySession: { open: false },
-        score: { right: 0, wrong: 0, notRemembered: 0 }
+      setFormState((prevState) => ({
+        ...prevState,
+        afterSubmission: { open: true, data }
       }));
     }
   });
@@ -96,6 +91,35 @@ function Form() {
     setOpenResults(false);
   };
 
+  const handleEditImage = () => {
+    setFormState((prevState) => {
+      return {
+        ...prevState,
+        imageURL: '',
+        imageUploader: { open: true }
+      };
+    });
+    setOpenResults(false);
+  };
+
+  const handleImageUploaderClose = () => {
+    setFormState((prevState) => {
+      return {
+        ...prevState,
+        imageUploader: { open: false }
+      };
+    });
+  };
+
+  const handleImageUploaderOpen = () => {
+    setFormState((prevState) => {
+      return {
+        ...prevState,
+        imageUploader: { open: true }
+      };
+    });
+  };
+
   return (
     <div>
       <Label
@@ -118,7 +142,10 @@ function Form() {
         <br /> occlusion. Add an image to begin.
       </p>
       <ImageUploader
+        open={formState.imageUploader.open}
         // deckName={formState.title}
+        handleClose={handleImageUploaderClose}
+        handleOpen={handleImageUploaderOpen}
         deckName={formState.title}
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
@@ -185,6 +212,7 @@ function Form() {
           resetForm();
         }}
         restartStudySession={restartStudySession}
+        handleEditImage={handleEditImage}
       />
     </div>
   );
