@@ -456,7 +456,8 @@ export default function DocChat() {
           studentId,
           documentId,
           firebaseId: user?.firebaseId,
-          namespace: 'doc-chat'
+          namespace: 'doc-chat',
+          name: user?.name.first
         }).connect();
 
         // setSocket(authSocket);
@@ -467,6 +468,7 @@ export default function DocChat() {
           studentId,
           noteId,
           namespace: 'note-workspace',
+          name: user?.name.first,
           isDevelopment: process.env.REACT_APP_API_ENDPOINT.includes('develop')
           // isDevelopment: false
         }).connect();

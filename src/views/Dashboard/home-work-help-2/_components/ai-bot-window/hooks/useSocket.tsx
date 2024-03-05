@@ -14,19 +14,22 @@ function useSocket() {
     documentId,
     studentId,
     topic,
-    subject
+    subject,
+    name
   }: {
     documentId?: string;
     studentId: string;
     topic: string;
     subject: string;
+    name?: string;
   }) => {
     socketRef.current = socketWithAuth({
       studentId,
       topic,
       subject,
       documentId,
-      namespace: 'homework-help'
+      namespace: 'homework-help',
+      name
     }).connect();
     console.log('socketRef.current', socketRef.current);
   };

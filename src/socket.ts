@@ -5,6 +5,7 @@ const socketWithAuth = (payload: {
   studentId: string;
   firebaseId?: string;
   documentId?: string;
+  name?: string;
   namespace: string;
   topic?: string;
   subject?: string;

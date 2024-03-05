@@ -189,6 +189,7 @@ const HomeWorkHelp = () => {
         subject: localData.subject,
         // level: level.label,
         namespace: 'homework-help',
+        name: user?.name.first,
         conversationId:
           conversationId ??
           certainConversationId ??
@@ -210,7 +211,8 @@ const HomeWorkHelp = () => {
         documentId: documentId,
         // level: level.label,
         // conversationId,
-        namespace: 'homework-help'
+        namespace: 'homework-help',
+        name: user?.name.first
       }).connect();
 
       setSocket(authSocket);
