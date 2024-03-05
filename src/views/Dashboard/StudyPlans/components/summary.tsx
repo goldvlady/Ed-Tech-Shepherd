@@ -18,6 +18,7 @@ import { RxDotFilled } from 'react-icons/rx';
 import { numberToDayOfWeekName } from '../../../../util';
 import moment from 'moment';
 import userStore from '../../../../state/userStore';
+import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
 
 function StudyPlanSummary(props) {
   const { user } = userStore();
@@ -27,9 +28,10 @@ function StudyPlanSummary(props) {
 
   // Define state variables for filtered events
   const [eventsToday, setEventsToday] = useState([]);
-  const [eventsThisWeek, setEventsThisWeek] = useState([]);
+  const [eventsTomorrow, setEventsTomorrow] = useState([]);
+  const [eventsRestOfWeek, setEventsRestOfWeek] = useState([]);
   const [eventsNextWeek, setEventsNextWeek] = useState([]);
-  const [eventsThisMonth, setEventsThisMonth] = useState([]);
+  const [eventsNextMonth, setEventsNextMonth] = useState([]);
   const date = new Date();
   const weekday = numberToDayOfWeekName(date.getDay(), 'dddd');
   const month = moment().format('MMMM');
@@ -46,14 +48,18 @@ function StudyPlanSummary(props) {
 
   // Define the start and end dates for the current week
   const currentWeekStart = moment().startOf('week');
-  const currentWeekEnd = moment().endOf('week');
   // Define the start and end dates for next week
   const nextWeekStart = moment().startOf('week').add(1, 'weeks');
   const nextWeekEnd = moment().endOf('week').add(1, 'weeks');
 
   // Define the start and end dates for the current month
   const currentMonthStart = moment().startOf('month');
-  const currentMonthEnd = moment().endOf('month');
+  const currentDate = moment();
+  const tomorrowDate = moment().add(1, 'day');
+  const endOfWeekDate = moment().endOf('week');
+  const endOfNextWeekDate = moment().add(1, 'week').endOf('week');
+  const endOfMonthDate = moment().endOf('month');
+  const nextMonthDate = moment().add(1, 'month').endOf('month');
 
   // Update filtered events whenever studyPlanUpcomingEvent changes
   useEffect(() => {
@@ -62,86 +68,108 @@ function StudyPlanSummary(props) {
     // Filter events for today
     const filteredEventsToday = data.filter((event) => {
       const eventDate = moment(event.startDate);
-      return eventDate.isBetween(todayStart, todayEnd, null, '[]');
+      return eventDate.isSame(currentDate, 'day');
     });
     setEventsToday(filteredEventsToday);
 
-    // Filter events for this week
-    const filteredEventsThisWeek = data.filter((event) => {
+    // Filter events for tomorrow
+    const filteredEventsTomorrow = data.filter((event) => {
       const eventDate = moment(event.startDate);
-      return eventDate.isBetween(currentWeekStart, currentWeekEnd, null, '[]');
+      return eventDate.isSame(tomorrowDate, 'day');
     });
-    setEventsThisWeek(filteredEventsThisWeek);
+    setEventsTomorrow(filteredEventsTomorrow);
+
+    // Filter events for rest of the week
+    const filteredEventsRestOfWeek = data.filter((event) => {
+      const eventDate = moment(event.startDate);
+      return eventDate.isBetween(currentDate, endOfWeekDate, null, '[]');
+    });
+    setEventsRestOfWeek(filteredEventsRestOfWeek);
 
     // Filter events for next week
     const filteredEventsNextWeek = data.filter((event) => {
       const eventDate = moment(event.startDate);
-      return eventDate.isBetween(nextWeekStart, nextWeekEnd, null, '[]');
+      return eventDate.isBetween(endOfWeekDate, endOfNextWeekDate, null, '[]');
     });
     setEventsNextWeek(filteredEventsNextWeek);
 
-    // Filter events for this month
-    const filteredEventsThisMonth = data.filter((event) => {
+    // Filter events for next month
+    const filteredEventsNextMonth = data.filter((event) => {
       const eventDate = moment(event.startDate);
-      return eventDate.isBetween(
-        currentMonthStart,
-        currentMonthEnd,
-        null,
-        '[]'
-      );
+      return eventDate.isBetween(endOfMonthDate, nextMonthDate, null, '[]');
     });
-    setEventsThisMonth(filteredEventsThisMonth);
-  }, [
-    data,
-    todayStart,
-    todayEnd,
-    currentWeekStart,
-    currentWeekEnd,
-    nextWeekStart,
-    nextWeekEnd,
-    currentMonthStart,
-    currentMonthEnd
-  ]);
+    setEventsNextMonth(filteredEventsNextMonth);
+  }, [data]);
 
-  const getEventList = (events, period) => {
-    return (
-      eventPeriod === period &&
-      events.map((event) => (
-        <li
-          key={event._id} // Add a unique key
-          className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
-          onClick={() => {
-            updateState({
-              selectedTopic: event.metadata.topicId,
-              selectedPlan: event.entityId
-            });
-          }}
-        >
-          <div
-            className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
-          />
-          <div className="py-2 w-full">
-            <div className="flex gap-x-1">
-              <div className="min-w-0 flex-auto">
-                <Text className="text-xs font-normal leading-6 text-gray-500">
-                  {event.topic.label}
+  const getEventList = (events) => {
+    return events.map((event) => (
+      <li
+        key={event._id} // Add a unique key
+        className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
+        onClick={() => {
+          updateState({
+            selectedTopic: event.metadata.topicId,
+            selectedPlan: event.entityId
+          });
+        }}
+      >
+        <div
+          className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
+        />
+        <div className="py-2 w-full">
+          <div className="flex gap-x-1">
+            <div className="min-w-0 flex-auto">
+              <Text className="text-xs font-normal leading-6 text-gray-500">
+                {event.topic.label}
+              </Text>
+              <Flex alignItems={'center'}>
+                <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                  <span>{event.startTime}</span>
                 </Text>
-                <Flex alignItems={'center'}>
-                  <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                    <span>{event.startTime}</span>
-                  </Text>
-                </Flex>
-              </div>
+              </Flex>
             </div>
           </div>
-        </li>
-      ))
-    );
+        </div>
+      </li>
+    ));
   };
 
+  const SummaryPeriod = ({ data, period }) => {
+    const [visible, setVisible] = useState(period === 'Today' ? true : false);
+    const toggleVisibility = () => {
+      setVisible(!visible);
+    };
+    return (
+      <>
+        <Flex alignItems={'center'}>
+          {' '}
+          <Text
+            className="text-[#585F68] font-normal text-xs mb-4"
+            textTransform={'uppercase'}
+            my={2}
+          >
+            {period}
+          </Text>
+          <Spacer />
+          {visible ? (
+            <AiOutlineDown size="12px" onClick={() => toggleVisibility()} />
+          ) : (
+            <AiOutlineUp size="12px" onClick={() => toggleVisibility()} />
+          )}
+        </Flex>
+        {visible &&
+          (data.length > 0 ? (
+            getEventList(data)
+          ) : (
+            <Text fontSize={12} textAlign="center" color={'text.300'}>
+              no events
+            </Text>
+          ))}
+      </>
+    );
+  };
   return (
     <>
-      {' '}
       <Box py={8} px={4} className="schedule" bg="white" overflowY="auto">
         <Flex
           color="text.300"
@@ -157,7 +185,7 @@ function StudyPlanSummary(props) {
           </Box>
           <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>
         </Flex>
-        <Box my={4} fontSize={14}>
+        <Box my={4} fontSize={16}>
           <Text fontWeight={500}>Hey {user.name?.first}</Text>
           <Text color={'text.300'} fontSize={13}>
             {` You have
@@ -168,7 +196,7 @@ function StudyPlanSummary(props) {
         <Box mt={4}>
           <Flex>
             {' '}
-            <Text fontSize={12} p={3}>
+            <Text fontSize={12} p={3} fontWeight={500}>
               Summary
             </Text>
             <Spacer />{' '}
@@ -207,11 +235,17 @@ function StudyPlanSummary(props) {
           <ul className="space-y-3">
             {data?.length > 0 ? (
               <>
-                {getEventList(eventsToday, 'today')}
-                {getEventList(eventsThisWeek, 'week')}
-                {getEventList(eventsNextWeek, 'nextWeek')}
-                {getEventList(eventsThisMonth, 'month')}
-                {getEventList(data, 'all')}
+                <SummaryPeriod data={eventsToday} period={'Today'} />
+                <SummaryPeriod data={eventsTomorrow} period={'Tomorrow'} />
+                <SummaryPeriod
+                  data={eventsRestOfWeek}
+                  period="Rest of the week"
+                />
+                <SummaryPeriod data={eventsNextWeek} period={'Next Week'} />
+                <SummaryPeriod data={eventsNextMonth} period={'Next Month'} />
+
+                {/* {getEventList(eventsThisMonth)} */}
+                {/* {getEventList(data, 'all')} */}
               </>
             ) : (
               <Text fontSize={12} textAlign="center" color={'text.300'}>
