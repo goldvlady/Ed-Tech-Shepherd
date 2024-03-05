@@ -8,6 +8,8 @@ import {
 import { UploadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../../../library/utils';
 import { useDropzone } from 'react-dropzone';
+import { Switch } from '../../../../../../../../../../components/ui/switch';
+import { Label } from '../../../../../../../../../../components/ui/label';
 
 function ImageUploader({
   open,
@@ -51,6 +53,8 @@ function ImageUploader({
       'image/jpeg': ['.jpeg', '.jpg']
     }
   });
+
+  const [enableAIOcclusion, setEnableAIOcclusion] = useState(false);
 
   const handleUpload = () => {
     if (!imageURI) return;
@@ -136,6 +140,30 @@ function ImageUploader({
           </div>
           <div className="footer px-6 bg-[#F7F7F8] py-2.5">
             <div className="flex justify-end gap-4">
+              <div className="flex items-center space-x-2 cursor-pointer">
+                <Switch
+                  id="ai-occlusion-mode"
+                  onCheckedChange={(checked) => {
+                    setEnableAIOcclusion(checked);
+                  }}
+                  className={cn('cursor-pointer', {
+                    'bg-[#207df74a]': enableAIOcclusion,
+                    'bg-[#E4E5E7]': !enableAIOcclusion
+                  })}
+                />
+                <Label htmlFor="ai-occlusion-mode">
+                  <span
+                    className={cn(
+                      'text-[#212224] font-normal text-xs whitespace-nowrap cursor-pointer',
+                      {
+                        'opacity-50': !enableAIOcclusion
+                      }
+                    )}
+                  >
+                    Enable AI Occlusion
+                  </span>
+                </Label>
+              </div>
               <Button
                 variant="outline"
                 onClick={() => {
