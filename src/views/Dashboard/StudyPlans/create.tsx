@@ -44,7 +44,8 @@ import {
   TabPanel,
   Center,
   Link,
-  HStack
+  HStack,
+  Spinner
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
@@ -55,7 +56,8 @@ import {
   FaPencilAlt,
   FaRocket,
   FaTrashAlt,
-  FaFileAlt
+  FaFileAlt,
+  FaFileMedical
 } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdCancel, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -77,7 +79,7 @@ import styled from 'styled-components';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { snip } from '../../../helpers/file.helpers';
+import uploadFile, { snip } from '../../../helpers/file.helpers';
 import CalendarDateInput from '../../../components/CalendarDateInput';
 
 const FileName = styled.span`
@@ -119,10 +121,13 @@ function CreateStudyPlans() {
   const [grade, setGrade] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [docLoading, setDocLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
+  const { user, fetchUserDocuments } = userStore();
+
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const btnRef = useRef();
@@ -237,33 +242,34 @@ function CreateStudyPlans() {
         isClosable: true
       });
     } else {
-      setLoading(true);
+      setDocLoading(true);
+      const readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+      const uploadEmitter = uploadFile(file, {
+        studentID: user._id, // Assuming user._id is always defined
+        documentID: readableFileName // Assuming readableFileName is the file's name
+      });
 
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadEmitter.on('progress', (progress: number) => {
+        // Update the progress. Assuming progress is a percentage (0 to 100)
 
-      // setIsLoading(true);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-        },
-        (error) => {
-          setIsLoading(false);
+        setDocLoading(true);
+      });
 
-          toast({ title: error.message + error.cause, status: 'error' });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setIsLoading(false);
-            setSyllabusUrl(downloadURL);
-            setFileName(snip(file.name));
-            console.log('done', downloadURL);
-          });
-        }
-      );
+      uploadEmitter.on('complete', async (uploadFile) => {
+        // Assuming uploadFile contains the fileUrl and other necessary details.
+        const documentURL = uploadFile.fileUrl;
+        setDocLoading(false);
+        setFileName(readableFileName);
+        setSyllabusUrl(documentURL);
+      });
+      uploadEmitter.on('error', (error) => {
+        setDocLoading(false);
+        // setCvUploadPercent(0);
+        toast({ title: error.message + error.cause, status: 'error' });
+      });
     }
   };
 
@@ -275,7 +281,7 @@ function CreateStudyPlans() {
     const newTestDate = lastTestDate
       ? moment(lastTestDate).add(1, 'days')
       : today;
-    setTestDate([...testDate, newTestDate]);
+    setTestDate([...testDate, '']);
   };
   const removeTestDate = (indexToRemove) => {
     const updatedTestDates = [...testDate];
@@ -318,7 +324,7 @@ function CreateStudyPlans() {
             });
           } else if (studyPlan) {
             setSyllabusData(studyPlan);
-            setSelectedSubject(course);
+            // setSelectedSubject(course);
           } else {
             toast({
               title: 'No study plan available yet. Please try again later.',
@@ -348,6 +354,127 @@ function CreateStudyPlans() {
       });
     }
   };
+  const handleCreateSyllabus = () => {
+    createSyllabusWeek();
+  };
+  function createSyllabusWeek() {
+    // Find the highest weekNumber currently in syllabusData
+    const maxWeekNumber = syllabusData.reduce(
+      (max, week) => Math.max(max, week.weekNumber),
+      0
+    );
+
+    // Auto-increment weekNumber for the new week
+    const weekNumber = maxWeekNumber + 1;
+
+    // Create the new week object
+    const week = {
+      learningObjectives: [],
+      readingMaterials: [],
+      topics: [
+        {
+          mainTopic: `Topic ${weekNumber}`,
+          subTopics: ['sub-topic']
+        }
+      ],
+      weekNumber: weekNumber
+    };
+    setSyllabusData([...syllabusData, week]);
+
+    return week;
+  }
+
+  function updateWeekProperties(weekNumber, updatedProperties) {
+    const weekIndex = syllabusData.findIndex(
+      (week) => week.weekNumber === weekNumber
+    );
+    if (weekIndex !== -1) {
+      const weekToUpdate = syllabusData[weekIndex];
+      // Update properties
+      Object.keys(updatedProperties).forEach((key) => {
+        if (key === 'topics') {
+          weekToUpdate.topics[0].mainTopic =
+            updatedProperties[key].mainTopic ||
+            weekToUpdate.topics[0].mainTopic;
+          weekToUpdate.topics[0].subTopics =
+            updatedProperties[key].subTopics ||
+            weekToUpdate.topics[0].subTopics;
+        } else {
+          weekToUpdate[key] = updatedProperties[key];
+        }
+      });
+      syllabusData[weekIndex] = weekToUpdate;
+      console.log(`Week ${weekNumber} properties updated successfully.`);
+    } else {
+      console.log(`Week ${weekNumber} not found.`);
+    }
+  }
+  const updateMainTopic = (index, newMainTopic) => {
+    const updatedSyllabusData = [...syllabusData];
+
+    if (index >= 0 && index < updatedSyllabusData.length) {
+      updatedSyllabusData[index] = {
+        ...updatedSyllabusData[index],
+        topics: [
+          {
+            ...updatedSyllabusData[index].topics[0],
+            mainTopic: newMainTopic
+          }
+        ]
+      };
+
+      setSyllabusData(updatedSyllabusData);
+    }
+  };
+  const deleteMainTopic = (index) => {
+    // Delete the topic at the specified index
+    const updatedSyllabusData = syllabusData.filter((_, i) => i !== index);
+
+    // Reorder the week numbers
+    const reorderedSyllabusData = updatedSyllabusData.map((week, i) => {
+      // Increment the weekNumber for weeks after the deleted index
+      if (week.weekNumber > index + 1) {
+        return { ...week, weekNumber: i + 1 };
+      }
+      return week;
+    });
+
+    setSyllabusData(reorderedSyllabusData);
+  };
+
+  const addSubTopic = (weekIndex, newSubTopic) => {
+    const updatedSyllabusData = [...syllabusData];
+    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
+      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
+      mainTopic.subTopics.push(newSubTopic);
+      setSyllabusData(updatedSyllabusData);
+    }
+  };
+  const updateSubTopic = (weekIndex, subTopicIndex, newSubTopic) => {
+    const updatedSyllabusData = [...syllabusData];
+
+    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
+      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
+
+      if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
+        mainTopic.subTopics[subTopicIndex] = newSubTopic;
+        setSyllabusData(updatedSyllabusData);
+      }
+    }
+  };
+
+  const deleteSubTopic = (weekIndex, subTopicIndex) => {
+    const updatedSyllabusData = [...syllabusData];
+    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
+      console.log(updatedSyllabusData[weekIndex - 1], weekIndex, subTopicIndex);
+      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
+
+      if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
+        mainTopic.subTopics.splice(subTopicIndex, 1);
+        setSyllabusData(updatedSyllabusData);
+      }
+    }
+  };
 
   const moveTopic = (fromIndex, toIndex) => {
     const copiedSyllabusData = [...syllabusData];
@@ -364,9 +491,12 @@ function CreateStudyPlans() {
     handleRemoveFile,
     handleUploadTopicFile,
     deleteMainTopic,
+    updateWeekProperties,
     topic,
     ...props
   }) => {
+    console.log(topic);
+
     const [{ isDragging }, drag] = useDrag({
       type: 'TOPIC',
       item: { index },
@@ -415,83 +545,155 @@ function CreateStudyPlans() {
             // deleteMainTopic={deleteMainTopic}
             // topic={topic}
           >
-            <Editable
-              value={topic.topics[0].mainTopic}
-              fontSize="16px"
-              fontWeight="500"
-              mb={2}
-              color="text.300"
-              onChange={(newMainTopic) => updateMainTopic(index, newMainTopic)}
-            >
-              <EditablePreview />
-              <EditableInput />
-            </Editable>
+            {topic.topics && (
+              <>
+                <Editable
+                  defaultValue={topic?.topics[0]?.mainTopic}
+                  fontSize="16px"
+                  fontWeight="500"
+                  mb={2}
+                  color="text.300"
+                  // onBlur={(e) => {
+                  //   console.log(e);
+                  //   updateMainTopic(index, e);
+                  // }}
 
-            <UnorderedList
-              listStyleType="disc"
-              listStylePosition="inside"
-              color="gray.700"
-              fontSize={14}
-            >
-              {topic.topics[0]?.subTopics?.map((item, index) => (
-                <ListItem key={index}>{item}</ListItem>
-              ))}
-            </UnorderedList>
-            <Divider my={2} />
-            <Flex justify="space-between" gap={1}>
-              <Box color="green.500">
-                <Icon as={FaCheckCircle} />
-              </Box>
-              <Flex
-                direction="row"
-                overflowX={'scroll'}
-                className=""
-                mr={'auto'}
-              >
-                {topic.topics[0].topicUrls &&
-                  topic.topics[0].topicUrls.map((file, index) => (
+                  // onChange={(newMainTopic) =>
+                  //   updateMainTopic(index, newMainTopic)
+                  // }
+                >
+                  <EditablePreview />
+                  <Input
+                    py={2}
+                    px={4}
+                    as={EditableInput}
+                    onBlur={(e) => {
+                      updateMainTopic(index, e.target.value);
+                      // updateWeekProperties(topic.weekNumber, {
+                      //   topics: e.target.value
+                      // });
+                    }}
+                  />
+                </Editable>
+                <UnorderedList
+                  listStyleType="disc"
+                  color="gray.700"
+                  fontSize={14}
+                >
+                  {topic?.topics[0]?.subTopics?.map((item, subtopicindex) => (
                     <>
-                      <Flex
-                        fontSize={10}
-                        color="gray.700"
-                        alignItems={'center'}
-                        gap={1}
-                        whiteSpace="nowrap"
-                      >
-                        <Text>{`${
-                          file.name?.length > 10
-                            ? `${file.name.slice(0, 10)}...`
-                            : file.name
-                        } `}</Text>
-                        <CloseIcon
-                          boxSize={1.5}
-                          onClick={(e) => handleRemoveFile(index, index)}
+                      <Flex key={subtopicindex}>
+                        <ListItem>
+                          <Editable
+                            defaultValue={item}
+
+                            // onBlur={(e) => {
+                            //   console.log(e);
+                            //   updateMainTopic(index, e);
+                            // }}
+
+                            // onChange={(newMainTopic) =>
+                            //   updateMainTopic(index, newMainTopic)
+                            // }
+                          >
+                            <EditablePreview />
+                            <Input
+                              as={EditableInput}
+                              size="xs"
+                              onBlur={(e) => {
+                                updateSubTopic(
+                                  index,
+                                  subtopicindex,
+                                  e.target.value
+                                );
+                                // updateWeekProperties(topic.weekNumber, {
+                                //   topics: e.target.value
+                                // });
+                              }}
+                            />
+                          </Editable>
+                        </ListItem>{' '}
+                        <Spacer />{' '}
+                        <SmallCloseIcon
+                          color={'gray.500'}
+                          onClick={() => deleteSubTopic(index, subtopicindex)}
                         />
-                        {index !== topicUrls.length - 1 && `,`}
                       </Flex>
                     </>
                   ))}
-              </Flex>
-              <HStack color="gray.500" spacing={3}>
-                <label htmlFor={`fileInput-${index}`}>
-                  <Icon as={FaFileAlt} boxSize={3} />
-                </label>
-                <input
-                  type="file"
-                  id={`fileInput-${index}`}
-                  style={{ display: 'none' }}
-                  onChange={(e) =>
-                    handleUploadTopicFile(index, e.target.files[0])
-                  }
-                />
+                </UnorderedList>
+                <Flex justifyContent={'end'}>
+                  <Button
+                    colorScheme="blue"
+                    variant="link"
+                    display="flex"
+                    alignItems="center"
+                    onClick={() => addSubTopic(index, 'new sub topic')}
+                    my={2}
+                    fontSize={10}
+                  >
+                    <Icon as={FaPlus} mr={2} />
+                    Add Subtopic
+                  </Button>
+                </Flex>
 
-                <Icon
-                  as={FaTrashAlt}
-                  boxSize={3}
-                  onClick={() => deleteMainTopic(index)}
-                />
-              </HStack>
-            </Flex>
+                <Divider my={2} />
+                <Flex justify="space-between" gap={1}>
+                  <Box color="green.500">
+                    <Icon as={FaCheckCircle} />
+                  </Box>
+                  <Flex
+                    direction="row"
+                    overflowX={'scroll'}
+                    className=""
+                    mr={'auto'}
+                  >
+                    {topic?.topics[0]?.topicUrls &&
+                      topic?.topics[0]?.topicUrls.map((file, index) => (
+                        <>
+                          <Flex
+                            fontSize={10}
+                            color="gray.700"
+                            alignItems={'center'}
+                            gap={1}
+                            whiteSpace="nowrap"
+                          >
+                            <Text>{`${
+                              file.name?.length > 10
+                                ? `${file.name.slice(0, 10)}...`
+                                : file.name
+                            } `}</Text>
+                            <CloseIcon
+                              boxSize={1.5}
+                              onClick={(e) => handleRemoveFile(index, index)}
+                            />
+                            {index !== topicUrls.length - 1 && `,`}
+                          </Flex>
+                        </>
+                      ))}
+                  </Flex>
+                  <HStack color="gray.500" spacing={3}>
+                    <label htmlFor={`fileInput-${index}`}>
+                      <Icon as={FaFileAlt} boxSize={3} />
+                    </label>
+                    <input
+                      type="file"
+                      id={`fileInput-${index}`}
+                      style={{ display: 'none' }}
+                      onChange={(e) =>
+                        handleUploadTopicFile(index, e.target.files[0])
+                      }
+                    />
+
+                    <Icon
+                      as={FaTrashAlt}
+                      boxSize={3}
+                      onClick={() => deleteMainTopic(index)}
+                    />
+                  </HStack>
+                </Flex>
+              </>
+            )}
           </Box>
         )}
       </div>
@@ -523,28 +725,6 @@ function CreateStudyPlans() {
     );
 
     return unsubscribe;
-  };
-
-  const updateMainTopic = (index, newMainTopic) => {
-    const updatedSyllabusData = [...syllabusData];
-
-    if (index >= 0 && index < updatedSyllabusData.length) {
-      updatedSyllabusData[index] = {
-        ...updatedSyllabusData[index],
-        topics: [
-          {
-            ...updatedSyllabusData[index].topics[0],
-            mainTopic: newMainTopic
-          }
-        ]
-      };
-
-      setSyllabusData(updatedSyllabusData);
-    }
-  };
-  const deleteMainTopic = (index) => {
-    const updatedSyllabusData = syllabusData.filter((_, i) => i !== index);
-    setSyllabusData(updatedSyllabusData);
   };
 
   const getStudyPlan = async (startDate, testDates, syllabusData) => {
@@ -617,7 +797,7 @@ function CreateStudyPlans() {
     const convertedArr = await convertArrays(studyPlanData);
 
     const payload = {
-      course: selectedSubject,
+      course: course,
       title: planName,
       scheduleItems: convertedArr
     };
@@ -671,6 +851,8 @@ function CreateStudyPlans() {
       });
     }
   };
+
+  console.log(syllabusData);
 
   const deleteTopicFromWeek = (weekIndex, topicIndex) => {
     const updatedStudyPlan = [...studyPlanData];
@@ -836,20 +1018,12 @@ function CreateStudyPlans() {
       //   p={10}
     >
       <Box
-        py={10}
+        py={2}
         px={4}
         className="create-syllabus custom-scroll"
         bg="white"
         overflowY="auto"
       >
-        <Flex
-          alignItems={'center'}
-          onClick={() => navigate(-1)}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <IoIosArrowRoundBack />
-          <Text fontSize={12}>Back</Text>
-        </Flex>
         <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
           {' '}
           <Flex alignItems="center" gap={1}>
@@ -970,10 +1144,15 @@ function CreateStudyPlans() {
                     </Flex>
                   ) : (
                     <Flex direction={'column'} alignItems={'center'}>
-                      <RiUploadCloud2Fill
-                        className="h-8 w-8"
-                        color="gray.500"
-                      />
+                      {docLoading ? (
+                        <Spinner />
+                      ) : (
+                        <RiUploadCloud2Fill
+                          className="h-8 w-8"
+                          color="gray.500"
+                        />
+                      )}
+
                       <Text
                         mb="2"
                         fontSize="sm"
@@ -1004,22 +1183,41 @@ function CreateStudyPlans() {
                 onChange={(e) => handleUploadInput(e.target.files[0])}
               />
             </Center>
-            <Button
-              colorScheme="blue"
-              variant="solid"
-              py={2}
-              px={4}
-              mb={2}
-              rounded="md"
-              display="inline-flex"
-              alignItems="center"
-              onClick={handleGenerateSyllabus}
-              isDisabled={isLoading}
-              float="right"
-            >
-              <Icon as={FaRocket} mr={2} />
-              Generate Syllabus
-            </Button>
+            <Flex>
+              <Button
+                colorScheme="blue"
+                variant="outline"
+                py={2}
+                px={4}
+                mb={2}
+                rounded="md"
+                display="inline-flex"
+                alignItems="center"
+                onClick={handleCreateSyllabus}
+                isDisabled={!planName || !gradeLevel || !course || isLoading}
+                float="right"
+              >
+                <Icon as={FaFileMedical} mr={2} />
+                Create Syllabus
+              </Button>
+              <Spacer />{' '}
+              <Button
+                colorScheme="blue"
+                variant="solid"
+                py={2}
+                px={4}
+                mb={2}
+                rounded="md"
+                display="inline-flex"
+                alignItems="center"
+                onClick={handleGenerateSyllabus}
+                isDisabled={!planName || !gradeLevel || !course || isLoading}
+                float="right"
+              >
+                <Icon as={FaRocket} mr={2} />
+                Generate Syllabus
+              </Button>
+            </Flex>
           </Box>
         ) : (
           <Box>
@@ -1121,7 +1319,12 @@ function CreateStudyPlans() {
                 )
               }
               my={4}
-              isDisabled={testDate.length < 1}
+              isDisabled={
+                testDate.length < 1 ||
+                !testDate.every((date) =>
+                  moment(date, 'MM/DD/YYYY', true).isValid()
+                )
+              }
             >
               <Icon as={FaRocket} mr={2} />
               Generate Study Plan
@@ -1163,7 +1366,7 @@ function CreateStudyPlans() {
                         mb={2}
                         color="text.200"
                       >
-                        Review {selectedSubject} syllabus
+                        Review {course} syllabus
                       </Text>
 
                       <Flex direction="column" gap={2}>
@@ -1177,27 +1380,40 @@ function CreateStudyPlans() {
                               handleRemoveFile={handleRemoveFile}
                               handleUploadTopicFile={handleUploadTopicFile}
                               deleteMainTopic={deleteMainTopic}
+                              updateWeekProperties={updateWeekProperties}
                               topic={topic}
                             />
                           </>
                         ))}{' '}
                       </Flex>
-                      <Button
-                        colorScheme="blue"
-                        variant="solid"
-                        display="flex"
-                        justifyContent={'space-between'}
-                        py={2}
-                        px={14}
-                        rounded="md"
-                        alignItems="center"
-                        textAlign={'center'}
-                        mt={7}
-                        ml={'auto'}
-                        onClick={() => setActiveTab(1)}
-                      >
-                        Proceed
-                      </Button>
+                      <Flex alignItems={'center'} mt={7}>
+                        <Button
+                          color="gray"
+                          variant="link"
+                          display="flex"
+                          alignItems="center"
+                          onClick={() => createSyllabusWeek()}
+                        >
+                          <Icon as={FaPlus} mr={2} />
+                          Add Topic
+                        </Button>{' '}
+                        <Spacer />
+                        <Button
+                          colorScheme="blue"
+                          variant="solid"
+                          display="flex"
+                          justifyContent={'space-between'}
+                          py={2}
+                          px={14}
+                          rounded="md"
+                          alignItems="center"
+                          textAlign={'center'}
+                          ml={'auto'}
+                          onClick={() => setActiveTab(1)}
+                        >
+                          Proceed
+                        </Button>
+                      </Flex>
                     </Box>
                   ) : (
                     <section className="flex justify-center items-center mt-28 w-full">
