@@ -155,7 +155,7 @@ function ImageUploader({
             </p>
           </div>
           <div className="footer px-6 bg-[#F7F7F8] py-2.5">
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-between gap-2">
               <div className="flex items-center space-x-2 cursor-pointer">
                 <Switch
                   id="ai-occlusion-mode"
@@ -180,24 +180,28 @@ function ImageUploader({
                   </span>
                 </Label>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  handleClose({
-                    formReset: true
-                  });
-                  setImageURI('');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleUpload} disabled={loadOcclusionGeneration}>
-                {loadOcclusionGeneration ? (
-                  <ReloadIcon className="mr-2" />
-                ) : (
-                  'Upload'
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleClose({
+                      formReset: true
+                    });
+                    setImageURI('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={loadOcclusionGeneration}
+                >
+                  {enableAIOcclusion && loadOcclusionGeneration && (
+                    <ReloadIcon className="animate-spin mr-2" />
+                  )}
+                  Upload
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
