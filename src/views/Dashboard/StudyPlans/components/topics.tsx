@@ -14,7 +14,9 @@ import {
   Spacer,
   VStack,
   HStack,
-  useDisclosure
+  useDisclosure,
+  UnorderedList,
+  ListItem
 } from '@chakra-ui/react';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
@@ -27,6 +29,9 @@ import studyPlanStore from '../../../../state/studyPlanStore';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import flashcardStore from '../../../../state/flashcardStore';
 import resourceStore from '../../../../state/resourceStore';
+import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
+import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
+import { SmallCloseIcon } from '@chakra-ui/icons';
 
 function Topics(props) {
   const { planTopics } = props;
@@ -212,6 +217,236 @@ function Topics(props) {
     }
   };
 
+  const TopicCard = ({ topic }) => {
+    const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
+
+    const toggleCollapse = () => {
+      setIsCollapsed(!isCollapsed);
+    };
+
+    return (
+      <Box
+        bg="white"
+        rounded="md"
+        shadow="md"
+        key={topic._id}
+        // ref={
+        //   topic._id === state.selectedTopic
+        //     ? selectedTopicRef
+        //     : null
+        // }
+      >
+        <Flex alignItems={'center'} py={1} px={4}>
+          <Text
+            fontSize="16px"
+            fontWeight="500"
+            mb={2}
+            color="text.200"
+            display={'flex'}
+            alignItems="center"
+            gap={2}
+          >
+            {topic.topicDetails?.label}
+            {isCollapsed ? (
+              <HiChevronUp onClick={toggleCollapse} />
+            ) : (
+              <HiChevronDown onClick={toggleCollapse} />
+            )}
+          </Text>
+
+          <Spacer />
+          <Badge
+            variant="subtle"
+            bgColor={`${getBackgroundColorForStatus(
+              getTopicStatus(topic.topicDetails?._id)
+            )}`}
+            color={getColorForStatus(getTopicStatus(topic.topicDetails?._id))}
+            p={1}
+            letterSpacing="wide"
+            textTransform="none"
+            borderRadius={8}
+          >
+            {getTopicStatus(topic.topicDetails?._id)}
+          </Badge>
+        </Flex>
+
+        {!isCollapsed && (
+          <Box p={2}>
+            <UnorderedList
+              listStyleType="circle"
+              listStylePosition="inside"
+              color="gray.700"
+              fontSize={14}
+              // h={'100px'}
+            >
+              {topic.topicDetails?.subTopics.map((item, index) => (
+                <ListItem key={index}>{item.label}</ListItem>
+              ))}
+            </UnorderedList>
+          </Box>
+        )}
+        <Divider />
+        <Box width={'100%'}>
+          <HStack
+            spacing={9}
+            p={4}
+            justifyContent="space-between"
+            textColor={'black'}
+          >
+            <Menu isLazy>
+              <MenuButton>
+                {' '}
+                <VStack>
+                  <QuizIcon />
+                  <Text fontSize={12} fontWeight={500}>
+                    Quizzes
+                  </Text>
+                </VStack>
+              </MenuButton>
+              <MenuList maxH={60} overflowY="scroll">
+                {studyPlanResources &&
+                  findQuizzesByTopic(topic.topicDetails?.label)?.map((quiz) => (
+                    <>
+                      <MenuItem
+                        key={quiz.id}
+                        onClick={() =>
+                          navigate(`/dashboard/quizzes/take?quiz_id=${quiz.id}`)
+                        }
+                      >
+                        {quiz.title}
+                      </MenuItem>
+                    </>
+                  ))}
+              </MenuList>
+            </Menu>
+            <Menu isLazy>
+              <MenuButton>
+                {' '}
+                <VStack>
+                  <FlashcardIcon />
+                  <Text fontSize={12} fontWeight={500}>
+                    Flashcards
+                  </Text>
+                </VStack>
+              </MenuButton>
+              <MenuList maxH={60} overflowY="scroll">
+                {studyPlanResources &&
+                  findFlashcardsByTopic(topic.topicDetails?.label).map(
+                    (flashcard) => (
+                      <>
+                        <MenuItem
+                          key={flashcard.id}
+                          onClick={() => fetchSingleFlashcard(flashcard.id)}
+                        >
+                          {flashcard.deckname}
+                        </MenuItem>
+                      </>
+                    )
+                  )}
+              </MenuList>
+            </Menu>
+
+            <VStack
+              onClick={() =>
+                navigate(
+                  `/dashboard/ace-homework?subject=${getSubject(
+                    planTopics.course
+                  )}&topic=${topic.topicDetails?.label}`
+                )
+              }
+            >
+              <AiTutorIcon />
+              <Text fontSize={12} fontWeight={500}>
+                AI Tutor
+              </Text>
+            </VStack>
+            <VStack onClick={() => setShowNoteModal(true)}>
+              <DocChatIcon />
+              <Text fontSize={12} fontWeight={500}>
+                Doc Chat
+              </Text>
+            </VStack>
+            <VStack
+              onClick={() => {
+                updateState({
+                  selectedTopic: topic._id
+                });
+                getTopicResource(topic.topicDetails?.label);
+                onOpenResource();
+              }}
+            >
+              <ResourceIcon />
+              <Text fontSize={12} fontWeight={500}>
+                Resources
+              </Text>
+            </VStack>
+          </HStack>
+          <Flex alignItems={'center'} px={4}>
+            <Badge
+              variant="subtle"
+              colorScheme="blue"
+              p={1}
+              letterSpacing="wide"
+              textTransform="none"
+              borderRadius={8}
+              cursor={'grab'}
+              onClick={() => {
+                updateState({
+                  recurrenceStartDate: new Date(
+                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
+                  )
+                });
+                updateState({
+                  recurrenceStartDate: new Date(
+                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
+                  ),
+                  recurrenceEndDate: new Date(
+                    findStudyEventsByTopic(
+                      topic.topicDetails?.label
+                    )?.recurrence?.endDate
+                  ),
+                  selectedTopic: topic._id,
+                  selectedStudyEvent: findStudyEventsByTopic(
+                    topic.topicDetails?.label
+                  )?._id
+                });
+
+                onOpenCadence();
+              }}
+            >
+              {studyPlanResources &&
+              studyPlanResources[topic.topicDetails?.label]
+                ? `
+${findStudyEventsByTopic(topic.topicDetails?.label)?.recurrence?.frequency} 
+from  ${moment(
+                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
+                  ).format('MM.DD.YYYY')} - ${moment(
+                    findStudyEventsByTopic(topic.topicDetails?.label)
+                      ?.recurrence?.endDate
+                  ).format('MM.DD.YYYY')}`
+                : '...'}
+            </Badge>
+
+            <Spacer />
+            <Button
+              size={'sm'}
+              my={4}
+              onClick={() => {
+                updateState({
+                  selectedTopic: topic.topicDetails?.label
+                });
+
+                openBountyModal();
+              }}
+            >
+              Find a tutor
+            </Button>
+          </Flex>
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <>
       {' '}
@@ -224,218 +459,7 @@ function Topics(props) {
                 <Flex direction="column" gap={2} key={testTopics[0]}>
                   {testTopics[1].map((topic) => (
                     <>
-                      <Box
-                        bg="white"
-                        rounded="md"
-                        shadow="md"
-                        key={topic._id}
-                        // ref={
-                        //   topic._id === state.selectedTopic
-                        //     ? selectedTopicRef
-                        //     : null
-                        // }
-                      >
-                        <Flex alignItems={'center'} py={2} px={4}>
-                          {' '}
-                          <Text
-                            fontSize="16px"
-                            fontWeight="500"
-                            mb={2}
-                            color="text.200"
-                          >
-                            {topic.topicDetails.label}
-                          </Text>
-                          <Spacer />
-                          <Badge
-                            variant="subtle"
-                            bgColor={`${getBackgroundColorForStatus(
-                              getTopicStatus(topic.topicDetails._id)
-                            )}`}
-                            color={getColorForStatus(
-                              getTopicStatus(topic.topicDetails._id)
-                            )}
-                            p={1}
-                            letterSpacing="wide"
-                            textTransform="none"
-                            borderRadius={8}
-                          >
-                            {getTopicStatus(topic.topicDetails._id)}
-                          </Badge>
-                        </Flex>
-                        <Divider />
-                        <Box width={'100%'}>
-                          <HStack
-                            spacing={9}
-                            p={4}
-                            justifyContent="space-between"
-                            textColor={'black'}
-                          >
-                            <Menu isLazy>
-                              <MenuButton>
-                                {' '}
-                                <VStack>
-                                  <QuizIcon />
-                                  <Text fontSize={12} fontWeight={500}>
-                                    Quizzes
-                                  </Text>
-                                </VStack>
-                              </MenuButton>
-                              <MenuList maxH={60} overflowY="scroll">
-                                {studyPlanResources &&
-                                  findQuizzesByTopic(
-                                    topic.topicDetails.label
-                                  )?.map((quiz) => (
-                                    <>
-                                      <MenuItem
-                                        key={quiz.id}
-                                        onClick={() =>
-                                          navigate(
-                                            `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                                          )
-                                        }
-                                      >
-                                        {quiz.title}
-                                      </MenuItem>
-                                    </>
-                                  ))}
-                              </MenuList>
-                            </Menu>
-                            <Menu isLazy>
-                              <MenuButton>
-                                {' '}
-                                <VStack>
-                                  <FlashcardIcon />
-                                  <Text fontSize={12} fontWeight={500}>
-                                    Flashcards
-                                  </Text>
-                                </VStack>
-                              </MenuButton>
-                              <MenuList maxH={60} overflowY="scroll">
-                                {studyPlanResources &&
-                                  findFlashcardsByTopic(
-                                    topic.topicDetails.label
-                                  ).map((flashcard) => (
-                                    <>
-                                      <MenuItem
-                                        key={flashcard.id}
-                                        onClick={() =>
-                                          fetchSingleFlashcard(flashcard.id)
-                                        }
-                                      >
-                                        {flashcard.deckname}
-                                      </MenuItem>
-                                    </>
-                                  ))}
-                              </MenuList>
-                            </Menu>
-
-                            <VStack
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/ace-homework?subject=${getSubject(
-                                    planTopics.course
-                                  )}&topic=${topic.topicDetails.label}`
-                                )
-                              }
-                            >
-                              <AiTutorIcon />
-                              <Text fontSize={12} fontWeight={500}>
-                                AI Tutor
-                              </Text>
-                            </VStack>
-                            <VStack onClick={() => setShowNoteModal(true)}>
-                              <DocChatIcon />
-                              <Text fontSize={12} fontWeight={500}>
-                                Doc Chat
-                              </Text>
-                            </VStack>
-                            <VStack
-                              onClick={() => {
-                                updateState({
-                                  selectedTopic: topic._id
-                                });
-                                getTopicResource(topic.topicDetails.label);
-                                onOpenResource();
-                              }}
-                            >
-                              <ResourceIcon />
-                              <Text fontSize={12} fontWeight={500}>
-                                Resources
-                              </Text>
-                            </VStack>
-                          </HStack>
-                          <Flex alignItems={'center'} px={4}>
-                            <Badge
-                              variant="subtle"
-                              colorScheme="blue"
-                              p={1}
-                              letterSpacing="wide"
-                              textTransform="none"
-                              borderRadius={8}
-                              cursor={'grab'}
-                              onClick={() => {
-                                updateState({
-                                  recurrenceStartDate: new Date(
-                                    findStudyEventsByTopic(
-                                      topic.topicDetails.label
-                                    )?.startDate
-                                  )
-                                });
-                                updateState({
-                                  recurrenceStartDate: new Date(
-                                    findStudyEventsByTopic(
-                                      topic.topicDetails.label
-                                    )?.startDate
-                                  ),
-                                  recurrenceEndDate: new Date(
-                                    findStudyEventsByTopic(
-                                      topic.topicDetails.label
-                                    )?.recurrence?.endDate
-                                  ),
-                                  selectedTopic: topic._id,
-                                  selectedStudyEvent: findStudyEventsByTopic(
-                                    topic.topicDetails.label
-                                  )?._id
-                                });
-
-                                onOpenCadence();
-                              }}
-                            >
-                              {studyPlanResources &&
-                              studyPlanResources[topic.topicDetails.label]
-                                ? `
-                      ${
-                        findStudyEventsByTopic(topic.topicDetails.label)
-                          ?.recurrence?.frequency
-                      } 
-                      from  ${moment(
-                        findStudyEventsByTopic(topic.topicDetails.label)
-                          ?.startDate
-                      ).format('MM.DD.YYYY')} - ${moment(
-                                    findStudyEventsByTopic(
-                                      topic.topicDetails.label
-                                    )?.recurrence?.endDate
-                                  ).format('MM.DD.YYYY')}`
-                                : '...'}
-                            </Badge>
-
-                            <Spacer />
-                            <Button
-                              size={'sm'}
-                              my={4}
-                              onClick={() => {
-                                updateState({
-                                  selectedTopic: topic.topicDetails.label
-                                });
-
-                                openBountyModal();
-                              }}
-                            >
-                              Find a tutor
-                            </Button>
-                          </Flex>
-                        </Box>
-                      </Box>
+                      <TopicCard key={topic._id} topic={topic} />
                     </>
                   ))}
                 </Flex>
