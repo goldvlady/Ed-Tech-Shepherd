@@ -970,22 +970,23 @@ function CreateStudyPlans() {
                 onChange={(e) => handleUploadInput(e.target.files[0])}
               />
             </Center>
-            <Flex>
+            <Flex direction={'row'} gap={1}>
               <Button
-                colorScheme="blue"
+                color="#207df7"
                 variant="outline"
+                borderColor={'#207df7'}
                 py={2}
                 px={4}
                 mb={2}
+                fontSize={13}
                 rounded="md"
                 display="inline-flex"
                 alignItems="center"
                 onClick={handleCreateSyllabus}
                 isDisabled={!planName || !gradeLevel || !course || isLoading}
-                float="right"
               >
                 <Icon as={FaFileMedical} mr={2} />
-                Create Syllabus
+                Manually Create Syllabus
               </Button>
               <Spacer />{' '}
               <Button
@@ -994,15 +995,15 @@ function CreateStudyPlans() {
                 py={2}
                 px={4}
                 mb={2}
+                fontSize={13}
                 rounded="md"
                 display="inline-flex"
                 alignItems="center"
                 onClick={handleGenerateSyllabus}
                 isDisabled={!planName || !gradeLevel || !course || isLoading}
-                float="right"
               >
                 <Icon as={FaRocket} mr={2} />
-                Generate Syllabus
+                Auto-generate Syllabus
               </Button>
             </Flex>
           </Box>
