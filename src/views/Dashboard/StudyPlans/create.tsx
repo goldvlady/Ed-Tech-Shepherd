@@ -385,11 +385,11 @@ function CreateStudyPlans() {
   }
 
   function updateWeekProperties(weekNumber, updatedProperties) {
-    let weekIndex = syllabusData.findIndex(
+    const weekIndex = syllabusData.findIndex(
       (week) => week.weekNumber === weekNumber
     );
     if (weekIndex !== -1) {
-      let weekToUpdate = syllabusData[weekIndex];
+      const weekToUpdate = syllabusData[weekIndex];
       // Update properties
       Object.keys(updatedProperties).forEach((key) => {
         if (key === 'topics') {
