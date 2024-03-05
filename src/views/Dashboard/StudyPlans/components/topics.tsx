@@ -6,12 +6,23 @@ import {
   Button,
   Divider,
   Flex,
+  FormControl,
+  FormLabel,
   Text,
   Menu,
   MenuItem,
   MenuList,
   MenuButton,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  ModalHeader,
+  ModalOverlay,
+  ModalContent,
   Spacer,
+  SimpleGrid,
+  Spinner,
   VStack,
   HStack,
   useDisclosure,
@@ -31,12 +42,20 @@ import flashcardStore from '../../../../state/flashcardStore';
 import resourceStore from '../../../../state/resourceStore';
 import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
+import { parseISO, format, parse } from 'date-fns';
 import { SmallCloseIcon } from '@chakra-ui/icons';
+import DatePicker from '../../../../components/DatePicker';
+import Select, { Option } from '../../../../components/Select';
+import CalendarDateInput from '../../../../components/CalendarDateInput';
+import ApiService from '../../../../services/ApiService';
 
 function Topics(props) {
-  const { planTopics } = props;
-  const { studyPlanResources, isLoading: studyPlanStoreLoading } =
-    studyPlanStore();
+  const { planTopics, selectedPlan } = props;
+  const {
+    fetchPlanResources,
+    studyPlanResources,
+    isLoading: studyPlanStoreLoading
+  } = studyPlanStore();
   const { fetchSingleFlashcard } = flashcardStore();
   const {
     courses: courseList,
@@ -61,6 +80,7 @@ function Topics(props) {
     selectedStudyEvent: null,
     selectedRecurrence: 'daily',
     selectedRecurrenceTime: null,
+    recurrenceFrequency: '',
     recurrenceStartDate: new Date(),
     recurrenceEndDate: new Date()
   });
@@ -70,6 +90,7 @@ function Topics(props) {
 
   const toast = useCustomToast();
   const navigate = useNavigate();
+
   const {
     isOpen: isOpenResource,
     onOpen: onOpenResource,
@@ -216,6 +237,85 @@ function Topics(props) {
       return studyPlanResources[topic].studyEvent;
     }
   };
+
+  const handleUpdatePlanCadence = async () => {
+    updateState({ isLoading: true });
+    const parsedTime = parse(
+      state.selectedRecurrenceTime.toLowerCase(),
+      'hh:mm aa',
+      new Date()
+    );
+    const time = format(parsedTime, 'HH:mm');
+    const payload = {
+      // entityId: selectedPlan,
+      eventId: state.selectedStudyEvent,
+
+      // metadata: {
+      //   topicId: selectedTopic
+      // },
+
+      updates: {
+        startDate: moment(state.recurrenceStartDate).format('YYYY-MM-DD'),
+        startTime: time,
+        isActive: true,
+        recurrence: {
+          frequency: state.selectedRecurrence,
+          endDate: moment(state.recurrenceEndDate).format('YYYY-MM-DD')
+        }
+      }
+    };
+    console.log(payload);
+    try {
+      const resp = await ApiService.rescheduleStudyEvent(payload);
+      if (resp) {
+        const response = await resp.json();
+        if (resp.status === 200) {
+          // setIsCompleted(true);
+          // setLoading(false);
+          toast({
+            title: 'Updated Successfully',
+            position: 'top-right',
+            status: 'success',
+            isClosable: true
+          });
+          updateState({ isLoading: false });
+
+          fetchPlanResources(selectedPlan);
+          onCloseCadence();
+        } else {
+          // setLoading(false);
+          toast({
+            title: 'Failed to update, try again',
+            position: 'top-right',
+            status: 'error',
+            isClosable: true
+          });
+          updateState({ isLoading: false });
+        }
+      }
+    } catch (error: any) {
+      // setLoading(false);
+      return { error: error.message, message: error.message };
+    }
+  };
+
+  const frequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: "Doesn't Repeat", value: 'none' }
+  ];
+  const timeOptions = Array.from({ length: 96 }, (_, index) => {
+    const hour = Math.floor(index / 4);
+    const minute = 15 * (index % 4);
+    const displayHour = hour === 0 || hour === 12 ? 12 : hour % 12;
+    const displayMinute = minute === 0 ? '00' : String(minute);
+    const period = hour < 12 ? ' AM' : ' PM';
+
+    const time = `${displayHour}:${displayMinute}${period}`;
+
+    return { label: time, value: time };
+  });
 
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
@@ -394,17 +494,16 @@ function Topics(props) {
                 updateState({
                   recurrenceStartDate: new Date(
                     findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
-                  )
-                });
-                updateState({
-                  recurrenceStartDate: new Date(
-                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
                   ),
                   recurrenceEndDate: new Date(
                     findStudyEventsByTopic(
                       topic.topicDetails?.label
                     )?.recurrence?.endDate
                   ),
+                  selectedRecurrence: findStudyEventsByTopic(
+                    topic.topicDetails?.label
+                  )?.recurrence?.frequency,
+
                   selectedTopic: topic._id,
                   selectedStudyEvent: findStudyEventsByTopic(
                     topic.topicDetails?.label
@@ -489,6 +588,212 @@ from  ${moment(
             ))}
         </Box>
       </Box>
+      <Modal
+        isOpen={isOpenResource}
+        onClose={() => {
+          updateState({ topicResource: null });
+          onCloseResource();
+        }}
+        size="3xl"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <HStack>
+              <ResourceIcon />
+              <Text fontSize="16px" fontWeight="500">
+                Extra Resources
+              </Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
+            {!state.isLoading ? (
+              state.topicResource ? (
+                <Box w="full">
+                  <Flex alignItems={'center'} my={2}>
+                    <Text
+                      fontSize={'17px'}
+                      fontWeight="500"
+                      px={1}
+                      color="#000"
+                    >
+                      Summary
+                    </Text>
+                  </Flex>
+
+                  <Box
+                    p={4}
+                    maxH="350px"
+                    overflowY="auto"
+                    // borderWidth="1px"
+                    // borderRadius="md"
+                    // borderColor="gray.200"
+                    // boxShadow="md"
+                    className="custom-scroll"
+                  >
+                    <Text lineHeight="6">{state.topicResource?.response}</Text>
+                  </Box>
+                  <Text
+                    fontSize={'17px'}
+                    fontWeight="500"
+                    px={1}
+                    color="#000"
+                    my={4}
+                  >
+                    Sources
+                  </Text>
+                  <SimpleGrid minChildWidth="150px" spacing="10px">
+                    {state.topicResource?.search_results.map(
+                      (source, index) => (
+                        <a
+                          key={index}
+                          href={`${source.url}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Box
+                            bg="#F3F5F6"
+                            p={4}
+                            borderRadius="md"
+                            boxShadow="md"
+                            borderWidth="1px"
+                            borderColor="gray.200"
+                            cursor="pointer"
+                            transition="transform 0.3s"
+                            _hover={{ transform: 'scale(1.05)' }}
+                          >
+                            <Flex direction="column" textAlign="left" gap={2}>
+                              <Text fontWeight={600} fontSize="sm">
+                                {source.title.length > 15
+                                  ? source.title.substring(0, 15) + '...'
+                                  : source.title}
+                              </Text>
+                              <Flex alignItems="center">
+                                <Text color="gray.500" fontSize="xs">
+                                  {source.url.length > 19
+                                    ? source.url.substring(0, 19) + '...'
+                                    : source.url}
+                                </Text>
+                                <Spacer />
+                                <img
+                                  className="h-3 w-3"
+                                  alt={source.url}
+                                  src={`https://www.google.com/s2/favicons?domain=${
+                                    source.url
+                                  }&sz=${16}`}
+                                />
+                              </Flex>
+                            </Flex>
+                          </Box>
+                        </a>
+                      )
+                    )}
+                  </SimpleGrid>
+                </Box>
+              ) : (
+                'No resource'
+              )
+            ) : (
+              <Spinner />
+            )}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenCadence} onClose={onCloseCadence} size="lg">
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <HStack>
+              <ResourceIcon />
+              <Text fontSize="16px" fontWeight="500">
+                Set Cadence For your Reminders
+              </Text>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
+            <Box width="100%">
+              <FormControl id="startDay" marginBottom="20px">
+                <FormLabel>Start Date</FormLabel>
+                <CalendarDateInput
+                  inputProps={{
+                    placeholder: 'Select Start Date'
+                  }}
+                  value={state.recurrenceStartDate}
+                  onChange={(newDate) => {
+                    updateState({ recurrenceStartDate: newDate });
+                  }}
+                />{' '}
+              </FormControl>
+              <FormControl id="recurrenceEndDate" marginBottom="20px">
+                <FormLabel>End Date</FormLabel>
+                {/* <DatePicker
+                  name={'recurrenceEndDate'}
+                  placeholder="Select End Date"
+                  selected={state.recurrenceEndDate}
+                  dateFormat="MM/dd/yyyy"
+                  onChange={(newDate) => {
+                    updateState({ recurrenceEndDate: newDate });
+                  }}
+                  minDate={state.recurrenceStartDate}
+                /> */}
+                <CalendarDateInput
+                  inputProps={{
+                    placeholder: 'Select End Date'
+                  }}
+                  value={state.recurrenceEndDate}
+                  onChange={(newDate) => {
+                    updateState({ recurrenceEndDate: newDate });
+                  }}
+                />
+              </FormControl>
+              <FormControl id="frequency" marginBottom="20px">
+                <FormLabel>Frequency</FormLabel>
+                <Select
+                  defaultValue={frequencyOptions.find(
+                    (option) => option.value === state.selectedRecurrence
+                  )}
+                  tagVariant="solid"
+                  placeholder="Select Frequency"
+                  options={frequencyOptions}
+                  size={'md'}
+                  onChange={(option) => {
+                    updateState({
+                      selectedRecurrence: (option as Option).value
+                    });
+                  }}
+                />
+              </FormControl>
+              <FormControl id="time" marginBottom="20px">
+                <FormLabel>Time</FormLabel>
+                <Select
+                  defaultValue={timeOptions.find(
+                    (option) => option.value === state.selectedRecurrenceTime
+                  )}
+                  tagVariant="solid"
+                  placeholder="Select Time"
+                  options={timeOptions}
+                  size={'md'}
+                  onChange={(option) => {
+                    updateState({
+                      selectedRecurrenceTime: (option as Option).value
+                    });
+                  }}
+                />
+              </FormControl>
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              isLoading={state.isLoading}
+              onClick={() => handleUpdatePlanCadence()}
+            >
+              Update
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
