@@ -101,6 +101,32 @@ function Form() {
   const [quizOver, setQuizOver] = useState(false);
   const [openResults, setOpenResults] = useState(false);
 
+  console.log('formState', formState);
+
+  const setElements = (elements: any[]) => {
+    const occlusionElements = elements.map((el, i) => {
+      return {
+        isRevealed: false,
+        label: 'Label Placeholder',
+        order: i,
+        position: {
+          x: el.coor[0],
+          y: el.coor[1],
+          width: el.coor[2],
+          height: el.coor[3]
+        }
+      };
+    });
+    console.log('occlusionElements', occlusionElements);
+    setFormState((prevState) => ({
+      ...prevState,
+      occlusion: {
+        ...prevState.occlusion,
+        elements: occlusionElements
+      }
+    }));
+  };
+
   useEffect(() => {
     if (formState.imageURL) {
       setFormState((prevState) => ({
@@ -241,6 +267,7 @@ function Form() {
         setImage={(imageURI) => {
           setFormState({ ...formState, imageURL: imageURI });
         }}
+        setElements={setElements}
       />
       <Occlusion
         // Set occulsion elements in top level state

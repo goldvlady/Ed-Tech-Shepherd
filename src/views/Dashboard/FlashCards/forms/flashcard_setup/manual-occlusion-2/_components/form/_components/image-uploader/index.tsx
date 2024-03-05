@@ -5,25 +5,29 @@ import {
   DialogContent,
   DialogTrigger
 } from '../../../../../../../../../../components/ui/dialog';
-import { UploadIcon } from '@radix-ui/react-icons';
+import { ReloadIcon, UploadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../../../library/utils';
 import { useDropzone } from 'react-dropzone';
 import { Switch } from '../../../../../../../../../../components/ui/switch';
 import { Label } from '../../../../../../../../../../components/ui/label';
+import useAutomaticImageOcclusion from '../../../../hook/useAutomaticImageOcclusion';
 
 function ImageUploader({
   open,
   setImage,
   deckName,
   handleClose,
-  handleOpen
+  handleOpen,
+  setElements
 }: {
   open: boolean;
   setImage: (image: string) => void;
   deckName: string;
   handleClose: ({}) => void;
   handleOpen: () => void;
+  setElements: (elements: any) => void;
 }) {
+  const { getOcclusionCoordinates } = useAutomaticImageOcclusion();
   const [imageURI, setImageURI] = useState('');
   const [imageName, setImageName] = useState('');
 
@@ -55,13 +59,25 @@ function ImageUploader({
   });
 
   const [enableAIOcclusion, setEnableAIOcclusion] = useState(false);
+  const [loadOcclusionGeneration, setLoadOcclusionGeneration] = useState(false);
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!imageURI) return;
-    setImage(imageURI);
-    setImageURI('');
-    handleClose({});
-    setImageName('');
+    if (enableAIOcclusion) {
+      setLoadOcclusionGeneration(true);
+      const elements = await getOcclusionCoordinates(imageURI);
+      setLoadOcclusionGeneration(false);
+      setImage(imageURI);
+      setElements(elements);
+      handleClose({});
+      setImageName('');
+      setEnableAIOcclusion(false);
+    } else {
+      setImage(imageURI);
+      handleClose({});
+      setImageName('');
+      setEnableAIOcclusion(false);
+    }
   };
 
   return (
@@ -175,7 +191,13 @@ function ImageUploader({
               >
                 Cancel
               </Button>
-              <Button onClick={handleUpload}>Upload</Button>
+              <Button onClick={handleUpload} disabled={loadOcclusionGeneration}>
+                {loadOcclusionGeneration ? (
+                  <ReloadIcon className="mr-2" />
+                ) : (
+                  'Upload'
+                )}
+              </Button>
             </div>
           </div>
         </DialogContent>

@@ -139,6 +139,7 @@
     "styled-components": "^5.3.9",
     "tailwind-merge": "^2.2.1",
     "tailwindcss": "^3.3.5",
+    "tesseract.js": "^5.0.5",
     "tw-elements": "^1.0.0-beta2",
     "twin.macro": "^3.4.0",
     "typescript": "^4.9.5",
