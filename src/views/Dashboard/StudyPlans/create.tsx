@@ -81,6 +81,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import uploadFile, { snip } from '../../../helpers/file.helpers';
 import CalendarDateInput from '../../../components/CalendarDateInput';
+import { ReactSortable } from 'react-sortablejs';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -495,208 +496,177 @@ function CreateStudyPlans() {
     topic,
     ...props
   }) => {
-    console.log(topic);
-
-    const [{ isDragging }, drag] = useDrag({
-      type: 'TOPIC',
-      item: { index },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging()
-      })
-    });
-
-    const [, drop] = useDrop({
-      accept: 'TOPIC',
-      hover: (draggedItem: any) => {
-        if (draggedItem.index !== index) {
-          moveTopic(draggedItem.index, index);
-          draggedItem.index = index;
-        }
-      }
-    });
-
-    console.log(isDragging);
+    const topicRef = useRef(null);
 
     return (
-      <div
-        ref={(node) => drag(drop(node))}
-        style={{
-          opacity: isDragging ? 0.5 : 1,
-          boxShadow: isDragging ? '0 4px 8px 0 rgba(0,0,0,0.1)' : 'none', // Apply shadow when dragging
-          transition: 'box-shadow 0.2s ease' // Add transition for smoother effect
-        }}
-      >
-        {isDragging ? (
-          <Box boxSize={'2px'} borderBottom="1px solid black">
-            ggg
-          </Box>
-        ) : (
-          <Box
-            bg="white"
-            p={4}
-            rounded="md"
-            shadow="md"
-            key={index}
-            // index={index}
-            // moveTopic={moveTopic}
-            // updateMainTopic={updateMainTopic}
-            // handleRemoveFile={handleRemoveFile}
-            // handleUploadTopicFile={handleUploadTopicFile}
-            // deleteMainTopic={deleteMainTopic}
-            // topic={topic}
-          >
-            {topic.topics && (
-              <>
-                <Editable
-                  defaultValue={topic?.topics[0]?.mainTopic}
-                  fontSize="16px"
-                  fontWeight="500"
-                  mb={2}
-                  color="text.300"
-                  // onBlur={(e) => {
-                  //   console.log(e);
-                  //   updateMainTopic(index, e);
-                  // }}
+      <>
+        <Box
+          bg="white"
+          p={4}
+          my={2}
+          rounded="md"
+          shadow="md"
+          key={index}
+          ref={topicRef}
+          // index={index}
+          // moveTopic={moveTopic}
+          // updateMainTopic={updateMainTopic}
+          // handleRemoveFile={handleRemoveFile}
+          // handleUploadTopicFile={handleUploadTopicFile}
+          // deleteMainTopic={deleteMainTopic}
+          // topic={topic}
+        >
+          {topic.topics && (
+            <>
+              <Editable
+                defaultValue={topic?.topics[0]?.mainTopic}
+                fontSize="16px"
+                fontWeight="500"
+                mb={2}
+                color="text.300"
+                // onBlur={(e) => {
+                //   console.log(e);
+                //   updateMainTopic(index, e);
+                // }}
 
-                  // onChange={(newMainTopic) =>
-                  //   updateMainTopic(index, newMainTopic)
-                  // }
+                // onChange={(newMainTopic) =>
+                //   updateMainTopic(index, newMainTopic)
+                // }
+              >
+                <EditablePreview />
+                <Input
+                  py={2}
+                  px={4}
+                  as={EditableInput}
+                  onBlur={(e) => {
+                    updateMainTopic(index, e.target.value);
+                    // updateWeekProperties(topic.weekNumber, {
+                    //   topics: e.target.value
+                    // });
+                  }}
+                />
+              </Editable>
+              <UnorderedList
+                listStyleType="disc"
+                color="gray.700"
+                fontSize={14}
+              >
+                {topic?.topics[0]?.subTopics?.map((item, subtopicindex) => (
+                  <>
+                    <Flex key={subtopicindex}>
+                      <ListItem>
+                        <Editable
+                          defaultValue={item}
+
+                          // onBlur={(e) => {
+                          //   console.log(e);
+                          //   updateMainTopic(index, e);
+                          // }}
+
+                          // onChange={(newMainTopic) =>
+                          //   updateMainTopic(index, newMainTopic)
+                          // }
+                        >
+                          <EditablePreview />
+                          <Input
+                            as={EditableInput}
+                            size="xs"
+                            onBlur={(e) => {
+                              updateSubTopic(
+                                index,
+                                subtopicindex,
+                                e.target.value
+                              );
+                              // updateWeekProperties(topic.weekNumber, {
+                              //   topics: e.target.value
+                              // });
+                            }}
+                          />
+                        </Editable>
+                      </ListItem>{' '}
+                      <Spacer />{' '}
+                      <SmallCloseIcon
+                        color={'gray.500'}
+                        onClick={() => deleteSubTopic(index, subtopicindex)}
+                      />
+                    </Flex>
+                  </>
+                ))}
+              </UnorderedList>
+              <Flex justifyContent={'end'}>
+                <Button
+                  colorScheme="blue"
+                  variant="link"
+                  display="flex"
+                  alignItems="center"
+                  onClick={() => addSubTopic(index, 'new sub topic')}
+                  my={2}
+                  fontSize={10}
                 >
-                  <EditablePreview />
-                  <Input
-                    py={2}
-                    px={4}
-                    as={EditableInput}
-                    onBlur={(e) => {
-                      updateMainTopic(index, e.target.value);
-                      // updateWeekProperties(topic.weekNumber, {
-                      //   topics: e.target.value
-                      // });
-                    }}
+                  <Icon as={FaPlus} mr={2} />
+                  Add Subtopic
+                </Button>
+              </Flex>
+
+              <Divider my={2} />
+              <Flex justify="space-between" gap={1}>
+                <Box color="green.500">
+                  <Icon as={FaCheckCircle} />
+                </Box>
+                <Flex
+                  direction="row"
+                  overflowX={'scroll'}
+                  className=""
+                  mr={'auto'}
+                >
+                  {topic?.topics[0]?.topicUrls &&
+                    topic?.topics[0]?.topicUrls.map((file, index) => (
+                      <>
+                        <Flex
+                          fontSize={10}
+                          color="gray.700"
+                          alignItems={'center'}
+                          gap={1}
+                          whiteSpace="nowrap"
+                        >
+                          <Text>{`${
+                            file.name?.length > 10
+                              ? `${file.name.slice(0, 10)}...`
+                              : file.name
+                          } `}</Text>
+                          <CloseIcon
+                            boxSize={1.5}
+                            onClick={(e) => handleRemoveFile(index, index)}
+                          />
+                          {index !== topicUrls.length - 1 && `,`}
+                        </Flex>
+                      </>
+                    ))}
+                </Flex>
+                <HStack color="gray.500" spacing={3}>
+                  <label htmlFor={`fileInput-${index}`}>
+                    <Icon as={FaFileAlt} boxSize={3} />
+                  </label>
+                  <input
+                    type="file"
+                    id={`fileInput-${index}`}
+                    style={{ display: 'none' }}
+                    onChange={(e) =>
+                      handleUploadTopicFile(index, e.target.files[0])
+                    }
                   />
-                </Editable>
-                <UnorderedList
-                  listStyleType="disc"
-                  color="gray.700"
-                  fontSize={14}
-                >
-                  {topic?.topics[0]?.subTopics?.map((item, subtopicindex) => (
-                    <>
-                      <Flex key={subtopicindex}>
-                        <ListItem>
-                          <Editable
-                            defaultValue={item}
 
-                            // onBlur={(e) => {
-                            //   console.log(e);
-                            //   updateMainTopic(index, e);
-                            // }}
-
-                            // onChange={(newMainTopic) =>
-                            //   updateMainTopic(index, newMainTopic)
-                            // }
-                          >
-                            <EditablePreview />
-                            <Input
-                              as={EditableInput}
-                              size="xs"
-                              onBlur={(e) => {
-                                updateSubTopic(
-                                  index,
-                                  subtopicindex,
-                                  e.target.value
-                                );
-                                // updateWeekProperties(topic.weekNumber, {
-                                //   topics: e.target.value
-                                // });
-                              }}
-                            />
-                          </Editable>
-                        </ListItem>{' '}
-                        <Spacer />{' '}
-                        <SmallCloseIcon
-                          color={'gray.500'}
-                          onClick={() => deleteSubTopic(index, subtopicindex)}
-                        />
-                      </Flex>
-                    </>
-                  ))}
-                </UnorderedList>
-                <Flex justifyContent={'end'}>
-                  <Button
-                    colorScheme="blue"
-                    variant="link"
-                    display="flex"
-                    alignItems="center"
-                    onClick={() => addSubTopic(index, 'new sub topic')}
-                    my={2}
-                    fontSize={10}
-                  >
-                    <Icon as={FaPlus} mr={2} />
-                    Add Subtopic
-                  </Button>
-                </Flex>
-
-                <Divider my={2} />
-                <Flex justify="space-between" gap={1}>
-                  <Box color="green.500">
-                    <Icon as={FaCheckCircle} />
-                  </Box>
-                  <Flex
-                    direction="row"
-                    overflowX={'scroll'}
-                    className=""
-                    mr={'auto'}
-                  >
-                    {topic?.topics[0]?.topicUrls &&
-                      topic?.topics[0]?.topicUrls.map((file, index) => (
-                        <>
-                          <Flex
-                            fontSize={10}
-                            color="gray.700"
-                            alignItems={'center'}
-                            gap={1}
-                            whiteSpace="nowrap"
-                          >
-                            <Text>{`${
-                              file.name?.length > 10
-                                ? `${file.name.slice(0, 10)}...`
-                                : file.name
-                            } `}</Text>
-                            <CloseIcon
-                              boxSize={1.5}
-                              onClick={(e) => handleRemoveFile(index, index)}
-                            />
-                            {index !== topicUrls.length - 1 && `,`}
-                          </Flex>
-                        </>
-                      ))}
-                  </Flex>
-                  <HStack color="gray.500" spacing={3}>
-                    <label htmlFor={`fileInput-${index}`}>
-                      <Icon as={FaFileAlt} boxSize={3} />
-                    </label>
-                    <input
-                      type="file"
-                      id={`fileInput-${index}`}
-                      style={{ display: 'none' }}
-                      onChange={(e) =>
-                        handleUploadTopicFile(index, e.target.files[0])
-                      }
-                    />
-
-                    <Icon
-                      as={FaTrashAlt}
-                      boxSize={3}
-                      onClick={() => deleteMainTopic(index)}
-                    />
-                  </HStack>
-                </Flex>
-              </>
-            )}
-          </Box>
-        )}
-      </div>
+                  <Icon
+                    as={FaTrashAlt}
+                    boxSize={3}
+                    onClick={() => deleteMainTopic(index)}
+                  />
+                </HStack>
+              </Flex>
+            </>
+          )}
+        </Box>
+      </>
     );
   };
   const getStudyPlanJob = (
@@ -1332,207 +1302,225 @@ function CreateStudyPlans() {
           </Box>
         )}
       </Box>
-      <DndProvider backend={HTML5Backend}>
-        {' '}
-        <Box
-          p={10}
-          className="review-syllabus"
-          bg="#F9F9FB"
-          overflowY={'scroll'}
+      {/* <DndProvider backend={HTML5Backend}> */}{' '}
+      <Box p={10} className="review-syllabus" bg="#F9F9FB" overflowY={'scroll'}>
+        <Tabs
+          variant="soft-rounded"
+          color="#F9F9FB"
+          index={activeTab}
+          onChange={(index) => setActiveTab(index)}
         >
-          <Tabs
-            variant="soft-rounded"
-            color="#F9F9FB"
-            index={activeTab}
-            onChange={(index) => setActiveTab(index)}
-          >
-            <TabList mb="1em">
-              <Tab>Syllabus</Tab>
-              <Tab>Study Plan</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel>
-                <Box>
-                  {isLoading ? (
-                    <LoaderPage
-                      module={'Syllabus'}
-                      handleCancel={() => setIsLoading(false)}
-                    />
-                  ) : syllabusData.length > 0 ? (
-                    <Box mb={6} position="relative">
-                      <Text
-                        fontSize="16px"
-                        fontWeight="semibold"
-                        mb={2}
-                        color="text.200"
+          <TabList mb="1em">
+            <Tab>Syllabus</Tab>
+            <Tab>Study Plan</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <Box>
+                {isLoading ? (
+                  <LoaderPage
+                    module={'Syllabus'}
+                    handleCancel={() => setIsLoading(false)}
+                  />
+                ) : syllabusData.length > 0 ? (
+                  <Box mb={6} position="relative">
+                    <Text
+                      fontSize="16px"
+                      fontWeight="semibold"
+                      mb={2}
+                      color="text.200"
+                    >
+                      Review {course} syllabus
+                    </Text>{' '}
+                    <ReactSortable
+                      filter=".addImageButtonContainer"
+                      dragClass="sortableDrag"
+                      ghostClass="draggedGhost"
+                      list={syllabusData}
+                      setList={setSyllabusData}
+                      animation="500"
+                      easing="ease-out"
+                    >
+                      {syllabusData.map((topic, topicIndex) => (
+                        <div className="draggableItem ">
+                          <DraggableTopic
+                            key={topicIndex}
+                            index={topicIndex}
+                            moveTopic={moveTopic}
+                            updateMainTopic={updateMainTopic}
+                            handleRemoveFile={handleRemoveFile}
+                            handleUploadTopicFile={handleUploadTopicFile}
+                            deleteMainTopic={deleteMainTopic}
+                            updateWeekProperties={updateWeekProperties}
+                            topic={topic}
+                          />
+                        </div>
+                      ))}
+                    </ReactSortable>
+                    {/* <Flex direction="column" gap={2}>
+                      {syllabusData.map((topic, topicIndex) => (
+                        <>
+                          <DraggableTopic
+                            key={topicIndex}
+                            index={topicIndex}
+                            moveTopic={moveTopic}
+                            updateMainTopic={updateMainTopic}
+                            handleRemoveFile={handleRemoveFile}
+                            handleUploadTopicFile={handleUploadTopicFile}
+                            deleteMainTopic={deleteMainTopic}
+                            updateWeekProperties={updateWeekProperties}
+                            topic={topic}
+                          />
+                        </>
+                      ))}{' '}
+                    </Flex> */}
+                    <Flex alignItems={'center'} mt={7}>
+                      <Button
+                        color="gray"
+                        variant="link"
+                        display="flex"
+                        alignItems="center"
+                        onClick={() => createSyllabusWeek()}
                       >
-                        Review {course} syllabus
+                        <Icon as={FaPlus} mr={2} />
+                        Add Topic
+                      </Button>{' '}
+                      <Spacer />
+                      <Button
+                        colorScheme="blue"
+                        variant="solid"
+                        display="flex"
+                        justifyContent={'space-between'}
+                        py={2}
+                        px={14}
+                        rounded="md"
+                        alignItems="center"
+                        textAlign={'center'}
+                        ml={'auto'}
+                        onClick={() => setActiveTab(1)}
+                      >
+                        Proceed
+                      </Button>
+                    </Flex>
+                  </Box>
+                ) : (
+                  <section className="flex justify-center items-center mt-28 w-full">
+                    <div className="text-center">
+                      <img src="/images/notes.png" alt="" />
+                      <Text color="#000000" fontSize={12}>
+                        You are yet to generate a syllabus!
                       </Text>
+                    </div>
+                  </section>
+                )}
+              </Box>
+            </TabPanel>
+            <TabPanel>
+              <Box>
+                <Flex direction="column" gap={2}>
+                  {studyPlanData.length > 0 ? (
+                    <>
+                      {studyPlanData.map((topic, weekindex) => (
+                        <>
+                          <Box bg="white" p={4} rounded="md" shadow="md">
+                            <Text
+                              fontSize="14px"
+                              fontWeight="500"
+                              mb={2}
+                              color="text.300"
+                            >
+                              {topic.weekRange}
+                            </Text>
+                            <UnorderedList
+                              listStyleType="circle"
+                              listStylePosition="inside"
+                              color="gray.700"
+                              fontSize={14}
+                              // h={'100px'}
+                            >
+                              {topic.topics.map((item, index) => (
+                                <Flex>
+                                  {' '}
+                                  <ListItem key={index}>
+                                    {item.mainTopic}
+                                  </ListItem>
+                                  <Spacer />
+                                  <SmallCloseIcon
+                                    color={'gray.500'}
+                                    onClick={() =>
+                                      deleteTopicFromWeek(weekindex, index)
+                                    }
+                                  />
+                                </Flex>
+                              ))}
+                            </UnorderedList>
+                            <Divider my={2} />
+                            <Flex>
+                              <Menu>
+                                <MenuButton
+                                  as={Link}
+                                  color="gray.500"
+                                  _hover={{ textDecoration: 'none' }}
+                                  fontSize={14}
+                                >
+                                  <Icon as={FaPlus} mr={2} />
+                                  Add Topic
+                                </MenuButton>
+                                <MenuList color={'gray.500'}>
+                                  {unassignedTopics.map((item, index) => (
+                                    <MenuItem
+                                      onClick={() =>
+                                        addTopicToWeek(weekindex, item)
+                                      }
+                                    >
+                                      {item.mainTopic}
+                                    </MenuItem>
+                                  ))}
+                                </MenuList>
+                              </Menu>
 
-                      <Flex direction="column" gap={2}>
-                        {syllabusData.map((topic, topicIndex) => (
-                          <>
-                            <DraggableTopic
-                              key={topicIndex}
-                              index={topicIndex}
-                              moveTopic={moveTopic}
-                              updateMainTopic={updateMainTopic}
-                              handleRemoveFile={handleRemoveFile}
-                              handleUploadTopicFile={handleUploadTopicFile}
-                              deleteMainTopic={deleteMainTopic}
-                              updateWeekProperties={updateWeekProperties}
-                              topic={topic}
-                            />
-                          </>
-                        ))}{' '}
-                      </Flex>
-                      <Flex alignItems={'center'} mt={7}>
-                        <Button
-                          color="gray"
-                          variant="link"
-                          display="flex"
-                          alignItems="center"
-                          onClick={() => createSyllabusWeek()}
-                        >
-                          <Icon as={FaPlus} mr={2} />
-                          Add Topic
-                        </Button>{' '}
-                        <Spacer />
-                        <Button
-                          colorScheme="blue"
-                          variant="solid"
-                          display="flex"
-                          justifyContent={'space-between'}
-                          py={2}
-                          px={14}
-                          rounded="md"
-                          alignItems="center"
-                          textAlign={'center'}
-                          ml={'auto'}
-                          onClick={() => setActiveTab(1)}
-                        >
-                          Proceed
-                        </Button>
-                      </Flex>
-                    </Box>
+                              <Spacer />
+                              <Box color="gray.500">
+                                <Icon as={FaPencilAlt} />
+                              </Box>
+                            </Flex>
+                          </Box>{' '}
+                        </>
+                      ))}
+                      <Button
+                        colorScheme="blue"
+                        variant="solid"
+                        display="flex"
+                        justifyContent={'space-between'}
+                        py={2}
+                        px={14}
+                        rounded="md"
+                        alignItems="center"
+                        textAlign={'center'}
+                        mt={3}
+                        ml={'auto'}
+                        onClick={() => saveStudyPlan()}
+                        isLoading={loading}
+                      >
+                        Save & Proceed
+                      </Button>
+                    </>
                   ) : (
                     <section className="flex justify-center items-center mt-28 w-full">
                       <div className="text-center">
                         <img src="/images/notes.png" alt="" />
                         <Text color="#000000" fontSize={12}>
-                          You are yet to generate a syllabus!
+                          Enter your test dates to generate a study plan!
                         </Text>
                       </div>
                     </section>
                   )}
-                </Box>
-              </TabPanel>
-              <TabPanel>
-                <Box>
-                  <Flex direction="column" gap={2}>
-                    {studyPlanData.length > 0 ? (
-                      <>
-                        {studyPlanData.map((topic, weekindex) => (
-                          <>
-                            <Box bg="white" p={4} rounded="md" shadow="md">
-                              <Text
-                                fontSize="14px"
-                                fontWeight="500"
-                                mb={2}
-                                color="text.300"
-                              >
-                                {topic.weekRange}
-                              </Text>
-                              <UnorderedList
-                                listStyleType="circle"
-                                listStylePosition="inside"
-                                color="gray.700"
-                                fontSize={14}
-                                // h={'100px'}
-                              >
-                                {topic.topics.map((item, index) => (
-                                  <Flex>
-                                    {' '}
-                                    <ListItem key={index}>
-                                      {item.mainTopic}
-                                    </ListItem>
-                                    <Spacer />
-                                    <SmallCloseIcon
-                                      color={'gray.500'}
-                                      onClick={() =>
-                                        deleteTopicFromWeek(weekindex, index)
-                                      }
-                                    />
-                                  </Flex>
-                                ))}
-                              </UnorderedList>
-                              <Divider my={2} />
-                              <Flex>
-                                <Menu>
-                                  <MenuButton
-                                    as={Link}
-                                    color="gray.500"
-                                    _hover={{ textDecoration: 'none' }}
-                                    fontSize={14}
-                                  >
-                                    <Icon as={FaPlus} mr={2} />
-                                    Add Topic
-                                  </MenuButton>
-                                  <MenuList color={'gray.500'}>
-                                    {unassignedTopics.map((item, index) => (
-                                      <MenuItem
-                                        onClick={() =>
-                                          addTopicToWeek(weekindex, item)
-                                        }
-                                      >
-                                        {item.mainTopic}
-                                      </MenuItem>
-                                    ))}
-                                  </MenuList>
-                                </Menu>
-
-                                <Spacer />
-                                <Box color="gray.500">
-                                  <Icon as={FaPencilAlt} />
-                                </Box>
-                              </Flex>
-                            </Box>{' '}
-                          </>
-                        ))}
-                        <Button
-                          colorScheme="blue"
-                          variant="solid"
-                          display="flex"
-                          justifyContent={'space-between'}
-                          py={2}
-                          px={14}
-                          rounded="md"
-                          alignItems="center"
-                          textAlign={'center'}
-                          mt={3}
-                          ml={'auto'}
-                          onClick={() => saveStudyPlan()}
-                          isLoading={loading}
-                        >
-                          Save & Proceed
-                        </Button>
-                      </>
-                    ) : (
-                      <section className="flex justify-center items-center mt-28 w-full">
-                        <div className="text-center">
-                          <img src="/images/notes.png" alt="" />
-                          <Text color="#000000" fontSize={12}>
-                            Enter your test dates to generate a study plan!
-                          </Text>
-                        </div>
-                      </section>
-                    )}
-                  </Flex>
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-          {/* <Center>
+                </Flex>
+              </Box>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+        {/* <Center>
           {' '}
           <Button
             colorScheme="blue"
@@ -1547,9 +1535,8 @@ function CreateStudyPlans() {
             Confirm & Proceed
           </Button>
         </Center> */}
-        </Box>
-      </DndProvider>
-
+      </Box>
+      {/* </DndProvider> */}
       <Box py={8} className="select-syllabus" bg="white" overflowY="auto">
         <Flex
           align="center"
