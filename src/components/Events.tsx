@@ -135,7 +135,7 @@ export default function Events({ event }: any) {
 
   const currentPath = window.location.pathname;
 
-  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
   const { isLoading, rescheduleFlashcard, fetchSingleFlashcard } =
     flashcardStore();
@@ -238,10 +238,35 @@ export default function Events({ event }: any) {
 
   const handleJoinSession = (url) => {
     window.open(url, '_blank');
+    onCloseJoinSession();
   };
 
   const handleMessageStudent = () => {
     navigate('/dashboard/tutordashboard/messages');
+  };
+
+  const handleMessageTutor = () => {
+    navigate('/dashboard/messaging');
+  };
+
+  const cancelSession = async () => {
+    onCloseJoinSession();
+    const response = await ApiService.cancelBooking({ id: scheduleItem._id });
+    if (response.status === 200) {
+      toast({
+        position: 'top-right',
+        title: `Booking canceled Succesfully`,
+        status: 'success'
+      });
+      setScheduleItem(null);
+      fetchEvents();
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to cancel booking`,
+        status: 'error'
+      });
+    }
   };
 
   const addEventToGoogleCalendar = () => {
@@ -261,6 +286,7 @@ export default function Events({ event }: any) {
     );
     const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startDate}/${endDate}&details=&location=${location}`;
     window.open(url, '_blank');
+    onCloseJoinSession();
   };
 
   return (
@@ -278,6 +304,7 @@ export default function Events({ event }: any) {
             navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`);
           }
         } else if (event.type === 'booking') {
+          setScheduleItem(event.data);
           onOpenJoinSession();
         } else {
           navigate(`${`/dashboard`}`);
@@ -378,9 +405,12 @@ export default function Events({ event }: any) {
               <Button
                 colorScheme="green"
                 width="full"
-                onClick={handleMessageStudent}
+                onClick={isTutor ? handleMessageStudent : handleMessageTutor}
               >
-                Message Student
+                {isTutor ? 'Message Student' : 'Message Tutor'}
+              </Button>
+              <Button colorScheme="green" width="full" onClick={cancelSession}>
+                Cancel Session
               </Button>
             </VStack>
           </ModalBody>

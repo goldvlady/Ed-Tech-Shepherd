@@ -131,6 +131,14 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static cancelBooking = async (queryParams: { id: string }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/cancelBooking?${queryString}`, {
+      method: 'POST'
+    });
+  };
+
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
