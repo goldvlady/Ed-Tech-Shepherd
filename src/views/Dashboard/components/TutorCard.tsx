@@ -282,6 +282,7 @@ export default function TutorCard(props: any) {
                   fontSize={['10px', '12px']}
                   lineHeight={{ base: 3, md: 1.3 }}
                   color={useColorModeValue('gray.700', 'gray.400')}
+                  whiteSpace="pre-wrap"
                 >
                   {description ? textTruncate(description, 200) : ''}
                 </Text>

@@ -334,7 +334,7 @@ export default function Tutor() {
                       >
                         ABOUT ME
                       </Text>
-                      <Text fontSize={'14px'} my={2}>
+                      <Text fontSize={'14px'} my={2} whiteSpace="pre-wrap">
                         {tutorData.description}
                       </Text>
                     </Box>

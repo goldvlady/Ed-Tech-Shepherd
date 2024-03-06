@@ -8,6 +8,7 @@ import React, {
 import {
   Grid,
   Box,
+  Center,
   Divider,
   Flex,
   Image,
@@ -21,7 +22,17 @@ import {
   RangeSliderFilledTrack,
   RangeSliderThumb,
   HStack,
-  VStack
+  VStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Modal,
+  ModalBody,
+  ModalOverlay,
+  ModalContent,
+  ModalFooter,
+  useDisclosure
 } from '@chakra-ui/react';
 
 import { useNavigate } from 'react-router';
@@ -38,11 +49,14 @@ import { MdCancel, MdGraphicEq } from 'react-icons/md';
 import Select, { components } from 'react-select';
 import { FiChevronDown } from 'react-icons/fi';
 import { GiCancel } from 'react-icons/gi';
+import { MultiSelect } from 'react-multi-select-component';
+import { ChevronDownIcon } from '@chakra-ui/icons';
 
 function StudyPlans() {
   const { fetchPlans, studyPlans, pagination, isLoading, deleteStudyPlan } =
     studyPlanStore();
   const { courses: courseList, studyPlanCourses } = resourceStore();
+  const [selectedPlan, setSelectedPlan] = useState<string>(null);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [tutorGrid] = useAutoAnimate();
@@ -51,7 +65,13 @@ function StudyPlans() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(100);
-  const [subject, setSubject] = useState<string>();
+  const [subject, setSubject] = useState<any>([]);
+
+  const {
+    isOpen: isConfirmDeleteOpen,
+    onOpen: openConfirmDelete,
+    onClose: closeConfirmDelete
+  } = useDisclosure();
 
   const DropdownIndicator = (props) => {
     return (
@@ -75,7 +95,7 @@ function StudyPlans() {
   const handleDeletePlan = async (id: string) => {
     try {
       const resp: any = await deleteStudyPlan(id);
-
+      closeConfirmDelete();
       if (resp.status === 200) {
         toast({
           title: 'Plan Deleted Successfully',
@@ -122,11 +142,28 @@ function StudyPlans() {
     fetchPlans(page, limit, minScore, maxScore, newSearchTerm, subject);
   };
 
-  const handleSubjectChange = (selectedOption) => {
-    const newSubject = getSubject(selectedOption);
-    setSubject(newSubject);
-    fetchPlans(page, limit, minScore, maxScore, searchTerm, newSubject);
+  const handleSubjectChange = (selectedOptions) => {
+    setSubject(selectedOptions);
+    const selectedSubjects = selectedOptions
+      .map((option) => getSubject(option.value))
+      .join(',');
+
+    fetchPlans(page, limit, minScore, maxScore, searchTerm, selectedSubjects);
   };
+  // const handleSelectionChange = (selectedOptions: Option[]) => {
+  //   setMultiSelected(selectedOptions);
+
+  //   const selectedTags = selectedOptions
+  //     .map((option) => option.value)
+  //     .join(',');
+
+  //   const query: { [key: string]: any } = {};
+  //   if (selectedTags) {
+  //     query.tags = selectedTags;
+  //   }
+
+  //   fetchFlashcards(query);
+  // };
 
   const subjectOptions: any = studyPlanCourses.map((item, index) => ({
     value: item._id,
@@ -158,7 +195,7 @@ function StudyPlans() {
   };
   return (
     <>
-      <Flex p={3} justifyContent="space-between">
+      <Flex p={3} justifyContent="space-between" alignItems="center">
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
             Study Plans
@@ -167,78 +204,88 @@ function StudyPlans() {
             Chart success: Monitor your personalized study plans.
           </Text>
         </Box>
-
         <Flex gap={2} alignItems="center">
-          <MdCancel size={'100px'} color="lightgray" onClick={clearFilters} />
-          <Box fontSize={{ base: 'sm', md: 'md' }}>
-            <Select
-              value={subject}
-              onChange={(option: any) => {
-                handleSubjectChange(option.id);
-              }}
+          <MdCancel size={'50px'} color="lightgray" onClick={clearFilters} />
+          <Box marginRight={'-15px'}>
+            <MultiSelect
               options={subjectOptions}
-              placeholder={subject ? subject : 'Select Subject'}
-              components={{ DropdownIndicator }}
-              isSearchable
-              styles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: '150px'
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  borderRadius: '40px',
-                  fontSize: '14px',
-                  fontWeight: '400',
-                  textAlign: 'left',
-                  borderColor: '#E2E8F0'
-                }),
-                menu: (provided) => ({
-                  ...provided,
-                  marginTop: '2px'
-                }),
-                option: (provided, state) => ({
-                  ...provided,
-                  backgroundColor: state.isFocused ? '#F2F4F7' : 'transparent',
-                  ':active': {
-                    backgroundColor: '#F2F4F7'
-                  }
-                })
-              }}
+              value={subject}
+              onChange={handleSubjectChange}
+              labelledBy="Select"
+              valueRenderer={() => (
+                <span
+                  style={{
+                    color: '#8c8c8c',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  Filter By Subjects
+                </span>
+              )}
             />
           </Box>
-          <Text> {minScore}</Text>
-          <RangeSlider
-            aria-label={['min', 'max']}
-            defaultValue={[minScore, maxScore]}
-            onChangeEnd={(values) => handleScoreChange(values[0], values[1])}
-          >
-            <RangeSliderTrack>
-              <RangeSliderFilledTrack />
-            </RangeSliderTrack>
-            <RangeSliderThumb index={0}>
-              <Box color="tomato" as={MdGraphicEq} />
-            </RangeSliderThumb>
-            <RangeSliderThumb index={1} />
-          </RangeSlider>
-          <Text> {maxScore}</Text>
+          <Box>
+            {' '}
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<ChevronDownIcon boxSize={30} color="#bbb" />}
+                color="#8c8c8c"
+                fontSize="0.875rem"
+                h="35px"
+                w="full"
+                borderRadius={'7px'}
+                fontWeight={400}
+              >
+                Readiness Score
+              </MenuButton>
+              <MenuList>
+                <MenuItem>
+                  <Flex w="full" gap={2}>
+                    {' '}
+                    <Text fontSize={14}> {minScore}</Text>
+                    <RangeSlider
+                      aria-label={['min', 'max']}
+                      defaultValue={[minScore, maxScore]}
+                      onChangeEnd={(values) =>
+                        handleScoreChange(values[0], values[1])
+                      }
+                    >
+                      <RangeSliderTrack>
+                        <RangeSliderFilledTrack bg="blue.50" />
+                      </RangeSliderTrack>
+                      <RangeSliderThumb
+                        index={0}
+                        bg="#207df7"
+                      ></RangeSliderThumb>
+                      <RangeSliderThumb index={1} bg="#207df7" />
+                    </RangeSlider>
+                    <Text fontSize={14}> {maxScore}</Text>
+                  </Flex>
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          </Box>
 
           <Input
             type="text"
             placeholder="Search by title..."
             value={searchTerm}
             onChange={handleSearchChange}
-            w="full"
+            fontSize="0.875rem"
+            whiteSpace="nowrap"
+            h="35px"
           />
-          {studyPlans.length > 0 && (
-            <Button
-              onClick={() => navigate('/dashboard/create-study-plans')}
-              w="full"
-            >
-              Create New
-            </Button>
-          )}
-        </Flex>
+        </Flex>{' '}
+        {studyPlans.length > 0 && (
+          <Button
+            size={'md'}
+            onClick={() => navigate('/dashboard/create-study-plans')}
+          >
+            Create New
+          </Button>
+        )}
       </Flex>
       {isLoading ? (
         <Box
@@ -271,7 +318,10 @@ function StudyPlans() {
                 scoreColor="green"
                 date={moment(plan.createdAt).format('DD MMM, YYYY')}
                 handleClick={() => navigate(`planId=${plan._id}`)}
-                handleDelete={() => handleDeletePlan(plan._id)}
+                handleDelete={() => {
+                  setSelectedPlan(plan._id);
+                  openConfirmDelete();
+                }}
               />
             ))}
           </SimpleGrid>
@@ -293,6 +343,105 @@ function StudyPlans() {
           </div>
         </section>
       )}
+      <Modal
+        isOpen={isConfirmDeleteOpen}
+        onClose={closeConfirmDelete}
+        size="md"
+      >
+        <ModalOverlay />
+        <ModalContent>
+          {/* <ModalCloseButton /> */}
+          <ModalBody>
+            <Center flexDirection={'column'}>
+              <Box>
+                <svg
+                  width="90"
+                  height="70"
+                  viewBox="0 0 73 62"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g filter="url(#filter0_d_2506_16927)">
+                    <circle cx="36.5" cy="28" r="20" fill="white" />
+                    <circle
+                      cx="36.5"
+                      cy="28"
+                      r="19.65"
+                      stroke="#EAEAEB"
+                      stroke-width="0.7"
+                    />
+                  </g>
+                  <path
+                    d="M36.5002 37.1663C31.4376 37.1663 27.3335 33.0622 27.3335 27.9997C27.3335 22.9371 31.4376 18.833 36.5002 18.833C41.5627 18.833 45.6668 22.9371 45.6668 27.9997C45.6668 33.0622 41.5627 37.1663 36.5002 37.1663ZM35.5835 30.7497V32.583H37.4168V30.7497H35.5835ZM35.5835 23.4163V28.9163H37.4168V23.4163H35.5835Z"
+                    fill="#F53535"
+                  />
+                  <defs>
+                    <filter
+                      id="filter0_d_2506_16927"
+                      x="0.5"
+                      y="0"
+                      width="72"
+                      height="72"
+                      filterUnits="userSpaceOnUse"
+                      color-interpolation-filters="sRGB"
+                    >
+                      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                      <feColorMatrix
+                        in="SourceAlpha"
+                        type="matrix"
+                        values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                        result="hardAlpha"
+                      />
+                      <feOffset dy="8" />
+                      <feGaussianBlur stdDeviation="8" />
+                      <feComposite in2="hardAlpha" operator="out" />
+                      <feColorMatrix
+                        type="matrix"
+                        values="0 0 0 0 0.32 0 0 0 0 0.389333 0 0 0 0 0.48 0 0 0 0.11 0"
+                      />
+                      <feBlend
+                        mode="normal"
+                        in2="BackgroundImageFix"
+                        result="effect1_dropShadow_2506_16927"
+                      />
+                      <feBlend
+                        mode="normal"
+                        in="SourceGraphic"
+                        in2="effect1_dropShadow_2506_16927"
+                        result="shape"
+                      />
+                    </filter>
+                  </defs>
+                </svg>
+              </Box>
+              <Text my={2} fontSize={20} fontWeight="bold">
+                Are You Sure?
+              </Text>
+              <Text align={'center'}>
+                Are you sure you want to delete this plan?. All resources
+                associated with this plan will be lost
+              </Text>
+            </Center>
+          </ModalBody>
+
+          <ModalFooter gap={2}>
+            <Button onClick={closeConfirmDelete} w="50%" variant="outline">
+              Cancel
+            </Button>
+            <Spacer />
+            <Button
+              color="white"
+              bg="red.400"
+              _hover={{ bg: 'darkred' }}
+              w="50%"
+              onClick={() => handleDeletePlan(selectedPlan)}
+              // isLoading={isLoading}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
