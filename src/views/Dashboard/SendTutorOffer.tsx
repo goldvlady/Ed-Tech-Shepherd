@@ -784,8 +784,9 @@ const SendTutorOffer = () => {
                     <MdInfo color={theme.colors.primary[500]} />
                   </AlertIcon>
                   <AlertDescription>
-                    Payment will not be deducted until after your first lesson,
-                    You may decide to cancel after your initial lesson.
+                    Payment will not be deducted until one hour before your
+                    session. You will not be charged if you cancel 24 or more
+                    hours before your session.
                   </AlertDescription>
                 </Alert>
               </Box>
@@ -815,8 +816,9 @@ const SendTutorOffer = () => {
               <MdInfo color={theme.colors.primary[500]} />
             </AlertIcon>
             <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
+              Payment will not be deducted until one hour before your session.
+              You will not be charged if you cancel 24 or more hours before your
+              session.
             </AlertDescription>
           </Alert>
         }
@@ -829,8 +831,9 @@ const SendTutorOffer = () => {
               <MdInfo color={theme.colors.primary[500]} />
             </AlertIcon>
             <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
+              Payment will not be deducted until one hour before your session.
+              You will not be charged if you cancel 24 or more hours before your
+              session.
             </AlertDescription>
           </Alert>
         }
@@ -1373,9 +1376,9 @@ const SendTutorOffer = () => {
                               <MdInfo color={theme.colors.primary[500]} />
                             </AlertIcon>
                             <AlertDescription>
-                              Payment will not be deducted until after your
-                              first lesson, You may decide to cancel after your
-                              initial lesson.
+                              Payment will not be deducted until one hour before
+                              your session. You will not be charged if you
+                              cancel 24 or more hours before your session.
                             </AlertDescription>
                           </Alert>
                         </Box>
