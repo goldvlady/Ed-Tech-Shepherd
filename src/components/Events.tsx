@@ -31,6 +31,7 @@ import {
   ModalBody,
   ModalCloseButton,
   Center,
+  Spinner,
   VStack
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -43,6 +44,7 @@ import { useNavigate } from 'react-router';
 import eventsStore from '../state/eventsStore';
 
 export default function Events({ event }: any) {
+  const [loading, setLoading] = useState(false);
   const {
     isOpen: isOpenReBook,
     onOpen: onOpenReBook,
@@ -250,22 +252,33 @@ export default function Events({ event }: any) {
   };
 
   const cancelSession = async () => {
-    onCloseJoinSession();
-    const response = await ApiService.cancelBooking({ id: scheduleItem._id });
-    if (response.status === 200) {
+    setLoading(true);
+    try {
+      const response = await ApiService.cancelBooking({ id: scheduleItem._id });
+      if (response.status === 200) {
+        toast({
+          position: 'top-right',
+          title: `Booking canceled Succesfully`,
+          status: 'success'
+        });
+        fetchEvents();
+      } else {
+        toast({
+          position: 'top-right',
+          title: `Failed to cancel booking`,
+          status: 'error'
+        });
+      }
+    } catch (error) {
       toast({
         position: 'top-right',
-        title: `Booking canceled Succesfully`,
-        status: 'success'
-      });
-      setScheduleItem(null);
-      fetchEvents();
-    } else {
-      toast({
-        position: 'top-right',
-        title: `Failed to cancel booking`,
+        title: `An error occurred while canceling booking`,
         status: 'error'
       });
+    } finally {
+      setScheduleItem(null);
+      onCloseJoinSession();
+      setLoading(false);
     }
   };
 
@@ -381,39 +394,47 @@ export default function Events({ event }: any) {
         <ModalContent maxW="xs">
           <ModalHeader>Session Options</ModalHeader>
           <ModalCloseButton />
-          <ModalBody p={4}>
-            <VStack spacing={4} width="full">
-              <Button
-                colorScheme="green"
-                width="full"
-                onClick={addEventToGoogleCalendar}
-              >
-                Add to Google Calendar
-              </Button>
-              <Button
-                colorScheme="blue"
-                width="full"
-                onClick={() =>
-                  handleJoinSession(
-                    event.data.conferenceHostRoomUrl ||
-                      event.data.conferenceRoomUrl
-                  )
-                }
-              >
-                Join the session
-              </Button>
-              <Button
-                colorScheme="green"
-                width="full"
-                onClick={isTutor ? handleMessageStudent : handleMessageTutor}
-              >
-                {isTutor ? 'Message Student' : 'Message Tutor'}
-              </Button>
-              <Button colorScheme="green" width="full" onClick={cancelSession}>
-                Cancel Session
-              </Button>
-            </VStack>
-          </ModalBody>
+          {loading ? (
+            <ModalBody>
+              <Center>
+                <Spinner />
+              </Center>
+            </ModalBody>
+          ) : (
+            <ModalBody p={4}>
+              <VStack spacing={4} width="full">
+                <Button
+                  colorScheme="green"
+                  width="full"
+                  onClick={addEventToGoogleCalendar}
+                >
+                  Add to Google Calendar
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  width="full"
+                  onClick={() =>
+                    handleJoinSession(
+                      event.data.conferenceHostRoomUrl ||
+                        event.data.conferenceRoomUrl
+                    )
+                  }
+                >
+                  Join the session
+                </Button>
+                <Button
+                  colorScheme="green"
+                  width="full"
+                  onClick={isTutor ? handleMessageStudent : handleMessageTutor}
+                >
+                  {isTutor ? 'Message Student' : 'Message Tutor'}
+                </Button>
+                <Button colorScheme="red" width="full" onClick={cancelSession}>
+                  Cancel Session
+                </Button>
+              </VStack>
+            </ModalBody>
+          )}
         </ModalContent>
       </Modal>
 
