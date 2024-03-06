@@ -927,7 +927,7 @@ const SendTutorOffer = () => {
                         schedule: {},
                         note: '',
                         rate: tutor.rate,
-                        expirationDate: new Date(),
+                        expirationDate: moment().endOf('day').toDate(),
                         contractStartDate: null,
                         contractEndDate: null,
                         paymentMethod: null
@@ -975,7 +975,10 @@ const SendTutorOffer = () => {
                                     disabledDate={{ before: today }}
                                     value={field.value}
                                     onChange={(d) =>
-                                      form.setFieldValue(field.name, d)
+                                      form.setFieldValue(
+                                        field.name,
+                                        moment(d).endOf('day').toDate()
+                                      )
                                     }
                                   />
                                 ) : (
@@ -1014,7 +1017,6 @@ const SendTutorOffer = () => {
                                         null
                                       ); // Reset contractEndDate
                                       form.setFieldError('contractEndDate', ''); // Clear any previous error
-                                      console.log(d);
                                     }}
                                   />
                                   <FormErrorMessage>
@@ -1046,7 +1048,10 @@ const SendTutorOffer = () => {
                                       before: form.values.contractStartDate
                                     }}
                                     onChange={(d) =>
-                                      form.setFieldValue(field.name, d)
+                                      form.setFieldValue(
+                                        field.name,
+                                        moment(d).endOf('day').toDate()
+                                      )
                                     }
                                   />
                                   <FormErrorMessage>
@@ -1265,11 +1270,13 @@ const SendTutorOffer = () => {
                                     </EditField>
                                   )}
                                   <Box mt={2}>
-                                    <Text className="body2" mb={0}>
-                                      {capitalize(tutor.user.name.first)} is
-                                      available on {numberToDayOfWeekName(d)}s
-                                      at these times:
-                                    </Text>
+                                    {tutor.schedule[d].length !== 0 && (
+                                      <Text className="body2" mb={0}>
+                                        {capitalize(tutor.user.name.first)} is
+                                        available on {numberToDayOfWeekName(d)}s
+                                        at these times:
+                                      </Text>
+                                    )}
                                     {!!tutor.schedule[d] &&
                                       tutor.schedule[d].map((s) => (
                                         <Text className="body3" mb={0}>
