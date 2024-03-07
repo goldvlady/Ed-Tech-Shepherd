@@ -604,16 +604,6 @@ const Offer = () => {
                       <Box>
                         <FormLabel>Total amount</FormLabel>
                         <OfferValueText>${offer.rate}</OfferValueText>
-                        <Text
-                          color="text.300"
-                          mt={'10px'}
-                          mb={0}
-                          fontSize="12px"
-                          fontWeight={'500'}
-                        >
-                          This will be paid in full at the end of a month after
-                          the start of the contract
-                        </Text>
                       </Box>
                     </VStack>
                   </Box>
@@ -623,9 +613,8 @@ const Offer = () => {
                         <MdInfo color={theme.colors.primary[500]} />
                       </AlertIcon>
                       <AlertDescription>
-                        Initial payment will not be made until after the client
-                        reviews the offer after the first session. The client
-                        may decide to continue with you or withdraw the offer
+                        Payout will be made within a week of the end of this
+                        contract.
                       </AlertDescription>
                     </Alert>
                   )}
