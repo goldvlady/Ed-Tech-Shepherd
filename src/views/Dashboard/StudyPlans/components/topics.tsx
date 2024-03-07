@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import useUserStore from '../../../../state/userStore';
 import {
   Badge,
   Box,
@@ -29,6 +30,7 @@ import {
   UnorderedList,
   ListItem
 } from '@chakra-ui/react';
+import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
 import moment from 'moment';
@@ -56,12 +58,14 @@ function Topics(props) {
     studyPlanResources,
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
+  const { user } = useUserStore();
   const { fetchSingleFlashcard } = flashcardStore();
   const {
     courses: courseList,
     levels: levelOptions,
     studyPlanCourses
   } = resourceStore();
+
   const [showNoteModal, setShowNoteModal] = useState(false);
 
   const [state, setState] = useState({
@@ -324,6 +328,32 @@ function Topics(props) {
       setIsCollapsed(!isCollapsed);
     };
 
+    const saveStudyPlanMetaData = useCallback(
+      async (conversationId: string) => {
+        try {
+          const response = await ApiService.storeStudyPlanMetaData({
+            studyPlanId: selectedPlan,
+            metadata: {
+              conversationId,
+              topicId: topic?.topicDetails._id
+            }
+          });
+          if (response) {
+            const data = await response.json();
+            console.log('Metadata saved:', data);
+          }
+        } catch (error) {
+          console.error('Error saving metadata:', error);
+        }
+      },
+      [topic]
+    );
+
+    const initializeAItutor = useInitializeAIChat('homework-help', {
+      navigateOnInitialized: true,
+      onInitialized: saveStudyPlanMetaData
+    });
+
     return (
       <Box
         bg="white"
@@ -447,13 +477,23 @@ function Topics(props) {
             </Menu>
 
             <VStack
-              onClick={() =>
-                navigate(
-                  `/dashboard/ace-homework?subject=${getSubject(
-                    planTopics.course
-                  )}&topic=${topic.topicDetails?.label}`
-                )
-              }
+              cursor={'pointer'}
+              onClick={() => {
+                console.log(topic.topicDetails?.label, topic.topicDetails);
+                initializeAItutor({
+                  topic: topic.topicDetails?.label,
+                  subject: getSubject(planTopics.course),
+                  level: 'Sophomore',
+                  studentId: user?._id,
+                  firebaseId: user?.firebaseId,
+                  namespace: 'homework-help'
+                });
+                // navigate(
+                //   `/dashboard/ace-homework?subject=${getSubject(
+                //     planTopics.course
+                //   )}&topic=${topic.topicDetails?.label}`
+                // );
+              }}
             >
               <AiTutorIcon />
               <Text fontSize={12} fontWeight={500}>
