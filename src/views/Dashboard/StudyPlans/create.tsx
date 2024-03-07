@@ -94,7 +94,10 @@ const PDFTextContainer = styled.div`
   text-align: center;
   margin-bottom: 1.5rem;
 `;
-
+interface ItemType {
+  id: number;
+  name: string;
+}
 function CreateStudyPlans() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -129,7 +132,10 @@ function CreateStudyPlans() {
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
   const { user, fetchUserDocuments } = userStore();
-
+  const [state, setState] = useState<ItemType[]>([
+    { id: 1, name: 'shrek' },
+    { id: 2, name: 'fiona' }
+  ]);
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const btnRef = useRef();
@@ -567,6 +573,7 @@ function CreateStudyPlans() {
     setStudyPlanData(studyPlan);
     return studyPlan;
   };
+
   const saveStudyPlan = async () => {
     setLoading(true);
     const convertedArr = await convertArrays(studyPlanData);
@@ -1177,217 +1184,175 @@ function CreateStudyPlans() {
                       easing="ease-out"
                     >
                       {syllabusData.map((topic, topicIndex) => (
-                        <div className="draggableItem" key={topicIndex}>
-                          <Box
-                            bg="white"
-                            p={4}
-                            my={2}
-                            rounded="md"
-                            shadow="md"
-                            ref={topicRef}
-                            // index={index}
-                            // moveTopic={moveTopic}
-                            // updateMainTopic={updateMainTopic}
-                            // handleRemoveFile={handleRemoveFile}
-                            // handleUploadTopicFile={handleUploadTopicFile}
-                            // deleteMainTopic={deleteMainTopic}
-                            // topic={topic}
-                          >
-                            {topic.topics && (
-                              <>
-                                <Editable
-                                  defaultValue={topic?.topics[0]?.mainTopic}
-                                  fontSize="16px"
-                                  fontWeight="500"
-                                  mb={2}
-                                  color="text.300"
-                                  // onBlur={(e) => {
-                                  //   console.log(e);
-                                  //   updateMainTopic(index, e);
-                                  // }}
+                        <Box
+                          key={topicIndex}
+                          bg="white"
+                          p={4}
+                          my={2}
+                          rounded="md"
+                          shadow="md"
+                          className="draggableItem"
+                        >
+                          {topic.topics && (
+                            <>
+                              <Editable
+                                value={topic?.topics[0]?.mainTopic}
+                                fontSize="16px"
+                                fontWeight="500"
+                                mb={2}
+                                color="text.300"
+                                // onBlur={(e) => {
+                                //   console.log(e);
+                                //   updateMainTopic(index, e);
+                                // }}
 
-                                  // onChange={(newMainTopic) =>
-                                  //   updateMainTopic(index, newMainTopic)
-                                  // }
-                                >
-                                  <EditablePreview />
-                                  <Input
-                                    py={2}
-                                    px={4}
-                                    as={EditableInput}
-                                    onBlur={(e) => {
-                                      updateMainTopic(
-                                        topicIndex,
-                                        e.target.value
-                                      );
-                                      // updateWeekProperties(topic.weekNumber, {
-                                      //   topics: e.target.value
-                                      // });
-                                    }}
-                                  />
-                                </Editable>
-                                <UnorderedList
-                                  listStyleType="disc"
-                                  color="gray.700"
-                                  fontSize={14}
-                                >
-                                  {topic?.topics[0]?.subTopics?.map(
-                                    (item, subtopicindex) => (
-                                      <>
-                                        <Flex key={subtopicindex}>
-                                          <ListItem>
-                                            <Editable
-                                              defaultValue={item}
+                                onChange={(e) => updateMainTopic(topicIndex, e)}
+                              >
+                                <EditablePreview />
+                                <Input py={2} px={4} as={EditableInput} />
+                              </Editable>
+                              <UnorderedList
+                                listStyleType="disc"
+                                color="gray.700"
+                                fontSize={14}
+                              >
+                                {topic?.topics[0]?.subTopics?.map(
+                                  (item, subtopicindex) => (
+                                    <>
+                                      <Flex key={subtopicindex}>
+                                        <ListItem>
+                                          <Editable
+                                            value={item}
+                                            // onBlur={(e) => {
+                                            //   console.log(e);
+                                            //   updateMainTopic(index, e);
+                                            // }}
 
-                                              // onBlur={(e) => {
-                                              //   console.log(e);
-                                              //   updateMainTopic(index, e);
-                                              // }}
-
-                                              // onChange={(newMainTopic) =>
-                                              //   updateMainTopic(index, newMainTopic)
-                                              // }
-                                            >
-                                              <EditablePreview />
-                                              <Input
-                                                as={EditableInput}
-                                                size="xs"
-                                                onBlur={(e) => {
-                                                  updateSubTopic(
-                                                    topicIndex,
-                                                    subtopicindex,
-                                                    e.target.value
-                                                  );
-                                                  // updateWeekProperties(topic.weekNumber, {
-                                                  //   topics: e.target.value
-                                                  // });
-                                                }}
-                                              />
-                                            </Editable>
-                                          </ListItem>{' '}
-                                          <Spacer />{' '}
-                                          <SmallCloseIcon
-                                            color={'gray.500'}
-                                            onClick={() =>
-                                              deleteSubTopic(
+                                            onChange={(e) => {
+                                              updateSubTopic(
                                                 topicIndex,
-                                                subtopicindex
-                                              )
-                                            }
-                                          />
-                                        </Flex>
-                                      </>
-                                    )
-                                  )}
-                                </UnorderedList>
-                                <Flex justifyContent={'end'}>
-                                  <Button
-                                    colorScheme="blue"
-                                    variant="link"
-                                    display="flex"
-                                    alignItems="center"
-                                    onClick={() =>
-                                      addSubTopic(topicIndex, 'new sub topic')
+                                                subtopicindex,
+                                                e
+                                              );
+                                            }}
+                                          >
+                                            <EditablePreview />
+                                            <Input
+                                              as={EditableInput}
+                                              size="xs"
+                                              // onBlur={(e) => {
+                                              //   updateSubTopic(
+                                              //     topicIndex,
+                                              //     subtopicindex,
+                                              //     e.target.value
+                                              //   );
+                                              //   // updateWeekProperties(topic.weekNumber, {
+                                              //   //   topics: e.target.value
+                                              //   // });
+                                              // }}
+                                            />
+                                          </Editable>
+                                        </ListItem>{' '}
+                                        <Spacer />{' '}
+                                        <SmallCloseIcon
+                                          color={'gray.500'}
+                                          onClick={() =>
+                                            deleteSubTopic(
+                                              topicIndex,
+                                              subtopicindex
+                                            )
+                                          }
+                                        />
+                                      </Flex>
+                                    </>
+                                  )
+                                )}
+                              </UnorderedList>
+                              <Flex justifyContent={'end'}>
+                                <Button
+                                  colorScheme="blue"
+                                  variant="link"
+                                  display="flex"
+                                  alignItems="center"
+                                  onClick={() =>
+                                    addSubTopic(topicIndex, 'new sub topic')
+                                  }
+                                  my={2}
+                                  fontSize={10}
+                                >
+                                  <Icon as={FaPlus} mr={2} />
+                                  Add Subtopic
+                                </Button>
+                              </Flex>{' '}
+                              <Divider my={2} />
+                              <Flex justify="space-between" gap={1}>
+                                <Box color="green.500">
+                                  <Icon as={FaCheckCircle} />
+                                </Box>
+                                <Flex
+                                  direction="row"
+                                  overflowX={'scroll'}
+                                  className=""
+                                  mr={'auto'}
+                                >
+                                  {topic?.topics[0]?.topicUrls &&
+                                    topic?.topics[0]?.topicUrls.map(
+                                      (file, index) => (
+                                        <>
+                                          <Flex
+                                            fontSize={10}
+                                            color="gray.700"
+                                            alignItems={'center'}
+                                            gap={1}
+                                            whiteSpace="nowrap"
+                                          >
+                                            <Text>{`${
+                                              file.name?.length > 10
+                                                ? `${file.name.slice(0, 10)}...`
+                                                : file.name
+                                            } `}</Text>
+                                            <CloseIcon
+                                              boxSize={1.5}
+                                              onClick={(e) =>
+                                                handleRemoveFile(index, index)
+                                              }
+                                            />
+                                            {index !== topicUrls.length - 1 &&
+                                              `,`}
+                                          </Flex>
+                                        </>
+                                      )
+                                    )}
+                                </Flex>
+                                <HStack color="gray.500" spacing={3}>
+                                  <label htmlFor={`fileInput-${topicIndex}`}>
+                                    <Icon as={FaFileAlt} boxSize={3} />
+                                  </label>
+                                  <input
+                                    type="file"
+                                    id={`fileInput-${topicIndex}`}
+                                    style={{ display: 'none' }}
+                                    onChange={(e) =>
+                                      handleUploadTopicFile(
+                                        topicIndex,
+                                        e.target.files[0]
+                                      )
                                     }
-                                    my={2}
-                                    fontSize={10}
-                                  >
-                                    <Icon as={FaPlus} mr={2} />
-                                    Add Subtopic
-                                  </Button>
-                                </Flex>
+                                  />
 
-                                <Divider my={2} />
-                                <Flex justify="space-between" gap={1}>
-                                  <Box color="green.500">
-                                    <Icon as={FaCheckCircle} />
-                                  </Box>
-                                  <Flex
-                                    direction="row"
-                                    overflowX={'scroll'}
-                                    className=""
-                                    mr={'auto'}
-                                  >
-                                    {topic?.topics[0]?.topicUrls &&
-                                      topic?.topics[0]?.topicUrls.map(
-                                        (file, index) => (
-                                          <>
-                                            <Flex
-                                              fontSize={10}
-                                              color="gray.700"
-                                              alignItems={'center'}
-                                              gap={1}
-                                              whiteSpace="nowrap"
-                                            >
-                                              <Text>{`${
-                                                file.name?.length > 10
-                                                  ? `${file.name.slice(
-                                                      0,
-                                                      10
-                                                    )}...`
-                                                  : file.name
-                                              } `}</Text>
-                                              <CloseIcon
-                                                boxSize={1.5}
-                                                onClick={(e) =>
-                                                  handleRemoveFile(index, index)
-                                                }
-                                              />
-                                              {index !== topicUrls.length - 1 &&
-                                                `,`}
-                                            </Flex>
-                                          </>
-                                        )
-                                      )}
-                                  </Flex>
-                                  <HStack color="gray.500" spacing={3}>
-                                    <label htmlFor={`fileInput-${topicIndex}`}>
-                                      <Icon as={FaFileAlt} boxSize={3} />
-                                    </label>
-                                    <input
-                                      type="file"
-                                      id={`fileInput-${topicIndex}`}
-                                      style={{ display: 'none' }}
-                                      onChange={(e) =>
-                                        handleUploadTopicFile(
-                                          topicIndex,
-                                          e.target.files[0]
-                                        )
-                                      }
-                                    />
-
-                                    <Icon
-                                      as={FaTrashAlt}
-                                      boxSize={3}
-                                      onClick={() =>
-                                        deleteMainTopic(topicIndex)
-                                      }
-                                    />
-                                  </HStack>
-                                </Flex>
-                              </>
-                            )}
-                          </Box>
-                        </div>
+                                  <Icon
+                                    as={FaTrashAlt}
+                                    boxSize={3}
+                                    onClick={() => deleteMainTopic(topicIndex)}
+                                  />
+                                </HStack>
+                              </Flex>
+                            </>
+                          )}
+                        </Box>
                       ))}
                     </ReactSortable>
-                    {/* <Flex direction="column" gap={2}>
-                      {syllabusData.map((topic, topicIndex) => (
-                        <>
-                          <DraggableTopic
-                            key={topicIndex}
-                            index={topicIndex}
-                            moveTopic={moveTopic}
-                            updateMainTopic={updateMainTopic}
-                            handleRemoveFile={handleRemoveFile}
-                            handleUploadTopicFile={handleUploadTopicFile}
-                            deleteMainTopic={deleteMainTopic}
-                            updateWeekProperties={updateWeekProperties}
-                            topic={topic}
-                          />
-                        </>
-                      ))}{' '}
-                    </Flex> */}
+
                     <Flex alignItems={'center'} mt={7}>
                       <Button
                         color="gray"
