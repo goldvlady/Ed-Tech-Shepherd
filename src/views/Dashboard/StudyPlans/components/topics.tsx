@@ -48,6 +48,8 @@ import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
 import ApiService from '../../../../services/ApiService';
+import SelectedNoteModal from '../../../../components/SelectedNoteModal';
+import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -63,6 +65,7 @@ function Topics(props) {
     studyPlanCourses
   } = resourceStore();
   const [showNoteModal, setShowNoteModal] = useState(false);
+  const [convoId, setConvoId] = useState(null);
 
   const [state, setState] = useState({
     // studyPlans: storePlans,
@@ -122,6 +125,8 @@ function Topics(props) {
     grouped.get(testDate).push(topic);
     return grouped;
   }, new Map());
+
+  console.log(groupedTopics);
 
   function getColorForStatus(status) {
     switch (status) {
@@ -238,6 +243,12 @@ function Topics(props) {
     }
   };
 
+  const findDocumentsByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      return studyPlanResources[topic].documents;
+    }
+  };
+
   const handleUpdatePlanCadence = async () => {
     updateState({ isLoading: true });
     const parsedTime = parse(
@@ -323,6 +334,21 @@ function Topics(props) {
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
     };
+    const { loading, error } = useStoreConversationIdToStudyPlan(
+      selectedPlan,
+      topic.topic,
+      convoId,
+      topic.topicMetaData[0].testDate
+    );
+
+    // const handleStartConversation = () => {
+    //   useStoreConversationIdToStudyPlan(
+    //     selectedPlan,
+    //     topic.topic,
+    //     convoId,
+    //     topic.topicMetaData[0].testDate
+    //   );
+    // };
 
     return (
       <Box
@@ -446,7 +472,7 @@ function Topics(props) {
               </MenuList>
             </Menu>
 
-            <VStack
+            {/* <VStack
               onClick={() =>
                 navigate(
                   `/dashboard/ace-homework?subject=${getSubject(
@@ -459,13 +485,112 @@ function Topics(props) {
               <Text fontSize={12} fontWeight={500}>
                 AI Tutor
               </Text>
-            </VStack>
-            <VStack onClick={() => setShowNoteModal(true)}>
-              <DocChatIcon />
-              <Text fontSize={12} fontWeight={500}>
-                Doc Chat
-              </Text>
-            </VStack>
+            </VStack> */}
+
+            <Menu isLazy>
+              <MenuButton>
+                {' '}
+                <VStack>
+                  <AiTutorIcon />
+                  <Text fontSize={12} fontWeight={500}>
+                    AI Tutor
+                  </Text>
+                </VStack>
+              </MenuButton>
+              <MenuList
+                maxH={60}
+                overflowY="scroll"
+                bg="white"
+                border="1px solid #E2E8F0"
+                borderRadius="md"
+              >
+                {studyPlanResources && (
+                  <>
+                    {/* <Text fontSize={12}>Initialising conversation...</Text> */}
+                    <Button
+                      variant={'ghost'}
+                      fontSize={12}
+                      // onClick={handleStartConversation}
+                    >
+                      Start New Conversation
+                    </Button>
+                  </>
+                )}
+              </MenuList>
+            </Menu>
+
+            <Menu isLazy>
+              <MenuButton>
+                {' '}
+                <VStack>
+                  <DocChatIcon />
+                  <Text fontSize={12} fontWeight={500}>
+                    Doc Chat
+                  </Text>
+                </VStack>
+              </MenuButton>
+              <MenuList
+                maxH={60}
+                overflowY="scroll"
+                bg="white"
+                border="1px solid #E2E8F0"
+                borderRadius="md"
+              >
+                {
+                  studyPlanResources && (
+                    <>
+                      <MenuItem
+                        _hover={{ bg: 'gray.100' }}
+                        fontSize={12}
+                        onClick={() =>
+                          navigate(
+                            `/dashboard/docchat?documentUrl=${
+                              findDocumentsByTopic(topic.topicDetails?.label)
+                                .documentUrl
+                            }`
+                          )
+                        }
+                      >
+                        {findDocumentsByTopic(
+                          topic.topicDetails?.label
+                        )?.title?.replace(/%20%26|%20|%2F/g, (match) => {
+                          switch (match) {
+                            case '%20%26':
+                              return ' ';
+                            case '%20':
+                              return ' ';
+                            case '%2F':
+                              return ' ';
+                            default:
+                              return match;
+                          }
+                        })}
+                      </MenuItem>{' '}
+                      <Button
+                        variant={'outline'}
+                        onClick={() => setShowNoteModal(true)}
+                        my={2}
+                      >
+                        Upload or Select Document
+                      </Button>
+                    </>
+                  )
+
+                  //   findDocumentsByTopic(topic.topicDetails?.label).map(
+                  //     (flashcard) => (
+                  //       <>
+                  //         <MenuItem
+                  //           key={flashcard.id}
+                  //           onClick={() => fetchSingleFlashcard(flashcard.id)}
+                  //         >
+                  //           {flashcard.deckname}
+                  //         </MenuItem>
+                  //       </>
+                  //     )
+                  //   )
+                }
+              </MenuList>
+            </Menu>
             <VStack
               onClick={() => {
                 updateState({
@@ -794,6 +919,9 @@ from  ${moment(
           </ModalFooter>
         </ModalContent>
       </Modal>
+      {showNoteModal && (
+        <SelectedNoteModal show={showNoteModal} setShow={setShowNoteModal} />
+      )}
     </>
   );
 }
