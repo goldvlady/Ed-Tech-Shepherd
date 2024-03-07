@@ -82,6 +82,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import uploadFile, { snip } from '../../../helpers/file.helpers';
 import CalendarDateInput from '../../../components/CalendarDateInput';
 import { ReactSortable } from 'react-sortablejs';
+import { NullComponent } from 'stream-chat-react';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -223,19 +224,6 @@ function CreateStudyPlans() {
 
     // Check if the file size exceeds the limit
     if (file.size > fileSizeLimitBytes) {
-      // Set the modal state and messages
-      // setPlansModalMessage(
-      //   !hasActiveSubscription
-      //     ? `Let's get you on a plan so you can upload larger files!`
-      //     : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
-      // );
-      // setPlansModalSubMessage(
-      //   !hasActiveSubscription
-      //     ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
-      //     : 'Consider upgrading to upload larger files.'
-      // );
-      // setTogglePlansModal(true);
-
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
@@ -666,34 +654,63 @@ function CreateStudyPlans() {
   const uploadFilesAndGetUrls = async (files) => {
     const downloadUrls = [];
 
+    // Create an array to hold upload promises
+    const uploadPromises = [];
+
     // Iterate through the array of files
     for (const file of files) {
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      if (!file) continue;
 
-      // Start the upload task
-      await new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          undefined, // Use `undefined` instead of an empty arrow function
-          (error) => {
-            reject(error);
-          },
-          async () => {
-            // Upload completed, get the download URL
-            try {
-              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-              downloadUrls.push(downloadURL);
-              resolve(undefined); // Resolve with undefined
-            } catch (error) {
-              reject(error);
-            }
-          }
-        );
+      // Check if the file size exceeds the limit
+      if (file.size > fileSizeLimitBytes) {
+        toast({
+          title: 'Please upload a file under 10MB',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        continue;
+      }
+
+      const readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+
+      // Create a promise for each file upload
+      const uploadPromise = new Promise((resolve, reject) => {
+        const uploadEmitter = uploadFile(file, {
+          studentID: user._id,
+          documentID: readableFileName
+        });
+
+        uploadEmitter.on('complete', (uploadFile) => {
+          // Assuming uploadFile contains the fileUrl and other necessary details.
+          const documentURL = uploadFile.fileUrl;
+
+          downloadUrls.push(documentURL);
+          resolve(null); // Resolve the promise once the upload is complete
+        });
+
+        uploadEmitter.on('error', (error) => {
+          reject(error); // Reject the promise if there is an error
+        });
       });
+
+      // Add the promise to the array
+      uploadPromises.push(uploadPromise);
     }
 
-    return downloadUrls;
+    // Wait for all upload promises to resolve
+    try {
+      await Promise.all(uploadPromises);
+      console.log(downloadUrls);
+      return downloadUrls;
+    } catch (error) {
+      // Handle any errors that occurred during uploads
+      toast({ title: error.message + error.cause, status: 'error' });
+      return []; // Return an empty array in case of errors
+    }
   };
 
   const convertArrays = async (A) => {

@@ -1164,6 +1164,12 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+  static storeConversationIdToStudyPlan = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
 }
 
 export default ApiService;
