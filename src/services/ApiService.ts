@@ -290,6 +290,20 @@ class ApiService {
     }
   };
 
+  static storeStudyPlanMetaData = async (data: {
+    studyPlanId: string;
+    metadata?: {
+      topicId: string;
+      conversationId?: string;
+      testDate?: Date;
+    };
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getSingleFlashcard = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
   };

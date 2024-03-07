@@ -409,6 +409,12 @@ const useChatManager = (
       const { conversationId } = queryParams;
       queryParams.name = user.name.first;
       refreshManager();
+      if (conversationOptions) {
+        setChatWindowParams({
+          isNewWindow: conversationOptions.isNewConversation,
+          connectionQuery: queryParams
+        });
+      }
       initiateSocket(queryParams, conversationOptions); // Initiate socket with queryParams
       if (conversationId) {
         if (options?.autoHydrateChat) {
@@ -420,6 +426,12 @@ const useChatManager = (
     },
     [initiateSocket]
   );
+
+  const disconnectSocket = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+  };
 
   // Returning hook state and functions to manage chat
   return {
@@ -439,7 +451,8 @@ const useChatManager = (
     error,
     currentSocket: socketRef?.current,
     limitReached,
-    resetLimitReached
+    resetLimitReached,
+    disconnectSocket
   };
 };
 

@@ -165,11 +165,12 @@ function StudyPlans() {
   //   fetchFlashcards(query);
   // };
 
-  const subjectOptions: any = studyPlanCourses.map((item, index) => ({
-    value: item._id,
-    label: item.label,
-    id: item._id
-  }));
+  const subjectOptions: any =
+    studyPlanCourses?.map((item, index) => ({
+      value: item._id,
+      label: item.label,
+      id: item._id
+    })) || [];
 
   // if (isLoading) {
   //   return (
