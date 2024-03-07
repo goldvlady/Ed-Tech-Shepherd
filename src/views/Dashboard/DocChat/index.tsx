@@ -67,6 +67,7 @@ import {
   useDisclosure,
   Link
 } from '@chakra-ui/react';
+import { languages } from '../../../helpers';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -139,6 +140,9 @@ export default function DocChat() {
   const documentUrl = searchParams.get('documentUrl')
     ? decodeURIComponent(searchParams.get('documentUrl'))
     : '';
+  const language = searchParams.get('language')
+    ? decodeURIComponent(searchParams.get('language'))
+    : 'English';
 
   const noteId: string = searchParams.get('noteId')
     ? decodeURIComponent(searchParams.get('noteId'))
@@ -456,6 +460,7 @@ export default function DocChat() {
           studentId,
           documentId,
           firebaseId: user?.firebaseId,
+          language: language as (typeof languages)[number],
           namespace: 'doc-chat',
           name: user?.name.first
         }).connect();
@@ -467,6 +472,7 @@ export default function DocChat() {
         authSocket = socketWithAuth({
           studentId,
           noteId,
+          language: language as (typeof languages)[number],
           namespace: 'note-workspace',
           name: user?.name.first,
           isDevelopment: process.env.REACT_APP_API_ENDPOINT.includes('develop')

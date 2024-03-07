@@ -18,8 +18,11 @@ import {
   Center,
   Box,
   Text,
+  Select as ChakraSelect,
   CircularProgress,
-  Flex
+  Flex,
+  FormControl,
+  FormLabel
 } from '@chakra-ui/react';
 import {
   CircularProgress as CircularProgressBar,
@@ -33,7 +36,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PlansModal from './PlansModal';
 import documentStore from '../state/documentStore';
-import { encodeQueryParams } from '../helpers';
+import { encodeQueryParams, languages } from '../helpers';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -70,6 +73,9 @@ const SelectedModal = ({
   okayButton
 }: ShowProps) => {
   const { user, fetchUserDocuments } = userStore();
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const { fetchStudentDocuments, studentDocuments: userDocuments } =
     documentStore();
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
@@ -480,7 +486,8 @@ const SelectedModal = ({
       docTitle,
       documentId,
       docKeywords,
-      sid: user._id
+      sid: user._id,
+      language: preferredLanguage
     });
     navigate(`/dashboard/docchat${query}`);
     if (setShowHelp) {
@@ -677,6 +684,25 @@ const SelectedModal = ({
                 </DocumentListWrapper>
               )}
             </div>
+            <FormControl my={4}>
+              <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+              <ChakraSelect
+                isRequired
+                name="language_select"
+                value={preferredLanguage}
+                onChange={(e) => {
+                  setPreferredLanguage(
+                    e.target.value as (typeof languages)[number]
+                  );
+                }}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </ChakraSelect>
+            </FormControl>
 
             <Box my={2}>
               {countdown.active && (
