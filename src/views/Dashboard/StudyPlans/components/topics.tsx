@@ -28,7 +28,11 @@ import {
   HStack,
   useDisclosure,
   UnorderedList,
-  ListItem
+  ListItem,
+  PopoverContent,
+  PopoverTrigger,
+  Popover,
+  CircularProgress
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
@@ -70,7 +74,7 @@ function Topics(props) {
 
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [convoId, setConvoId] = useState(null);
-
+  const [initializing, setInitializing] = useState(false);
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -379,7 +383,29 @@ function Topics(props) {
       navigateOnInitialized: true,
       onInitialized: saveStudyPlanMetaData
     });
-
+    // const handleInitializeAiTutor = async () => {
+    //   setInitializing(true);
+    //   try {
+    //     await initializeAItutor({
+    //       topic: topic.topicDetails?.label,
+    //       subject: getSubject(planTopics.course),
+    //       level: 'Sophomore',
+    //       studentId: user?._id,
+    //       firebaseId: user?.firebaseId,
+    //       namespace: 'homework-help'
+    //     });
+    //   } catch (error) {
+    //     toast({
+    //       title: 'Error initializing AI Tutor',
+    //       position: 'top-right',
+    //       status: 'error',
+    //       isClosable: true
+    //     });
+    //     // console.error('Error initializing AI Tutor:', error);
+    //   } finally {
+    //     setInitializing(false);
+    //   }
+    // };
     return (
       <Box
         bg="white"
@@ -505,7 +531,7 @@ function Topics(props) {
             <VStack
               cursor={'pointer'}
               onClick={() => {
-                console.log(topic.topicDetails?.label, topic.topicDetails);
+                setInitializing(true);
                 initializeAItutor({
                   topic: topic.topicDetails?.label,
                   subject: getSubject(planTopics.course),
@@ -514,11 +540,7 @@ function Topics(props) {
                   firebaseId: user?.firebaseId,
                   namespace: 'homework-help'
                 });
-                // navigate(
-                //   `/dashboard/ace-homework?subject=${getSubject(
-                //     planTopics.course
-                //   )}&topic=${topic.topicDetails?.label}`
-                // );
+                setInitializing(false);
               }}
             >
               <AiTutorIcon />
@@ -526,38 +548,6 @@ function Topics(props) {
                 AI Tutor
               </Text>
             </VStack>
-
-            <Menu isLazy>
-              <MenuButton>
-                {' '}
-                <VStack>
-                  <AiTutorIcon />
-                  <Text fontSize={12} fontWeight={500}>
-                    AI Tutor
-                  </Text>
-                </VStack>
-              </MenuButton>
-              <MenuList
-                maxH={60}
-                overflowY="scroll"
-                bg="white"
-                border="1px solid #E2E8F0"
-                borderRadius="md"
-              >
-                {studyPlanResources && (
-                  <>
-                    {/* <Text fontSize={12}>Initialising conversation...</Text> */}
-                    <Button
-                      variant={'ghost'}
-                      fontSize={12}
-                      // onClick={handleStartConversation}
-                    >
-                      Start New Conversation
-                    </Button>
-                  </>
-                )}
-              </MenuList>
-            </Menu>
 
             <Menu isLazy>
               <MenuButton>
@@ -632,6 +622,7 @@ function Topics(props) {
               </MenuList>
             </Menu>
             <VStack
+              cursor={'pointer'}
               onClick={() => {
                 updateState({
                   selectedTopic: topic._id
