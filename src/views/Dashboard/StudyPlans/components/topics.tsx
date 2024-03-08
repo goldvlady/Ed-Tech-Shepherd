@@ -254,6 +254,7 @@ function Topics(props) {
     if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
       return studyPlanResources[topic].studyEvent;
     }
+    return [];
   };
 
   const findDocumentsByTopic = (topic) => {
