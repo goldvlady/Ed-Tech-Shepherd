@@ -261,6 +261,7 @@ function Topics(props) {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
       return studyPlanResources[topic].documents;
     }
+    return [];
   };
 
   const handleUpdatePlanCadence = async () => {
