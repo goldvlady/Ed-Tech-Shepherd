@@ -117,7 +117,6 @@ const SendTutorOffer = () => {
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const { tutorId } = useParams() as { tutorId: string };
   const [isEditing, setIsEditing] = useState(true);
-  console.log(formikRef.current?.errors);
   const EditField = styled(Text).attrs({ onClick: () => setIsEditing(true) })`
     cursor: pointer;
     font-weight: 500;
@@ -268,7 +267,6 @@ const SendTutorOffer = () => {
                             // Dynamically set the minDate for contractEndDate
                             form.setFieldValue('contractEndDate', null); // Reset contractEndDate
                             form.setFieldError('contractEndDate', ''); // Clear any previous error
-                            console.log(d);
                           }}
                         />
                         <FormErrorMessage>

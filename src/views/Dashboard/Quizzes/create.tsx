@@ -345,7 +345,6 @@ const CreateQuizPage = () => {
         setIsLoadingButton(false);
         setUploadingState(false);
         if (error) {
-          console.log('QUIZ ERROR: ', error);
           toast({
             position: 'top-right',
             title: `failed to update quiz`,

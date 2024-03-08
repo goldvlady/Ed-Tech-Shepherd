@@ -60,7 +60,6 @@ function AiChatBotWindow() {
 
   useEffect(() => {
     if (conversationId) {
-      console.log('connection query', connectionQuery);
       setChatWindowParams({ connectionQuery, isNewWindow: true });
       navigate(`/dashboard/ace-homework/${conversationId}`, {
         replace: true
@@ -79,7 +78,6 @@ function AiChatBotWindow() {
     level: string;
     language: (typeof languages)[number];
   }) => {
-    console.log('initiateConversation', { subject, topic, level, language });
     setConnectionQuery({ subject, topic, level, language });
     // alert(JSON.stringify({ subject, topic }));
     startConversation({

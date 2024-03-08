@@ -196,7 +196,7 @@ export default function WelcomeWalkthrough({
           userId
         );
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       }
     } else {
       return;

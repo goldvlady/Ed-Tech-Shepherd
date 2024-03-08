@@ -221,10 +221,6 @@ const AllTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     setSelectedNoteIdToDelete(null);
   }
 
-  useEffect(() => {
-    // console.log({ checked, selectedPeople });
-  }, [checked, selectedPeople]);
-
   const onDeleteNote = (isOpenDeleteModal: boolean, noteId: any) => {
     setDeleteNoteModal(isOpenDeleteModal);
     setSelectedPeople([]);
