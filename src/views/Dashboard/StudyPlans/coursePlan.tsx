@@ -343,7 +343,7 @@ function CoursePlan() {
     navigate(updatedPathname, { replace: true });
   };
   const handlePlanSelection = (planId) => {
-    updateState({ selectedPlan: planId });
+    navigate(`/dashboard/study-plans/planId=${planId}`);
   };
 
   return (
