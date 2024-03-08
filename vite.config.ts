@@ -41,7 +41,10 @@ const loadVite = ({ mode }: any) => {
       cssCodeSplit: true,
       cssTarget: 'es2020',
       sourcemap: false,
-      minify: 'esbuild'
+      minify: 'esbuild',
+      rollupOptions: {
+        external: ['fast-xml-parser']
+      }
     },
     plugins: [
       react({
