@@ -5,6 +5,7 @@ import useChatManager from './hooks/useChatManager';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import LimitReachModel from './chat-initiator/_components/limit-reach-model';
 import PlansModal from '../../../../../components/PlansModal';
+import { languages } from '../../../../../helpers';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -14,7 +15,8 @@ function AiChatBotWindow() {
   const [connectionQuery, setConnectionQuery] = useState({
     subject: '',
     topic: '',
-    level: ''
+    level: '',
+    language: 'English'
   });
   const studentId = user?._id;
   // If id is null, It mean user is not in the chat room
@@ -69,19 +71,22 @@ function AiChatBotWindow() {
   const initiateConversation = ({
     subject,
     topic,
-    level
+    level,
+    language
   }: {
     subject: string;
     topic: string;
     level: string;
+    language: (typeof languages)[number];
   }) => {
-    console.log('initiateConversation', { subject, topic, level });
-    setConnectionQuery({ subject, topic, level });
+    console.log('initiateConversation', { subject, topic, level, language });
+    setConnectionQuery({ subject, topic, level, language });
     // alert(JSON.stringify({ subject, topic }));
     startConversation({
       subject,
       topic,
       level,
+      language,
       name: user?.name?.first,
       studentId: studentId,
       firebaseId: user?.firebaseId,
