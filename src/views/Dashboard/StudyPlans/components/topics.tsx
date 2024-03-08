@@ -121,7 +121,11 @@ function Topics(props) {
   const groupedTopics = planTopics?.schedules.reduce((grouped, topic) => {
     let testDate;
     if (topic.topicMetaData && topic.topicMetaData.length > 0) {
-      testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
+      if (topic.topicMetaData[0]?.testDate) {
+        testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
+      } else {
+        testDate = new Date(topic.endDate).toDateString();
+      }
     } else {
       testDate = new Date(topic.endDate).toDateString();
     }
@@ -346,7 +350,7 @@ function Topics(props) {
       selectedPlan,
       topic.topic,
       convoId,
-      topic.topicMetaData[0].testDate
+      topic.topicMetaData[0]?.testDate
     );
 
     // const handleStartConversation = () => {
