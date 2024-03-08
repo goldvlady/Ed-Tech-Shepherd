@@ -40,7 +40,8 @@ import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format, parse } from 'date-fns';
 import moment from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
-import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+// import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+import { AiOutlineSchedule } from 'react-icons/ai';
 import { useNavigate } from 'react-router';
 import eventsStore from '../state/eventsStore';
 import { Field, Form, Formik } from 'formik';
@@ -369,15 +370,23 @@ export default function Events({ event }: any) {
               <Spacer />
               <HStack color="#6b7280" mx={2}>
                 {' '}
-                <MdOutlineReplay
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setScheduleItem(event.data);
-                    event.type === 'study'
-                      ? setReScheduleItem(true)
-                      : onOpenReBook();
-                  }}
-                />
+                {event.type === 'booking' &&
+                moment(event.data.startDate).isBefore(
+                  moment.utc().add(24, 'hours')
+                ) ? (
+                  ''
+                ) : (
+                  <AiOutlineSchedule
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setScheduleItem(event.data);
+                      event.type === 'study'
+                        ? setReScheduleItem(true)
+                        : onOpenReBook();
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                )}
                 {event.type !== 'booking' && (
                   <CloseIcon
                     onClick={(e) => {
