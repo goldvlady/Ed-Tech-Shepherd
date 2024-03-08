@@ -172,7 +172,6 @@ export default function DocChat() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const studentId = useMemo(() => {
-    console.log(searchParams.get('sid'), Boolean(searchParams.get('sid')));
     const hasSid = Boolean(searchParams.get('sid'));
     if (hasSid) {
       const studentParamsId = decodeURIComponent(searchParams.get('sid'));
@@ -1027,7 +1026,9 @@ export default function DocChat() {
       !isNil(initialContent)
     ) {
       const editorState = editor.parseEditorState(initialContent);
-      editor.setEditorState(editorState);
+      if (!editorState.isEmpty()) {
+        editor.setEditorState(editorState);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);

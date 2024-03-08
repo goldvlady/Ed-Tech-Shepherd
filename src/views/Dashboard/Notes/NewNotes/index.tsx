@@ -1152,7 +1152,9 @@ const NewNote = () => {
       !isNil(initialContent)
     ) {
       const editorState = editor.parseEditorState(initialContent);
-      editor.setEditorState(editorState);
+      if (!editorState.isEmpty()) {
+        editor.setEditorState(editorState);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
