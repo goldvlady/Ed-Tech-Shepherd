@@ -53,6 +53,8 @@ interface ShowProps {
   chatButton?: boolean;
   okayButton?: boolean;
   cancelButton?: boolean;
+  studyPlanId?: string;
+  topicId?: string;
 }
 
 interface UiMessage {
@@ -67,7 +69,9 @@ const SelectedModal = ({
   setShowHelp,
   chatButton = true,
   cancelButton = true,
-  okayButton
+  okayButton,
+  studyPlanId,
+  topicId
 }: ShowProps) => {
   const { user, fetchUserDocuments } = userStore();
   const { fetchStudentDocuments, studentDocuments: userDocuments } =
@@ -368,6 +372,9 @@ const SelectedModal = ({
           title,
           ingestId: documentId
         });
+        if (studyPlanId && topicId) {
+          storeStudyPlanTopicDoc(studyPlanId, topicId, documentId);
+        }
       } catch (e) {
         setCountdown((prev) => ({
           ...prev,
@@ -522,6 +529,15 @@ const SelectedModal = ({
         title={loading ? 'Loading' : 'Chat'}
       />
     );
+  };
+
+  const storeStudyPlanTopicDoc = async (studyPlanId, topicId, documentId) => {
+    const payload = {
+      studyPlanId: studyPlanId,
+      topicId: topicId,
+      documentId: documentId
+    };
+    await ApiService.storeStudyPlanTopicDocument(payload);
   };
 
   const [isDragOver, setIsDragOver] = useState(false);

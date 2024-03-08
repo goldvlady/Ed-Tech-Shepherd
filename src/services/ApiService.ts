@@ -8,7 +8,8 @@ import {
   StudentDocumentPayload,
   QuizData,
   QuizQuestion,
-  FlashcardData
+  FlashcardData,
+  StudyPlanTopicDocumentPayload
 } from '../types';
 import { doFetch } from '../util';
 import {
@@ -1166,6 +1167,14 @@ class ApiService {
   };
   static storeConversationIdToStudyPlan = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static storeStudyPlanTopicDocument = async (
+    data: StudyPlanTopicDocumentPayload
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanTopicDocument`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

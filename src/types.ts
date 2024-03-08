@@ -626,3 +626,9 @@ export type StudyPlanJob = {
   studyPlan?: StudyPlanWeek[];
   syllabusData?: SyllabusData;
 };
+
+export interface StudyPlanTopicDocumentPayload {
+  studyPlanId: string;
+  topicId: string;
+  documentId: string;
+}
