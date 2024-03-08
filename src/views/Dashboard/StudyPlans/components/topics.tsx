@@ -74,7 +74,7 @@ function Topics(props) {
 
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [convoId, setConvoId] = useState(null);
-  const [initializing, setInitializing] = useState(false);
+  const [hasConversationId, setHasConversationId] = useState(false);
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -338,6 +338,7 @@ function Topics(props) {
 
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
+    const [initializing, setInitializing] = useState(false);
 
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
@@ -346,7 +347,7 @@ function Topics(props) {
       selectedPlan,
       topic.topic,
       convoId,
-      topic.topicMetaData[0].testDate
+      topic.topicMetaData[0]?.testDate
     );
 
     // const handleStartConversation = () => {
@@ -383,6 +384,23 @@ function Topics(props) {
       navigateOnInitialized: true,
       onInitialized: saveStudyPlanMetaData
     });
+    const handleAiTutor = () => {
+      const convoId = topic.topicMetaData[0]?.conversationId;
+      if (convoId) {
+        navigate(`/dashboard/ace-homework/${convoId}`);
+      } else {
+        initializeAItutor({
+          topic: topic.topicDetails?.label,
+          subject: getSubject(planTopics.course),
+          level: 'Sophomore',
+          studentId: user?._id,
+          firebaseId: user?.firebaseId,
+          namespace: 'homework-help'
+        });
+      }
+      setInitializing(false);
+    };
+
     // const handleInitializeAiTutor = async () => {
     //   setInitializing(true);
     //   try {
@@ -527,27 +545,24 @@ function Topics(props) {
                   )}
               </MenuList>
             </Menu>
-
-            <VStack
-              cursor={'pointer'}
-              onClick={() => {
-                setInitializing(true);
-                initializeAItutor({
-                  topic: topic.topicDetails?.label,
-                  subject: getSubject(planTopics.course),
-                  level: 'Sophomore',
-                  studentId: user?._id,
-                  firebaseId: user?.firebaseId,
-                  namespace: 'homework-help'
-                });
-                setInitializing(false);
-              }}
-            >
-              <AiTutorIcon />
-              <Text fontSize={12} fontWeight={500}>
-                AI Tutor
-              </Text>
-            </VStack>
+            {initializing ? (
+              <Box>
+                <Spinner boxSize={'15px'} my={2} />
+              </Box>
+            ) : (
+              <VStack
+                cursor={'pointer'}
+                onClick={() => {
+                  setInitializing(true);
+                  handleAiTutor();
+                }}
+              >
+                <AiTutorIcon />
+                <Text fontSize={12} fontWeight={500}>
+                  AI Tutor
+                </Text>
+              </VStack>
+            )}
 
             <Menu isLazy>
               <MenuButton>
