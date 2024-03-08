@@ -157,8 +157,11 @@ const DocchatHistory = ({
   };
 
   useEffect(() => {
-    retrieveChatHistory(studentId, noteId);
-  }, [studentId, noteId]);
+    if (user) {
+      const id = user?._id;
+      retrieveChatHistory(id, noteId);
+    }
+  }, [user, noteId]);
 
   useEffect(() => {
     const groupedChats = groupChatsByDate(chatHistory);
@@ -286,13 +289,7 @@ const DocchatHistory = ({
                           alignItems: 'inherit'
                         }}
                       >
-                        <p
-                          onClick={() => {
-                            console.log('save');
-                          }}
-                        >
-                          Save
-                        </p>
+                        <p>Save</p>
 
                         {/* <EditIcn onClick={handleUpdateConversation} /> */}
                         <DeleteIcn

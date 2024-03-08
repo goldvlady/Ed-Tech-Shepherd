@@ -155,7 +155,6 @@ export default function DocChat() {
   const title = searchParams.get('docTitle')
     ? decodeURIComponent(searchParams.get('docTitle'))
     : '';
-  const studentId = decodeURIComponent(searchParams.get('sid')) ?? user?._id;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
@@ -171,6 +170,16 @@ export default function DocChat() {
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const studentId = useMemo(() => {
+    console.log(searchParams.get('sid'), Boolean(searchParams.get('sid')));
+    const hasSid = Boolean(searchParams.get('sid'));
+    if (hasSid) {
+      const studentParamsId = decodeURIComponent(searchParams.get('sid'));
+      return studentParamsId;
+    }
+    return user?._id;
+  }, [user]);
 
   const mobile = useIsMobile({
     defaultWidth: 1024

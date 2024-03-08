@@ -384,7 +384,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       if (status === 200) {
         const { body } = await response.json();
         const jobId = body.data.jobId;
-        console.log('Job id ===>', jobId);
         if (!jobId) {
           throw new Error('Job ID not found');
         } else {

@@ -1011,7 +1011,6 @@ const NewNote = () => {
 
   useEffect(() => {
     if (!isEmpty(params?.id)) {
-      console.log('setNoteParamId', params.id);
       setNoteParamId(params?.id as string);
     } else {
       clearEditor();
