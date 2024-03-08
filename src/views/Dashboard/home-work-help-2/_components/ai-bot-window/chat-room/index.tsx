@@ -73,7 +73,7 @@ function ChatRoom() {
     query.invalidateQueries({
       queryKey: ['chatHistory', { studentId }]
     });
-  }, [id, apiKey]);
+  }, [id]);
 
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
