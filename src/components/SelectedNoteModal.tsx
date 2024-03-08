@@ -36,6 +36,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PlansModal from './PlansModal';
 import documentStore from '../state/documentStore';
+
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
+
 import { encodeQueryParams, languages } from '../helpers';
 
 const DocumentListWrapper = styled.div`
@@ -85,6 +88,7 @@ const SelectedModal = ({
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const [fileName, setFileName] = useState('');
   const [countdown, setCountdown] = useState({
     active: false,
@@ -226,8 +230,6 @@ const SelectedModal = ({
     }
   `;
 
-  const toast = useToast();
-
   useEffect(() => {
     setLoadedStudentDocs(true);
     setStudentDocuments(userDocuments);
@@ -358,7 +360,7 @@ const SelectedModal = ({
         const {
           documentURL: newDocumentURL,
           title,
-          documentId,
+          documentId: ingestId,
           keywords
         } = results.data[0];
         setConfirmReady(true);
@@ -367,19 +369,23 @@ const SelectedModal = ({
           message:
             "Your uploaded document is now ready! Click the 'chat' button to start."
         }));
-        setDocumentId(documentId);
+        setDocumentId(ingestId);
         setDocumentName(title);
         setDocumentURL(newDocumentURL);
         setDocKeywords(keywords);
         setLoading(false);
 
-        ApiService.saveStudentDocument({
+        const response = await ApiService.saveStudentDocument({
           documentUrl: newDocumentURL,
           title,
-          ingestId: documentId
+          ingestId: ingestId
         });
-        if (studyPlanId && topicId) {
-          storeStudyPlanTopicDoc(studyPlanId, topicId, documentId);
+
+        if (response.status === 200) {
+          const docDetails = await response.json();
+          if (studyPlanId && topicId) {
+            storeStudyPlanTopicDoc(studyPlanId, topicId, docDetails.data.id);
+          }
         }
       } catch (e) {
         setCountdown((prev) => ({
@@ -471,7 +477,13 @@ const SelectedModal = ({
     setAlreadyExist(false);
     setUploadFailed(false);
 
+    const docId = studentDocuments.find((item) => item.ingestId === e.id)?._id;
+
     if (e.value && e.label && e.id) {
+      if (studyPlanId && topicId) {
+        storeStudyPlanTopicDoc(studyPlanId, topicId, docId);
+      }
+
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
       setDocumentId(() => e.id);
@@ -539,12 +551,29 @@ const SelectedModal = ({
   };
 
   const storeStudyPlanTopicDoc = async (studyPlanId, topicId, documentId) => {
-    const payload = {
-      studyPlanId: studyPlanId,
-      topicId: topicId,
-      documentId: documentId
-    };
-    await ApiService.storeStudyPlanTopicDocument(payload);
+    try {
+      const payload = {
+        studyPlanId: studyPlanId,
+        topicId: topicId,
+        documentId: documentId
+      };
+      await ApiService.storeStudyPlanTopicDocument(payload);
+      toast({
+        title: 'Document stored successfully',
+        position: 'top-right',
+        status: 'success',
+        isClosable: true
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to store document. Please try again later.',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+
+      // console.error('Error storing document:', error);
+    }
   };
 
   const [isDragOver, setIsDragOver] = useState(false);
