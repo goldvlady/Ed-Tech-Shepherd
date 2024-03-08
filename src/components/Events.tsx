@@ -449,45 +449,53 @@ export default function Events({ event }: any) {
         onClose={() => setReScheduleItem(false)}
         isOpen={reScheduleItem}
       />
+
       <Modal isOpen={isOpenReBook} onClose={onCloseReBook}>
         <ModalOverlay />
         <ModalContent
           minWidth={{ base: '80%', md: '500px' }}
-          minHeight="auto"
+          // minHeight={{ base: '80%', md: '500px' }}
+          height={{ base: '80%', md: '540px' }}
           mx="auto"
-          w="fit-content"
+          // w="fit-content"
           borderRadius="10px"
         >
           <ModalHeader>Reschedule Booking</ModalHeader>
           <ModalCloseButton />
-          <Formik
-            initialValues={{ newDate: null, startTime: '', endTime: '' }}
-            onSubmit={(values, actions) => {
-              const formattedStartDateTimeString =
-                moment(values.newDate).format('YYYY-MM-DD') +
-                'T' +
-                moment(values.startTime, 'hh:mm A').format('HH:mm:ss');
-              const formattedEndDateTimeString =
-                moment(values.newDate).format('YYYY-MM-DD') +
-                'T' +
-                moment(values.endTime, 'hh:mm A').format('HH:mm:ss');
-              const formattedStartDateTime = moment(
-                formattedStartDateTimeString
-              ).toDate();
-              const formattedEndDateTime = moment(
-                formattedEndDateTimeString
-              ).toDate();
+          <Flex direction="column" height="100%" justifyContent="space-between">
+            <Formik
+              initialValues={{ newDate: null, startTime: '', endTime: '' }}
+              onSubmit={(values, actions) => {
+                const formattedStartDateTimeString =
+                  moment(values.newDate).format('YYYY-MM-DD') +
+                  'T' +
+                  moment(values.startTime, 'hh:mm A').format('HH:mm:ss');
+                const formattedEndDateTimeString =
+                  moment(values.newDate).format('YYYY-MM-DD') +
+                  'T' +
+                  moment(values.endTime, 'hh:mm A').format('HH:mm:ss');
+                const formattedStartDateTime = moment(
+                  formattedStartDateTimeString
+                ).toDate();
+                const formattedEndDateTime = moment(
+                  formattedEndDateTimeString
+                ).toDate();
 
-              rebook(formattedStartDateTime, formattedEndDateTime);
+                rebook(formattedStartDateTime, formattedEndDateTime);
 
-              actions.setSubmitting(false);
-            }}
-          >
-            {({ setFieldValue, values, isSubmitting }) => (
-              <Form>
-                <Flex direction="column" justify="space-between" height="100%">
+                actions.setSubmitting(false);
+              }}
+            >
+              {({ setFieldValue, values, isSubmitting }) => (
+                <Form
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}
+                >
                   <ModalBody>
-                    <Box width="100%" paddingBottom={'20px'}>
+                    <Box flex="1" height={'100%'}>
                       <Field name="newDate">
                         {({ field }) => (
                           <FormControl id="newDate" marginBottom="20px">
@@ -527,6 +535,7 @@ export default function Events({ event }: any) {
                               </FormControl>
                             )}
                           </Field>
+                          <br />
                           <Field name="endTime">
                             {({ field }) => (
                               <FormControl>
@@ -576,10 +585,10 @@ export default function Events({ event }: any) {
                       Submit
                     </Button>
                   </ModalFooter>
-                </Flex>
-              </Form>
-            )}
-          </Formik>
+                </Form>
+              )}
+            </Formik>
+          </Flex>
         </ModalContent>
       </Modal>
       <Modal isOpen={isOpenCancelStudy} onClose={onCloseCancelStudy}>
