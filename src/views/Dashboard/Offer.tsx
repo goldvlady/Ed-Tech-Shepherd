@@ -241,7 +241,7 @@ const Offer = () => {
 
   return (
     <Root className="container-fluid">
-      <Box className="row">
+      <Box className="row" padding="20px">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
