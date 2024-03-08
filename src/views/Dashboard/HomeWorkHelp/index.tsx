@@ -351,8 +351,10 @@ const HomeWorkHelp = () => {
         });
       }
     };
-    fetchChatHistory();
-  }, [studentId, toast]);
+    if (studentId) {
+      fetchChatHistory();
+    }
+  }, [studentId]);
 
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {

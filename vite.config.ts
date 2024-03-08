@@ -19,7 +19,8 @@ const loadVite = ({ mode }: any) => {
     optimizeDeps: {
       esbuildOptions: {
         target: 'es2020'
-      }
+      },
+      include: ['fast-xml-parser']
     },
 
     resolve: {

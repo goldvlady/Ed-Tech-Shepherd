@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import useUserStore from '../../../../state/userStore';
 import {
   Badge,
@@ -254,12 +255,14 @@ function Topics(props) {
     if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
       return studyPlanResources[topic].studyEvent;
     }
+    return [];
   };
 
   const findDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
       return studyPlanResources[topic].documents;
     }
+    return [];
   };
 
   const handleUpdatePlanCadence = async () => {
@@ -405,6 +408,35 @@ function Topics(props) {
         });
       }
       setInitializing(false);
+    };
+
+    const handleDocAction = async (doc) => {
+      console.log('Ingested doc', doc);
+      try {
+        if (!doc.ingestId) {
+          updateState({ isLoading: true });
+          const ingestHandler = new FileProcessingService(doc, true);
+          const response = await ingestHandler.process();
+          const {
+            data: [{ documentId }]
+          } = response;
+          navigate(
+            `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${documentId}&language=English`
+          );
+        }
+        navigate(
+          `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+        );
+      } catch (error) {
+        toast({
+          title: 'Error opening document',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      } finally {
+        updateState({ isLoading: false });
+      }
     };
 
     // const handleInitializeAiTutor = async () => {
@@ -595,32 +627,38 @@ function Topics(props) {
                 >
                   {studyPlanResources && (
                     <>
-                      {findDocumentsByTopic(topic.topicDetails?.label)?.map(
-                        (doc, index) => (
-                          <MenuItem
-                            key={index}
-                            _hover={{ bg: 'gray.100' }}
-                            fontSize={12}
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/docchat?documentUrl=${doc.documentUrl}`
-                              )
-                            }
-                          >
-                            {doc.title?.replace(/%20%26|%20|%2F/g, (match) => {
-                              switch (match) {
-                                case '%20%26':
-                                  return ' ';
-                                case '%20':
-                                  return ' ';
-                                case '%2F':
-                                  return ' ';
-                                default:
-                                  return match;
-                              }
-                            })}
-                          </MenuItem>
-                        )
+                      {findDocumentsByTopic(topic.topicDetails?.label).map(
+                        (doc, index) => {
+                          return (
+                            <MenuItem
+                              key={index}
+                              _hover={{ bg: 'gray.100' }}
+                              fontSize={12}
+                              onClick={() => {
+                                handleDocAction(doc);
+                                // navigate(
+                                //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+                                // )
+                              }}
+                            >
+                              {doc.title?.replace(
+                                /%20%26|%20|%2F/g,
+                                (match) => {
+                                  switch (match) {
+                                    case '%20%26':
+                                      return ' ';
+                                    case '%20':
+                                      return ' ';
+                                    case '%2F':
+                                      return ' ';
+                                    default:
+                                      return match;
+                                  }
+                                }
+                              )}
+                            </MenuItem>
+                          );
+                        }
                       )}
 
                       <Button

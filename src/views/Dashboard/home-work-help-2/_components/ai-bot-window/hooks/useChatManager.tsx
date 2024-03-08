@@ -295,7 +295,6 @@ const useChatManager = (
 
       // Event listener for socket connection
       socketRef.current.on('connect', () => {
-        console.log('Socket connected:', socketRef.current?.id);
         debugLog('SOCKET CONNECTED', socketRef.current?.id);
         // refreshManager();
       });
@@ -308,7 +307,6 @@ const useChatManager = (
       });
 
       socketRef.current.on('new_title', (title: string) => {
-        console.log('New Title', title);
         setTitle(title);
         query.invalidateQueries({
           queryKey: ['chatHistory', { studentId }]
@@ -322,7 +320,6 @@ const useChatManager = (
         ]);
         setCurrentChat('');
         if (!firstMessageDropped) {
-          console.log('firstMessageDropped');
           query.invalidateQueries({
             queryKey: ['chatHistory', { studentId }]
           });

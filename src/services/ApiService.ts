@@ -1116,15 +1116,6 @@ class ApiService {
     title?: string,
     subject?: string
   ) => {
-    console.log(
-      page,
-      limit,
-      minReadinessScore,
-      maxReadinessScore,
-      title,
-      subject
-    );
-
     let apiUrl = `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`;
     if (minReadinessScore !== undefined && maxReadinessScore !== undefined) {
       apiUrl += `&minReadinessScore=${minReadinessScore}&maxReadinessScore=${maxReadinessScore}`;

@@ -51,7 +51,6 @@ function BountyForm({
 
     createBounty(newValues, {
       onSuccess: (data, variables) => {
-        console.log(data, variables);
         toast({
           title: 'Bounty created',
           description: 'Your bounty has been created successfully',

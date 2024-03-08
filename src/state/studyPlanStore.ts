@@ -42,18 +42,8 @@ export default create<StudyPlanStore>((set) => ({
     subject?: string
   ) => {
     set({ isLoading: true });
-    console.log(
-      page,
-      limit,
-      minReadinessScore,
-      maxReadinessScore,
-      title,
-      subject
-    );
 
     try {
-      let response;
-
       const apiUrl = ApiService.getStudyPlans(
         page,
         limit,
@@ -63,12 +53,12 @@ export default create<StudyPlanStore>((set) => ({
         subject
       );
 
-      response = await apiUrl;
+      const response = await apiUrl;
       const { data, meta } = await response.json();
 
       set({ studyPlans: data, pagination: meta.pagination });
     } catch (error) {
-      console.error('Error fetching study plans:', error);
+      // console.error('Error fetching study plans:', error);
     } finally {
       set({ isLoading: false });
     }
