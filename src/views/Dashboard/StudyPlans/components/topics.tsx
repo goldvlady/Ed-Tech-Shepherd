@@ -776,11 +776,11 @@ from  ${moment(
       <Box>
         <Box mb={6}>
           {groupedTopics &&
-            Array.from(groupedTopics).map((testTopics) => (
+            Array.from(groupedTopics)?.map((testTopics) => (
               <>
                 {' '}
                 <Flex direction="column" gap={2} key={testTopics[0]}>
-                  {testTopics[1].map((topic) => (
+                  {testTopics[1]?.map((topic) => (
                     <>
                       <TopicCard key={topic._id} topic={topic} />
                     </>
