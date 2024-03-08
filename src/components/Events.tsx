@@ -11,6 +11,7 @@ import ScheduleStudyModal, {
   ScheduleFormState
 } from '../views/Dashboard/FlashCards/components/scheduleModal';
 import CalendarDateInput from './CalendarDateInput';
+import TimePicker from '../components/TimePicker';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CloseIcon } from '@chakra-ui/icons';
 import {
@@ -42,9 +43,11 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
 import { useNavigate } from 'react-router';
 import eventsStore from '../state/eventsStore';
+import { Field, Form, Formik } from 'formik';
 
 export default function Events({ event }: any) {
   const [loading, setLoading] = useState(false);
+
   const {
     isOpen: isOpenReBook,
     onOpen: onOpenReBook,
@@ -182,11 +185,12 @@ export default function Events({ event }: any) {
     }
   };
 
-  const rebook = async () => {
+  const rebook = async (formattedStartDateTime, formattedEndDateTime) => {
     const payload = {
       bookingId: scheduleItem._id,
       updates: {
-        endDate: newDate
+        startDate: formattedStartDateTime,
+        endDate: formattedEndDateTime
       }
     };
     const response = await ApiService.reScheduleBooking(payload);
@@ -197,6 +201,7 @@ export default function Events({ event }: any) {
         status: 'success'
       });
       setScheduleItem(null);
+      onCloseReBook();
       fetchEvents();
     } else {
       toast({
@@ -446,55 +451,135 @@ export default function Events({ event }: any) {
       />
       <Modal isOpen={isOpenReBook} onClose={onCloseReBook}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent
+          minWidth={{ base: '80%', md: '500px' }}
+          minHeight="auto"
+          mx="auto"
+          w="fit-content"
+          borderRadius="10px"
+        >
           <ModalHeader>Reschedule Booking</ModalHeader>
           <ModalCloseButton />
-          <ModalBody overflow="auto">
-            <Box width="100%" paddingBottom={'50px'}>
-              <FormControl id="newDate" marginBottom="20px">
-                <FormLabel>Day</FormLabel>
-                <CalendarDateInput
-                  disabledDate={{ before: today }}
-                  inputProps={{
-                    placeholder: 'Select Day'
-                  }}
-                  value={newDate as Date}
-                  onChange={(value) => {
-                    setNewDate(value);
-                  }}
-                />
-              </FormControl>
-            </Box>
-          </ModalBody>
+          <Formik
+            initialValues={{ newDate: null, startTime: '', endTime: '' }}
+            onSubmit={(values, actions) => {
+              const formattedStartDateTimeString =
+                moment(values.newDate).format('YYYY-MM-DD') +
+                'T' +
+                moment(values.startTime, 'hh:mm A').format('HH:mm:ss');
+              const formattedEndDateTimeString =
+                moment(values.newDate).format('YYYY-MM-DD') +
+                'T' +
+                moment(values.endTime, 'hh:mm A').format('HH:mm:ss');
+              const formattedStartDateTime = moment(
+                formattedStartDateTimeString
+              ).toDate();
+              const formattedEndDateTime = moment(
+                formattedEndDateTimeString
+              ).toDate();
 
-          <ModalFooter
-            bg="#F7F7F8"
-            borderRadius="0px 0px 10px 10px"
-            p="16px"
-            justifyContent="flex-end"
+              rebook(formattedStartDateTime, formattedEndDateTime);
+
+              actions.setSubmitting(false);
+            }}
           >
-            <Button
-              isDisabled={!newDate}
-              _hover={{
-                backgroundColor: '#207DF7',
-                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
-              }}
-              bg="#207DF7"
-              color="#FFF"
-              fontSize="14px"
-              fontFamily="Inter"
-              fontWeight="500"
-              lineHeight="20px"
-              onClick={() => rebook()}
-              isLoading={isLoading}
-              borderRadius="8px"
-              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
-              mr={3}
-              variant="primary"
-            >
-              Submit
-            </Button>
-          </ModalFooter>
+            {({ setFieldValue, values, isSubmitting }) => (
+              <Form>
+                <Flex direction="column" justify="space-between" height="100%">
+                  <ModalBody>
+                    <Box width="100%" paddingBottom={'20px'}>
+                      <Field name="newDate">
+                        {({ field }) => (
+                          <FormControl id="newDate" marginBottom="20px">
+                            <FormLabel>Date</FormLabel>
+                            <CalendarDateInput
+                              disabledDate={{
+                                before: moment().add(1, 'days').toDate()
+                              }}
+                              inputProps={{
+                                placeholder: 'Select Date',
+                                ...field
+                              }}
+                              value={values.newDate}
+                              onChange={(value) => {
+                                setFieldValue('newDate', value);
+                              }}
+                            />
+                          </FormControl>
+                        )}
+                      </Field>
+                      {values.newDate && (
+                        <>
+                          <Field name="startTime">
+                            {({ field }) => (
+                              <FormControl>
+                                <FormLabel>Start time</FormLabel>
+                                <TimePicker
+                                  inputProps={{
+                                    placeholder: '00:00 AM',
+                                    ...field
+                                  }}
+                                  value={values.startTime}
+                                  onChange={(time) =>
+                                    setFieldValue('startTime', time)
+                                  }
+                                />
+                              </FormControl>
+                            )}
+                          </Field>
+                          <Field name="endTime">
+                            {({ field }) => (
+                              <FormControl>
+                                <FormLabel>End time</FormLabel>
+                                <TimePicker
+                                  inputProps={{
+                                    placeholder: '00:00 AM',
+                                    ...field
+                                  }}
+                                  value={values.endTime}
+                                  onChange={(time) =>
+                                    setFieldValue('endTime', time)
+                                  }
+                                />
+                              </FormControl>
+                            )}
+                          </Field>
+                        </>
+                      )}
+                    </Box>
+                  </ModalBody>
+                  <ModalFooter
+                    bg="#F7F7F8"
+                    borderRadius="0px 0px 10px 10px"
+                    p="16px"
+                    justifyContent="flex-end"
+                  >
+                    <Button
+                      type="submit"
+                      isDisabled={isSubmitting || !values.newDate}
+                      _hover={{
+                        backgroundColor: '#207DF7',
+                        boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+                      }}
+                      bg="#207DF7"
+                      color="#FFF"
+                      fontSize="14px"
+                      fontFamily="Inter"
+                      fontWeight="500"
+                      lineHeight="20px"
+                      isLoading={isSubmitting}
+                      borderRadius="8px"
+                      boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+                      mr={3}
+                      variant="primary"
+                    >
+                      Submit
+                    </Button>
+                  </ModalFooter>
+                </Flex>
+              </Form>
+            )}
+          </Formik>
         </ModalContent>
       </Modal>
       <Modal isOpen={isOpenCancelStudy} onClose={onCloseCancelStudy}>
