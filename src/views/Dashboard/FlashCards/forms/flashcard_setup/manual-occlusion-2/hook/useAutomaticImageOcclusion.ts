@@ -9,7 +9,7 @@ type Occlusion = {
   coor: Coords;
 };
 
-function areClose(el1, el2, threshold = 10) {
+function areClose(el1, el2, threshold = 5) {
   const [x1, y1, w1, h1] = el1.coor;
   const [x2, y2, w2, h2] = el2.coor;
 
@@ -79,26 +79,58 @@ function useAutomaticImageOcclusion() {
     const context = canvas.getContext('2d');
     context.drawImage(img, 0, 0, 714, 475);
 
-    const worker = await createWorker('eng');
-    const ret = await worker.recognize(canvas.toDataURL('image/png'));
 
-    const elements: Occlusion[] = ret.data.words
-      .filter((item) => item.confidence > 90)
-      .map((block, index) => {
-        return {
-          id: index,
-          coor: [
-            block.bbox.x0 - 5,
-            block.bbox.y0 - 5,
-            block.bbox.x1 - block.bbox.x0 + 10,
-            block.bbox.y1 - block.bbox.y0 + 10
-          ]
+    /** Previous OCR code */
+    /**
+     * const worker = await createWorker('eng');
+      const ret = await worker.recognize(canvas.toDataURL('image/png'));
+
+      const elements: Occlusion[] = ret.data.words
+        .filter((item) => item.confidence > 90)
+        .map((block, index) => {
+          return {
+            id: index,
+            coor: [
+              block.bbox.x0 - 5,
+              block.bbox.y0 - 5,
+              block.bbox.x1 - block.bbox.x0 + 10,
+              block.bbox.y1 - block.bbox.y0 + 10
+            ]
         };
       });
 
-    const clusteredElements = clusterElements(elements);
+      const clusteredElements = clusterElements(elements);
 
-    return clusteredElements;
+      return clusteredElements;
+     */
+
+    const resizedImageURI = canvas.toDataURL('image/jpeg');
+    console.log('resizedImageURI', resizedImageURI);
+
+    // Temp endpoint - later replace with original
+    const data = await fetch('http://127.0.0.1:3000/ocr', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ image_uri: resizedImageURI })
+    }).then((res) => res.json());
+    const elements = data.data;
+    console.log('elements', elements);
+    let processedData = data.data.map((block, index) => {
+      return {
+        id: index,
+        coor: [
+          block.boundingBox[0][0],
+          block.boundingBox[0][1],
+          block.boundingBox[1][0] - block.boundingBox[0][0],
+          block.boundingBox[2][1] - block.boundingBox[0][1]
+        ]
+      };
+    });
+    const mergedEle = clusterElements(processedData);
+
+    return mergedEle;
   };
   return { getOcclusionCoordinates };
 }
