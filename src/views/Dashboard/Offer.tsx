@@ -5,7 +5,7 @@ import Panel from '../../components/Panel';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
-import userStore from '../../state/userStore';
+// import userStore from '../../state/userStore';
 import theme from '../../theme';
 import {
   numberToDayOfWeekName,
@@ -101,7 +101,6 @@ const Offer = () => {
   const [declineNote, setDeclineNote] = useState('');
   const [decliningOffer, setDecliningOffer] = useState(false);
   const [withdrawingOffer, setWithdrawingOffer] = useState(false);
-  const [bookingOffer, setBookingOffer] = useState(false);
 
   const {
     isOpen: isOfferAcceptedModalOpen,
@@ -125,54 +124,52 @@ const Offer = () => {
     setOffer(await resp.json());
     setLoadingOffer(false);
   }, [offerId]);
-
-  const bookOffer = async () => {
-    setBookingOffer(true);
-    const chosenPaymentMethod = offer?.paymentMethod;
-    const resp = await ApiService.bookOffer(
-      offer?._id as string,
-      chosenPaymentMethod?._id
-    );
-    switch (resp?.status) {
-      case 200:
-        toast({
-          title: 'Your offer has been booked successfully.',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
-        loadOffer();
-        break;
-      case 400:
-        toast({
-          title: 'Something went wrong',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-      case 401: // Handle payment failure separately
-        toast({
-          title:
-            'Failed to process payment details. Please try another payment method.',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-      default:
-        toast({
-          title: 'Something went wrong.',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-    }
-    // setOffer(await resp.json());
-    setBookingOffer(false);
-    // window.location.reload();
-  };
+  //   setBookingOffer(true);
+  //   const chosenPaymentMethod = offer?.paymentMethod;
+  //   const resp = await ApiService.bookOffer(
+  //     offer?._id as string,
+  //     chosenPaymentMethod?._id
+  //   );
+  //   switch (resp?.status) {
+  //     case 200:
+  //       toast({
+  //         title: 'Your offer has been booked successfully.',
+  //         status: 'success',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       loadOffer();
+  //       break;
+  //     case 400:
+  //       toast({
+  //         title: 'Something went wrong',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //     case 401: // Handle payment failure separately
+  //       toast({
+  //         title:
+  //           'Failed to process payment details. Please try another payment method.',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //     default:
+  //       toast({
+  //         title: 'Something went wrong.',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //   }
+  //   // setOffer(await resp.json());
+  //   setBookingOffer(false);
+  //   // window.location.reload();
+  // };
 
   const acceptOffer = async () => {
     setAcceptingOffer(true);
@@ -180,17 +177,13 @@ const Offer = () => {
     // setOffer(await resp.json());
     switch (resp?.status) {
       case 200:
-        try {
-          await bookOffer();
-        } catch (error) {
-          toast({
-            title: 'Something went wrong',
-            status: 'error',
-            position: 'top',
-            isClosable: true
-          });
-          break;
-        }
+        toast({
+          title: 'Offer has been accepted and booked successfully.',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        loadOffer();
         onOfferAcceptedModalOpen();
         break;
       case 400:
