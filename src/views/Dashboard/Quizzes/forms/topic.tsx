@@ -43,7 +43,8 @@ const TopicQuizForm = ({
     topic: '',
     difficulty: 'kindergarten',
     count: 1,
-    type: MIXED
+    type: MIXED,
+    grade: ''
   };
 
   // const { handleIsLoadingQuizzes, fetchQuizzes } = quizStore();
@@ -64,6 +65,18 @@ const TopicQuizForm = ({
     { label: 'Open Ended', value: OPEN_ENDED },
     { label: 'Mixed', value: MIXED }
   ];
+
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
+  ];
+
   const [preferredLanguage, setPreferredLanguage] = useState<
     (typeof languages)[number]
   >(languages[0]);
@@ -284,6 +297,31 @@ const TopicQuizForm = ({
             const event = {
               target: {
                 name: 'difficulty',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Grade
+        </FormLabel>
+        <SelectComponent
+          name="grade"
+          placeholder="Select grade"
+          defaultValue={gradeOptions.find(
+            (option) => option.value === localData?.grade
+          )}
+          tagVariant="solid"
+          options={gradeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'grade',
                 value: (option as Option).value
               }
             } as ChangeEvent<HTMLSelectElement>;

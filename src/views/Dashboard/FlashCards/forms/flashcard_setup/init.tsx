@@ -54,7 +54,8 @@ const FlashCardSetupInit = ({
     level: '',
     numQuestions: 0,
     timerDuration: '',
-    hasSubmitted: false
+    hasSubmitted: false,
+    grade: ''
   };
 
   const [preferredLanguage, setPreferredLanguage] = useState<
@@ -134,6 +135,17 @@ const FlashCardSetupInit = ({
     { label: 'Medium', value: 'high school' },
     { label: 'Hard', value: 'college' },
     { label: 'Very Hard', value: 'PhD' }
+  ];
+
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
   ];
 
   const handleChange = React.useCallback(
@@ -435,6 +447,32 @@ const FlashCardSetupInit = ({
           />
         </FormControl>
       )}
+
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Grade
+        </FormLabel>
+        <SelectComponent
+          name="grade"
+          placeholder="Select grade"
+          defaultValue={gradeOptions.find(
+            (option) => option.value === localData?.grade
+          )}
+          tagVariant="solid"
+          options={gradeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'grade',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Number of questions
