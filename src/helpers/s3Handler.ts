@@ -22,8 +22,8 @@ class S3Handler {
     this.s3 = new S3Client({
       region: 'us-east-2',
       credentials: {
-        accessKeyId: 'AKIAUWHUFD3XCENJWZP5',
-        secretAccessKey: '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'
+        accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY
       }
     });
   }
