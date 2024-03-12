@@ -294,6 +294,30 @@ const FlashCardSetupInit = ({
         )}
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Grade (optional):
+          </FormLabel>
+          <SelectComponent
+            name="grade"
+            placeholder="Select grade"
+            defaultValue={gradeOptions.find(
+              (option) => option.value === localData?.grade
+            )}
+            tagVariant="solid"
+            options={gradeOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'grade',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
           </FormLabel>
           <SelectComponent
@@ -483,32 +507,6 @@ const FlashCardSetupInit = ({
           />
         </FormControl>
       )}
-
-      <FormControl mb={8}>
-        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Grade
-        </FormLabel>
-        <SelectComponent
-          name="grade"
-          placeholder="Select grade"
-          defaultValue={gradeOptions.find(
-            (option) => option.value === localData?.grade
-          )}
-          tagVariant="solid"
-          options={gradeOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'grade',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChange(event);
-          }}
-        />
-      </FormControl>
-
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Number of questions

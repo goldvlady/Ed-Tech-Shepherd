@@ -324,30 +324,8 @@ const TopicQuizForm = ({
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
-        <SelectComponent
-          name="difficulty"
-          placeholder="Select Level"
-          defaultValue={levelOptions.find(
-            (option) => option.value === localData.difficulty
-          )}
-          options={levelOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'difficulty',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChange(event);
-          }}
-        />
-      </FormControl>
-
-      <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Grade
+          Grade (optional):
         </FormLabel>
         <SelectComponent
           name="grade"
@@ -362,6 +340,28 @@ const TopicQuizForm = ({
             const event = {
               target: {
                 name: 'grade',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
+        <SelectComponent
+          name="difficulty"
+          placeholder="Select Level"
+          defaultValue={levelOptions.find(
+            (option) => option.value === localData.difficulty
+          )}
+          options={levelOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'difficulty',
                 value: (option as Option).value
               }
             } as ChangeEvent<HTMLSelectElement>;
