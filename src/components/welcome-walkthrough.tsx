@@ -42,7 +42,7 @@ const defaultItems = [
               more efficient and effective.  <br /><br /> As former students we wanted to build
               the tool we wish we had. Let's take a quick walk through some cool
               features that can make studying a breeze for you. <br /><br /> 
-              <strong>Already convinced? Subscribe for up to 4 weeks free trial.</strong>`
+              <strong>Already convinced? Subscribe to unlock your AI study tools.</strong>`
     ],
     image: ['/images/welcome/welcome-minions.gif'],
     read: true
@@ -368,7 +368,7 @@ export default function WelcomeWalkthrough({
       <PlansModal
         message={
           user && !user.hadSubscription
-            ? 'Start Your Free Trial!'
+            ? 'Subscribe to unlock your AI Study Tools! 🚀'
             : 'Pick a plan to access your AI Study Tools! 🚀'
         }
         subMessage="One-click Cancel at anytime."

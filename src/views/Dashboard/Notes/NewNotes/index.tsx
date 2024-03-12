@@ -1403,7 +1403,7 @@ const NewNote = () => {
             />
             {togglePlansModal && (
               <PlansModal
-                message="Start Your Free Trial!"
+                message="Subscribe to unlock your AI Study Tools! 🚀"
                 subMessage="One-click Cancel at anytime."
                 togglePlansModal={togglePlansModal}
                 setTogglePlansModal={setTogglePlansModal}

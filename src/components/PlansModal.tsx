@@ -276,9 +276,9 @@ const PlansModal = ({
 
   const getTrialButtonText = (priceCard) => {
     if (priceCard.tier === 'Basic') {
-      return 'Start My 1-Week Free Trial';
+      return 'Start Basic Subscription';
     } else if (priceCard.tier === 'Premium') {
-      return 'Start My 4-Week Free Trial';
+      return 'Start Premium Subscription';
     } else {
       // Default case if neither Basic nor Premium
       return 'Manage Your Account';
@@ -376,11 +376,7 @@ const PlansModal = ({
                               <Text
                                 fontSize={24}
                                 fontWeight={600}
-                                color={
-                                  !hasActiveSubscription
-                                    ? 'text.200'
-                                    : '#fb8441'
-                                }
+                                color={'text.200'}
                                 textAlign={'center'}
                               >
                                 {message}

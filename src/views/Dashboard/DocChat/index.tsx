@@ -95,12 +95,12 @@ export default function DocChat() {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your Free Trial!'
+          ? 'Start Your Subscription!'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
     } else if (!user) {
-      setPlansModalMessage('Start Your Free Trial!');
+      setPlansModalMessage('Start Your Subscription!');
       setPlansModalSubMessage('One-click Cancel at anytime.');
     }
   }, [user, hasActiveSubscription]);
