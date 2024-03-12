@@ -7,7 +7,7 @@ import TimePicker from '../../components/TimePicker';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
-import resourceStore from '../../state/resourceStore';
+// import resourceStore from '../../state/resourceStore';
 import userStore from '../../state/userStore';
 import theme from '../../theme';
 import { Tutor } from '../../types';
@@ -816,16 +816,6 @@ const SendTutorOffer = () => {
                 ''
               )}
               <Box marginTop={'18px'} textAlign="left">
-                {
-                  <Button
-                    marginRight={'48px'}
-                    isLoading={settingUpPaymentMethod}
-                    onClick={setupPaymentMethod}
-                    size="md"
-                  >
-                    Add Payment Method
-                  </Button>
-                }
                 {!isEmpty(user?.paymentMethods) && (
                   <Button
                     marginRight={'48px'}
@@ -874,6 +864,8 @@ const SendTutorOffer = () => {
       />
       <ChoosePaymentMethodDialog
         ref={choosePaymentDialogRef}
+        onSetupNewPaymentMethod={setupPaymentMethod}
+        settingUpPaymentMethod={settingUpPaymentMethod}
         prefix={
           <Alert status="info" mb="22px">
             <AlertIcon>
