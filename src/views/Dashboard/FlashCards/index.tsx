@@ -1253,6 +1253,20 @@ const ImageOcclusionTableSection = () => {
     }));
   };
 
+  const handleRestart = () => {
+    setState((pS) => ({
+      ...pS,
+      open: true,
+      score: {
+        notRemembered: 0,
+        right: 0,
+        wrong: 0
+      },
+      showResults: false,
+      quizOver: false
+    }));
+  };
+
   return (
     <div className="w-full h-full pt-4">
       <Table>
@@ -1318,7 +1332,7 @@ const ImageOcclusionTableSection = () => {
             };
           });
         }}
-        restartStudySession={() => null}
+        restartStudySession={handleRestart}
         handleEditImage={() => null}
       />
     </div>
