@@ -3,7 +3,7 @@ import { useState } from 'react';
 import WelcomeBackText from './_components/welcome-text';
 import RecentConversations from './_components/recent-conversations';
 import { languages } from '../../../../../../../../helpers';
-type Language = (typeof languages)[number];
+type Language = (typeof languages)[number] | '';
 function InteractiveArea({
   initiateConversation
 }: {
@@ -28,7 +28,7 @@ function InteractiveArea({
     subject: '',
     topic: '',
     level: '',
-    language: 'English'
+    language: ''
   });
 
   const handleSubjectChange = (subject: string) => {
