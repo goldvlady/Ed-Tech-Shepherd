@@ -696,6 +696,7 @@ const CreateQuizPage = () => {
                     removeTag={handleRemoveTag}
                     title={title}
                     handleSetTitle={handleSetTitle}
+                    preferredLang={preferredLanguage}
                     setPreferredLang={setPreferredLanguage}
                     isLoadingButton={isLoadingButton}
                     handleCreateUpdateQuiz={handleCreateUpdateQuiz}
