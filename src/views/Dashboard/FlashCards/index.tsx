@@ -65,6 +65,8 @@ import {
 } from '../../../components/ui/table';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../services/ApiService';
+import StudySession from './forms/flashcard_setup/manual-occlusion-2/_components/study-session';
+import OccResultsDialog from './forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -1185,6 +1187,18 @@ const CustomTable: React.FC = () => {
 };
 
 const ImageOcclusionTableSection = () => {
+  const [state, setState] = useState({
+    open: false,
+    id: '',
+    score: {
+      right: 0,
+      wrong: 0,
+      notRemembered: 0
+    },
+    quizOver: false,
+    showResults: false
+  });
+
   const { data } = useQuery({
     queryKey: ['image-occlusions'],
     queryFn: () => ApiService.fetchOcclusionCards().then((res) => res.json()),
@@ -1203,12 +1217,41 @@ const ImageOcclusionTableSection = () => {
     }
   });
 
-  console.log('ImageOcclusionTableSection', data);
+  const handleOpen = (id: string) => {
+    setState((pS) => ({
+      ...pS,
+      open: true,
+      id
+    }));
+  };
 
-  // useEffect(() => {
-  //   console.log('ImageOcclusionTableSection');
+  const handleClose = () => {
+    setState((pS) => ({
+      ...pS,
+      open: false
+    }));
+  };
 
-  // });
+  const setQuizOver = () => {
+    setState((pS) => ({
+      ...pS,
+      quizOver: true
+    }));
+  };
+
+  const showResults = () => {
+    setState((prevState) => ({
+      ...prevState,
+      showResults: true
+    }));
+  };
+
+  const setScore = (score) => {
+    setState((prevState) => ({
+      ...prevState,
+      score
+    }));
+  };
 
   return (
     <div className="w-full h-full pt-4">
@@ -1226,15 +1269,20 @@ const ImageOcclusionTableSection = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.list.map((row) => (
+          {data?.list.map((row) => (
             <TableRow
               key={row._id}
               className="hover:bg-stone-100 cursor-pointer"
+              onClick={() => {
+                handleOpen(row._id)
+              }}
             >
               <TableCell className="font-medium">{row.title}</TableCell>
               <TableCell>{row.labels.length}</TableCell>
               <TableCell>-</TableCell>
-              <TableCell>{format(new Date(row.createdAt), 'MMM d, yy h:mm a')}</TableCell>
+              <TableCell>
+                {format(new Date(row.createdAt), 'MMM d, yy h:mm a')}
+              </TableCell>
               <TableCell>-</TableCell>
               <TableCell>-</TableCell>
               <TableCell className="text-right">-</TableCell>
@@ -1242,6 +1290,32 @@ const ImageOcclusionTableSection = () => {
           ))}
         </TableBody>
       </Table>
+      <StudySession
+        id={state.id}
+        open={state.open}
+        close={handleClose}
+        quizOver={state.quizOver}
+        setQuizOver={setQuizOver}
+        score={state.score}
+        setOpenResults={showResults}
+        setScore={setScore}
+      />
+      <OccResultsDialog
+        id={state.id}
+        open={state.showResults}
+        score={state.score}
+        close={() => {
+          setState((pS) => {
+            return {
+              ...pS,
+              quizOver: false,
+              showResults: false
+            };
+          });
+        }}
+        restartStudySession={() => null}
+        handleEditImage={() => null}
+      />
     </div>
   );
 };

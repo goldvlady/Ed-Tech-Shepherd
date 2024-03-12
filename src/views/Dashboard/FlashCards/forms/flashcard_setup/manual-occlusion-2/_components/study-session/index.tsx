@@ -20,7 +20,7 @@ interface StudySessionProps {
   setQuizOver: (quizOver: boolean) => void;
   quizOver: boolean;
   setOpenResults: (openResults: boolean) => void;
-  resetForm: () => void;
+  resetForm?: () => void;
 }
 
 function StudySession({
