@@ -54,6 +54,17 @@ import {
   TabsList,
   TabsTrigger
 } from '../../../components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '../../../components/ui/table';
+import { useQuery } from '@tanstack/react-query';
+import ApiService from '../../../services/ApiService';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -1174,7 +1185,65 @@ const CustomTable: React.FC = () => {
 };
 
 const ImageOcclusionTableSection = () => {
-  return <div>Image Occlusion</div>;
+  const { data } = useQuery({
+    queryKey: ['image-occlusions'],
+    queryFn: () => ApiService.fetchOcclusionCards().then((res) => res.json()),
+    select: (data) => {
+      if (data.message === 'Successfully retrieved occlusion cards') {
+        return {
+          list: data.data,
+          meta: data.meta
+        };
+      } else {
+        return {
+          list: [],
+          meta: {}
+        };
+      }
+    }
+  });
+
+  console.log('ImageOcclusionTableSection', data);
+
+  // useEffect(() => {
+  //   console.log('ImageOcclusionTableSection');
+
+  // });
+
+  return (
+    <div className="w-full h-full pt-4">
+      <Table>
+        <TableCaption>List of Image Occlusion Flashcards</TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Deckname</TableHead>
+            <TableHead>No. of Rectangles</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Last attempted</TableHead>
+            <TableHead>Last attempted score</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.list.map((row) => (
+            <TableRow
+              key={row._id}
+              className="hover:bg-stone-100 cursor-pointer"
+            >
+              <TableCell className="font-medium">{row.title}</TableCell>
+              <TableCell>{row.labels.length}</TableCell>
+              <TableCell>-</TableCell>
+              <TableCell>{format(new Date(row.createdAt), 'MMM d, yy h:mm a')}</TableCell>
+              <TableCell>-</TableCell>
+              <TableCell>-</TableCell>
+              <TableCell className="text-right">-</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
 };
 
 export default CustomTable;

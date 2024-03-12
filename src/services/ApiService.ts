@@ -321,10 +321,22 @@ class ApiService {
       }
     );
   };
+
   static resetOcclusionCard = async (id: string) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
       `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${id}&reset=true`,
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    );
+  };
+
+  static fetchOcclusionCards = async () => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCards`,
       {
         method: 'POST',
         body: JSON.stringify({})
