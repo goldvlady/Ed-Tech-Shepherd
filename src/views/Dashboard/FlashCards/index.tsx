@@ -1239,10 +1239,10 @@ const ImageOcclusionTableSection = () => {
     }));
   };
 
-  const showResults = () => {
+  const showResults = (input: boolean) => {
     setState((prevState) => ({
       ...prevState,
-      showResults: true
+      showResults: input
     }));
   };
 

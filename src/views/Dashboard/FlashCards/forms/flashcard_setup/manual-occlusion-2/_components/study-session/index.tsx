@@ -217,7 +217,9 @@ function StudySession({
                       onClick={() => {
                         close();
                         setOpenResults(false);
-                        setQuizOver(false);
+                        setTimeout(() => {
+                          setQuizOver(false);
+                        }, 100);
                       }}
                     >
                       Close
