@@ -10,6 +10,13 @@ import ApiService from '../../../../../../../../services/ApiService';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../../library/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../../../../../../../../components/ui/dropdown-menu';
 
 interface StudySessionProps {
   open: boolean;
@@ -98,7 +105,7 @@ function StudySession({
   };
 
   useEffect(() => {
-    if (quizOver) {
+    if (quizOver && open) {
       mutate(
         {
           card: {
@@ -153,7 +160,7 @@ function StudySession({
           <div className="right flex items-center gap-3">
             <div>
               <Button
-                disabled={isSubmittingQuiz}
+                disabled={isSubmittingQuiz || isFetching}
                 className={
                   sessionStarted.started ? 'bg-[red] text-[white]' : ''
                 }
@@ -197,7 +204,27 @@ function StudySession({
               </Button>
             </div>
             <div>
-              <DotsHorizontal />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="cursor-pointer py-2">
+                    <DotsHorizontal />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      className="cursor-pointer hover:bg-stone-200"
+                      onClick={() => {
+                        close();
+                        setOpenResults(false);
+                        setQuizOver(false);
+                      }}
+                    >
+                      Close
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>

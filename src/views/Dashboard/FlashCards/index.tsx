@@ -1232,10 +1232,10 @@ const ImageOcclusionTableSection = () => {
     }));
   };
 
-  const setQuizOver = () => {
+  const setQuizOver = (input: boolean) => {
     setState((pS) => ({
       ...pS,
-      quizOver: true
+      quizOver: input
     }));
   };
 
@@ -1274,7 +1274,7 @@ const ImageOcclusionTableSection = () => {
               key={row._id}
               className="hover:bg-stone-100 cursor-pointer"
               onClick={() => {
-                handleOpen(row._id)
+                handleOpen(row._id);
               }}
             >
               <TableCell className="font-medium">{row.title}</TableCell>
@@ -1309,7 +1309,12 @@ const ImageOcclusionTableSection = () => {
             return {
               ...pS,
               quizOver: false,
-              showResults: false
+              showResults: false,
+              score: {
+                notRemembered: 0,
+                right: 0,
+                wrong: 0
+              }
             };
           });
         }}
