@@ -816,7 +816,7 @@ const SendTutorOffer = () => {
                 ''
               )}
               <Box marginTop={'18px'} textAlign="left">
-                {isEmpty(user?.paymentMethods) && (
+                {
                   <Button
                     marginRight={'48px'}
                     isLoading={settingUpPaymentMethod}
@@ -825,10 +825,9 @@ const SendTutorOffer = () => {
                   >
                     Add Payment Method
                   </Button>
-                )}
+                }
                 {!isEmpty(user?.paymentMethods) && (
                   <Button
-                    hidden={formik.values['paymentMethod']}
                     marginRight={'48px'}
                     // isDisabled={values.paymentMethod}
                     isLoading={selectingPaymentMethod}
