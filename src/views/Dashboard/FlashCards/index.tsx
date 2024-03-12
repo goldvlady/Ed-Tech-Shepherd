@@ -899,7 +899,7 @@ const CustomTable: React.FC = () => {
           <Tabs defaultValue="ai">
             <TabsList className="grid w-[400px] grid-cols-2">
               <TabsTrigger value="normal">Normal</TabsTrigger>
-              <TabsTrigger value="ai">AI</TabsTrigger>
+              <TabsTrigger value="ai">Image Occlusion</TabsTrigger>
             </TabsList>
             <TabsContent value="normal">
               <>
@@ -1199,7 +1199,7 @@ const ImageOcclusionTableSection = () => {
     showResults: false
   });
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['image-occlusions'],
     queryFn: () => ApiService.fetchOcclusionCards().then((res) => res.json()),
     select: (data) => {
@@ -1283,25 +1283,53 @@ const ImageOcclusionTableSection = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.list.map((row) => (
-            <TableRow
-              key={row._id}
-              className="hover:bg-stone-100 cursor-pointer"
-              onClick={() => {
-                handleOpen(row._id);
-              }}
-            >
-              <TableCell className="font-medium">{row.title}</TableCell>
-              <TableCell>{row.labels.length}</TableCell>
-              <TableCell>-</TableCell>
-              <TableCell>
-                {format(new Date(row.createdAt), 'MMM d, yy h:mm a')}
-              </TableCell>
-              <TableCell>-</TableCell>
-              <TableCell>-</TableCell>
-              <TableCell className="text-right">-</TableCell>
-            </TableRow>
-          ))}
+          {isLoading
+            ? [1, 2, 3, 4, 5, 6, 7].map((list) => {
+                return (
+                  <TableRow key={list}>
+                    <TableCell className="font-medium">
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                    <TableCell className="text-right flex justify-end">
+                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            : data?.list.map((row) => (
+                <TableRow
+                  key={row._id}
+                  className="hover:bg-stone-100 cursor-pointer"
+                  onClick={() => {
+                    handleOpen(row._id);
+                  }}
+                >
+                  <TableCell className="font-medium">{row.title}</TableCell>
+                  <TableCell>{row.labels.length}</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>
+                    {format(new Date(row.createdAt), 'MMM d, yy h:mm a')}
+                  </TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell className="text-right">-</TableCell>
+                </TableRow>
+              ))}
         </TableBody>
       </Table>
       <StudySession
