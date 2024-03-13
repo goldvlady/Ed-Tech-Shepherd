@@ -12,7 +12,7 @@ import {
 } from '../../../../components/ui/table';
 import { format } from 'date-fns';
 import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
-import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components';
+import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 
 const initialState = {
   open: false,

@@ -66,7 +66,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../services/ApiService';
 import StudySession from './forms/flashcard_setup/manual-occlusion-2/_components/study-session';
-import OccResultsDialog from './forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components';
+import OccResultsDialog from './forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 import OcclusionFlashcardTab from './components/occlusion-flashcard-tab';
 
 const StyledImage = styled(Box)`

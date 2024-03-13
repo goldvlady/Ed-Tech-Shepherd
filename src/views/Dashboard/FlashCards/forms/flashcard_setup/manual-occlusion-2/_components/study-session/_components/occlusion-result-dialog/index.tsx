@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button } from '../../../../../../../../../components/ui/button';
+import { Button } from '../../../../../../../../../../components/ui/button';
 import {
   Dialog,
   DialogContent
-} from '../../../../../../../../../components/ui/dialog';
+} from '../../../../../../../../../../components/ui/dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import ApiService from '../../../../../../../../../services/ApiService';
+import ApiService from '../../../../../../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
 
 interface Score {

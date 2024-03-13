@@ -8,7 +8,7 @@ import { Label } from '../../../../../../../../components/ui/label';
 import StudySession from '../study-session';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '../../../../../../../../library/utils';
-import OccResultsDialog from '../study-session/_components';
+import OccResultsDialog from '../study-session/_components/occlusion-result-dialog';
 
 const INITIAL_STATE = {
   title: '',
