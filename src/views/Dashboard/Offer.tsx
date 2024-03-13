@@ -1,19 +1,12 @@
-import ChoosePaymentMethodDialog, {
-  ChoosePaymentMethodDialogRef
-} from '../../components/ChoosePaymentMethodDialog';
 import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 import LinedList from '../../components/LinedList';
 import PageTitle from '../../components/PageTitle';
 import Panel from '../../components/Panel';
-import PaymentDialog, {
-  PaymentDialogRef
-} from '../../components/PaymentDialog';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
-import userStore from '../../state/userStore';
+// import userStore from '../../state/userStore';
 import theme from '../../theme';
-import { PaymentMethod } from '../../types';
 import {
   numberToDayOfWeekName,
   convertTimeToTimeZone,
@@ -45,7 +38,6 @@ import {
   VStack,
   useDisclosure
 } from '@chakra-ui/react';
-import { loadStripe } from '@stripe/stripe-js';
 import { capitalize, isEmpty } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -92,10 +84,6 @@ export const scheduleOptions = [
   }
 ];
 
-const stripePromise = loadStripe(
-  process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
-);
-
 const Offer = () => {
   useTitle('Offer');
   const currentPath = window.location.pathname;
@@ -106,18 +94,13 @@ const Offer = () => {
 
   const { offerId } = useParams() as { offerId: string };
 
-  const { fetchUser, user } = userStore();
   const navigate = useNavigate();
-  const paymentDialogRef = useRef<PaymentDialogRef>(null);
-  const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
   const [loadingOffer, setLoadingOffer] = useState(false);
-  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
   const [offer, setOffer] = useState<any | null>(null);
   const [acceptingOffer, setAcceptingOffer] = useState(false);
   const [declineNote, setDeclineNote] = useState('');
   const [decliningOffer, setDecliningOffer] = useState(false);
   const [withdrawingOffer, setWithdrawingOffer] = useState(false);
-  const [bookingOffer, setBookingOffer] = useState(false);
 
   const {
     isOpen: isOfferAcceptedModalOpen,
@@ -135,65 +118,58 @@ const Offer = () => {
     onClose: onWithdrawOfferModalClose
   } = useDisclosure();
 
-  const url: URL = new URL(window.location.href);
-  const params: URLSearchParams = url.searchParams;
-  const clientSecret = params.get('setup_intent_client_secret');
-
   const loadOffer = useCallback(async () => {
     setLoadingOffer(true);
     const resp = await ApiService.getOffer(offerId);
     setOffer(await resp.json());
     setLoadingOffer(false);
   }, [offerId]);
-
-  const bookOffer = async () => {
-    setBookingOffer(true);
-    const chosenPaymentMethod =
-      (await choosePaymentDialogRef.current?.choosePaymentMethod()) as PaymentMethod;
-    const resp = await ApiService.bookOffer(
-      offer?._id as string,
-      chosenPaymentMethod?._id
-    );
-    switch (resp?.status) {
-      case 200:
-        toast({
-          title: 'Your offer has been booked successfully.',
-          status: 'success',
-          position: 'top',
-          isClosable: true
-        });
-        loadOffer();
-        break;
-      case 400:
-        toast({
-          title: 'Something went wrong',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-      case 401: // Handle payment failure separately
-        toast({
-          title:
-            'Failed to process payment details. Please try another payment method.',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-      default:
-        toast({
-          title: 'Something went wrong.',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        break;
-    }
-    // setOffer(await resp.json());
-    setBookingOffer(false);
-    // window.location.reload();
-  };
+  //   setBookingOffer(true);
+  //   const chosenPaymentMethod = offer?.paymentMethod;
+  //   const resp = await ApiService.bookOffer(
+  //     offer?._id as string,
+  //     chosenPaymentMethod?._id
+  //   );
+  //   switch (resp?.status) {
+  //     case 200:
+  //       toast({
+  //         title: 'Your offer has been booked successfully.',
+  //         status: 'success',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       loadOffer();
+  //       break;
+  //     case 400:
+  //       toast({
+  //         title: 'Something went wrong',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //     case 401: // Handle payment failure separately
+  //       toast({
+  //         title:
+  //           'Failed to process payment details. Please try another payment method.',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //     default:
+  //       toast({
+  //         title: 'Something went wrong.',
+  //         status: 'error',
+  //         position: 'top',
+  //         isClosable: true
+  //       });
+  //       break;
+  //   }
+  //   // setOffer(await resp.json());
+  //   setBookingOffer(false);
+  //   // window.location.reload();
+  // };
 
   const acceptOffer = async () => {
     setAcceptingOffer(true);
@@ -201,6 +177,13 @@ const Offer = () => {
     // setOffer(await resp.json());
     switch (resp?.status) {
       case 200:
+        toast({
+          title: 'Offer has been accepted and booked successfully.',
+          status: 'success',
+          position: 'top',
+          isClosable: true
+        });
+        loadOffer();
         onOfferAcceptedModalOpen();
         break;
       case 400:
@@ -243,118 +226,15 @@ const Offer = () => {
     setWithdrawingOffer(false);
   };
 
-  const setupPaymentMethod = async () => {
-    try {
-      setSettingUpPaymentMethod(true);
-      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
-        metadata: { offerId: offer?.id }
-      });
-
-      const { data } = await paymentIntent.json();
-
-      paymentDialogRef.current?.startPayment(
-        data.clientSecret,
-        `${window.location.href}`
-      );
-
-      setSettingUpPaymentMethod(false);
-    } catch (error) {
-      // console.log(error);
-    }
-  };
-
   useEffect(() => {
     loadOffer();
   }, [loadOffer]);
-
-  useEffect(() => {
-    if (clientSecret) {
-      (async () => {
-        setSettingUpPaymentMethod(true);
-
-        const stripe = await stripePromise;
-        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
-        await ApiService.addPaymentMethod(
-          setupIntent?.setupIntent?.payment_method as string
-        );
-        await fetchUser();
-        switch (setupIntent?.setupIntent?.status) {
-          case 'succeeded':
-            toast({
-              title: 'Your payment method has been saved.',
-              status: 'success',
-              position: 'top',
-              isClosable: true
-            });
-            bookOffer();
-            break;
-          case 'processing':
-            toast({
-              title:
-                "Processing payment details. We'll update you when processing is complete.",
-              status: 'loading',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          case 'requires_payment_method':
-            toast({
-              title:
-                'Failed to process payment details. Please try another payment method.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-          default:
-            toast({
-              title: 'Something went wrong.',
-              status: 'error',
-              position: 'top',
-              isClosable: true
-            });
-            break;
-        }
-        setSettingUpPaymentMethod(false);
-      })();
-    }
-    /* eslint-disable */
-  }, [clientSecret]);
 
   const loading = loadingOffer;
 
   return (
     <Root className="container-fluid">
-      <PaymentDialog
-        ref={paymentDialogRef}
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
-      <ChoosePaymentMethodDialog
-        ref={choosePaymentDialogRef}
-        // onclose
-        prefix={
-          <Alert status="info" mb="22px">
-            <AlertIcon>
-              <MdInfo color={theme.colors.primary[500]} />
-            </AlertIcon>
-            <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
-            </AlertDescription>
-          </Alert>
-        }
-      />
-      <Box className="row">
+      <Box className="row" padding="20px">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
             <Box textAlign={'center'}>
@@ -717,16 +597,6 @@ const Offer = () => {
                       <Box>
                         <FormLabel>Total amount</FormLabel>
                         <OfferValueText>${offer.rate}</OfferValueText>
-                        <Text
-                          color="text.300"
-                          mt={'10px'}
-                          mb={0}
-                          fontSize="12px"
-                          fontWeight={'500'}
-                        >
-                          This will be paid in full at the end of a month after
-                          the start of the contract
-                        </Text>
                       </Box>
                     </VStack>
                   </Box>
@@ -736,9 +606,8 @@ const Offer = () => {
                         <MdInfo color={theme.colors.primary[500]} />
                       </AlertIcon>
                       <AlertDescription>
-                        Initial payment will not be made until after the client
-                        reviews the offer after the first session. The client
-                        may decide to continue with you or withdraw the offer
+                        Payout will be made within a week of the end of this
+                        contract.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -748,9 +617,9 @@ const Offer = () => {
                         <MdInfo color={theme.colors.primary[500]} />
                       </AlertIcon>
                       <AlertDescription>
-                        Payment will not be deducted until after your first
-                        lesson, You may decide to cancel after your initial
-                        lesson.
+                        Payment will not be deducted until one hour before your
+                        session. You will not be charged if you cancel 24 or
+                        more hours before your session.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -770,28 +639,6 @@ const Offer = () => {
                           Withdraw Offer
                         </Button>
                       )}
-                      {offer?.status === 'accepted' &&
-                        !offer?.completed &&
-                        isEmpty(user?.paymentMethods) && (
-                          <Button
-                            isLoading={settingUpPaymentMethod}
-                            onClick={setupPaymentMethod}
-                            size="md"
-                          >
-                            Book
-                          </Button>
-                        )}
-                      {offer?.status === 'accepted' &&
-                        !offer?.completed &&
-                        !isEmpty(user?.paymentMethods) && (
-                          <Button
-                            isLoading={bookingOffer}
-                            onClick={bookOffer}
-                            size="md"
-                          >
-                            Book
-                          </Button>
-                        )}
                     </HStack>
                   )}
                 </Panel>
@@ -920,17 +767,17 @@ const Offer = () => {
                       {
                         title: 'Send a Proposal',
                         subtitle:
-                          'Find your desired tutor and prepare an offer on your terms and send to the tutor'
+                          'Find your desired tutor, set your terms, provide payment details and send your offer to the tutor.'
                       },
                       {
                         title: 'Get a Response',
                         subtitle:
-                          'Proceed to provide your payment details once the tutor accepts your offer'
+                          'Your offer has been sent! Wait for the tutor to review and accept your offer.'
                       },
                       {
-                        title: 'A Test-Run',
+                        title: 'Connect with your tutor',
                         subtitle:
-                          'You won’t be charged until after your first session, you may cancel after the first lesson.'
+                          'You’ll receive a reminder 1 hour before your session. You can reschedule or cancel up to 24 hours before your session starts.'
                       }
                     ]}
                   />

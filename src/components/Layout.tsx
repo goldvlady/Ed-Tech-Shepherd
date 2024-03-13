@@ -144,7 +144,7 @@ export default function Layout({ children, className }) {
   useEffect(() => {
     const isActive = user?.tutor?.isActive;
     if (!isActive) {
-      navigate('/verification_pending');
+      navigate('/activation_pending');
     }
   }, [user]);
 

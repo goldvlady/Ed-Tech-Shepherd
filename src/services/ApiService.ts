@@ -132,6 +132,14 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static cancelBooking = async (queryParams: { id: string }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/cancelBooking?${queryString}`, {
+      method: 'POST'
+    });
+  };
+
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
@@ -443,6 +451,16 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createTutor`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static activateTutor = async (queryParams: {
+    apiKey: string;
+    tutorEmail: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/activateTutor?${queryString}`, {
+      method: 'POST'
     });
   };
 

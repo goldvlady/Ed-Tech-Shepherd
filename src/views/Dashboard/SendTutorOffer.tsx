@@ -7,7 +7,8 @@ import TimePicker from '../../components/TimePicker';
 import TutorCard from '../../components/TutorCard';
 import { useTitle } from '../../hooks';
 import ApiService from '../../services/ApiService';
-import resourceStore from '../../state/resourceStore';
+// import resourceStore from '../../state/resourceStore';
+import userStore from '../../state/userStore';
 import theme from '../../theme';
 import { Tutor } from '../../types';
 import {
@@ -25,10 +26,12 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   HStack,
+  Icon,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -67,6 +70,15 @@ import { useNavigate, useParams } from 'react-router';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import ShepherdSpinner from './components/shepherd-spinner';
+import { FaCcVisa, FaCcMastercard, FaCcAmex } from 'react-icons/fa';
+import PaymentDialog, {
+  PaymentDialogRef
+} from '../../components/PaymentDialog';
+import ChoosePaymentMethodDialog, {
+  ChoosePaymentMethodDialogRef
+} from '../../components/ChoosePaymentMethodDialog';
+import { loadStripe } from '@stripe/stripe-js';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 
 const LeftCol = styled(Box)`
   min-height: 100vh;
@@ -99,17 +111,36 @@ const TutorOfferSchema = Yup.object().shape({
   rate: Yup.number()
     .required('Enter a rate')
     .min(1, 'Rate has to be greater than 0'),
+  paymentMethod: Yup.object().required('Choose a payment method'),
   expirationDate: Yup.date().required('Select an expiration date'),
   contractStartDate: Yup.date().required('Select a start date'),
   contractEndDate: Yup.date().required('Select an end date')
 });
 
+function convertDateStringsToDates(initialValues) {
+  const dateFields = ['contractStartDate', 'contractEndDate', 'expirationDate'];
+  const convertedValues = { ...initialValues };
+
+  dateFields.forEach((field) => {
+    const value = convertedValues[field];
+    if (typeof value === 'string' && !isNaN(Date.parse(value))) {
+      convertedValues[field] = new Date(value);
+    }
+  });
+
+  return convertedValues;
+}
+
 const levels = ['A - Level', 'GCSE', 'Grade 12'];
+
+const stripePromise = loadStripe(
+  process.env.REACT_APP_STRIPE_PUBLIC_KEY as string
+);
 
 const SendTutorOffer = () => {
   useTitle('Send an offer');
 
-  const { courses: courseList } = resourceStore();
+  const { fetchUser, user } = userStore();
   const navigate = useNavigate();
   const formikRef = useRef<FormikProps<any>>(null);
 
@@ -117,6 +148,121 @@ const SendTutorOffer = () => {
   const [tutor, setTutor] = useState<Tutor | null>(null);
   const { tutorId } = useParams() as { tutorId: string };
   const [isEditing, setIsEditing] = useState(true);
+  const tempFormValuesRef = useRef(null);
+  const [settingUpPaymentMethod, setSettingUpPaymentMethod] = useState(false);
+  const [selectingPaymentMethod, setSelectingPaymentMethod] = useState(false);
+  const paymentDialogRef = useRef<PaymentDialogRef>(null);
+  const choosePaymentDialogRef = useRef<ChoosePaymentMethodDialogRef>(null);
+  const toast = useCustomToast();
+
+  const url: URL = new URL(window.location.href);
+  const params: URLSearchParams = url.searchParams;
+  const clientSecret = params.get('setup_intent_client_secret');
+
+  const selectPaymentMethod = async () => {
+    try {
+      setSelectingPaymentMethod(true);
+      if (choosePaymentDialogRef.current) {
+        choosePaymentDialogRef.current
+          .choosePaymentMethod()
+          .then((selectedPaymentMethod) => {
+            //as PaymentMethod??
+            const chosenPaymentMethod = selectedPaymentMethod;
+            formikRef.current?.setFieldValue(
+              'paymentMethod',
+              chosenPaymentMethod
+            );
+          });
+      }
+      setSelectingPaymentMethod(false);
+    } catch (error) {
+      return;
+    }
+  };
+
+  const setupPaymentMethod = async () => {
+    try {
+      setSettingUpPaymentMethod(true);
+
+      const currentFormValues = formikRef.current?.values;
+      tempFormValuesRef.current = currentFormValues;
+      localStorage.setItem(
+        'tempFormValues',
+        JSON.stringify(tempFormValuesRef.current)
+      );
+
+      const paymentIntent = await ApiService.createStripeSetupPaymentIntent({
+        metadata: { offerId: 'sample string' } //remove
+      });
+
+      const { data } = await paymentIntent.json();
+
+      paymentDialogRef.current?.startPayment(
+        data.clientSecret,
+        `${window.location.href}`
+      );
+
+      setSettingUpPaymentMethod(false);
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (clientSecret) {
+      (async () => {
+        setSettingUpPaymentMethod(true);
+
+        const stripe = await stripePromise;
+        const setupIntent = await stripe?.retrieveSetupIntent(clientSecret);
+        await ApiService.addPaymentMethod(
+          setupIntent?.setupIntent?.payment_method as string
+        );
+        await fetchUser();
+        switch (setupIntent?.setupIntent?.status) {
+          case 'succeeded': {
+            toast({
+              title: 'Your payment method has been saved.',
+              status: 'success',
+              position: 'top',
+              isClosable: true
+            });
+            selectPaymentMethod();
+            break;
+          }
+          case 'processing':
+            toast({
+              title:
+                "Processing payment details. We'll update you when processing is complete.",
+              status: 'loading',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          case 'requires_payment_method':
+            toast({
+              title:
+                'Failed to process payment details. Please try another payment method.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+          default:
+            toast({
+              title: 'Something went wrong.',
+              status: 'error',
+              position: 'top',
+              isClosable: true
+            });
+            break;
+        }
+        setSettingUpPaymentMethod(false);
+      })();
+    }
+    /* eslint-disable */
+  }, [clientSecret]);
+
   const EditField = styled(Text).attrs({ onClick: () => setIsEditing(true) })`
     cursor: pointer;
     font-weight: 500;
@@ -194,11 +340,11 @@ const SendTutorOffer = () => {
     formikRef.current?.setFieldValue('schedule', scheduleValue);
   };
 
-  const dayOptions = [...new Array(6)]
-    .filter((_, i) => !!tutor?.schedule[i])
-    .map((_, i) => {
-      return { label: numberToDayOfWeekName(i), value: i };
-    });
+  // const dayOptions = [...new Array(6)]
+  //   .filter((_, i) => !!tutor?.schedule[i])
+  //   .map((_, i) => {
+  //     return { label: numberToDayOfWeekName(i), value: i };
+  //   });
 
   function mapScheduleKeysToValue(schedule) {
     return Object.keys(schedule).map((key) => ({
@@ -210,6 +356,7 @@ const SendTutorOffer = () => {
 
   const MainForm = () => {
     const formik = useFormikContext();
+
     return (
       <>
         <Form>
@@ -232,7 +379,12 @@ const SendTutorOffer = () => {
                         <CalendarDateInput
                           disabledDate={{ before: today }}
                           value={field.value}
-                          onChange={(d) => form.setFieldValue(field.name, d)}
+                          onChange={(d) =>
+                            form.setFieldValue(
+                              field.name,
+                              moment(d).endOf('day').toDate()
+                            )
+                          }
                         />
                       ) : (
                         <EditField>
@@ -297,7 +449,12 @@ const SendTutorOffer = () => {
                           disabledDate={{
                             before: form.values.contractStartDate
                           }}
-                          onChange={(d) => form.setFieldValue(field.name, d)}
+                          onChange={(d) =>
+                            form.setFieldValue(
+                              field.name,
+                              moment(d).endOf('day').toDate()
+                            )
+                          }
                         />
                         <FormErrorMessage>
                           {form.errors[field.name] as string}
@@ -461,7 +618,9 @@ const SendTutorOffer = () => {
                       <EditField>
                         {(field.value as number[])
                           .map((v) => {
-                            // return dayOptions.find((d) => d.value === v)?.label;
+                            // return dayOptions.find(
+                            //   (d) => d.value === v
+                            // )?.label;
                             return numberToDayOfWeekName(v);
                           })
                           .join(', ')}
@@ -497,59 +656,36 @@ const SendTutorOffer = () => {
                           <TimePicker
                             inputProps={{ placeholder: '00:00 AM' }}
                             value={formik.values['schedule'][d]?.begin ?? ''}
-                            onChange={(v) => {
-                              setScheduleValue(v, d, 'begin');
-
-                              // form.setFieldValue(field.name, v);
-                            }}
+                            onChange={(v) => setScheduleValue(v, d, 'begin')}
                           />
                         ) : (
                           <EditField>
                             {formik.values['schedule'][d]?.begin}
                           </EditField>
                         )}
+                        <Box mt={2}>
+                          {tutor.schedule[d].length !== 0 && (
+                            <Text className="body2" mb={0}>
+                              {capitalize(tutor.user.name.first)} is available
+                              on {numberToDayOfWeekName(d)}s at these times:
+                            </Text>
+                          )}
+                          {!!tutor.schedule[d] &&
+                            tutor.schedule[d].map((s) => (
+                              <Text className="body3" mb={0}>
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(s.begin),
+                                  tutor.tz
+                                )}
+                                -{' '}
+                                {convertTimeToTimeZone(
+                                  convertTimeToDateTime(s.end),
+                                  tutor.tz
+                                )}
+                              </Text>
+                            ))}
+                        </Box>
                       </FormControl>
-
-                      {/* <FormControl>
-                                  <FormLabel>
-                                    Start time (
-                                    {numberToDayOfWeekName(d, 'ddd')})
-                                  </FormLabel>
-                                  {isEditing ? (
-                                    <TimePicker
-                                      inputProps={{ placeholder: '00:00 AM' }}
-                                      value={values.schedule[d]?.begin ?? ''}
-                                      onChange={(v) =>
-                                        setScheduleValue(v, d, 'begin')
-                                      }
-                                    />
-                                  ) : (
-                                    <EditField>
-                                      {values.schedule[d]?.begin}
-                                    </EditField>
-                                  )}
-                                  <Box mt={2}>
-                                    <Text className="body2" mb={0}>
-                                      {capitalize(tutor.user.name.first)} is
-                                      available on {numberToDayOfWeekName(d)}s
-                                      at these times:
-                                    </Text>
-                                    {!!tutor.schedule[d] &&
-                                      tutor.schedule[d].map((s) => (
-                                        <Text className="body3" mb={0}>
-                                          {convertTimeToTimeZone(
-                                            convertTimeToDateTime(s.begin),
-                                            tutor.tz
-                                          )}
-                                          -{' '}
-                                          {convertTimeToTimeZone(
-                                            convertTimeToDateTime(s.end),
-                                            tutor.tz
-                                          )}
-                                        </Text>
-                                      ))}
-                                  </Box>
-                                </FormControl> */}
                       <FormControl>
                         <FormLabel>
                           End time ({numberToDayOfWeekName(d, 'ddd')})
@@ -637,10 +773,59 @@ const SendTutorOffer = () => {
                     <MdInfo color={theme.colors.primary[500]} />
                   </AlertIcon>
                   <AlertDescription>
-                    Payment will not be deducted until after your first lesson,
-                    You may decide to cancel after your initial lesson.
+                    Payment will not be deducted until one hour before your
+                    session. You will not be charged if you cancel 24 or more
+                    hours before your session.
                   </AlertDescription>
                 </Alert>
+              </Box>
+              {formik.values['paymentMethod'] ? (
+                <Flex
+                  marginTop="18px"
+                  alignItems="center"
+                  p="4"
+                  boxShadow="md"
+                  borderRadius="md"
+                  bg="gray.50"
+                >
+                  <Icon
+                    as={
+                      formik.values['paymentMethod'].brand === 'visa'
+                        ? FaCcVisa
+                        : formik.values['paymentMethod'].brand === 'mastercard'
+                        ? FaCcMastercard
+                        : formik.values['paymentMethod'].brand === 'amex'
+                        ? FaCcAmex
+                        : null
+                    }
+                    w={8}
+                    h={8}
+                    color="blue.500"
+                    mr="4"
+                  />
+                  <Box>
+                    <Text fontWeight="bold">
+                      Card ending in {formik.values['paymentMethod'].last4}
+                    </Text>
+                    <Text>
+                      Expires {formik.values['paymentMethod'].expYear}
+                    </Text>
+                  </Box>
+                </Flex>
+              ) : (
+                ''
+              )}
+              <Box marginTop={'18px'} textAlign="left">
+                {!isEmpty(user?.paymentMethods) && (
+                  <Button
+                    marginRight={'48px'}
+                    isLoading={selectingPaymentMethod}
+                    onClick={selectPaymentMethod}
+                    size="md"
+                  >
+                    Choose Payment Method
+                  </Button>
+                )}
               </Box>
               <Box marginTop={'48px'} textAlign="right">
                 <Button
@@ -658,8 +843,41 @@ const SendTutorOffer = () => {
       </>
     );
   };
+
   return (
-    <Root className="container-fluid">
+    <Root className="container-fluid" margin="25px">
+      <PaymentDialog
+        ref={paymentDialogRef}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until one hour before your session.
+              You will not be charged if you cancel 24 or more hours before your
+              session.
+            </AlertDescription>
+          </Alert>
+        }
+      />
+      <ChoosePaymentMethodDialog
+        ref={choosePaymentDialogRef}
+        onSetupNewPaymentMethod={setupPaymentMethod}
+        settingUpPaymentMethod={settingUpPaymentMethod}
+        prefix={
+          <Alert status="info" mb="22px">
+            <AlertIcon>
+              <MdInfo color={theme.colors.primary[500]} />
+            </AlertIcon>
+            <AlertDescription>
+              Payment will not be deducted until one hour before your session.
+              You will not be charged if you cancel 24 or more hours before your
+              session.
+            </AlertDescription>
+          </Alert>
+        }
+      />
       <Box className="row">
         <LeftCol mb="32px" className="col-lg-8">
           {loading && (
@@ -737,20 +955,28 @@ const SendTutorOffer = () => {
                 subtitle={`Provide your contract terms. We’ll notify you via email when ${tutor.user.name.first} responds`}
               />
               <Formik
-                initialValues={{
-                  course: '',
-                  level: '',
-                  days: [],
-                  schedule: {},
-                  note: '',
-                  rate: tutor.rate,
-                  expirationDate: new Date(),
-                  contractStartDate: null,
-                  contractEndDate: null
-                }}
+                initialValues={
+                  localStorage.getItem('tempFormValues')
+                    ? convertDateStringsToDates(
+                        JSON.parse(localStorage.getItem('tempFormValues'))
+                      )
+                    : {
+                        course: '',
+                        level: '',
+                        days: [],
+                        schedule: {},
+                        note: '',
+                        rate: tutor.rate,
+                        expirationDate: moment().endOf('day').toDate(),
+                        contractStartDate: null,
+                        contractEndDate: null,
+                        paymentMethod: null
+                      }
+                }
                 validationSchema={TutorOfferSchema}
                 innerRef={formikRef}
                 onSubmit={async (values, { setSubmitting }) => {
+                  localStorage.removeItem('tempFormValues');
                   if (isEditing) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     setIsEditing(false);
@@ -789,17 +1015,17 @@ const SendTutorOffer = () => {
                   {
                     title: 'Send a Proposal',
                     subtitle:
-                      'Find your desired tutor and prepare an offer on your terms and send to the tutor'
+                      'Find your desired tutor, set your terms, provide payment details and send your offer to the tutor.'
                   },
                   {
                     title: 'Get a Response',
                     subtitle:
-                      'Proceed to provide your payment details once the tutor accepts your offer'
+                      'Your offer has been sent! Wait for the tutor to review and accept your offer.'
                   },
                   {
-                    title: 'A Test-Run',
+                    title: 'Connect with your tutor',
                     subtitle:
-                      'You won’t be charged until after your first session, you may cancel after the first lesson.'
+                      'You’ll receive a reminder 1 hour before your session. You can reschedule or cancel up to 24 hours before your session starts.'
                   }
                 ]}
               />
