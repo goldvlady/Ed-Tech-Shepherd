@@ -44,7 +44,7 @@ function StudySession({
 
   const [answered, setAnswered] = useState(false);
 
-  const { isLoading, isSuccess, data, isFetching } = useQuery({
+  const { isSuccess, data, isFetching } = useQuery({
     queryKey: ['occlusion-card', id],
     queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
     enabled: Boolean(id),
@@ -67,10 +67,6 @@ function StudySession({
     setScore({ right: 0, wrong: 0, notRemembered: 0 });
   }, [isFetching]);
 
-  const numberOfBubbledChecked = studySession?.labels.filter(
-    (label: any) => !label.isRevealed
-  ).length;
-
   const onItemClicked = (item: any) => {
     if (!sessionStarted.started) return;
     if (answered) return;
@@ -86,13 +82,11 @@ function StudySession({
     setAnswered(true);
   };
 
-  const handleQuizOver = () => {
-    if (numberOfBubbledChecked === 0) {
-      setQuizOver(true);
-    } else {
-      setQuizOver(false);
-    }
-  };
+  const numberOfBubbledChecked = studySession?.labels.filter(
+    (label: any) => !label.isRevealed
+  ).length;
+
+  const handleQuizOver = () => setQuizOver(numberOfBubbledChecked === 0);
 
   useEffect(() => {
     if (quizOver && open) {
@@ -119,23 +113,15 @@ function StudySession({
     }
   }, [quizOver]);
 
-  const setRight = () => {
-    setScore({ ...score, right: score.right + 1 });
+  const updateScore = (key: 'right' | 'wrong' | 'notRemembered') => {
+    setScore({ ...score, [key]: score[key] + 1 });
     setAnswered(false);
     handleQuizOver();
   };
 
-  const setWrong = () => {
-    setScore({ ...score, wrong: score.wrong + 1 });
-    setAnswered(false);
-    handleQuizOver();
-  };
-
-  const setNotRemembered = () => {
-    setScore({ ...score, notRemembered: score.notRemembered + 1 });
-    setAnswered(false);
-    handleQuizOver();
-  };
+  const setRight = () => updateScore('right');
+  const setWrong = () => updateScore('wrong');
+  const setNotRemembered = () => updateScore('notRemembered');
 
   return (
     <Dialog open={open}>
