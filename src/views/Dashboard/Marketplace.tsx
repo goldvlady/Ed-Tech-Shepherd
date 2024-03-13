@@ -119,7 +119,6 @@ export default function Marketplace() {
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
-  console.log(subject);
 
   const [level, setLevel] = useState<any>('');
   const [price, setPrice] = useState<any>('');

@@ -52,7 +52,6 @@ const DragAndDrop: React.FC<DragAndDropProps> = ({
           : decodeURIComponent(new URL(file).pathname).split('/').pop();
       setFileSelected(true);
       setFileName(fileName as string);
-      console.log('file ==>', file);
     } else if (!file) {
       setFileSelected(false);
       setFileName('');

@@ -51,7 +51,6 @@ function useListItem({
     newTitle: string,
     callback?: (values: any) => void
   ) => {
-    console.log('delete', id);
     rename(
       {
         editConversation: id,

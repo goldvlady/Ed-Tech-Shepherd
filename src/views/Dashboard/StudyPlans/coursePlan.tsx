@@ -213,7 +213,6 @@ function CoursePlan() {
         try {
           await fetchPlans(state.page, state.limit);
           updateState({ studyPlans: storePlans });
-          console.log(storePlans);
 
           // Update session storage only if storePlans are different from the plans in storage
           if (JSON.stringify(storePlans) !== plansFromStorage) {
@@ -247,9 +246,6 @@ function CoursePlan() {
     };
     fetchData();
   }, [state.selectedPlan]);
-  console.log(state.studyPlans);
-  console.log(state.topics);
-  console.log(storePlans);
 
   useEffect(() => {
     sessionStorage.setItem('studyPlans', JSON.stringify(state.studyPlans));
@@ -343,7 +339,7 @@ function CoursePlan() {
     navigate(updatedPathname, { replace: true });
   };
   const handlePlanSelection = (planId) => {
-    updateState({ selectedPlan: planId });
+    navigate(`/dashboard/study-plans/planId=${planId}`);
   };
 
   return (

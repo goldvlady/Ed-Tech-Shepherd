@@ -12,6 +12,10 @@ import {
   Button,
   Text,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Spacer,
   Flex,
   Spinner,
@@ -27,6 +31,7 @@ import React, {
 import userStore from '../../../../../state/userStore';
 import PlansModal from '../../../../../components/PlansModal';
 import { languages } from '../../../../../helpers';
+import { FiChevronDown } from 'react-icons/fi';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -54,7 +59,8 @@ const FlashCardSetupInit = ({
     level: '',
     numQuestions: 0,
     timerDuration: '',
-    hasSubmitted: false
+    hasSubmitted: false,
+    grade: ''
   };
 
   const [preferredLanguage, setPreferredLanguage] = useState<
@@ -63,6 +69,7 @@ const FlashCardSetupInit = ({
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [searchValue, setSearchValue] = useState('');
 
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -134,6 +141,17 @@ const FlashCardSetupInit = ({
     { label: 'Medium', value: 'high school' },
     { label: 'Hard', value: 'college' },
     { label: 'Very Hard', value: 'PhD' }
+  ];
+
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
   ];
 
   const handleChange = React.useCallback(
@@ -276,6 +294,30 @@ const FlashCardSetupInit = ({
         )}
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Grade (optional):
+          </FormLabel>
+          <SelectComponent
+            name="grade"
+            placeholder="Select grade"
+            defaultValue={gradeOptions.find(
+              (option) => option.value === localData?.grade
+            )}
+            tagVariant="solid"
+            options={gradeOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'grade',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
           </FormLabel>
           <SelectComponent
@@ -341,24 +383,54 @@ const FlashCardSetupInit = ({
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Preferred Language
         </FormLabel>
-        <Select
-          isRequired
-          id="language_select"
-          fontSize="14px"
-          name="language_select"
-          className="!pb-0"
-          paddingBottom={0}
-          value={preferredLanguage}
-          onChange={(e) => {
-            setPreferredLanguage(e.target.value as typeof preferredLanguage);
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang}
-            </option>
-          ))}
-        </Select>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
       </FormControl>
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>

@@ -56,6 +56,7 @@ interface FlashcardData {
   studyDuration?: string;
   selectQuestionTypes?: string[];
   selectPagesInclude?: number;
+  grade?: string;
   ingestId?: string;
   noteDoc?: string;
   startPage?: number;
@@ -78,6 +79,7 @@ export type AIRequestBody = {
   count: number;
   subject?: string;
   difficulty?: string;
+  grade?: string;
   note?: string;
   existingQuestions?: string[];
   firebaseId: string;
@@ -384,7 +386,6 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       if (status === 200) {
         const { body } = await response.json();
         const jobId = body.data.jobId;
-        console.log('Job id ===>', jobId);
         if (!jobId) {
           throw new Error('Job ID not found');
         } else {
@@ -575,6 +576,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         const aiData: AIRequestBody = {
           topic: reqData.topic,
           subject: reqData.subject,
+          grade: reqData.grade,
           count: parseInt(reqData.numQuestions as unknown as string, 10),
           firebaseId: user?.firebaseId,
           ...(reqData.level && { difficulty: reqData.level }),

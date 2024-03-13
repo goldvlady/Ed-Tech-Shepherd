@@ -22,7 +22,6 @@ function useFlashcardQuestionsJob(studentID: string) {
       jobId: string,
       callback?: (error: any, flashcards?: FlashcardQuestion[]) => void
     ) => {
-      console.log('Watching job:', jobId);
       const jobRef = ref(database, `/flashcard-job/${studentID}/${jobId}`);
       onValue(
         jobRef,
@@ -64,12 +63,10 @@ function useFlashcardQuestionsJob(studentID: string) {
   // Function to delete all jobs for a documentId
   const clearJobs = useCallback(
     (documentId: string) => {
-      console.log('Clearing jobs for documentId:', documentId);
       const jobsRef = ref(database, `/flashcards-job/${studentID}`);
 
       remove(jobsRef)
         .then(() => {
-          console.log('Jobs cleared');
           setFlashcardQuestions([]);
         })
         .catch((error) => {

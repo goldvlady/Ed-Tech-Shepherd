@@ -300,8 +300,6 @@ const VideoViewingSection = ({ onEdit }: { onEdit: () => void }) => {
   };
 
   if (!introVideo || !introVideo.length) {
-    console.log('Intro video >>>>', introVideo);
-
     return (
       <div
         style={{

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
+import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
+import useUserStore from '../../../../state/userStore';
 import {
   Badge,
   Box,
@@ -27,8 +29,14 @@ import {
   HStack,
   useDisclosure,
   UnorderedList,
-  ListItem
+  ListItem,
+  PopoverContent,
+  PopoverTrigger,
+  Popover,
+  CircularProgress,
+  Icon
 } from '@chakra-ui/react';
+import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
 import moment from 'moment';
@@ -48,6 +56,9 @@ import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
 import ApiService from '../../../../services/ApiService';
+import SelectedNoteModal from '../../../../components/SelectedNoteModal';
+import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
+import { FaPlus } from 'react-icons/fa';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -56,14 +67,16 @@ function Topics(props) {
     studyPlanResources,
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
+  const { user } = useUserStore();
   const { fetchSingleFlashcard } = flashcardStore();
   const {
     courses: courseList,
     levels: levelOptions,
     studyPlanCourses
   } = resourceStore();
-  const [showNoteModal, setShowNoteModal] = useState(false);
 
+  const [convoId, setConvoId] = useState(null);
+  const [hasConversationId, setHasConversationId] = useState(false);
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -110,7 +123,11 @@ function Topics(props) {
   const groupedTopics = planTopics?.schedules.reduce((grouped, topic) => {
     let testDate;
     if (topic.topicMetaData && topic.topicMetaData.length > 0) {
-      testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
+      if (topic.topicMetaData[0]?.testDate) {
+        testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
+      } else {
+        testDate = new Date(topic.endDate).toDateString();
+      }
     } else {
       testDate = new Date(topic.endDate).toDateString();
     }
@@ -122,6 +139,8 @@ function Topics(props) {
     grouped.get(testDate).push(topic);
     return grouped;
   }, new Map());
+
+  console.log(groupedTopics);
 
   function getColorForStatus(status) {
     switch (status) {
@@ -236,6 +255,14 @@ function Topics(props) {
     if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
       return studyPlanResources[topic].studyEvent;
     }
+    return [];
+  };
+
+  const findDocumentsByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      return studyPlanResources[topic].documents;
+    }
+    return [];
   };
 
   const handleUpdatePlanCadence = async () => {
@@ -319,230 +346,427 @@ function Topics(props) {
 
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
+    const [initializing, setInitializing] = useState(false);
+    const [showNoteModal, setShowNoteModal] = useState(false);
 
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
     };
+    const { loading, error } = useStoreConversationIdToStudyPlan(
+      selectedPlan,
+      topic.topic,
+      convoId,
+      topic.topicMetaData[0]?.testDate
+    );
 
+    // const handleStartConversation = () => {
+    //   useStoreConversationIdToStudyPlan(
+    //     selectedPlan,
+    //     topic.topic,
+    //     convoId,
+    //     topic.topicMetaData[0].testDate
+    //   );
+    // };
+
+    const saveStudyPlanMetaData = useCallback(
+      async (conversationId: string) => {
+        try {
+          const response = await ApiService.storeStudyPlanMetaData({
+            studyPlanId: selectedPlan,
+            metadata: {
+              conversationId,
+              topicId: topic?.topicDetails._id
+            }
+          });
+          if (response) {
+            const data = await response.json();
+            console.log('Metadata saved:', data);
+          }
+        } catch (error) {
+          console.error('Error saving metadata:', error);
+        }
+      },
+      [topic]
+    );
+
+    const initializeAItutor = useInitializeAIChat('homework-help', {
+      navigateOnInitialized: true,
+      onInitialized: saveStudyPlanMetaData
+    });
+    const handleAiTutor = () => {
+      const convoId = topic.topicMetaData[0]?.conversationId;
+      if (convoId) {
+        navigate(`/dashboard/ace-homework/${convoId}`);
+      } else {
+        initializeAItutor({
+          topic: topic.topicDetails?.label,
+          subject: getSubject(planTopics.course),
+          level: 'Sophomore',
+          studentId: user?._id,
+          firebaseId: user?.firebaseId,
+          namespace: 'homework-help'
+        });
+      }
+      setInitializing(false);
+    };
+
+    const handleDocAction = async (doc) => {
+      console.log('Ingested doc', doc);
+      try {
+        if (!doc.ingestId) {
+          updateState({ isLoading: true });
+          const ingestHandler = new FileProcessingService(doc, true);
+          const response = await ingestHandler.process();
+          const {
+            data: [{ documentId }]
+          } = response;
+          navigate(
+            `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${documentId}&language=English`
+          );
+        }
+        navigate(
+          `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+        );
+      } catch (error) {
+        toast({
+          title: 'Error opening document',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      } finally {
+        updateState({ isLoading: false });
+      }
+    };
+
+    // const handleInitializeAiTutor = async () => {
+    //   setInitializing(true);
+    //   try {
+    //     await initializeAItutor({
+    //       topic: topic.topicDetails?.label,
+    //       subject: getSubject(planTopics.course),
+    //       level: 'Sophomore',
+    //       studentId: user?._id,
+    //       firebaseId: user?.firebaseId,
+    //       namespace: 'homework-help'
+    //     });
+    //   } catch (error) {
+    //     toast({
+    //       title: 'Error initializing AI Tutor',
+    //       position: 'top-right',
+    //       status: 'error',
+    //       isClosable: true
+    //     });
+    //     // console.error('Error initializing AI Tutor:', error);
+    //   } finally {
+    //     setInitializing(false);
+    //   }
+    // };
     return (
-      <Box
-        bg="white"
-        rounded="md"
-        shadow="md"
-        key={topic._id}
-        // ref={
-        //   topic._id === state.selectedTopic
-        //     ? selectedTopicRef
-        //     : null
-        // }
-      >
-        <Flex alignItems={'center'} py={1} px={4}>
-          <Text
-            fontSize="16px"
-            fontWeight="500"
-            mb={2}
-            color="text.200"
-            display={'flex'}
-            alignItems="center"
-            gap={2}
-          >
-            {topic.topicDetails?.label}
-            {isCollapsed ? (
-              <HiChevronUp onClick={toggleCollapse} />
-            ) : (
-              <HiChevronDown onClick={toggleCollapse} />
-            )}
-          </Text>
-
-          <Spacer />
-          <Badge
-            variant="subtle"
-            bgColor={`${getBackgroundColorForStatus(
-              getTopicStatus(topic.topicDetails?._id)
-            )}`}
-            color={getColorForStatus(getTopicStatus(topic.topicDetails?._id))}
-            p={1}
-            letterSpacing="wide"
-            textTransform="none"
-            borderRadius={8}
-          >
-            {getTopicStatus(topic.topicDetails?._id)}
-          </Badge>
-        </Flex>
-
-        {!isCollapsed && (
-          <Box p={2}>
-            <UnorderedList
-              listStyleType="circle"
-              listStylePosition="inside"
-              color="gray.700"
-              fontSize={14}
-              // h={'100px'}
+      <>
+        {' '}
+        <Box
+          bg="white"
+          rounded="md"
+          shadow="md"
+          key={topic._id}
+          // ref={
+          //   topic._id === state.selectedTopic
+          //     ? selectedTopicRef
+          //     : null
+          // }
+        >
+          <Flex alignItems={'center'} py={1} px={4}>
+            <Text
+              fontSize="16px"
+              fontWeight="500"
+              mb={2}
+              color="text.200"
+              display={'flex'}
+              alignItems="center"
+              gap={2}
             >
-              {topic.topicDetails?.subTopics.map((item, index) => (
-                <ListItem key={index}>{item.label}</ListItem>
-              ))}
-            </UnorderedList>
-          </Box>
-        )}
-        <Divider />
-        <Box width={'100%'}>
-          <HStack
-            spacing={9}
-            p={4}
-            justifyContent="space-between"
-            textColor={'black'}
-          >
-            <Menu isLazy>
-              <MenuButton>
-                {' '}
-                <VStack>
-                  <QuizIcon />
-                  <Text fontSize={12} fontWeight={500}>
-                    Quizzes
-                  </Text>
-                </VStack>
-              </MenuButton>
-              <MenuList maxH={60} overflowY="scroll">
-                {studyPlanResources &&
-                  findQuizzesByTopic(topic.topicDetails?.label)?.map((quiz) => (
-                    <>
-                      <MenuItem
-                        key={quiz.id}
-                        onClick={() =>
-                          navigate(`/dashboard/quizzes/take?quiz_id=${quiz.id}`)
-                        }
-                      >
-                        {quiz.title}
-                      </MenuItem>
-                    </>
-                  ))}
-              </MenuList>
-            </Menu>
-            <Menu isLazy>
-              <MenuButton>
-                {' '}
-                <VStack>
-                  <FlashcardIcon />
-                  <Text fontSize={12} fontWeight={500}>
-                    Flashcards
-                  </Text>
-                </VStack>
-              </MenuButton>
-              <MenuList maxH={60} overflowY="scroll">
-                {studyPlanResources &&
-                  findFlashcardsByTopic(topic.topicDetails?.label).map(
-                    (flashcard) => (
-                      <>
-                        <MenuItem
-                          key={flashcard.id}
-                          onClick={() => fetchSingleFlashcard(flashcard.id)}
-                        >
-                          {flashcard.deckname}
-                        </MenuItem>
-                      </>
-                    )
-                  )}
-              </MenuList>
-            </Menu>
+              {topic.topicDetails?.label}
+              {isCollapsed ? (
+                <HiChevronUp onClick={toggleCollapse} />
+              ) : (
+                <HiChevronDown onClick={toggleCollapse} />
+              )}
+            </Text>
 
-            <VStack
-              onClick={() =>
-                navigate(
-                  `/dashboard/ace-homework?subject=${getSubject(
-                    planTopics.course
-                  )}&topic=${topic.topicDetails?.label}`
-                )
-              }
-            >
-              <AiTutorIcon />
-              <Text fontSize={12} fontWeight={500}>
-                AI Tutor
-              </Text>
-            </VStack>
-            <VStack onClick={() => setShowNoteModal(true)}>
-              <DocChatIcon />
-              <Text fontSize={12} fontWeight={500}>
-                Doc Chat
-              </Text>
-            </VStack>
-            <VStack
-              onClick={() => {
-                updateState({
-                  selectedTopic: topic._id
-                });
-                getTopicResource(topic.topicDetails?.label);
-                onOpenResource();
-              }}
-            >
-              <ResourceIcon />
-              <Text fontSize={12} fontWeight={500}>
-                Resources
-              </Text>
-            </VStack>
-          </HStack>
-          <Flex alignItems={'center'} px={4}>
+            <Spacer />
             <Badge
               variant="subtle"
-              colorScheme="blue"
+              bgColor={`${getBackgroundColorForStatus(
+                getTopicStatus(topic.topicDetails?._id)
+              )}`}
+              color={getColorForStatus(getTopicStatus(topic.topicDetails?._id))}
               p={1}
               letterSpacing="wide"
               textTransform="none"
               borderRadius={8}
-              cursor={'grab'}
-              onClick={() => {
-                updateState({
-                  recurrenceStartDate: new Date(
-                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
-                  ),
-                  recurrenceEndDate: new Date(
-                    findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?.recurrence?.endDate
-                  ),
-                  selectedRecurrence: findStudyEventsByTopic(
-                    topic.topicDetails?.label
-                  )?.recurrence?.frequency,
-
-                  selectedTopic: topic._id,
-                  selectedStudyEvent: findStudyEventsByTopic(
-                    topic.topicDetails?.label
-                  )?._id
-                });
-
-                onOpenCadence();
-              }}
             >
-              {studyPlanResources &&
-              studyPlanResources[topic.topicDetails?.label]
-                ? `
+              {getTopicStatus(topic.topicDetails?._id)}
+            </Badge>
+          </Flex>
+
+          {!isCollapsed && (
+            <Box p={2}>
+              <UnorderedList
+                listStyleType="circle"
+                listStylePosition="inside"
+                color="gray.700"
+                fontSize={14}
+                // h={'100px'}
+              >
+                {topic.topicDetails?.subTopics.map((item, index) => (
+                  <ListItem key={index}>{item.label}</ListItem>
+                ))}
+              </UnorderedList>
+            </Box>
+          )}
+          <Divider />
+          <Box width={'100%'}>
+            <HStack
+              spacing={9}
+              p={4}
+              justifyContent="space-between"
+              textColor={'black'}
+            >
+              <Menu isLazy>
+                <MenuButton>
+                  {' '}
+                  <VStack>
+                    <QuizIcon />
+                    <Text fontSize={12} fontWeight={500}>
+                      Quizzes
+                    </Text>
+                  </VStack>
+                </MenuButton>
+                <MenuList maxH={60} overflowY="scroll">
+                  {studyPlanResources &&
+                    findQuizzesByTopic(topic.topicDetails?.label)?.map(
+                      (quiz) => (
+                        <>
+                          <MenuItem
+                            key={quiz.id}
+                            onClick={() =>
+                              navigate(
+                                `/dashboard/quizzes/take?quiz_id=${quiz.id}`
+                              )
+                            }
+                          >
+                            {quiz.title}
+                          </MenuItem>
+                        </>
+                      )
+                    )}
+                </MenuList>
+              </Menu>
+              <Menu isLazy>
+                <MenuButton>
+                  {' '}
+                  <VStack>
+                    <FlashcardIcon />
+                    <Text fontSize={12} fontWeight={500}>
+                      Flashcards
+                    </Text>
+                  </VStack>
+                </MenuButton>
+                <MenuList maxH={60} overflowY="scroll">
+                  {studyPlanResources &&
+                    findFlashcardsByTopic(topic.topicDetails?.label).map(
+                      (flashcard) => (
+                        <>
+                          <MenuItem
+                            key={flashcard.id}
+                            onClick={() => fetchSingleFlashcard(flashcard.id)}
+                          >
+                            {flashcard.deckname}
+                          </MenuItem>
+                        </>
+                      )
+                    )}
+                </MenuList>
+              </Menu>
+              {initializing ? (
+                <Box textAlign={'center'}>
+                  <Spinner boxSize={'15px'} my={2} />
+                </Box>
+              ) : (
+                <VStack
+                  cursor={'pointer'}
+                  onClick={() => {
+                    setInitializing(true);
+                    handleAiTutor();
+                  }}
+                >
+                  <AiTutorIcon />
+                  <Text fontSize={12} fontWeight={500}>
+                    AI Tutor
+                  </Text>
+                </VStack>
+              )}
+
+              <Menu isLazy>
+                <MenuButton>
+                  {' '}
+                  <VStack>
+                    <DocChatIcon />
+                    <Text fontSize={12} fontWeight={500}>
+                      Doc Chat
+                    </Text>
+                  </VStack>
+                </MenuButton>
+                <MenuList
+                  maxH={60}
+                  overflowY="scroll"
+                  bg="white"
+                  border="1px solid #E2E8F0"
+                  borderRadius="md"
+                >
+                  {studyPlanResources && (
+                    <>
+                      {findDocumentsByTopic(topic.topicDetails?.label).map(
+                        (doc, index) => {
+                          return (
+                            <MenuItem
+                              key={index}
+                              _hover={{ bg: 'gray.100' }}
+                              fontSize={12}
+                              onClick={() => {
+                                handleDocAction(doc);
+                                // navigate(
+                                //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+                                // )
+                              }}
+                            >
+                              {doc.title?.replace(
+                                /%20%26|%20|%2F/g,
+                                (match) => {
+                                  switch (match) {
+                                    case '%20%26':
+                                      return ' ';
+                                    case '%20':
+                                      return ' ';
+                                    case '%2F':
+                                      return ' ';
+                                    default:
+                                      return match;
+                                  }
+                                }
+                              )}
+                            </MenuItem>
+                          );
+                        }
+                      )}
+
+                      <Button
+                        color="gray"
+                        size={'sm'}
+                        variant="ghost"
+                        alignItems="center"
+                        float={'right'}
+                        onClick={() => setShowNoteModal(true)}
+                        fontSize={12}
+                      >
+                        <Icon as={FaPlus} mr={2} />
+                        Add New
+                      </Button>
+                    </>
+                  )}
+                </MenuList>
+              </Menu>
+              <VStack
+                cursor={'pointer'}
+                onClick={() => {
+                  updateState({
+                    selectedTopic: topic._id
+                  });
+                  getTopicResource(topic.topicDetails?.label);
+                  onOpenResource();
+                }}
+              >
+                <ResourceIcon />
+                <Text fontSize={12} fontWeight={500}>
+                  Resources
+                </Text>
+              </VStack>
+            </HStack>
+            <Flex alignItems={'center'} px={4}>
+              <Badge
+                variant="subtle"
+                colorScheme="blue"
+                p={1}
+                letterSpacing="wide"
+                textTransform="none"
+                borderRadius={8}
+                cursor={'grab'}
+                onClick={() => {
+                  updateState({
+                    recurrenceStartDate: new Date(
+                      findStudyEventsByTopic(
+                        topic.topicDetails?.label
+                      )?.startDate
+                    ),
+                    recurrenceEndDate: new Date(
+                      findStudyEventsByTopic(
+                        topic.topicDetails?.label
+                      )?.recurrence?.endDate
+                    ),
+                    selectedRecurrence: findStudyEventsByTopic(
+                      topic.topicDetails?.label
+                    )?.recurrence?.frequency,
+
+                    selectedTopic: topic._id,
+                    selectedStudyEvent: findStudyEventsByTopic(
+                      topic.topicDetails?.label
+                    )?._id
+                  });
+
+                  onOpenCadence();
+                }}
+              >
+                {studyPlanResources &&
+                studyPlanResources[topic.topicDetails?.label]
+                  ? `
 ${findStudyEventsByTopic(topic.topicDetails?.label)?.recurrence?.frequency} 
 from  ${moment(
-                    findStudyEventsByTopic(topic.topicDetails?.label)?.startDate
-                  ).format('MM.DD.YYYY')} - ${moment(
-                    findStudyEventsByTopic(topic.topicDetails?.label)
-                      ?.recurrence?.endDate
-                  ).format('MM.DD.YYYY')}`
-                : '...'}
-            </Badge>
+                      findStudyEventsByTopic(topic.topicDetails?.label)
+                        ?.startDate
+                    ).format('MM.DD.YYYY')} - ${moment(
+                      findStudyEventsByTopic(topic.topicDetails?.label)
+                        ?.recurrence?.endDate
+                    ).format('MM.DD.YYYY')}`
+                  : '...'}
+              </Badge>
 
-            <Spacer />
-            <Button
-              size={'sm'}
-              my={4}
-              onClick={() => {
-                updateState({
-                  selectedTopic: topic.topicDetails?.label
-                });
+              <Spacer />
+              <Button
+                size={'sm'}
+                my={4}
+                onClick={() => {
+                  updateState({
+                    selectedTopic: topic.topicDetails?.label
+                  });
 
-                openBountyModal();
-              }}
-            >
-              Find a tutor
-            </Button>
-          </Flex>
+                  openBountyModal();
+                }}
+              >
+                Find a tutor
+              </Button>
+            </Flex>
+          </Box>
         </Box>
-      </Box>
+        {showNoteModal && (
+          <SelectedNoteModal
+            show={showNoteModal}
+            setShow={setShowNoteModal}
+            studyPlanId={selectedPlan}
+            topicId={topic.topic}
+          />
+        )}
+      </>
     );
   };
 
@@ -552,11 +776,11 @@ from  ${moment(
       <Box>
         <Box mb={6}>
           {groupedTopics &&
-            Array.from(groupedTopics).map((testTopics) => (
+            Array.from(groupedTopics)?.map((testTopics) => (
               <>
                 {' '}
                 <Flex direction="column" gap={2} key={testTopics[0]}>
-                  {testTopics[1].map((topic) => (
+                  {testTopics[1]?.map((topic) => (
                     <>
                       <TopicCard key={topic._id} topic={topic} />
                     </>

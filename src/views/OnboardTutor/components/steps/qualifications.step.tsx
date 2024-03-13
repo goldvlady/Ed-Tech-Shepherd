@@ -149,7 +149,6 @@ const QualificationsForm: React.FC = () => {
     });
   };
 
-  console.log('is loading', isLoading);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const updatedFormData = {
       ...formData,

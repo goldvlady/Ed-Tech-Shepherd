@@ -24,7 +24,6 @@ const AnkiType = () => {
     reader.onload = (e) => {
       const res = reader.result as string;
       setAnkiFile(res.split(',')[1]);
-      console.log('ready');
       setIsFileLoaded(true);
     };
     setFile(acceptedFiles[0]);
