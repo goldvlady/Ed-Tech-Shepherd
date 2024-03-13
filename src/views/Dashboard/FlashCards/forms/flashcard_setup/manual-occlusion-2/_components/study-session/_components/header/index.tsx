@@ -1,5 +1,5 @@
-import StudySessionControls from "../controls";
-import StudySessionTitle from "../title";
+import StudySessionControls from '../controls';
+import StudySessionTitle from '../title';
 
 const StudySessionHeader = ({
   studySession,
@@ -15,7 +15,7 @@ const StudySessionHeader = ({
 }) => {
   return (
     <header className="p-4 border-b flex items-center justify-between">
-      <StudySessionTitle studySession={studySession} />
+      <StudySessionTitle studySession={studySession} isLoading={isFetching} />
       <StudySessionControls
         {...{
           isSubmittingQuiz,
