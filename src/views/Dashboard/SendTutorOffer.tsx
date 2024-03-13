@@ -819,7 +819,6 @@ const SendTutorOffer = () => {
                 {!isEmpty(user?.paymentMethods) && (
                   <Button
                     marginRight={'48px'}
-                    // isDisabled={values.paymentMethod}
                     isLoading={selectingPaymentMethod}
                     onClick={selectPaymentMethod}
                     size="md"
