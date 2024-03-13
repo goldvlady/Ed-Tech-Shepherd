@@ -142,6 +142,21 @@ const OcclusionFlashcardTab = () => {
     setState(initialState);
   }, []);
 
+  function handleCloseResults() {
+    setState((pS) => {
+      return {
+        ...pS,
+        quizOver: false,
+        showResults: false,
+        score: {
+          notRemembered: 0,
+          right: 0,
+          wrong: 0
+        }
+      };
+    });
+  }
+
   return (
     <div className="w-full h-full pt-4">
       <Table>
@@ -183,20 +198,7 @@ const OcclusionFlashcardTab = () => {
         id={state.id}
         open={state.showResults}
         score={state.score}
-        close={() => {
-          setState((pS) => {
-            return {
-              ...pS,
-              quizOver: false,
-              showResults: false,
-              score: {
-                notRemembered: 0,
-                right: 0,
-                wrong: 0
-              }
-            };
-          });
-        }}
+        close={handleCloseResults}
         restartStudySession={handleRestart}
         handleEditImage={() => null}
       />
