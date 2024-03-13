@@ -57,16 +57,6 @@ function StudySession({
       ApiService.editOcclusionCard(data.card).then((res) => res.json())
   });
 
-  useEffect(() => {
-    if (isSuccess) {
-      setStudySession(data);
-    }
-  }, [open, isSuccess, isFetching]);
-
-  useEffect(() => {
-    setScore({ right: 0, wrong: 0, notRemembered: 0 });
-  }, [isFetching]);
-
   const onItemClicked = (item: any) => {
     if (!sessionStarted.started) return;
     if (answered) return;
@@ -87,6 +77,26 @@ function StudySession({
   ).length;
 
   const handleQuizOver = () => setQuizOver(numberOfBubbledChecked === 0);
+
+  const updateScore = (key: 'right' | 'wrong' | 'notRemembered') => {
+    setScore({ ...score, [key]: score[key] + 1 });
+    setAnswered(false);
+    handleQuizOver();
+  };
+
+  const setRight = () => updateScore('right');
+  const setWrong = () => updateScore('wrong');
+  const setNotRemembered = () => updateScore('notRemembered');
+
+  useEffect(() => {
+    if (isSuccess) {
+      setStudySession(data);
+    }
+  }, [open, isSuccess, isFetching]);
+
+  useEffect(() => {
+    setScore({ right: 0, wrong: 0, notRemembered: 0 });
+  }, [isFetching]);
 
   useEffect(() => {
     if (quizOver && open) {
@@ -112,16 +122,6 @@ function StudySession({
       );
     }
   }, [quizOver]);
-
-  const updateScore = (key: 'right' | 'wrong' | 'notRemembered') => {
-    setScore({ ...score, [key]: score[key] + 1 });
-    setAnswered(false);
-    handleQuizOver();
-  };
-
-  const setRight = () => updateScore('right');
-  const setWrong = () => updateScore('wrong');
-  const setNotRemembered = () => updateScore('notRemembered');
 
   return (
     <Dialog open={open}>
