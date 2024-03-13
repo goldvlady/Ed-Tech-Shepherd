@@ -333,6 +333,16 @@ class ApiService {
     );
   };
 
+  static deleteOcclusionCard = async (id: string) => {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/deleteOcclusionCard?id=${id}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    );
+  };
+
   static fetchOcclusionCards = async () => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
