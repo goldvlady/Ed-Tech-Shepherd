@@ -15,6 +15,46 @@ import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_component
 import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 import { Progress } from '@chakra-ui/react';
 
+const LoadingRow = () => (
+  <TableRow>
+    {[...Array(7)].map((_, index) => (
+      <TableCell key={index}>
+        <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
+      </TableCell>
+    ))}
+  </TableRow>
+);
+
+const FetchingRow = () => (
+  <TableRow className="border-none p-0">
+    <TableCell colSpan={7} className="text-center">
+      <div className="w-full">
+        <Progress size="xs" isIndeterminate />
+      </div>
+    </TableCell>
+  </TableRow>
+);
+
+const DataRow = ({ row, handleOpen }) => (
+  <TableRow
+    key={row._id}
+    className="hover:bg-stone-100 cursor-pointer"
+    onClick={() => handleOpen(row._id)}
+  >
+    <TableCell className="font-medium">{row.title}</TableCell>
+    <TableCell>{row.labels.length}</TableCell>
+    <TableCell>-</TableCell>
+    <TableCell>{format(new Date(row.createdAt), 'MMM d, yy h:mm a')}</TableCell>
+    <TableCell>{format(new Date(row.updatedAt), 'MMM d, yy h:mm a')}</TableCell>
+    <TableCell>
+      {row.percentages.passPercentage
+        ? Math.floor(row.percentages.passPercentage) + '%'
+        : 0 + '%'}
+    </TableCell>
+    <TableCell className="text-right">-</TableCell>
+  </TableRow>
+);
+
 const initialState = {
   open: false,
   id: '',
@@ -119,68 +159,13 @@ const OcclusionFlashcardTab = () => {
         </TableHeader>
 
         <TableBody>
-          {isFetching ? (
-            <TableRow className="border-none p-0">
-              <TableCell colSpan={7} className="text-center">
-                <div className="w-full">
-                  <Progress size="xs" isIndeterminate />
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : null}
+          {isFetching && !isLoading ? <FetchingRow /> : null}
           {isLoading
-            ? [1, 2, 3, 4, 5, 6, 7].map((list) => {
-                return (
-                  <TableRow key={list}>
-                    <TableCell className="font-medium">
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                    <TableCell className="text-right flex justify-end">
-                      <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            : data?.list.map((row) => (
-                <TableRow
-                  key={row._id}
-                  className="hover:bg-stone-100 cursor-pointer"
-                  onClick={() => {
-                    handleOpen(row._id);
-                  }}
-                >
-                  <TableCell className="font-medium">{row.title}</TableCell>
-                  <TableCell>{row.labels.length}</TableCell>
-                  <TableCell>-</TableCell>
-                  <TableCell>
-                    {format(new Date(row.createdAt), 'MMM d, yy h:mm a')}
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(row.updatedAt), 'MMM d, yy h:mm a')}
-                  </TableCell>
-                  <TableCell>
-                    {row.percentages.passPercentage
-                      ? Math.floor(row.percentages.passPercentage) + '%'
-                      : 0 + '%'}
-                  </TableCell>
-                  <TableCell className="text-right">-</TableCell>
-                </TableRow>
-              ))}
+            ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
+            : null}
+          {data?.list.map((row) => (
+            <DataRow key={row._id} row={row} handleOpen={handleOpen} />
+          ))}
         </TableBody>
       </Table>
       <StudySession
