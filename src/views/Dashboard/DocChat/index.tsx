@@ -1391,6 +1391,8 @@ export default function DocChat() {
   //     </Center>
   //   );
   // } else {
+  console.log(messages, 'messages');
+
   return (
     <section
       className={clsx(
