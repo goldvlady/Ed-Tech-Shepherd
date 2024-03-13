@@ -1,5 +1,6 @@
 import OcclusionWorkSpace from '../../../form/_components/occlusion/_components/occlusion-workspace';
 import ScoreMaker from '../score-maker';
+import Skeleton from '../skeleton';
 
 const StudySessionBody = ({
   isFetching,
@@ -25,7 +26,7 @@ const StudySessionBody = ({
   return (
     <div className="body">
       {isFetching ? (
-        <div>Loading...</div>
+        <Skeleton />
       ) : (
         <OcclusionWorkSpace
           imageURI={studySession?.imageUrl}
