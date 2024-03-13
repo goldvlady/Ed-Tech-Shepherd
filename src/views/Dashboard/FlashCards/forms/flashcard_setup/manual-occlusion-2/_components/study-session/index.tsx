@@ -4,7 +4,7 @@ import {
   DialogContent
 } from '../../../../../../../../components/ui/dialog';
 import ApiService from '../../../../../../../../services/ApiService';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import StudySessionHeader from './_components/header';
 import StudySessionBody from './_components/body';
 
@@ -31,6 +31,7 @@ function StudySession({
   setOpenResults,
   resetForm
 }: StudySessionProps) {
+  const queryClient = useQueryClient();
   const [studySession, setStudySession] = useState({
     title: '',
     imageUrl: '',
@@ -114,6 +115,9 @@ function StudySession({
         },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['image-occlusions']
+            });
             setSessionStarted({ started: false, data: {} });
             close();
             setOpenResults(true);

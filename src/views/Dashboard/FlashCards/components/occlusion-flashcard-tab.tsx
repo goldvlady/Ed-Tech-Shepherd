@@ -13,6 +13,7 @@ import {
 import { format } from 'date-fns';
 import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
 import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
+import { Progress } from '@chakra-ui/react';
 
 const initialState = {
   open: false,
@@ -29,7 +30,7 @@ const initialState = {
 const OcclusionFlashcardTab = () => {
   const [state, setState] = useState(initialState);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ['image-occlusions'],
     queryFn: () => ApiService.fetchOcclusionCards().then((res) => res.json()),
     select: (data) => {
@@ -116,7 +117,17 @@ const OcclusionFlashcardTab = () => {
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
+          {isFetching ? (
+            <TableRow className="border-none p-0">
+              <TableCell colSpan={7} className="text-center">
+                <div className="w-full">
+                  <Progress size="xs" isIndeterminate />
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : null}
           {isLoading
             ? [1, 2, 3, 4, 5, 6, 7].map((list) => {
                 return (
