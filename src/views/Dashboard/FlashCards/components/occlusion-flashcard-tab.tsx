@@ -175,7 +175,7 @@ const OcclusionFlashcardTab = () => {
                   </TableCell>
                   <TableCell>
                     {row.percentages.passPercentage
-                      ? Math.round(row.percentages.passPercentage) + '%'
+                      ? Math.floor(row.percentages.passPercentage) + '%'
                       : 0 + '%'}
                   </TableCell>
                   <TableCell className="text-right">-</TableCell>
