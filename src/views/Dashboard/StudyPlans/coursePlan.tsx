@@ -193,6 +193,12 @@ function CoursePlan() {
     }
     /* eslint-disable */
   }, [clientSecret]);
+  const frequencyOptions = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Monthly', value: 'monthly' },
+    { label: "Doesn't Repeat", value: 'none' }
+  ];
 
   // const handleUpdateTopicStatus = (status, topicId) => {
   //   // Update the status for the specific topic by topicId

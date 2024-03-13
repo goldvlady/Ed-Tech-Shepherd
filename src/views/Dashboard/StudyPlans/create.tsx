@@ -130,7 +130,6 @@ function CreateStudyPlans() {
   const [timezone, setTimezone] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [docLoading, setDocLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
@@ -234,6 +233,7 @@ function CreateStudyPlans() {
 
     // Check if the file size exceeds the limit
     if (file.size > fileSizeLimitBytes) {
+
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
@@ -241,34 +241,33 @@ function CreateStudyPlans() {
         isClosable: true
       });
     } else {
-      setDocLoading(true);
-      const readableFileName = file.name
-        .toLowerCase()
-        .replace(/\.pdf$/, '')
-        .replace(/_/g, ' ');
-      const uploadEmitter = uploadFile(file, {
-        studentID: user._id, // Assuming user._id is always defined
-        documentID: readableFileName // Assuming readableFileName is the file's name
-      });
+      setLoading(true);
 
-      uploadEmitter.on('progress', (progress: number) => {
-        // Update the progress. Assuming progress is a percentage (0 to 100)
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
 
-        setDocLoading(true);
-      });
+      // setIsLoading(true);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+        },
+        (error) => {
+          setIsLoading(false);
 
-      uploadEmitter.on('complete', async (uploadFile) => {
-        // Assuming uploadFile contains the fileUrl and other necessary details.
-        const documentURL = uploadFile.fileUrl;
-        setDocLoading(false);
-        setFileName(readableFileName);
-        setSyllabusUrl(documentURL);
-      });
-      uploadEmitter.on('error', (error) => {
-        setDocLoading(false);
-        // setCvUploadPercent(0);
-        toast({ title: error.message + error.cause, status: 'error' });
-      });
+          toast({ title: error.message + error.cause, status: 'error' });
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setIsLoading(false);
+            setSyllabusUrl(downloadURL);
+            setFileName(snip(file.name));
+            console.log('done', downloadURL);
+          });
+        }
+      );
     }
   };
 
@@ -960,15 +959,10 @@ function CreateStudyPlans() {
                     </Flex>
                   ) : (
                     <Flex direction={'column'} alignItems={'center'}>
-                      {docLoading ? (
-                        <Spinner />
-                      ) : (
-                        <RiUploadCloud2Fill
-                          className="h-8 w-8"
-                          color="gray.500"
-                        />
-                      )}
-
+                      <RiUploadCloud2Fill
+                        className="h-8 w-8"
+                        color="gray.500"
+                      />
                       <Text
                         mb="2"
                         fontSize="sm"

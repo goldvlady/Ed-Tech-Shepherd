@@ -48,6 +48,7 @@ function StudyPlanSummary(props) {
 
   // Define the start and end dates for the current week
   const currentWeekStart = moment().startOf('week');
+
   // Define the start and end dates for next week
   const nextWeekStart = moment().startOf('week').add(1, 'weeks');
   const nextWeekEnd = moment().endOf('week').add(1, 'weeks');
