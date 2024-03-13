@@ -91,7 +91,7 @@ const DataRow = ({ row, handleOpen }) => {
   });
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
-      <TableCell className="font-medium">{row.title}</TableCell>
+      <TableCell className="font-medium text-[#207DF7]">{row.title}</TableCell>
       <TableCell>{row.labels.length}</TableCell>
       <TableCell>-</TableCell>
       <TableCell>
