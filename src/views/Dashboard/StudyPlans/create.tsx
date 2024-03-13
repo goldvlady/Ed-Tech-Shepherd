@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router';
 import { database, storage } from '../../../firebase';
 import { ref as dbRef, onValue, off, DataSnapshot } from 'firebase/database';
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import timezones from '../../OnboardTutor/components/steps/timezones';
 import {
   Grid,
   Box,
@@ -45,7 +46,8 @@ import {
   Center,
   Link,
   HStack,
-  Spinner
+  Spinner,
+  FormLabel
 } from '@chakra-ui/react';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
@@ -83,6 +85,7 @@ import uploadFile, { snip } from '../../../helpers/file.helpers';
 import CalendarDateInput from '../../../components/CalendarDateInput';
 import { ReactSortable } from 'react-sortablejs';
 import { NullComponent } from 'stream-chat-react';
+import CustomSelect from '../../../components/CustomSelect';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -124,6 +127,7 @@ function CreateStudyPlans() {
   const today = moment();
   const [gradeLevel, setGradeLevel] = useState('');
   const [grade, setGrade] = useState('');
+  const [timezone, setTimezone] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [docLoading, setDocLoading] = useState(false);
@@ -581,6 +585,7 @@ function CreateStudyPlans() {
     const payload = {
       course: course,
       title: planName,
+      tz: timezone,
       scheduleItems: convertedArr
     };
 
@@ -1040,6 +1045,46 @@ function CreateStudyPlans() {
               display="block"
               fontWeight={'semibold'}
             >
+              Select timezone
+            </Text>
+            <FormControl mb={8}>
+              <Menu isLazy>
+                <MenuButton
+                  as={Button}
+                  variant="outline"
+                  rightIcon={<FiChevronDown />}
+                  borderRadius="8px"
+                  fontSize="0.875rem"
+                  fontFamily="Inter"
+                  color="#212224"
+                  fontWeight="400"
+                  width="100%"
+                  height="42px"
+                  textAlign="left"
+                >
+                  {timezone}
+                </MenuButton>
+                <MenuList minWidth={'auto'} maxH={64} overflowY="scroll">
+                  {moment.tz.names().map((tz, index) => (
+                    <MenuItem
+                      fontSize="0.875rem"
+                      key={index}
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      onClick={() => setTimezone(tz)}
+                    >
+                      {tz}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+            </FormControl>
+            <Text
+              as="label"
+              htmlFor="subjects"
+              mb={2}
+              display="block"
+              fontWeight={'semibold'}
+            >
               Enter your test dates
             </Text>
             <Flex direction={'column'} gap={2}>
@@ -1135,7 +1180,8 @@ function CreateStudyPlans() {
                 testDate.length < 1 ||
                 !testDate.every((date) =>
                   moment(date, 'MM/DD/YYYY', true).isValid()
-                )
+                ) ||
+                !timezone
               }
             >
               <Icon as={FaRocket} mr={2} />

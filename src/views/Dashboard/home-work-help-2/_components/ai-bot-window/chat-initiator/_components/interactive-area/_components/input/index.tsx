@@ -5,7 +5,7 @@ import Button from './_components/button';
 import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
-import { Select } from '@chakra-ui/react';
+import { Box, Select } from '@chakra-ui/react';
 type Language = (typeof languages)[number];
 function Input({
   actions: {
@@ -89,7 +89,7 @@ function Input({
 
       handleInputTypeChange('language');
     } else {
-      if (chatContext.language === '') return;
+      if (chatContext.language === '' || chatContext.subject === '') return;
       handleSubmit();
     }
   };
@@ -103,9 +103,8 @@ function Input({
   return (
     <React.Fragment>
       <div
-        className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative ${
-          isSelectingLanguage ? 'bg-none ' : 'bg-white shadow-md'
-        }`}
+        className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
+        `}
       >
         {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
           <span className="text-xs absolute top-[-85%] left-[4%] flex ">
@@ -161,102 +160,80 @@ function Input({
             </span>
           )}
 
-        {!isSelectingLanguage ? (
-          <>
-            <input
-              value={(() => {
-                if (currentInputType === 'subject') {
-                  return chatContext.subject;
-                } else if (currentInputType === 'level') {
-                  return chatContext.level;
-                } else if (currentInputType === 'language') {
-                  return chatContext.language;
-                } else {
-                  return chatContext.topic;
-                }
-              })()}
-              onChange={(e) => {
-                if (currentInputType === 'subject') {
-                  handleSubjectChange(e.target.value);
-                  setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
-                } else if (currentInputType === 'level') {
-                  handleLevelChange(e.target.value);
-                  setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
-                } else if (currentInputType === 'language') {
-                  handleLanguageChange(e.target.value);
-                  setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
-                } else {
-                  handleTopicChange(e.target.value);
-                }
-              }}
-              onKeyDown={handleKeyDown}
-              className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0"
-              placeholder={
-                currentInputType === 'subject'
-                  ? 'What subject would you like to start with?'
-                  : currentInputType === 'level'
-                  ? 'Level'
-                  : currentInputType === 'topic'
-                  ? 'What topic would you like to learn about?'
-                  : 'Select Language'
+        <>
+          <input
+            value={(() => {
+              if (currentInputType === 'subject') {
+                return chatContext.subject;
+              } else if (currentInputType === 'level') {
+                return chatContext.level;
+              } else if (currentInputType === 'language') {
+                return chatContext.language;
+              } else {
+                return chatContext.topic;
               }
-            />
-            <Button
-              disabled={
-                currentInputType === 'subject' &&
-                chatContext.subject.trim() === ''
+            })()}
+            onChange={(e) => {
+              if (currentInputType === 'subject') {
+                handleSubjectChange(e.target.value);
+                setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
+              } else if (currentInputType === 'level') {
+                handleLevelChange(e.target.value);
+                setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
+              } else if (currentInputType === 'language') {
+                handleLanguageChange(e.target.value);
+                setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
+              } else {
+                handleTopicChange(e.target.value);
               }
-              onClick={handleButtonClick}
-              title={
-                currentInputType === 'subject'
-                  ? 'Select Level'
-                  : currentInputType === 'level'
-                  ? 'Enter Topic'
-                  : currentInputType === 'topic'
-                  ? 'Select Language'
-                  : 'Submit'
-              }
-            />
-            <AutocompleteWindow
-              currentInputType={currentInputType}
-              active={
-                filterKeyword.keyword.trim() !== '' || filterKeyword.active
-              }
-              filterKeyword={filterKeyword}
-              onClick={(value) => {
-                if (currentInputType === 'subject') handleSubjectChange(value);
-                else if (currentInputType === 'level') handleLevelChange(value);
-                else if (currentInputType === 'topic') handleTopicChange(value);
-                else if (currentInputType === 'language')
-                  handleLanguageChange(value);
-              }}
-              courseList={courseList}
-              levels={levels}
-              languages={languages}
-            />
-          </>
-        ) : (
-          <div className="flex-1 mt-20">
-            <Select
-              isRequired
-              name="language_select"
-              className="w-full mb-2 rounded-lg "
-              value={preferredLanguage}
-              onChange={(e) => {
-                handleLanguageChange(
-                  e.target.value as typeof preferredLanguage
-                );
-                setPreferredLanguage(
-                  e.target.value as typeof preferredLanguage
-                );
-              }}
-            >
-              {languages.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang}
-                </option>
-              ))}
-            </Select>
+            }}
+            onKeyDown={handleKeyDown}
+            className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0"
+            placeholder={
+              currentInputType === 'subject'
+                ? 'What subject would you like to start with?'
+                : currentInputType === 'level'
+                ? 'Level'
+                : currentInputType === 'topic'
+                ? 'What topic would you like to learn about?'
+                : 'Select Language'
+            }
+          />
+          <Button
+            disabled={
+              currentInputType === 'subject' &&
+              chatContext.subject.trim() === ''
+            }
+            onClick={handleButtonClick}
+            title={
+              currentInputType === 'subject'
+                ? 'Select Level'
+                : currentInputType === 'level'
+                ? 'Enter Topic'
+                : currentInputType === 'topic'
+                ? 'Select Language'
+                : 'Submit'
+            }
+          />
+          <AutocompleteWindow
+            currentInputType={currentInputType}
+            active={filterKeyword.keyword.trim() !== '' || filterKeyword.active}
+            filterKeyword={filterKeyword}
+            onClick={(value) => {
+              if (currentInputType === 'subject') handleSubjectChange(value);
+              else if (currentInputType === 'level') handleLevelChange(value);
+              else if (currentInputType === 'topic') handleTopicChange(value);
+              else if (currentInputType === 'language')
+                handleLanguageChange(value);
+            }}
+            courseList={courseList}
+            levels={levels}
+            languages={languages}
+          />
+        </>
+
+        {/* <div className="flex-1 mt-20">
+            
             <button
               className={`bg-[#207DF7] text-white rounded-md w-full p-2  ${
                 currentInputType === 'subject' &&
@@ -268,8 +245,7 @@ function Input({
             >
               Submit
             </button>
-          </div>
-        )}
+          </div> */}
       </div>
 
       <div

@@ -11,6 +11,7 @@ import { CodeBlock } from './code-block';
 interface CustomComponents {
   button: any;
   p?: any;
+  span?: any;
   code?: any;
   ul?: any;
   ol?: any;
@@ -87,6 +88,7 @@ function getComponents(onKeywordClick: any): CustomComponents {
     ul: ListComponent,
     ol: OrderedListComponent,
     p: ParagraphComponent,
+    span: ParagraphComponent,
     math: MathComponent,
     inlineMath: InlineMathComponent,
     blockMath: BlockMathComponent
@@ -131,7 +133,7 @@ const OrderedListComponent = ({ children }) => (
 );
 
 const ParagraphComponent = ({ children }) => (
-  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap overflow-wrap: break-word overflow-hidden">
+  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap overflow-wrap: break-word ">
     {children}
   </p>
 );
