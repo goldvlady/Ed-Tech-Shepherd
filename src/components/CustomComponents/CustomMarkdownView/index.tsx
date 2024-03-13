@@ -11,7 +11,6 @@ import { CodeBlock } from './code-block';
 interface CustomComponents {
   button: any;
   p?: any;
-  span?: any;
   code?: any;
   ul?: any;
   ol?: any;
@@ -51,7 +50,7 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative`}
+      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word`}
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={getComponents(onKeywordClick)}
@@ -88,7 +87,6 @@ function getComponents(onKeywordClick: any): CustomComponents {
     ul: ListComponent,
     ol: OrderedListComponent,
     p: ParagraphComponent,
-    span: ParagraphComponent,
     math: MathComponent,
     inlineMath: InlineMathComponent,
     blockMath: BlockMathComponent
