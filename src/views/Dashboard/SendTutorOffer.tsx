@@ -816,16 +816,14 @@ const SendTutorOffer = () => {
                 ''
               )}
               <Box marginTop={'18px'} textAlign="left">
-                {!isEmpty(user?.paymentMethods) && (
-                  <Button
-                    marginRight={'48px'}
-                    isLoading={selectingPaymentMethod}
-                    onClick={selectPaymentMethod}
-                    size="md"
-                  >
-                    Choose Payment Method
-                  </Button>
-                )}
+                <Button
+                  marginRight={'48px'}
+                  isLoading={selectingPaymentMethod}
+                  onClick={selectPaymentMethod}
+                  size="md"
+                >
+                  Choose Payment Method
+                </Button>
               </Box>
               <Box marginTop={'48px'} textAlign="right">
                 <Button
