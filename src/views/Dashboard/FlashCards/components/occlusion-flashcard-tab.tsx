@@ -14,6 +14,15 @@ import { format } from 'date-fns';
 import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
 import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 import { Progress } from '@chakra-ui/react';
+import { BsThreeDots } from 'react-icons/bs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../../../../components/ui/dropdown-menu';
+import { Button } from '../../../../components/ui/button';
 
 const LoadingRow = () => (
   <TableRow>
@@ -39,7 +48,7 @@ const DataRow = ({ row, handleOpen }) => (
   <TableRow
     key={row._id}
     className="hover:bg-stone-100 cursor-pointer"
-    onClick={() => handleOpen(row._id)}
+    // onClick={() => handleOpen(row._id)}
   >
     <TableCell className="font-medium">{row.title}</TableCell>
     <TableCell>{row.labels.length}</TableCell>
@@ -51,7 +60,28 @@ const DataRow = ({ row, handleOpen }) => (
         ? Math.floor(row.percentages.passPercentage) + '%'
         : 0 + '%'}
     </TableCell>
-    <TableCell className="text-right">-</TableCell>
+    <TableCell className="text-right flex justify-end h-full items-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon">
+            <BsThreeDots />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-white">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleOpen(row._id)}
+            >
+              Study
+            </DropdownMenuItem>
+            <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </TableCell>
   </TableRow>
 );
 
@@ -85,7 +115,8 @@ const OcclusionFlashcardTab = () => {
           meta: {}
         };
       }
-    }
+    },
+    refetchOnWindowFocus: false
   });
 
   const handleOpen = useCallback((id: string) => {
