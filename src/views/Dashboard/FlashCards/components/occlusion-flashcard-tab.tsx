@@ -1,23 +1,33 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import ApiService from "../../../../services/ApiService";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../../../../components/ui/table";
-import { format } from "date-fns";
-import StudySession from "../forms/flashcard_setup/manual-occlusion-2/_components/study-session";
-import OccResultsDialog from "../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components";
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useState } from 'react';
+import ApiService from '../../../../services/ApiService';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '../../../../components/ui/table';
+import { format } from 'date-fns';
+import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
+import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components';
+
+const initialState = {
+  open: false,
+  id: '',
+  score: {
+    right: 0,
+    wrong: 0,
+    notRemembered: 0
+  },
+  quizOver: false,
+  showResults: false
+};
 
 const OcclusionFlashcardTab = () => {
-  const [state, setState] = useState({
-    open: false,
-    id: '',
-    score: {
-      right: 0,
-      wrong: 0,
-      notRemembered: 0
-    },
-    quizOver: false,
-    showResults: false
-  });
+  const [state, setState] = useState(initialState);
 
   const { data, isLoading } = useQuery({
     queryKey: ['image-occlusions'],
@@ -37,43 +47,43 @@ const OcclusionFlashcardTab = () => {
     }
   });
 
-  const handleOpen = (id: string) => {
+  const handleOpen = useCallback((id: string) => {
     setState((pS) => ({
       ...pS,
       open: true,
       id
     }));
-  };
+  }, []);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setState((pS) => ({
       ...pS,
       open: false
     }));
-  };
+  }, []);
 
-  const setQuizOver = (input: boolean) => {
+  const setQuizOver = useCallback((input: boolean) => {
     setState((pS) => ({
       ...pS,
       quizOver: input
     }));
-  };
+  }, []);
 
-  const showResults = (input: boolean) => {
+  const showResults = useCallback((input: boolean) => {
     setState((prevState) => ({
       ...prevState,
       showResults: input
     }));
-  };
+  }, []);
 
-  const setScore = (score) => {
+  const setScore = useCallback((score) => {
     setState((prevState) => ({
       ...prevState,
       score
     }));
-  };
+  }, []);
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     setState((pS) => ({
       ...pS,
       open: true,
@@ -85,7 +95,11 @@ const OcclusionFlashcardTab = () => {
       showResults: false,
       quizOver: false
     }));
-  };
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setState(initialState);
+  }, []);
 
   return (
     <div className="w-full h-full pt-4">
@@ -167,6 +181,7 @@ const OcclusionFlashcardTab = () => {
         score={state.score}
         setOpenResults={showResults}
         setScore={setScore}
+        resetForm={handleReset}
       />
       <OccResultsDialog
         id={state.id}

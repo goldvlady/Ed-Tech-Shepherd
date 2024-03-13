@@ -217,6 +217,7 @@ function StudySession({
                       onClick={() => {
                         close();
                         setOpenResults(false);
+                        resetForm && resetForm();
                         setTimeout(() => {
                           setQuizOver(false);
                         }, 100);
