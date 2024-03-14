@@ -136,23 +136,25 @@ const DataRow = ({ row, handleOpen }) => {
         {format(new Date(row.updatedAt), 'MMM d, yy h:mm a')}
       </TableCell>
       <TableCell>
-        <div
-          className={`w-fit px-2 py-0.5 rounded bg-[${
-            getColorAndBackground(
-              row.percentages.passPercentage
-                ? Math.floor(row.percentages.passPercentage)
-                : 0
-            ).backgroundColor
-          }] text-[${getColorAndBackground(
-            row.percentages.passPercentage
-              ? Math.floor(row.percentages.passPercentage)
-              : 0
-          ).color}]`}
-        >
-          {row.percentages.passPercentage
-            ? Math.floor(row.percentages.passPercentage) + '%'
-            : 0 + '%'}
-        </div>
+        {row.percentages.passPercentage ? (
+          <div
+            className={`w-fit px-2 py-0.5 rounded bg-[${
+              getColorAndBackground(row.percentages.passPercentage)
+                .backgroundColor
+            }] text-[${
+              getColorAndBackground(row.percentages.passPercentage).color
+            }]`}
+          >
+            {row.percentages.passPercentage
+              ? Math.floor(row.percentages.passPercentage) + '%'
+              : 0 + '%'}
+          </div>
+        ) : (
+          // Not attempted
+          <div className="w-fit px-2 py-0.5 rounded bg-[#F3F5F6] text-[#969CA6]">
+            Not attempted
+          </div>
+        )}
       </TableCell>
       <TableCell className="text-right flex justify-end h-full items-center">
         <AlertDialog>
