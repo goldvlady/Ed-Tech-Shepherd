@@ -439,6 +439,8 @@ const SendTutorOffer = () => {
                           value={field.value}
                           onChange={(d) => {
                             form.setFieldValue(field.name, d);
+                            form.setFieldValue('days', []);
+                            form.setFieldValue('schedule', {});
                             // Dynamically set the minDate for contractEndDate
                             form.setFieldValue('contractEndDate', null); // Reset contractEndDate
                             form.setFieldError('contractEndDate', ''); // Clear any previous error
@@ -472,12 +474,14 @@ const SendTutorOffer = () => {
                           disabledDate={{
                             before: form.values.contractStartDate
                           }}
-                          onChange={(d) =>
+                          onChange={(d) => {
                             form.setFieldValue(
                               field.name,
                               moment(d).endOf('day').toDate()
-                            )
-                          }
+                            );
+                            form.setFieldValue('days', []);
+                            form.setFieldValue('schedule', {});
+                          }}
                         />
                         <FormErrorMessage>
                           {form.errors[field.name] as string}
@@ -615,8 +619,8 @@ const SendTutorOffer = () => {
                       {isEditing ? (
                         <Select
                           isMulti
-                          defaultValue={dayOptions.filter((option) =>
-                            (field.value as string[]).includes(option.value)
+                          value={dayOptions.filter((option) =>
+                            form.values.days.includes(option.value)
                           )}
                           tagVariant="solid"
                           placeholder="Select days"
