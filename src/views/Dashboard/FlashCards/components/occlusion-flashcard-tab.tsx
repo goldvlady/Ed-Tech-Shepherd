@@ -35,6 +35,17 @@ import {
   AlertDialogTrigger
 } from '../../../../components/ui/alert-dialog';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '../../../../components/ui/pagination';
+import { Input } from '../../../../components/ui/input';
+import { TrackNextIcon } from '@radix-ui/react-icons';
 
 const LoadingRow = () => (
   <TableRow>
@@ -171,10 +182,20 @@ const initialState = {
 
 const OcclusionFlashcardTab = () => {
   const [state, setState] = useState(initialState);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 5
+  });
+  const [paginationUserInput, setPaginationUserInput] = useState(
+    pagination.page
+  );
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['image-occlusions'],
-    queryFn: () => ApiService.fetchOcclusionCards().then((res) => res.json()),
+    queryKey: ['image-occlusions', pagination.page, pagination.limit],
+    queryFn: () =>
+      ApiService.fetchOcclusionCards(pagination.page, pagination.limit).then(
+        (res) => res.json()
+      ),
     select: (data) => {
       if (data.message === 'Successfully retrieved occlusion cards') {
         return {
@@ -260,10 +281,51 @@ const OcclusionFlashcardTab = () => {
     });
   }
 
+  const handlePreviousClick = () => {
+    if (pagination.page > 0) {
+      setPagination((pS) => ({
+        ...pS,
+        page: pS.page - 1
+      }));
+      setPaginationUserInput(pagination.page - 1);
+    }
+  };
+
+  const handleNextClick = () => {
+    setPagination((pS) => ({
+      ...pS,
+      page: pS.page + 1
+    }));
+    setPaginationUserInput(pagination.page + 1);
+  };
+
+  const renderPaginationItems = () => {
+    let start = pagination.page > 0 ? pagination.page - 1 : 0;
+    let items = [];
+
+    for (let i = start; i < start + pagination.limit; i++) {
+      items.push(
+        <PaginationItem
+          key={i}
+          onClick={() => {
+            setPagination((pS) => ({ ...pS, page: i }));
+            setPaginationUserInput(i);
+          }}
+        >
+          <PaginationLink href="#" isActive={i === pagination.page}>
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
+
   return (
     <div className="w-full h-full pt-4">
       <Table>
-        <TableCaption>List of Image Occlusion Flashcards</TableCaption>
+        {/* <TableCaption>List of Image Occlusion Flashcards</TableCaption> */}
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px]">Deckname</TableHead>
@@ -286,6 +348,42 @@ const OcclusionFlashcardTab = () => {
           ))}
         </TableBody>
       </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem className="flex gap-2 border rounded p-1">
+              <Input
+                type="number"
+                value={paginationUserInput}
+                className="max-w-12"
+                onChange={(e) =>
+                  setPaginationUserInput(parseInt(e.target.value))
+                }
+              />
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() =>
+                  setPagination((pS) => ({
+                    ...pS,
+                    page: paginationUserInput
+                  }))
+                }
+              >
+                <TrackNextIcon className="w-4 h-4" />
+              </Button>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationPrevious href="#" onClick={handlePreviousClick} />
+            </PaginationItem>
+            {renderPaginationItems()}
+            <PaginationEllipsis />
+            <PaginationItem>
+              <PaginationNext href="#" onClick={handleNextClick} />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
       <StudySession
         id={state.id}
         open={state.open}

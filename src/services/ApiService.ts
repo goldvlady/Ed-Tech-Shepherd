@@ -343,10 +343,10 @@ class ApiService {
     );
   };
 
-  static fetchOcclusionCards = async () => {
+  static fetchOcclusionCards = async (page: number, limit: number) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCards`,
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCards?page=${page}&limit=${limit}`,
       {
         method: 'POST',
         body: JSON.stringify({})
