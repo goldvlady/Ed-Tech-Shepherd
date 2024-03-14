@@ -40,6 +40,10 @@ function ImageUploader({
   const onDrop = useCallback((acceptedFiles) => {
     const file = acceptedFiles[0];
     if (file) {
+      if (file.size > 1024 * 1024) {
+        alert('File size is greater than 500KB');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setImageURI(reader.result as string);
@@ -150,8 +154,8 @@ function ImageUploader({
             </div>
             <p className="max-w-80 mx-auto text-[#585F68] text-sm font-normal">
               Shepherd supports{' '}
-              <span className="font-medium">.pdf, .jpg, .jpeg & .png</span>{' '}
-              document formats
+              <span className="font-medium">.jpg, .jpeg & .png</span>{' '}
+              document formats. (Max file size 1MB)
             </p>
           </div>
           <div className="footer px-6 bg-[#F7F7F8] py-2.5">
