@@ -100,6 +100,30 @@ const DataRow = ({ row, handleOpen }) => {
       return { previous };
     }
   });
+
+  const colorRanges = [
+    { max: 100, min: 85.1, color: '#4CAF50', backgroundColor: '#EDF7EE' },
+    { max: 85, min: 60, color: '#FB8441', backgroundColor: '#FFEFE6' },
+    { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
+  ];
+
+  function getColorAndBackground(percentage: number) {
+    if (isNaN(percentage) || !percentage)
+      return {
+        color: colorRanges[2].color,
+        backgroundColor: colorRanges[2].backgroundColor
+      };
+    for (let range of colorRanges) {
+      if (percentage <= range.max && percentage >= range.min) {
+        return { color: range.color, backgroundColor: range.backgroundColor };
+      }
+    }
+    return {
+      color: colorRanges[2].color,
+      backgroundColor: colorRanges[2].backgroundColor
+    };
+  }
+
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
       <TableCell className="font-medium text-[#207DF7]">{row.title}</TableCell>
@@ -112,9 +136,23 @@ const DataRow = ({ row, handleOpen }) => {
         {format(new Date(row.updatedAt), 'MMM d, yy h:mm a')}
       </TableCell>
       <TableCell>
-        {row.percentages.passPercentage
-          ? Math.floor(row.percentages.passPercentage) + '%'
-          : 0 + '%'}
+        <div
+          className={`w-fit px-2 py-0.5 rounded bg-[${
+            getColorAndBackground(
+              row.percentages.passPercentage
+                ? Math.floor(row.percentages.passPercentage)
+                : 0
+            ).backgroundColor
+          }] text-[${getColorAndBackground(
+            row.percentages.passPercentage
+              ? Math.floor(row.percentages.passPercentage)
+              : 0
+          ).color}]`}
+        >
+          {row.percentages.passPercentage
+            ? Math.floor(row.percentages.passPercentage) + '%'
+            : 0 + '%'}
+        </div>
       </TableCell>
       <TableCell className="text-right flex justify-end h-full items-center">
         <AlertDialog>
