@@ -346,12 +346,35 @@ const SendTutorOffer = () => {
   //     return { label: numberToDayOfWeekName(i), value: i };
   //   });
 
-  function mapScheduleKeysToValue(schedule) {
-    return Object.keys(schedule).map((key) => ({
-      label: numberToDayOfWeekName(Number(key)),
-      value: key
+  // function mapScheduleKeysToValue(schedule) {
+  //   return Object.keys(schedule).map((key) => ({
+  //     label: numberToDayOfWeekName(Number(key)),
+  //     value: key
+  //   }));
+  // }
+
+  function getDaysBetweenDates(startDate: Date, endDate: Date) {
+    const startDay = moment(startDate);
+    const endDay = moment(endDate);
+    const diffDays = endDay.diff(startDay, 'days');
+
+    let days = [];
+    if (diffDays < 7) {
+      let currentDay = startDay;
+      while (currentDay <= endDay) {
+        days.push(currentDay.day());
+        currentDay = currentDay.clone().add(1, 'days');
+      }
+    } else {
+      days = Array.from({ length: 7 }, (_, i) => i);
+    }
+
+    return days.map((dayNum) => ({
+      label: numberToDayOfWeekName(dayNum),
+      value: dayNum.toString()
     }));
   }
+
   const today = useMemo(() => new Date(), []);
 
   const MainForm = () => {
@@ -569,68 +592,68 @@ const SendTutorOffer = () => {
                 )}
               </Field>
               <Field name="days">
-                {({ field, form }: FieldProps) => (
-                  <FormControl
-                    mt={'24px'}
-                    isInvalid={
-                      !!form.errors[field.name] && !!form.touched[field.name]
-                    }
-                  >
-                    <FormLabel>
-                      What days would you like to have your classes
-                    </FormLabel>
-                    {isEditing ? (
-                      <Select
-                        isMulti
-                        defaultValue={(field.value as number[]).map((v) =>
-                          mapScheduleKeysToValue(tutor.schedule).find(
-                            (d: any) => d.value === v
-                          )
-                        )}
-                        tagVariant="solid"
-                        placeholder="Select days"
-                        options={mapScheduleKeysToValue(tutor.schedule)}
-                        size={'md'}
-                        onFocus={() =>
-                          form.setTouched({
-                            ...form.touched,
-                            [field.name]: true
-                          })
-                        }
-                        // @ts-ignore: we'll get back to this soon
-                        onChange={(option: Option[]) => {
-                          const scheduleValue = formik.values['schedule'];
-                          formik.values[field.name].forEach((fv: string) => {
-                            if (!option.find((opt) => opt.value === fv)) {
-                              if (scheduleValue[fv]) {
-                                delete scheduleValue[fv];
-                                form.setFieldValue('schedule', scheduleValue);
-                              }
-                            }
-                          });
-                          form.setFieldValue(
-                            field.name,
-                            option.map((o) => o.value)
-                          );
-                        }}
-                      />
-                    ) : (
-                      <EditField>
-                        {(field.value as number[])
-                          .map((v) => {
-                            // return dayOptions.find(
-                            //   (d) => d.value === v
-                            // )?.label;
-                            return numberToDayOfWeekName(v);
-                          })
-                          .join(', ')}
-                      </EditField>
-                    )}
-                    <FormErrorMessage>
-                      {form.errors[field.name] as string}
-                    </FormErrorMessage>
-                  </FormControl>
-                )}
+                {({ field, form }: FieldProps) => {
+                  const contractStartDate = form.values.contractStartDate;
+                  const contractEndDate = form.values.contractEndDate;
+                  let dayOptions = [];
+                  if (contractStartDate && contractEndDate) {
+                    dayOptions = getDaysBetweenDates(
+                      contractStartDate,
+                      contractEndDate
+                    );
+                  }
+                  return (
+                    <FormControl
+                      mt={'24px'}
+                      isInvalid={
+                        !!form.errors[field.name] && !!form.touched[field.name]
+                      }
+                    >
+                      <FormLabel>
+                        What days would you like to have your classes
+                      </FormLabel>
+                      {isEditing ? (
+                        <Select
+                          isMulti
+                          defaultValue={dayOptions.filter((option) =>
+                            (field.value as string[]).includes(option.value)
+                          )}
+                          tagVariant="solid"
+                          placeholder="Select days"
+                          options={dayOptions}
+                          size={'md'}
+                          onFocus={() =>
+                            form.setTouched({
+                              ...form.touched,
+                              [field.name]: true
+                            })
+                          }
+                          // @ts-ignore: we'll get back to this soon
+                          onChange={(option: Option[]) => {
+                            form.setFieldValue(
+                              field.name,
+                              option.map((o) => o.value)
+                            );
+                          }}
+                        />
+                      ) : (
+                        <EditField>
+                          {(field.value as number[])
+                            .map((v) => {
+                              // return dayOptions.find(
+                              //   (d) => d.value === v
+                              // )?.label;
+                              return numberToDayOfWeekName(v);
+                            })
+                            .join(', ')}
+                        </EditField>
+                      )}
+                      <FormErrorMessage>
+                        {form.errors[field.name] as string}
+                      </FormErrorMessage>
+                    </FormControl>
+                  );
+                }}
               </Field>
 
               {!isEmpty(formik.values['days']) && (
