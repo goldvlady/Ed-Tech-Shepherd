@@ -205,7 +205,7 @@ const CreateQuizPage = () => {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your Free Trial!'
+          ? 'Subscribe to unlock your AI Study Tools! 🚀'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
@@ -345,7 +345,6 @@ const CreateQuizPage = () => {
         setIsLoadingButton(false);
         setUploadingState(false);
         if (error) {
-          console.log('QUIZ ERROR: ', error);
           toast({
             position: 'top-right',
             title: `failed to update quiz`,
@@ -697,6 +696,7 @@ const CreateQuizPage = () => {
                     removeTag={handleRemoveTag}
                     title={title}
                     handleSetTitle={handleSetTitle}
+                    preferredLang={preferredLanguage}
                     setPreferredLang={setPreferredLanguage}
                     isLoadingButton={isLoadingButton}
                     handleCreateUpdateQuiz={handleCreateUpdateQuiz}

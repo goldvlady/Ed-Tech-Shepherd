@@ -14,21 +14,23 @@ function useSocket() {
     documentId,
     studentId,
     topic,
-    subject
+    subject,
+    name
   }: {
     documentId?: string;
     studentId: string;
     topic: string;
     subject: string;
+    name?: string;
   }) => {
     socketRef.current = socketWithAuth({
       studentId,
       topic,
       subject,
       documentId,
-      namespace: 'homework-help'
+      namespace: 'homework-help',
+      name
     }).connect();
-    console.log('socketRef.current', socketRef.current);
   };
 
   //  2nd step is to listen for the ready event from the server. Once the server is ready, we can start the chat
@@ -39,7 +41,6 @@ function useSocket() {
         setReadyToChat(ready);
         if (!messages.length) {
           socket.emit('chat message', SHALL_WE_BEGIN);
-          console.log('SHALL_WE_BEGIN', SHALL_WE_BEGIN);
         }
       });
       return () => socket.off('ready');
@@ -52,7 +53,6 @@ function useSocket() {
       socket.on('chat response start', async (token: string) => {
         setBotStatus('Typing...');
         setLLMResponse((prevResponse) => prevResponse + token);
-        console.log('chat response start', token);
       });
       return () => socket.off('chat response start');
     }
@@ -67,7 +67,6 @@ function useSocket() {
           () => setBotStatus('Philosopher, thinker, study companion.'),
           1000
         );
-        console.log('chat response end', completeText);
         setMessages((prevMessages) => [
           ...prevMessages,
           { text: completeText, isUser: false, isLoading: false }

@@ -467,7 +467,6 @@ const FileUploadModal = ({
       onIngestedDocument(ingestedDocument);
     } catch (error) {
       // Handle error
-      console.log('proceed -------->>> error  ===========>>> ', error);
     } finally {
       setShow(false);
     }

@@ -13,6 +13,7 @@ import {
   Radio,
   Text,
   VStack,
+  HStack,
   useDisclosure
 } from '@chakra-ui/react';
 import * as React from 'react';
@@ -21,10 +22,13 @@ import styled from 'styled-components';
 
 export interface ChoosePaymentMethodDialogRef {
   choosePaymentMethod: () => Promise<PaymentMethod | null>;
+  setupNewPaymentMethod?: () => Promise<void>;
 }
 
 interface Props {
   prefix?: React.ReactNode;
+  onSetupNewPaymentMethod?: () => Promise<void>;
+  settingUpPaymentMethod?: boolean;
 }
 
 const Root = styled(Box)`
@@ -90,7 +94,7 @@ const getBrandLogo = (brand: string) => {
 const ChoosePaymentMethodDialog = React.forwardRef<
   ChoosePaymentMethodDialogRef,
   Props
->(({ prefix }, ref) => {
+>(({ prefix, onSetupNewPaymentMethod, settingUpPaymentMethod }, ref) => {
   const { user } = userStore();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -109,7 +113,8 @@ const ChoosePaymentMethodDialog = React.forwardRef<
           promiseResolve.current = resolve;
           promiseReject.current = reject;
         });
-      }
+      },
+      setupNewPaymentMethod: onSetupNewPaymentMethod
     };
   });
 
@@ -149,20 +154,35 @@ const ChoosePaymentMethodDialog = React.forwardRef<
               ))}
             </VStack>
             <Box width={'100%'} mt={5}>
-              <Button
-                onClick={() => {
-                  onClose();
-                  promiseResolve.current?.(
-                    currentPaymentMethod as PaymentMethod
-                  );
-                }}
-                type="submit"
-                width={'100%'}
-                variant={'solid'}
-                isDisabled={currentPaymentMethod === null}
-              >
-                Continue
-              </Button>
+              <HStack spacing={4}>
+                {onSetupNewPaymentMethod && (
+                  <Button
+                    onClick={() => {
+                      onSetupNewPaymentMethod();
+                    }}
+                    isLoading={settingUpPaymentMethod}
+                    variant={'solid'}
+                    isDisabled={settingUpPaymentMethod}
+                    flexGrow={1}
+                  >
+                    Add Payment Method
+                  </Button>
+                )}
+                <Button
+                  onClick={() => {
+                    onClose();
+                    promiseResolve.current?.(
+                      currentPaymentMethod as PaymentMethod
+                    );
+                  }}
+                  type="submit"
+                  variant={'solid'}
+                  isDisabled={currentPaymentMethod === null}
+                  flexGrow={1}
+                >
+                  Continue
+                </Button>
+              </HStack>
             </Box>
           </ModalBody>
         </ModalContent>

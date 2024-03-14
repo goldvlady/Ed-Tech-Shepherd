@@ -69,7 +69,7 @@ function StudentCard(props) {
   function Date(date) {
     return (
       <Text className="inline-flex flex-shrink-0 space-x-1 items-center rounded-md bg-gray-100 px-1.5 py-1 text-xs font-medium text-secondaryGray">
-        {moment(date).format('DD.MM.YYYY')}
+        {moment(date).format('MM.DD.YYYY')}
       </Text>
     );
   }

@@ -690,7 +690,6 @@ const StudyBox = () => {
       curr.currentStep = curr.currentStep + 1;
       prev[currentStudyIndex] = curr;
       setSavedScore((prevScore) => {
-        console.log(prevScore, 'prevScore');
         return {
           ...prevScore,
           score: (prevScore.score || 0) + 1,

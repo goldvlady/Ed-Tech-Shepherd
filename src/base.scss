@@ -1335,6 +1335,13 @@ input[type='text']:focus {
   box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
 }
 
+//STUDY PLAN
+
+.sortable-ghost {
+  opacity: 0.5;
+  background: #88898a;
+}
+
 #root {
   .str-chat__channel-header {
     height: 76px;

@@ -51,10 +51,15 @@ const PendingVerification = () => {
     onClose: closeEmailModal
   } = useDisclosure();
 
-  const navigateToDashboard = () =>
-    navigate(
-      user?.signedUpAsTutor ? '/dashboard/tutordashboard/' : '/dashboard'
-    );
+  const navigateToDashboard = () => {
+    if (user?.signedUpAsTutor) {
+      navigate(
+        user?.tutor?.active ? '/dashboard/tutordashboard' : '/complete_profile'
+      );
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   async function verifyToken(token: string) {
     try {
@@ -103,6 +108,10 @@ const PendingVerification = () => {
 
   useEffect(() => {
     startResendTimer();
+  }, []);
+
+  useEffect(() => {
+    fetchUser();
   }, []);
 
   useEffect(() => {

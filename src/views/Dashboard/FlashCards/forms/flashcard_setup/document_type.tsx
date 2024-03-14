@@ -13,6 +13,10 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Radio,
   RadioGroup,
   Button,
@@ -22,6 +26,7 @@ import {
   Select
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
 const FlashcardFromDocumentSetup = ({
   isAutomated
@@ -38,6 +43,8 @@ const FlashcardFromDocumentSetup = ({
     isLoading: isLoadingFlashcardQuestions
   } = useFlashcardWizard();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
   const [preferredLanguage, setPreferredLanguage] = useState<
     (typeof languages)[number]
   >(languages[0]);
@@ -79,10 +86,10 @@ const FlashcardFromDocumentSetup = ({
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'hard' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const handleChange = React.useCallback(
@@ -195,22 +202,54 @@ const FlashcardFromDocumentSetup = ({
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Preferred Language
         </FormLabel>
-        <Select
-          isRequired
-          id="language_select"
-          name="language_select"
-          className="pt-1"
-          value={preferredLanguage}
-          onChange={(e) => {
-            setPreferredLanguage(e.target.value as typeof preferredLanguage);
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang}
-            </option>
-          ))}
-        </Select>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
       </FormControl>
       <FormControl my={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>

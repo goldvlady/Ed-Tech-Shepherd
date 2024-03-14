@@ -26,9 +26,9 @@ const steps = [
       'Proceed to provide your payment details once the tutor accepts your offer'
   },
   {
-    title: 'A Test-Run',
+    title: 'Connect with your tutor',
     description:
-      'You won’t be charged until after your first session, you may cancel after the first lesson.'
+      'You’ll receive a reminder 1 hour before your session. You can reschedule or cancel up to 24 hours before your session starts.'
   }
 ];
 function HowItWorks() {

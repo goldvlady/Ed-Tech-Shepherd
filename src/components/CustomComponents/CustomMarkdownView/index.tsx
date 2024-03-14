@@ -50,7 +50,7 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative`}
+      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word`}
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={getComponents(onKeywordClick)}
@@ -131,7 +131,7 @@ const OrderedListComponent = ({ children }) => (
 );
 
 const ParagraphComponent = ({ children }) => (
-  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap">
+  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap overflow-wrap: break-word ">
     {children}
   </p>
 );

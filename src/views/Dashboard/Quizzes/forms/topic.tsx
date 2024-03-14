@@ -19,6 +19,10 @@ import {
   Button,
   FormLabel,
   Tooltip,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Select,
   Flex,
   Icon,
@@ -28,6 +32,7 @@ import {
 import { isEmpty, toNumber } from 'lodash';
 import { ChangeEvent, useCallback, useState } from 'react';
 import { languages } from '../../../../helpers';
+import { FiChevronDown } from 'react-icons/fi';
 
 const TopicQuizForm = ({
   handleSetTitle,
@@ -43,11 +48,13 @@ const TopicQuizForm = ({
     topic: '',
     difficulty: 'kindergarten',
     count: 1,
-    type: MIXED
+    type: MIXED,
+    grade: ''
   };
 
   // const { handleIsLoadingQuizzes, fetchQuizzes } = quizStore();
 
+  const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<any>(dummyData);
 
@@ -64,6 +71,18 @@ const TopicQuizForm = ({
     { label: 'Open Ended', value: OPEN_ENDED },
     { label: 'Mixed', value: MIXED }
   ];
+
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
+  ];
+
   const [preferredLanguage, setPreferredLanguage] = useState<
     (typeof languages)[number]
   >(languages[0]);
@@ -192,20 +211,54 @@ const TopicQuizForm = ({
     <Box width={'100%'} mt="20px">
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
-        <Select
-          isRequired
-          name="language_select"
-          value={preferredLanguage}
-          onChange={(e) => {
-            setPreferredLanguage(e.target.value as typeof preferredLanguage);
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang}
-            </option>
-          ))}
-        </Select>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
       </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
@@ -262,6 +315,31 @@ const TopicQuizForm = ({
             const event = {
               target: {
                 name: 'type',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        />
+      </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Grade (optional):
+        </FormLabel>
+        <SelectComponent
+          name="grade"
+          placeholder="Select grade"
+          defaultValue={gradeOptions.find(
+            (option) => option.value === localData?.grade
+          )}
+          tagVariant="solid"
+          options={gradeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'grade',
                 value: (option as Option).value
               }
             } as ChangeEvent<HTMLSelectElement>;

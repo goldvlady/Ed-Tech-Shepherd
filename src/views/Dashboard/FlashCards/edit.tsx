@@ -5,7 +5,6 @@ import ApiService from '../../../services/ApiService';
 import flashcardStore from '../../../state/flashcardStore';
 import userStore from '../../../state/userStore';
 import { useFlashcardWizard } from './context/flashcard';
-import MnemonicSetupProvider from './context/mneomics';
 import SetupFlashcardPage from './forms/flashcard_setup';
 import FlashcardFromDocumentSetup from './forms/flashcard_setup/document_type';
 import LoaderScreen from './forms/flashcard_setup/loader_page';

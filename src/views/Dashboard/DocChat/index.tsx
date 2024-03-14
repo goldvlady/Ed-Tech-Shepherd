@@ -67,6 +67,7 @@ import {
   useDisclosure,
   Link
 } from '@chakra-ui/react';
+import { languages } from '../../../helpers';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -94,12 +95,12 @@ export default function DocChat() {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your Free Trial!'
+          ? 'Start Your Subscription!'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
     } else if (!user) {
-      setPlansModalMessage('Start Your Free Trial!');
+      setPlansModalMessage('Start Your Subscription!');
       setPlansModalSubMessage('One-click Cancel at anytime.');
     }
   }, [user, hasActiveSubscription]);
@@ -139,6 +140,9 @@ export default function DocChat() {
   const documentUrl = searchParams.get('documentUrl')
     ? decodeURIComponent(searchParams.get('documentUrl'))
     : '';
+  const language = searchParams.get('language')
+    ? decodeURIComponent(searchParams.get('language'))
+    : 'English';
 
   const noteId: string = searchParams.get('noteId')
     ? decodeURIComponent(searchParams.get('noteId'))
@@ -151,7 +155,6 @@ export default function DocChat() {
   const title = searchParams.get('docTitle')
     ? decodeURIComponent(searchParams.get('docTitle'))
     : '';
-  const studentId = decodeURIComponent(searchParams.get('sid')) ?? user?._id;
   const directStudentId = user?.student?._id;
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryText, setSummaryText] = useState('');
@@ -167,6 +170,15 @@ export default function DocChat() {
   const [summaryStart, setSummaryStart] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const studentId = useMemo(() => {
+    const hasSid = Boolean(searchParams.get('sid'));
+    if (hasSid) {
+      const studentParamsId = decodeURIComponent(searchParams.get('sid'));
+      return studentParamsId;
+    }
+    return user?._id;
+  }, [user]);
 
   const mobile = useIsMobile({
     defaultWidth: 1024
@@ -456,7 +468,9 @@ export default function DocChat() {
           studentId,
           documentId,
           firebaseId: user?.firebaseId,
-          namespace: 'doc-chat'
+          language: language as (typeof languages)[number],
+          namespace: 'doc-chat',
+          name: user?.name.first
         }).connect();
 
         // setSocket(authSocket);
@@ -466,7 +480,9 @@ export default function DocChat() {
         authSocket = socketWithAuth({
           studentId,
           noteId,
+          language: language as (typeof languages)[number],
           namespace: 'note-workspace',
+          name: user?.name.first,
           isDevelopment: process.env.REACT_APP_API_ENDPOINT.includes('develop')
           // isDevelopment: false
         }).connect();
@@ -1010,7 +1026,9 @@ export default function DocChat() {
       !isNil(initialContent)
     ) {
       const editorState = editor.parseEditorState(initialContent);
-      editor.setEditorState(editorState);
+      if (!editorState.isEmpty()) {
+        editor.setEditorState(editorState);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
@@ -1373,6 +1391,8 @@ export default function DocChat() {
   //     </Center>
   //   );
   // } else {
+  console.log(messages, 'messages');
+
   return (
     <section
       className={clsx(

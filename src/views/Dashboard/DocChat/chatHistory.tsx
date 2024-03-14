@@ -386,14 +386,12 @@ const ChatHistory = ({
   }, [isSubmitted, studentId, messages]);
 
   useEffect(() => {
-    console.log(messages);
     if (messages?.length) {
       if (messages.length === 1) {
         const retrieve = async () => {
           const latestChat = await retrieveChatHistory(studentId, false);
           if (latestChat) {
             setLocalData({});
-            console.log(latestChat.id, conversationId, 'lets see');
             const p = pathname.includes('homework')
               ? '/dashboard/ace-homework'
               : '/dashboard/docchat';
@@ -590,7 +588,7 @@ const ChatHistory = ({
                                     `/dashboard/ace-homework/${message.id}`
                                   );
                                 }
-                                console.log('dyu run');
+
                                 setSelectedIndex(index);
                                 // setConversationId(message.id);
                                 retrieveChatHistory(studentId, false);

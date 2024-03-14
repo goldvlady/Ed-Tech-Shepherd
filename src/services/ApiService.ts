@@ -8,7 +8,8 @@ import {
   StudentDocumentPayload,
   QuizData,
   QuizQuestion,
-  FlashcardData
+  FlashcardData,
+  StudyPlanTopicDocumentPayload
 } from '../types';
 import { doFetch } from '../util';
 import {
@@ -131,6 +132,14 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static cancelBooking = async (queryParams: { id: string }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/cancelBooking?${queryString}`, {
+      method: 'POST'
+    });
+  };
+
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
@@ -353,6 +362,20 @@ class ApiService {
       }
     );
   };
+  
+  static storeStudyPlanMetaData = async (data: {
+    studyPlanId: string;
+    metadata?: {
+      topicId: string;
+      conversationId?: string;
+      testDate?: Date;
+    };
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
 
   static getSingleFlashcard = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
@@ -492,6 +515,16 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createTutor`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static activateTutor = async (queryParams: {
+    apiKey: string;
+    tutorEmail: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/activateTutor?${queryString}`, {
+      method: 'POST'
     });
   };
 
@@ -1165,15 +1198,6 @@ class ApiService {
     title?: string,
     subject?: string
   ) => {
-    console.log(
-      page,
-      limit,
-      minReadinessScore,
-      maxReadinessScore,
-      title,
-      subject
-    );
-
     let apiUrl = `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`;
     if (minReadinessScore !== undefined && maxReadinessScore !== undefined) {
       apiUrl += `&minReadinessScore=${minReadinessScore}&maxReadinessScore=${maxReadinessScore}`;
@@ -1210,6 +1234,20 @@ class ApiService {
   };
   static saveTopicSummary = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateIndividualStudyTopic`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static storeConversationIdToStudyPlan = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static storeStudyPlanTopicDocument = async (
+    data: StudyPlanTopicDocumentPayload
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanTopicDocument`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

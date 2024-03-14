@@ -23,6 +23,10 @@ import {
   FormHelperText,
   Input,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Button,
   Tooltip,
   Select,
@@ -37,6 +41,7 @@ import PlansModal from '../../../../components/PlansModal';
 import FileUpload from '../components/fileUpload';
 import { useToggle } from 'usehooks-ts';
 import { languages } from '../../../../helpers';
+import { FiChevronDown } from 'react-icons/fi';
 
 type LocalDummyData = {
   subject: string;
@@ -70,10 +75,10 @@ const UploadQuizForm = ({
   };
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const typeOptions = [
@@ -104,6 +109,7 @@ const UploadQuizForm = ({
   const [openModal, _, setOpenModal] = useToggle(false);
   const [ingestedDocument, setIngestedDocument] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   const handleGenerateQuestions = async (
     data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>
@@ -383,20 +389,54 @@ const UploadQuizForm = ({
     <Box width={'100%'} mt="20px">
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
-        <Select
-          isRequired
-          name="language_select"
-          value={preferredLanguage}
-          onChange={(e) => {
-            setPreferredLanguage(e.target.value as typeof preferredLanguage);
-          }}
-        >
-          {languages.map((lang) => (
-            <option key={lang} value={lang}>
-              {lang}
-            </option>
-          ))}
-        </Select>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
       </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>

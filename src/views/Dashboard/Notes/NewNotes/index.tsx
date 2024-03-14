@@ -1011,7 +1011,6 @@ const NewNote = () => {
 
   useEffect(() => {
     if (!isEmpty(params?.id)) {
-      console.log('setNoteParamId', params.id);
       setNoteParamId(params?.id as string);
     } else {
       clearEditor();
@@ -1153,7 +1152,9 @@ const NewNote = () => {
       !isNil(initialContent)
     ) {
       const editorState = editor.parseEditorState(initialContent);
-      editor.setEditorState(editorState);
+      if (!editorState.isEmpty()) {
+        editor.setEditorState(editorState);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialContent]);
@@ -1402,7 +1403,7 @@ const NewNote = () => {
             />
             {togglePlansModal && (
               <PlansModal
-                message="Start Your Free Trial!"
+                message="Subscribe to unlock your AI Study Tools! 🚀"
                 subMessage="One-click Cancel at anytime."
                 togglePlansModal={togglePlansModal}
                 setTogglePlansModal={setTogglePlansModal}

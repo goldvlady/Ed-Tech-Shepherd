@@ -119,7 +119,6 @@ export default function Marketplace() {
   const [loadingData, setLoadingData] = useState(false);
   //   const [tz, setTz] = useState<any>(() => moment.tz.guess());
   const [subject, setSubject] = useState<string>('Subject');
-  console.log(subject);
 
   const [level, setLevel] = useState<any>('');
   const [price, setPrice] = useState<any>('');
@@ -787,8 +786,9 @@ export default function Marketplace() {
               <MdInfo color={theme.colors.primary[500]} />
             </AlertIcon>
             <AlertDescription>
-              Payment will not be deducted until after your first lesson, You
-              may decide to cancel after your initial lesson.
+              Payment will not be deducted until one hour before your session.
+              You will not be charged if you cancel 24 or more hours before your
+              session.
             </AlertDescription>
           </Alert>
         }
