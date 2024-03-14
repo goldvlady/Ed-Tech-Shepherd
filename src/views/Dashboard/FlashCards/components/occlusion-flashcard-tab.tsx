@@ -322,7 +322,7 @@ const OcclusionFlashcardTab = () => {
   }
 
   const handlePreviousClick = () => {
-    if (pagination.page > 0) {
+    if (pagination.page > 1) {
       setPagination((pS) => ({
         ...pS,
         page: pS.page - 1
@@ -352,7 +352,7 @@ const OcclusionFlashcardTab = () => {
             setPaginationUserInput(i);
           }}
         >
-          <PaginationLink href="#" isActive={i === pagination.page}>
+          <PaginationLink href="#" isActive={i === pagination.page || i === 0}>
             {i}
           </PaginationLink>
         </PaginationItem>
@@ -419,7 +419,15 @@ const OcclusionFlashcardTab = () => {
               </Button>
             </PaginationItem>
             <PaginationItem>
-              <PaginationPrevious href="#" onClick={handlePreviousClick} />
+              <PaginationPrevious
+                href="#"
+                onClick={handlePreviousClick}
+                className={
+                  pagination.page === 1
+                    ? 'pointer-events-none text-stone-500'
+                    : ''
+                }
+              />
             </PaginationItem>
             {renderPaginationItems()}
             <PaginationEllipsis />
