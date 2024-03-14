@@ -300,7 +300,7 @@ const OcclusionFlashcardTab = () => {
   };
 
   const renderPaginationItems = () => {
-    let start = pagination.page > 0 ? pagination.page - 1 : 0;
+    let start = pagination.page > 1 ? pagination.page - 1 : 1;
     let items = [];
 
     for (let i = start; i < start + pagination.limit; i++) {
@@ -353,11 +353,16 @@ const OcclusionFlashcardTab = () => {
           <PaginationContent>
             <PaginationItem className="flex gap-2 border rounded p-1">
               <Input
+                min={1}
                 type="number"
-                value={paginationUserInput}
+                value={paginationUserInput === 0 ? 1 : paginationUserInput}
                 className="max-w-12"
                 onChange={(e) =>
-                  setPaginationUserInput(parseInt(e.target.value))
+                  setPaginationUserInput(
+                    parseInt(e.target.value) === 0
+                      ? 1
+                      : parseInt(e.target.value)
+                  )
                 }
               />
               <Button
