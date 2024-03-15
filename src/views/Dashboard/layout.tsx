@@ -211,7 +211,7 @@ const NavItem = ({
         />
       )}
       {children}
-      {isLocked && (
+      {/* {isLocked && (
         // <Icon
         //   as={isHovering ? RiLockUnlockFill : RiLockFill}
         //   ml="auto"
@@ -228,7 +228,7 @@ const NavItem = ({
         >
           Free Trial
         </Text>
-      )}
+      )} */}
     </Flex>
   );
 
@@ -773,7 +773,7 @@ const SidebarContent = ({
               ? () =>
                   handleLockedClick(
                     !user.hadSubscription
-                      ? 'Start Your Free Trial!'
+                      ? 'Subscribe to unlock your AI Study Tools! 🚀'
                       : 'Pick a plan to access your AI Study Tools! 🚀',
                     'One-click Cancel at anytime.'
                   )

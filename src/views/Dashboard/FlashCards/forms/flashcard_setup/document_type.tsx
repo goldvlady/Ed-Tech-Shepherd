@@ -2,6 +2,7 @@ import { useCustomToast } from '../../../../../components/CustomComponents/Custo
 import CustomSelect from '../../../../../components/CustomSelect';
 import PlansModal from '../../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../../components/Select';
+import { languages } from '../../../../../helpers';
 import uploadFile from '../../../../../helpers/file.helpers';
 import ApiService from '../../../../../services/ApiService';
 import userStore from '../../../../../state/userStore';
@@ -12,14 +13,20 @@ import {
   FormControl,
   FormLabel,
   Input,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Radio,
   RadioGroup,
   Button,
   Text,
   HStack,
-  Spinner
+  Spinner,
+  Select
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
 const FlashcardFromDocumentSetup = ({
   isAutomated
@@ -36,6 +43,11 @@ const FlashcardFromDocumentSetup = ({
     isLoading: isLoadingFlashcardQuestions
   } = useFlashcardWizard();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [localData, setLocalData] = useState<typeof flashcardData>({
     deckname: '',
@@ -74,10 +86,10 @@ const FlashcardFromDocumentSetup = ({
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'hard' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const handleChange = React.useCallback(
@@ -98,11 +110,13 @@ const FlashcardFromDocumentSetup = ({
     return Object.values(payload).every(Boolean);
   }, [localData]);
 
-  const handleDone = (success: boolean) => {
+  const handleDone = (success: boolean, error?: string) => {
+    const errorMessage = error || 'Failed to generate flashcard questions';
+    const title = success
+      ? 'Flashcard questions generated successfully'
+      : errorMessage;
     toast({
-      title: success
-        ? 'Flashcard questions generated successfully'
-        : 'Failed to generate flashcard questions',
+      title,
       position: 'top-right',
       status: success ? 'success' : 'error',
       isClosable: true
@@ -145,7 +159,7 @@ const FlashcardFromDocumentSetup = ({
           setTogglePlansModal(true); // Show the PlansModal
           return;
         }
-        generateFlashcardQuestions(localData, handleDone);
+        generateFlashcardQuestions(preferredLanguage, localData, handleDone);
         setIsGenerating(false);
       } catch (error) {
         setIsGenerating(false);
@@ -184,7 +198,59 @@ const FlashcardFromDocumentSetup = ({
       <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
         Set up flashcard
       </Text>
-
+      <FormControl my={4}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Preferred Language
+        </FormLabel>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
+      </FormControl>
       <FormControl my={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Upload a source document

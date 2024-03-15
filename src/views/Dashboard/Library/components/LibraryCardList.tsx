@@ -158,7 +158,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
     {
       label: 'Save',
       onClick: () => {
-        console.log('Save');
+        // console.log('Save');
       },
       icon: <YourFlashCardIcon />
     }

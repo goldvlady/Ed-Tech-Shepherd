@@ -295,7 +295,6 @@ const useChatManager = (
 
       // Event listener for socket connection
       socketRef.current.on('connect', () => {
-        console.log('Socket connected:', socketRef.current?.id);
         debugLog('SOCKET CONNECTED', socketRef.current?.id);
         // refreshManager();
       });
@@ -308,7 +307,6 @@ const useChatManager = (
       });
 
       socketRef.current.on('new_title', (title: string) => {
-        console.log('New Title', title);
         setTitle(title);
         query.invalidateQueries({
           queryKey: ['chatHistory', { studentId }]
@@ -322,7 +320,6 @@ const useChatManager = (
         ]);
         setCurrentChat('');
         if (!firstMessageDropped) {
-          console.log('firstMessageDropped');
           query.invalidateQueries({
             queryKey: ['chatHistory', { studentId }]
           });
@@ -359,7 +356,7 @@ const useChatManager = (
       if (socketRef.current) {
         socketRef.current.disconnect(); // Disconnect existing socket
       }
-
+      queryParams.name = user.name.first;
       // Initialize new socket connection with server
       socketRef.current = io(SERVER_URL + '/' + namespace, {
         extraHeaders: {
@@ -407,7 +404,14 @@ const useChatManager = (
       conversationOptions?: InitConversationOptions
     ) => {
       const { conversationId } = queryParams;
+      queryParams.name = user.name.first;
       refreshManager();
+      if (conversationOptions) {
+        setChatWindowParams({
+          isNewWindow: conversationOptions.isNewConversation,
+          connectionQuery: queryParams
+        });
+      }
       initiateSocket(queryParams, conversationOptions); // Initiate socket with queryParams
       if (conversationId) {
         if (options?.autoHydrateChat) {
@@ -419,6 +423,12 @@ const useChatManager = (
     },
     [initiateSocket]
   );
+
+  const disconnectSocket = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+  };
 
   // Returning hook state and functions to manage chat
   return {
@@ -438,7 +448,8 @@ const useChatManager = (
     error,
     currentSocket: socketRef?.current,
     limitReached,
-    resetLimitReached
+    resetLimitReached,
+    disconnectSocket
   };
 };
 

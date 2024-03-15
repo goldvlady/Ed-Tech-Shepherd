@@ -1,15 +1,5 @@
 import { database } from '../firebase';
-import {
-  ref,
-  onValue,
-  off,
-  DataSnapshot,
-  remove,
-  query,
-  orderByChild,
-  equalTo,
-  limitToLast
-} from 'firebase/database';
+import { ref, onValue, DataSnapshot, remove, off } from 'firebase/database';
 import { useEffect, useState, useCallback } from 'react';
 
 type FlashcardQuestion = {
@@ -29,65 +19,42 @@ function useFlashcardQuestionsJob(studentID: string) {
   // Function to watch new jobs for a documentId
   const watchJobs = useCallback(
     (
-      documentId: string,
+      jobId: string,
       callback?: (error: any, flashcards?: FlashcardQuestion[]) => void
     ) => {
-      const jobsRef = ref(database, `/flashcard-job/${studentID}`);
-      const documentIdQuery = query(
-        jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
-      );
+      const jobRef = ref(database, `/flashcard-job/${studentID}/${jobId}`);
       onValue(
-        documentIdQuery,
+        jobRef,
         (snapshot: DataSnapshot) => {
-          const jobsData = snapshot.val() || {};
-          const filteredJobs = Object.values(jobsData).filter(
-            (job: any) => job.documentId === documentId
-          );
+          const jobData: Job | null = snapshot.val();
 
-          if (filteredJobs.length) {
-            // Sort by datetime on the client side
-            const sortedJobs = filteredJobs.sort((a: any, b: any) => {
-              const datetimeA = new Date(a.datetime).getTime();
-              const datetimeB = new Date(b.datetime).getTime();
-              return datetimeB - datetimeA; // For descending order
-            });
-
-            // Get the most recent job, which is the first item in the sorted array
-            const mostRecentJob: any = sortedJobs[0];
-
-            const allFlashcards: FlashcardQuestion[] = [];
-
-            mostRecentJob.flashcards.forEach((question: any) => {
-              allFlashcards.push({
+          if (jobData && jobData.flashcards) {
+            const allFlashcards: FlashcardQuestion[] = jobData.flashcards.map(
+              (question: any) => ({
                 ...question,
                 questionType: 'openEnded'
-              });
-            });
+              })
+            );
 
             if (allFlashcards.length) {
               setFlashcardQuestions(allFlashcards);
             }
+
             if (callback) {
               callback(null, allFlashcards);
+              off(jobRef);
+              // remove(jobRef);
             }
           }
 
-          // // Collect flashcards from each job that matches the documentId
-          // Object.values(jobsData).forEach((job) => {
-          //   if (job.documentId === documentId && job.flashcards) {
-          //     allFlashcards.push(
-          //       ...job.flashcards.map((question) => ({
-          //         ...question,
-          //         questionType: 'openEnded'
-          //       }))
-          //     );
-          //   }
-          // });
+          // else if (callback) {
+          //   callback(null, []); // No data found
+          // }
         },
-        (error) => {
-          callback(error);
+        (error: any) => {
+          if (callback) {
+            callback(error.message);
+          }
         }
       );
     },
@@ -97,26 +64,14 @@ function useFlashcardQuestionsJob(studentID: string) {
   const clearJobs = useCallback(
     (documentId: string) => {
       const jobsRef = ref(database, `/flashcards-job/${studentID}`);
-      const documentIdQuery = query(
-        jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
-      );
-      onValue(
-        documentIdQuery,
-        (snapshot: DataSnapshot) => {
-          const jobsData: { [key: string]: Job } = snapshot.val() || {};
-          // Iterate over each job and delete it if it matches the documentId
-          Object.keys(jobsData).forEach((jobKey) => {
-            if (jobsData[jobKey].documentId === documentId) {
-              remove(ref(database, `/flashcards-job/${studentID}/${jobKey}`));
-            }
-          });
-        },
-        (error) => {
-          // console.error('Firebase delete error:', error);
-        }
-      );
+
+      remove(jobsRef)
+        .then(() => {
+          setFlashcardQuestions([]);
+        })
+        .catch((error) => {
+          console.error('Error clearing jobs:', error);
+        });
     },
     [studentID]
   );

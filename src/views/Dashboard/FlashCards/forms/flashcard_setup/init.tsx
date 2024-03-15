@@ -12,9 +12,14 @@ import {
   Button,
   Text,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Spacer,
   Flex,
-  Spinner
+  Spinner,
+  Select
 } from '@chakra-ui/react';
 import React, {
   ChangeEvent,
@@ -25,6 +30,8 @@ import React, {
 } from 'react';
 import userStore from '../../../../../state/userStore';
 import PlansModal from '../../../../../components/PlansModal';
+import { languages } from '../../../../../helpers';
+import { FiChevronDown } from 'react-icons/fi';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -52,12 +59,17 @@ const FlashCardSetupInit = ({
     level: '',
     numQuestions: 0,
     timerDuration: '',
-    hasSubmitted: false
+    hasSubmitted: false,
+    grade: ''
   };
 
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [localData, setLocalData] = useState<typeof flashcardData>(dummyData); // A local state for storing user inputs
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
+  const [searchValue, setSearchValue] = useState('');
 
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -131,6 +143,17 @@ const FlashCardSetupInit = ({
     { label: 'Very Hard', value: 'PhD' }
   ];
 
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
+  ];
+
   const handleChange = React.useCallback(
     (
       e: React.ChangeEvent<
@@ -162,11 +185,13 @@ const FlashCardSetupInit = ({
     }
   }, [localData, isAutomated, flashcardData]);
 
-  const handleDone = (success: boolean) => {
+  const handleDone = (success: boolean, error?: string) => {
+    const errorMessage = error || 'Failed to generate flashcard questions';
+    const title = success
+      ? 'Flashcard questions generated successfully'
+      : errorMessage;
     toast({
-      title: success
-        ? 'Flashcard questions generated successfully'
-        : 'Failed to generate flashcard questions',
+      title,
       position: 'top-right',
       status: success ? 'success' : 'error',
       isClosable: true
@@ -208,7 +233,7 @@ const FlashCardSetupInit = ({
           setTogglePlansModal(true); // Show the PlansModal
           return;
         }
-        generateFlashcardQuestions(data, handleDone);
+        generateFlashcardQuestions(preferredLanguage, data, handleDone);
         setIsGenerating(false);
       } catch (error) {
         setIsGenerating(false);
@@ -267,6 +292,30 @@ const FlashCardSetupInit = ({
             </FormControl>
           </div>
         )}
+        <FormControl mb={8}>
+          <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+            Grade (optional):
+          </FormLabel>
+          <SelectComponent
+            name="grade"
+            placeholder="Select grade"
+            defaultValue={gradeOptions.find(
+              (option) => option.value === localData?.grade
+            )}
+            tagVariant="solid"
+            options={gradeOptions}
+            size={'md'}
+            onChange={(option) => {
+              const event = {
+                target: {
+                  name: 'grade',
+                  value: (option as Option).value
+                }
+              } as ChangeEvent<HTMLSelectElement>;
+              handleChange(event);
+            }}
+          />
+        </FormControl>
         <FormControl mb={8}>
           <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
             Level (optional)
@@ -330,6 +379,59 @@ const FlashCardSetupInit = ({
 
   return (
     <Box bg="white" width="100%" mt="30px">
+      <FormControl mb={4}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          Preferred Language
+        </FormLabel>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
+      </FormControl>
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Deckname

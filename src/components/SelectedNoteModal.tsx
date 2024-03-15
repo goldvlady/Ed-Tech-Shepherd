@@ -18,8 +18,11 @@ import {
   Center,
   Box,
   Text,
+  Select as ChakraSelect,
   CircularProgress,
-  Flex
+  Flex,
+  FormControl,
+  FormLabel
 } from '@chakra-ui/react';
 import {
   CircularProgress as CircularProgressBar,
@@ -33,7 +36,10 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import PlansModal from './PlansModal';
 import documentStore from '../state/documentStore';
-import { encodeQueryParams } from '../helpers';
+
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
+
+import { encodeQueryParams, languages } from '../helpers';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -53,6 +59,8 @@ interface ShowProps {
   chatButton?: boolean;
   okayButton?: boolean;
   cancelButton?: boolean;
+  studyPlanId?: string;
+  topicId?: string;
 }
 
 interface UiMessage {
@@ -67,14 +75,20 @@ const SelectedModal = ({
   setShowHelp,
   chatButton = true,
   cancelButton = true,
-  okayButton
+  okayButton,
+  studyPlanId,
+  topicId
 }: ShowProps) => {
   const { user, fetchUserDocuments } = userStore();
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const { fetchStudentDocuments, studentDocuments: userDocuments } =
     documentStore();
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const [fileName, setFileName] = useState('');
   const [countdown, setCountdown] = useState({
     active: false,
@@ -216,8 +230,6 @@ const SelectedModal = ({
     }
   `;
 
-  const toast = useToast();
-
   useEffect(() => {
     setLoadedStudentDocs(true);
     setStudentDocuments(userDocuments);
@@ -348,7 +360,7 @@ const SelectedModal = ({
         const {
           documentURL: newDocumentURL,
           title,
-          documentId,
+          documentId: ingestId,
           keywords
         } = results.data[0];
         setConfirmReady(true);
@@ -357,17 +369,24 @@ const SelectedModal = ({
           message:
             "Your uploaded document is now ready! Click the 'chat' button to start."
         }));
-        setDocumentId(documentId);
+        setDocumentId(ingestId);
         setDocumentName(title);
         setDocumentURL(newDocumentURL);
         setDocKeywords(keywords);
         setLoading(false);
 
-        ApiService.saveStudentDocument({
+        const response = await ApiService.saveStudentDocument({
           documentUrl: newDocumentURL,
           title,
-          ingestId: documentId
+          ingestId: ingestId
         });
+
+        if (response.status === 200) {
+          const docDetails = await response.json();
+          if (studyPlanId && topicId) {
+            storeStudyPlanTopicDoc(studyPlanId, topicId, docDetails.data.id);
+          }
+        }
       } catch (e) {
         setCountdown((prev) => ({
           ...prev,
@@ -458,7 +477,13 @@ const SelectedModal = ({
     setAlreadyExist(false);
     setUploadFailed(false);
 
+    const docId = studentDocuments.find((item) => item.ingestId === e.id)?._id;
+
     if (e.value && e.label && e.id) {
+      if (studyPlanId && topicId) {
+        storeStudyPlanTopicDoc(studyPlanId, topicId, docId);
+      }
+
       setDocumentURL(() => e.value);
       setDocumentName(() => e.label);
       setDocumentId(() => e.id);
@@ -480,7 +505,8 @@ const SelectedModal = ({
       docTitle,
       documentId,
       docKeywords,
-      sid: user._id
+      sid: user._id,
+      language: preferredLanguage
     });
     navigate(`/dashboard/docchat${query}`);
     if (setShowHelp) {
@@ -522,6 +548,32 @@ const SelectedModal = ({
         title={loading ? 'Loading' : 'Chat'}
       />
     );
+  };
+
+  const storeStudyPlanTopicDoc = async (studyPlanId, topicId, documentId) => {
+    try {
+      const payload = {
+        studyPlanId: studyPlanId,
+        topicId: topicId,
+        documentId: documentId
+      };
+      await ApiService.storeStudyPlanTopicDocument(payload);
+      toast({
+        title: 'Document stored successfully',
+        position: 'top-right',
+        status: 'success',
+        isClosable: true
+      });
+    } catch (error) {
+      toast({
+        title: 'Failed to store document. Please try again later.',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+
+      // console.error('Error storing document:', error);
+    }
   };
 
   const [isDragOver, setIsDragOver] = useState(false);
@@ -677,6 +729,25 @@ const SelectedModal = ({
                 </DocumentListWrapper>
               )}
             </div>
+            <FormControl my={4}>
+              <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+              <ChakraSelect
+                isRequired
+                name="language_select"
+                value={preferredLanguage}
+                onChange={(e) => {
+                  setPreferredLanguage(
+                    e.target.value as (typeof languages)[number]
+                  );
+                }}
+              >
+                {languages.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </ChakraSelect>
+            </FormControl>
 
             <Box my={2}>
               {countdown.active && (

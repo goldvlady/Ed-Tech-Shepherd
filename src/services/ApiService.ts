@@ -1,13 +1,15 @@
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
+import { languages } from '../helpers';
 import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
   StudentDocumentPayload,
   QuizData,
   QuizQuestion,
-  FlashcardData
+  FlashcardData,
+  StudyPlanTopicDocumentPayload
 } from '../types';
 import { doFetch } from '../util';
 import {
@@ -130,6 +132,14 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+
+  static cancelBooking = async (queryParams: { id: string }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/cancelBooking?${queryString}`, {
+      method: 'POST'
+    });
+  };
+
   static submitStudent = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
@@ -289,6 +299,20 @@ class ApiService {
     }
   };
 
+  static storeStudyPlanMetaData = async (data: {
+    studyPlanId: string;
+    metadata?: {
+      topicId: string;
+      conversationId?: string;
+      testDate?: Date;
+    };
+  }) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+
   static getSingleFlashcard = async (id: string) => {
     return doFetch(`${ApiService.baseEndpoint}/getStudentFlashcard?id=${id}`);
   };
@@ -361,8 +385,12 @@ class ApiService {
     });
   };
 
-  static generateFlashcardQuestions = async (data: any, studentId: string) => {
-    return fetch(`${AI_API}/flash-cards/students/${studentId}`, {
+  static generateFlashcardQuestions = async (
+    data: any,
+    studentId: string,
+    lang: (typeof languages)[number]
+  ) => {
+    return fetch(`${AI_API}/flash-cards/students/${studentId}?lang=${lang}`, {
       method: 'POST',
       body: JSON.stringify(data),
       headers: {
@@ -375,7 +403,8 @@ class ApiService {
   static generateFlashcardQuestionsForNotes = async (
     data: any,
     studentId: string,
-    firebaseId: string
+    firebaseId: string,
+    lang: (typeof languages)[number]
   ) => {
     const isDevelopment =
       process.env.REACT_APP_API_ENDPOINT.includes('develop');
@@ -383,7 +412,7 @@ class ApiService {
     return fetch(
       `${AI_API}/flash-cards/generate-from-plain-notes?env=${
         isDevelopment ? 'development' : 'production'
-      }`,
+      }&lang=${lang}`,
       {
         method: 'POST',
         body: JSON.stringify({
@@ -422,6 +451,16 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createTutor`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static activateTutor = async (queryParams: {
+    apiKey: string;
+    tutorEmail: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return doFetch(`${ApiService.baseEndpoint}/activateTutor?${queryString}`, {
+      method: 'POST'
     });
   };
 
@@ -992,10 +1031,11 @@ class ApiService {
       subject: string;
       topic: string;
       documentId?: string;
-    }
+    },
+    lang: (typeof languages)[number]
   ) => {
     return doFetch(
-      `${AI_API}/quizzes/students/${userId}`,
+      `${AI_API}/quizzes/students/${userId}?lang=${lang}`,
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -1016,7 +1056,10 @@ class ApiService {
     subscriptionTier?: string;
     start_page?: number;
     end_page?: number;
+    lang: (typeof languages)[number];
   }) => {
+    const { lang, ...d } = data;
+    const newData = { ...d, language: lang };
     // const isDevelopment =
     //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
 
@@ -1025,10 +1068,10 @@ class ApiService {
       //   ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
       //   : // 'https://shepherd-anywhere-cors.fly.dev/https://shepherd-simple-proxy.fly.dev/generate-quizzes'
       //     `https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
-      'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes',
+      `https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(newData)
       },
       false,
       {
@@ -1091,15 +1134,6 @@ class ApiService {
     title?: string,
     subject?: string
   ) => {
-    console.log(
-      page,
-      limit,
-      minReadinessScore,
-      maxReadinessScore,
-      title,
-      subject
-    );
-
     let apiUrl = `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`;
     if (minReadinessScore !== undefined && maxReadinessScore !== undefined) {
       apiUrl += `&minReadinessScore=${minReadinessScore}&maxReadinessScore=${maxReadinessScore}`;
@@ -1136,6 +1170,20 @@ class ApiService {
   };
   static saveTopicSummary = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/updateIndividualStudyTopic`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static storeConversationIdToStudyPlan = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanMetaData`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static storeStudyPlanTopicDocument = async (
+    data: StudyPlanTopicDocumentPayload
+  ) => {
+    return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanTopicDocument`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

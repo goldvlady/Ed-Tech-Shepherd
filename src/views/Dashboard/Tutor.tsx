@@ -334,7 +334,7 @@ export default function Tutor() {
                       >
                         ABOUT ME
                       </Text>
-                      <Text fontSize={'14px'} my={2}>
+                      <Text fontSize={'14px'} my={2} whiteSpace="pre-wrap">
                         {tutorData.description}
                       </Text>
                     </Box>
@@ -606,17 +606,17 @@ export default function Tutor() {
                     {
                       title: 'Send a Proposal',
                       subtitle:
-                        'Find your desired tutor and prepare an offer on your terms and send to the tutor'
+                        'Find your desired tutor, set your terms, provide payment details and send your offer to the tutor.'
                     },
                     {
                       title: 'Get a Response',
                       subtitle:
-                        'Proceed to provide your payment details once the tutor accepts your offer'
+                        'Your offer has been sent! Wait for the tutor to review and accept your offer.'
                     },
                     {
-                      title: 'A Test-Run',
+                      title: 'Connect with your tutor',
                       subtitle:
-                        'You won’t be charged until after your first session, you may cancel after the first lesson.'
+                        'You’ll receive a reminder 1 hour before your session. You can reschedule or cancel up to 24 hours before your session starts.'
                     }
                   ]}
                 />

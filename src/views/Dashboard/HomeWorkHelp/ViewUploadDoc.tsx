@@ -6,7 +6,15 @@ import {
 import userStore from '../../../state/userStore';
 import { uploadBytesResumable, ref, getDownloadURL } from '@firebase/storage';
 import { storage } from '../../../firebase';
-import { Box, Center, Flex, Progress, Text, useToast } from '@chakra-ui/react';
+import {
+  Box,
+  Center,
+  Flex,
+  Progress,
+  Select,
+  Text,
+  useToast
+} from '@chakra-ui/react';
 import { processDocument } from '../../../services/AI';
 import ApiService from '../../../services/ApiService';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
@@ -16,7 +24,7 @@ import styled from 'styled-components';
 import CustomButton from '../../../components/CustomComponents/CustomButton';
 import { useNavigate } from 'react-router-dom';
 import uploadFile, { snip } from '../../../helpers/file.helpers';
-import { encodeQueryParams } from '../../../helpers';
+import { encodeQueryParams, languages } from '../../../helpers';
 
 interface UiMessage {
   status: 'error' | 'success' | 'info' | 'warning' | 'loading' | undefined;
@@ -93,6 +101,7 @@ const ViewUploadDoc = ({
   const [documentId, setDocumentId] = useState('');
   const [canUpload, setCanUpload] = useState(true);
   const toast = useToast();
+
   const [alreadyExist, setAlreadyExist] = useState(false);
   const [chatButton] = useState(true);
   const navigate = useNavigate();
@@ -416,6 +425,7 @@ const ViewUploadDoc = ({
           />
         )}
       </Box>
+
       {alreadyExist && (
         <ErrorDiv className="py-1">
           <p>File Already Exists!</p>
@@ -431,6 +441,7 @@ const ViewUploadDoc = ({
           <p>Something went wrong. Please attempt the upload again.</p>
         </ErrorDiv>
       )}
+
       <div
         style={{
           display: 'flex',

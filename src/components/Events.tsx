@@ -11,6 +11,7 @@ import ScheduleStudyModal, {
   ScheduleFormState
 } from '../views/Dashboard/FlashCards/components/scheduleModal';
 import CalendarDateInput from './CalendarDateInput';
+import TimePicker from '../components/TimePicker';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CloseIcon } from '@chakra-ui/icons';
 import {
@@ -31,6 +32,7 @@ import {
   ModalBody,
   ModalCloseButton,
   Center,
+  Spinner,
   VStack
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
@@ -38,11 +40,15 @@ import { isSameDay, isThisWeek, getISOWeek } from 'date-fns';
 import { parseISO, format, parse } from 'date-fns';
 import moment from 'moment-timezone';
 import React, { useCallback, useMemo, useState } from 'react';
-import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+// import { MdOutlineSentimentNeutral, MdOutlineReplay } from 'react-icons/md';
+import { AiOutlineSchedule } from 'react-icons/ai';
 import { useNavigate } from 'react-router';
 import eventsStore from '../state/eventsStore';
+import { Field, Form, Formik } from 'formik';
 
 export default function Events({ event }: any) {
+  const [loading, setLoading] = useState(false);
+
   const {
     isOpen: isOpenReBook,
     onOpen: onOpenReBook,
@@ -135,7 +141,7 @@ export default function Events({ event }: any) {
 
   const currentPath = window.location.pathname;
 
-  const isTutor = currentPath.includes('/dashboard/tutordashboard/');
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
 
   const { isLoading, rescheduleFlashcard, fetchSingleFlashcard } =
     flashcardStore();
@@ -180,11 +186,12 @@ export default function Events({ event }: any) {
     }
   };
 
-  const rebook = async () => {
+  const rebook = async (formattedStartDateTime, formattedEndDateTime) => {
     const payload = {
       bookingId: scheduleItem._id,
       updates: {
-        endDate: newDate
+        startDate: formattedStartDateTime,
+        endDate: formattedEndDateTime
       }
     };
     const response = await ApiService.reScheduleBooking(payload);
@@ -195,6 +202,7 @@ export default function Events({ event }: any) {
         status: 'success'
       });
       setScheduleItem(null);
+      onCloseReBook();
       fetchEvents();
     } else {
       toast({
@@ -238,10 +246,66 @@ export default function Events({ event }: any) {
 
   const handleJoinSession = (url) => {
     window.open(url, '_blank');
+    onCloseJoinSession();
   };
 
   const handleMessageStudent = () => {
     navigate('/dashboard/tutordashboard/messages');
+  };
+
+  const handleMessageTutor = () => {
+    navigate('/dashboard/messaging');
+  };
+
+  const cancelSession = async () => {
+    setLoading(true);
+    try {
+      const response = await ApiService.cancelBooking({ id: scheduleItem._id });
+      if (response.status === 200) {
+        toast({
+          position: 'top-right',
+          title: `Booking canceled Succesfully`,
+          status: 'success'
+        });
+        fetchEvents();
+      } else {
+        toast({
+          position: 'top-right',
+          title: `Failed to cancel booking`,
+          status: 'error'
+        });
+      }
+    } catch (error) {
+      toast({
+        position: 'top-right',
+        title: `An error occurred while canceling booking`,
+        status: 'error'
+      });
+    } finally {
+      setScheduleItem(null);
+      onCloseJoinSession();
+      setLoading(false);
+    }
+  };
+
+  const addEventToGoogleCalendar = () => {
+    const data = event.data;
+    const eventTitle = encodeURIComponent(
+      `${data?.offer?.course?.label} lesson with ${data?.offer?.tutor?.user?.name?.first} ${data?.offer?.tutor?.user?.name?.last}`
+    );
+
+    const formatForCalendar = (date) => {
+      return date.replace(/-|:|\.\d\d\d/g, '');
+    };
+
+    const startDate = formatForCalendar(data.startDate);
+    const endDate = formatForCalendar(data.endDate);
+    const location = encodeURIComponent(
+      data.conferenceHostRoomUrl || data.conferenceRoomUrl
+    );
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startDate}/${endDate}&details=&location=${location}`;
+    window.open(url, '_blank');
+    onCloseJoinSession();
   };
 
   return (
@@ -259,6 +323,7 @@ export default function Events({ event }: any) {
             navigate(`/dashboard/quizzes/take?quiz_id=${event.data.entity.id}`);
           }
         } else if (event.type === 'booking') {
+          setScheduleItem(event.data);
           onOpenJoinSession();
         } else {
           navigate(`${`/dashboard`}`);
@@ -305,15 +370,23 @@ export default function Events({ event }: any) {
               <Spacer />
               <HStack color="#6b7280" mx={2}>
                 {' '}
-                <MdOutlineReplay
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setScheduleItem(event.data);
-                    event.type === 'study'
-                      ? setReScheduleItem(true)
-                      : onOpenReBook();
-                  }}
-                />
+                {event.type === 'booking' &&
+                moment(event.data.startDate).isBefore(
+                  moment.utc().add(24, 'hours')
+                ) ? (
+                  ''
+                ) : (
+                  <AiOutlineSchedule
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setScheduleItem(event.data);
+                      event.type === 'study'
+                        ? setReScheduleItem(true)
+                        : onOpenReBook();
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  />
+                )}
                 {event.type !== 'booking' && (
                   <CloseIcon
                     onClick={(e) => {
@@ -335,24 +408,47 @@ export default function Events({ event }: any) {
         <ModalContent maxW="xs">
           <ModalHeader>Session Options</ModalHeader>
           <ModalCloseButton />
-          <ModalBody p={4}>
-            <VStack spacing={4} width="full">
-              <Button
-                colorScheme="blue"
-                width="full"
-                onClick={() => handleJoinSession(event.data.url)}
-              >
-                Join the session
-              </Button>
-              <Button
-                colorScheme="green"
-                width="full"
-                onClick={handleMessageStudent}
-              >
-                Message Student
-              </Button>
-            </VStack>
-          </ModalBody>
+          {loading ? (
+            <ModalBody>
+              <Center>
+                <Spinner />
+              </Center>
+            </ModalBody>
+          ) : (
+            <ModalBody p={4}>
+              <VStack spacing={4} width="full">
+                <Button
+                  colorScheme="green"
+                  width="full"
+                  onClick={addEventToGoogleCalendar}
+                >
+                  Add to Google Calendar
+                </Button>
+                <Button
+                  colorScheme="blue"
+                  width="full"
+                  onClick={() =>
+                    handleJoinSession(
+                      event.data.conferenceHostRoomUrl ||
+                        event.data.conferenceRoomUrl
+                    )
+                  }
+                >
+                  Join the session
+                </Button>
+                <Button
+                  colorScheme="green"
+                  width="full"
+                  onClick={isTutor ? handleMessageStudent : handleMessageTutor}
+                >
+                  {isTutor ? 'Message Student' : 'Message Tutor'}
+                </Button>
+                <Button colorScheme="red" width="full" onClick={cancelSession}>
+                  Cancel Session
+                </Button>
+              </VStack>
+            </ModalBody>
+          )}
         </ModalContent>
       </Modal>
 
@@ -362,57 +458,146 @@ export default function Events({ event }: any) {
         onClose={() => setReScheduleItem(false)}
         isOpen={reScheduleItem}
       />
+
       <Modal isOpen={isOpenReBook} onClose={onCloseReBook}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent
+          minWidth={{ base: '80%', md: '500px' }}
+          // minHeight={{ base: '80%', md: '500px' }}
+          height={{ base: '80%', md: '540px' }}
+          mx="auto"
+          // w="fit-content"
+          borderRadius="10px"
+        >
           <ModalHeader>Reschedule Booking</ModalHeader>
           <ModalCloseButton />
-          <ModalBody overflow="auto">
-            <Box width="100%" paddingBottom={'50px'}>
-              <FormControl id="newDate" marginBottom="20px">
-                <FormLabel>Day</FormLabel>
-                <CalendarDateInput
-                  disabledDate={{ before: today }}
-                  inputProps={{
-                    placeholder: 'Select Day'
-                  }}
-                  value={newDate as Date}
-                  onChange={(value) => {
-                    setNewDate(value);
-                  }}
-                />
-              </FormControl>
-            </Box>
-          </ModalBody>
+          <Flex direction="column" height="100%" justifyContent="space-between">
+            <Formik
+              initialValues={{ newDate: null, startTime: '', endTime: '' }}
+              onSubmit={(values, actions) => {
+                const formattedStartDateTimeString =
+                  moment(values.newDate).format('YYYY-MM-DD') +
+                  'T' +
+                  moment(values.startTime, 'hh:mm A').format('HH:mm:ss');
+                const formattedEndDateTimeString =
+                  moment(values.newDate).format('YYYY-MM-DD') +
+                  'T' +
+                  moment(values.endTime, 'hh:mm A').format('HH:mm:ss');
+                const formattedStartDateTime = moment(
+                  formattedStartDateTimeString
+                ).toDate();
+                const formattedEndDateTime = moment(
+                  formattedEndDateTimeString
+                ).toDate();
 
-          <ModalFooter
-            bg="#F7F7F8"
-            borderRadius="0px 0px 10px 10px"
-            p="16px"
-            justifyContent="flex-end"
-          >
-            <Button
-              isDisabled={!newDate}
-              _hover={{
-                backgroundColor: '#207DF7',
-                boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+                rebook(formattedStartDateTime, formattedEndDateTime);
+
+                actions.setSubmitting(false);
               }}
-              bg="#207DF7"
-              color="#FFF"
-              fontSize="14px"
-              fontFamily="Inter"
-              fontWeight="500"
-              lineHeight="20px"
-              onClick={() => rebook()}
-              isLoading={isLoading}
-              borderRadius="8px"
-              boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
-              mr={3}
-              variant="primary"
             >
-              Submit
-            </Button>
-          </ModalFooter>
+              {({ setFieldValue, values, isSubmitting }) => (
+                <Form
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}
+                >
+                  <ModalBody>
+                    <Box flex="1" height={'100%'}>
+                      <Field name="newDate">
+                        {({ field }) => (
+                          <FormControl id="newDate" marginBottom="20px">
+                            <FormLabel>Date</FormLabel>
+                            <CalendarDateInput
+                              disabledDate={{
+                                before: moment().add(1, 'days').toDate()
+                              }}
+                              inputProps={{
+                                placeholder: 'Select Date',
+                                ...field
+                              }}
+                              value={values.newDate}
+                              onChange={(value) => {
+                                setFieldValue('newDate', value);
+                              }}
+                            />
+                          </FormControl>
+                        )}
+                      </Field>
+                      {values.newDate && (
+                        <>
+                          <Field name="startTime">
+                            {({ field }) => (
+                              <FormControl>
+                                <FormLabel>Start time</FormLabel>
+                                <TimePicker
+                                  inputProps={{
+                                    placeholder: '00:00 AM',
+                                    ...field
+                                  }}
+                                  value={values.startTime}
+                                  onChange={(time) =>
+                                    setFieldValue('startTime', time)
+                                  }
+                                />
+                              </FormControl>
+                            )}
+                          </Field>
+                          <br />
+                          <Field name="endTime">
+                            {({ field }) => (
+                              <FormControl>
+                                <FormLabel>End time</FormLabel>
+                                <TimePicker
+                                  inputProps={{
+                                    placeholder: '00:00 AM',
+                                    ...field
+                                  }}
+                                  value={values.endTime}
+                                  onChange={(time) =>
+                                    setFieldValue('endTime', time)
+                                  }
+                                />
+                              </FormControl>
+                            )}
+                          </Field>
+                        </>
+                      )}
+                    </Box>
+                  </ModalBody>
+                  <ModalFooter
+                    bg="#F7F7F8"
+                    borderRadius="0px 0px 10px 10px"
+                    p="16px"
+                    justifyContent="flex-end"
+                  >
+                    <Button
+                      type="submit"
+                      isDisabled={isSubmitting || !values.newDate}
+                      _hover={{
+                        backgroundColor: '#207DF7',
+                        boxShadow: '0px 2px 6px 0px rgba(136, 139, 143, 0.10)'
+                      }}
+                      bg="#207DF7"
+                      color="#FFF"
+                      fontSize="14px"
+                      fontFamily="Inter"
+                      fontWeight="500"
+                      lineHeight="20px"
+                      isLoading={isSubmitting}
+                      borderRadius="8px"
+                      boxShadow="0px 2px 6px 0px rgba(136, 139, 143, 0.10)"
+                      mr={3}
+                      variant="primary"
+                    >
+                      Submit
+                    </Button>
+                  </ModalFooter>
+                </Form>
+              )}
+            </Formik>
+          </Flex>
         </ModalContent>
       </Modal>
       <Modal isOpen={isOpenCancelStudy} onClose={onCloseCancelStudy}>

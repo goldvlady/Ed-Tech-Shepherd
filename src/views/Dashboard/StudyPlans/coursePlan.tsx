@@ -14,28 +14,9 @@ import {
   Flex,
   Image,
   Link as ChakraLink,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
   Text,
   Input,
   Button,
-  Heading,
-  UnorderedList,
-  ListItem,
-  Icon,
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
   useDisclosure,
   Spacer,
   List,
@@ -58,21 +39,8 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-  TableContainer,
-  Tooltip,
   FormControl,
   FormLabel,
-  GridItem,
-  Card,
-  CardFooter,
   SimpleGrid,
   Spinner,
   Center
@@ -80,28 +48,7 @@ import {
 
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
-import { FiChevronDown } from 'react-icons/fi';
-import { SiMicrosoftbing, SiWikipedia } from 'react-icons/si';
-import { GrResources } from 'react-icons/gr';
-
-import {
-  ArrowLeftIcon,
-  ChevronDownIcon,
-  ChevronRightIcon
-} from '@chakra-ui/icons';
-import { IoIosArrowRoundBack } from 'react-icons/io';
-import SubjectCard from '../../../components/SubjectCard';
-import Events from '../../../components/Events';
 import ResourceIcon from '../../../assets/resources-plan.svg';
-import QuizIcon from '../../../assets/quiz-plan.svg';
-import Ribbon from '../../../assets/ribbon-grey.svg';
-import EmptyFlashcard from '../../../assets/no-flashcard.svg';
-
-import Summary from '../../../assets/summary.svg';
-import Flash from '../../../assets/flash.svg';
-import FlashcardIcon from '../../../assets/flashcard-plan.svg';
-import DocChatIcon from '../../../assets/dochat-plan.svg';
-import AiTutorIcon from '../../../assets/aitutor-plan.svg';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
 import flashcardStore from '../../../state/flashcardStore';
@@ -126,26 +73,12 @@ import SciPhiService from '../../../services/SciPhiService'; // SearchRagRespons
 import StudyPlanSummary from './components/summary';
 import userStore from '../../../state/userStore';
 import ShepherdSpinner from '../components/shepherd-spinner';
-import { RiCalendar2Fill } from 'react-icons/ri';
-import { BsChevronDown } from 'react-icons/bs';
+import Analytics from './components/analytics';
+import Topics from './components/topics';
 
 function CoursePlan() {
-  const {
-    isOpen: isOpenResource,
-    onOpen: onOpenResource,
-    onClose: onCloseResource
-  } = useDisclosure();
-  const {
-    isOpen: isOpenCadence,
-    onOpen: onOpenCadence,
-    onClose: onCloseCadence
-  } = useDisclosure();
-
-  const [eventPeriod, setEventPeriod] = useState('all');
   const [showNoteModal, setShowNoteModal] = useState(false);
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(100);
-  const btnRef = useRef();
+
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -153,7 +86,6 @@ function CoursePlan() {
     levels: levelOptions,
     studyPlanCourses
   } = resourceStore();
-  const { fetchSingleFlashcard } = flashcardStore();
   const {
     studyPlans: storePlans,
     fetchPlans,
@@ -171,7 +103,7 @@ function CoursePlan() {
 
   // Combine related state variables into a single state object
   const [state, setState] = useState({
-    studyPlans: storedStudyPlans,
+    studyPlans: storePlans,
     isPageLoading: false,
     selectedTopic: '',
     topics: null,
@@ -268,51 +200,17 @@ function CoursePlan() {
     { label: "Doesn't Repeat", value: 'none' }
   ];
 
-  function getColorForStatus(status) {
-    switch (status) {
-      case 'Done':
-        return '#4CAF50';
-      case 'In progress':
-        return '#FB8441';
-      case 'To Do':
-        return '#f53535';
-      default:
-        return 'black';
-    }
-  }
+  // const handleUpdateTopicStatus = (status, topicId) => {
+  //   // Update the status for the specific topic by topicId
+  //   const updatedTopics = state.topics.map((topic) =>
+  //     topic._id === topicId ? { ...topic, status } : topic
+  //   );
 
-  function getBackgroundColorForStatus(status) {
-    switch (status) {
-      case 'Done':
-        return '#f1f9f1';
-      case 'In progress':
-        return '#fff2eb';
-      case 'To Do':
-        return '#fef0f0';
-      default:
-        return 'lightgrey';
-    }
-  }
-
-  const handleUpdateTopicStatus = (status, topicId) => {
-    // Update the status for the specific topic by topicId
-    const updatedTopics = state.topics.map((topic) =>
-      topic._id === topicId ? { ...topic, status } : topic
-    );
-
-    updateState({ topics: updatedTopics });
-  };
+  //   updateState({ topics: updatedTopics });
+  // };
 
   const selectedPlanRef = useRef(null);
   const selectedTopicRef = useRef(null);
-
-  const fetchResources = async (id) => {
-    try {
-      await fetchPlanResources(id);
-
-      updateState({ planResource: studyPlanResources });
-    } catch (error) {}
-  };
 
   useEffect(() => {
     // Fetch plans only if session storage is empty
@@ -321,7 +219,6 @@ function CoursePlan() {
         try {
           await fetchPlans(state.page, state.limit);
           updateState({ studyPlans: storePlans });
-          console.log(storePlans);
 
           // Update session storage only if storePlans are different from the plans in storage
           if (JSON.stringify(storePlans) !== plansFromStorage) {
@@ -423,15 +320,11 @@ function CoursePlan() {
 
   const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
-      const selectedPlanData = await state.studyPlans.find(
+      const selectedPlanData = await storePlans.find(
         (plan) => plan._id === state.selectedPlan
       );
 
-      if (selectedPlanData) {
-        const topics = selectedPlanData;
-        updateState({ topics: topics });
-        // setTopics(topics);
-      }
+      updateState({ topics: selectedPlanData });
     }
   }, [state.selectedPlan, storePlans]);
 
@@ -452,228 +345,11 @@ function CoursePlan() {
     navigate(updatedPathname, { replace: true });
   };
   const handlePlanSelection = (planId) => {
-    updateState({ selectedPlan: planId });
+    navigate(`/dashboard/study-plans/planId=${planId}`);
   };
-  const getTopicStatus = (topicId) => {
-    const selectedTopic = state.topics.progressLog[0].topicProgress.find(
-      (topic) => topic.topic === topicId
-    );
-
-    if (!selectedTopic) {
-      return 'Topic Not Found';
-    }
-
-    const isInProgress = selectedTopic.subTopicProgress.some(
-      (subTopic) => subTopic.completed
-    );
-
-    const isDone = selectedTopic.subTopicProgress.every(
-      (subTopic) => subTopic.completed
-    );
-
-    if (isDone) {
-      return 'Done';
-    } else if (isInProgress) {
-      return 'In Progress';
-    } else {
-      return 'To Do';
-    }
-  };
-  const getTopicResource = async (topic: string) => {
-    updateState({ isLoading: true });
-    try {
-      // Instantiate SciPhiService
-      const sciPhiService = new SciPhiService();
-
-      // Define search options
-      const searchOptions = {
-        query: topic
-      };
-
-      // Call searchRag method
-      const response = await sciPhiService.searchRag(searchOptions);
-      if (response) {
-        updateState({ isLoading: false, topicResource: response });
-      }
-    } catch (error) {
-      updateState({ isLoading: false });
-      console.error('Error searching topic:', error);
-    }
-  };
-
-  const findQuizzesByTopic = (topic) => {
-    // const topicKey = topic.toLowerCase();
-
-    if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
-      return studyPlanResources[topic].quizzes;
-    }
-
-    return [];
-  };
-  const findFlashcardsByTopic = (topic) => {
-    // const topicKey = topic.toLowerCase();
-
-    if (studyPlanResources[topic] && studyPlanResources[topic].flashcards) {
-      return studyPlanResources[topic].flashcards;
-    }
-    return [];
-  };
-  const findStudyEventsByTopic = (topic) => {
-    if (studyPlanResources[topic] && studyPlanResources[topic].studyEvent) {
-      return studyPlanResources[topic].studyEvent;
-    }
-  };
-
-  const timeOptions = Array.from({ length: 96 }, (_, index) => {
-    const hour = Math.floor(index / 4);
-    const minute = 15 * (index % 4);
-    const displayHour = hour === 0 || hour === 12 ? 12 : hour % 12;
-    const displayMinute = minute === 0 ? '00' : String(minute);
-    const period = hour < 12 ? ' AM' : ' PM';
-
-    const time = `${displayHour}:${displayMinute}${period}`;
-
-    return { label: time, value: time };
-  });
-  // const doFetchStudyPlans = useCallback(async () => {
-  //   await fetchPlans(page, limit);
-  //   /* eslint-disable */
-  // }, []);
-  // useEffect(() => {
-  //   doFetchStudyPlans();
-  // }, [doFetchStudyPlans]);
-
-  const handleUpdatePlanCadence = async () => {
-    updateState({ isLoading: true });
-    const parsedTime = parse(
-      state.selectedRecurrenceTime.toLowerCase(),
-      'hh:mm aa',
-      new Date()
-    );
-    const time = format(parsedTime, 'HH:mm');
-    const payload = {
-      // entityId: selectedPlan,
-      eventId: state.selectedStudyEvent,
-
-      // metadata: {
-      //   topicId: selectedTopic
-      // },
-
-      updates: {
-        startDate: moment(state.recurrenceStartDate).format('YYYY-MM-DD'),
-        startTime: time,
-        isActive: true,
-        recurrence: {
-          frequency: state.selectedRecurrence,
-          endDate: moment(state.recurrenceEndDate).format('YYYY-MM-DD')
-        }
-      }
-    };
-    console.log(payload);
-    try {
-      const resp = await ApiService.rescheduleStudyEvent(payload);
-      if (resp) {
-        const response = await resp.json();
-        if (resp.status === 200) {
-          // setIsCompleted(true);
-          // setLoading(false);
-          toast({
-            title: 'Updated Successfully',
-            position: 'top-right',
-            status: 'success',
-            isClosable: true
-          });
-          updateState({ isLoading: false });
-
-          fetchResources(state.selectedPlan);
-          onCloseCadence();
-        } else {
-          // setLoading(false);
-          toast({
-            title: 'Failed to update, try again',
-            position: 'top-right',
-            status: 'error',
-            isClosable: true
-          });
-          updateState({ isLoading: false });
-        }
-      }
-    } catch (error: any) {
-      // setLoading(false);
-      return { error: error.message, message: error.message };
-    }
-  };
-
-  const saveTopicSummary = async (id: string) => {
-    const payload = {
-      topicId: id,
-      summary: state.topicResource?.response,
-      links: [
-        {
-          url: 'https://www.example.com',
-          title: 'Example Title',
-          summary: 'An example link related to the topic.'
-        },
-        {
-          url: 'https://www.anotherexample.com',
-          title: 'Another Example Title',
-          summary: 'Another example link related to the topic.'
-        }
-      ]
-    };
-    try {
-      const resp = await ApiService.saveTopicSummary(payload);
-      if (resp.status === 200) {
-        toast({
-          title: 'Topic summary saved successfully',
-          position: 'top-right',
-          status: 'success',
-          isClosable: true
-        });
-      } else {
-        toast({
-          title: `Couldn't save summary`,
-          position: 'top-right',
-          status: 'error',
-          isClosable: true
-        });
-      }
-    } catch (e) {
-      toast({
-        title: 'An unknown error occured',
-        position: 'top-right',
-        status: 'error',
-        isClosable: true
-      });
-    }
-  };
-
-  const groupedTopics = state.topics?.schedules.reduce((grouped, topic) => {
-    let testDate;
-    if (topic.topicMetaData && topic.topicMetaData.length > 0) {
-      testDate = new Date(topic.topicMetaData[0].testDate).toDateString();
-    } else {
-      testDate = new Date(topic.endDate).toDateString();
-    }
-
-    if (!grouped.has(testDate)) {
-      grouped.set(testDate, []);
-    }
-
-    grouped.get(testDate).push(topic);
-    return grouped;
-  }, new Map());
 
   return (
     <>
-      <Flex
-        alignItems={'center'}
-        onClick={() => navigate(-1)}
-        _hover={{ cursor: 'pointer' }}
-      >
-        <IoIosArrowRoundBack />
-        <Text fontSize={12}>Back</Text>
-      </Flex>
       <Grid
         templateColumns={[
           '30% 45% 25%',
@@ -705,7 +381,7 @@ function CoursePlan() {
           </Box>
 
           <Box overflowY="scroll">
-            {state.studyPlans.map((plan) => (
+            {storePlans.map((plan) => (
               <Box
                 mb={2}
                 border={
@@ -763,9 +439,12 @@ function CoursePlan() {
           overflowY="scroll"
         >
           {state.isPageLoading ? (
-            <Center my="100px">
-              {' '}
-              <ShepherdSpinner />
+            <Center h="full">
+              <Flex direction="column" alignItems="center">
+                <ShepherdSpinner />
+
+                <Text>Loading up your study stash...</Text>
+              </Flex>
             </Center>
           ) : (
             <Tabs variant="soft-rounded" color="#F9F9FB">
@@ -775,557 +454,13 @@ function CoursePlan() {
               </TabList>
               <TabPanels>
                 <TabPanel>
-                  <Box>
-                    <Box mb={6}>
-                      {groupedTopics &&
-                        Array.from(groupedTopics).map((testTopics) => (
-                          <>
-                            {' '}
-                            <Flex
-                              direction="column"
-                              gap={2}
-                              key={testTopics[0]}
-                            >
-                              {testTopics[1].map((topic) => (
-                                <>
-                                  <Box
-                                    bg="white"
-                                    rounded="md"
-                                    shadow="md"
-                                    key={topic._id}
-                                    ref={
-                                      topic._id === state.selectedTopic
-                                        ? selectedTopicRef
-                                        : null
-                                    }
-                                  >
-                                    <Flex alignItems={'center'} py={2} px={4}>
-                                      {' '}
-                                      <Text
-                                        fontSize="16px"
-                                        fontWeight="500"
-                                        mb={2}
-                                        color="text.200"
-                                      >
-                                        {topic.topicDetails.label}
-                                      </Text>
-                                      <Spacer />
-                                      <Badge
-                                        variant="subtle"
-                                        bgColor={`${getBackgroundColorForStatus(
-                                          getTopicStatus(topic.topicDetails._id)
-                                        )}`}
-                                        color={getColorForStatus(
-                                          getTopicStatus(topic.topicDetails._id)
-                                        )}
-                                        p={1}
-                                        letterSpacing="wide"
-                                        textTransform="none"
-                                        borderRadius={8}
-                                      >
-                                        {getTopicStatus(topic.topicDetails._id)}
-                                      </Badge>
-                                    </Flex>
-                                    <Divider />
-                                    <Box width={'100%'}>
-                                      <HStack
-                                        spacing={9}
-                                        p={4}
-                                        justifyContent="space-between"
-                                        textColor={'black'}
-                                      >
-                                        <Menu isLazy>
-                                          <MenuButton>
-                                            {' '}
-                                            <VStack>
-                                              <QuizIcon />
-                                              <Text
-                                                fontSize={12}
-                                                fontWeight={500}
-                                              >
-                                                Quizzes
-                                              </Text>
-                                            </VStack>
-                                          </MenuButton>
-                                          <MenuList
-                                            maxH={60}
-                                            overflowY="scroll"
-                                          >
-                                            {findQuizzesByTopic(
-                                              topic.topicDetails.label
-                                            ).map((quiz) => (
-                                              <>
-                                                <MenuItem
-                                                  key={quiz.id}
-                                                  onClick={() =>
-                                                    navigate(
-                                                      `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                                                    )
-                                                  }
-                                                >
-                                                  {quiz.title}
-                                                </MenuItem>
-                                              </>
-                                            ))}
-                                          </MenuList>
-                                        </Menu>
-                                        <Menu isLazy>
-                                          <MenuButton>
-                                            {' '}
-                                            <VStack>
-                                              <FlashcardIcon />
-                                              <Text
-                                                fontSize={12}
-                                                fontWeight={500}
-                                              >
-                                                Flashcards
-                                              </Text>
-                                            </VStack>
-                                          </MenuButton>
-                                          <MenuList
-                                            maxH={60}
-                                            overflowY="scroll"
-                                          >
-                                            {findFlashcardsByTopic(
-                                              topic.topicDetails.label
-                                            ).map((flashcard) => (
-                                              <>
-                                                <MenuItem
-                                                  key={flashcard.id}
-                                                  onClick={() =>
-                                                    fetchSingleFlashcard(
-                                                      flashcard.id
-                                                    )
-                                                  }
-                                                >
-                                                  {flashcard.deckname}
-                                                </MenuItem>
-                                              </>
-                                            ))}
-                                          </MenuList>
-                                        </Menu>
-
-                                        <VStack
-                                          onClick={() =>
-                                            navigate(
-                                              `/dashboard/ace-homework?subject=${getSubject(
-                                                state.topics.course
-                                              )}&topic=${
-                                                topic.topicDetails.label
-                                              }`
-                                            )
-                                          }
-                                        >
-                                          <AiTutorIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            AI Tutor
-                                          </Text>
-                                        </VStack>
-                                        <VStack
-                                          onClick={() => setShowNoteModal(true)}
-                                        >
-                                          <DocChatIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            Doc Chat
-                                          </Text>
-                                        </VStack>
-                                        <VStack
-                                          onClick={() => {
-                                            updateState({
-                                              selectedTopic: topic._id
-                                            });
-                                            getTopicResource(
-                                              topic.topicDetails.label
-                                            );
-                                            onOpenResource();
-                                          }}
-                                        >
-                                          <ResourceIcon />
-                                          <Text fontSize={12} fontWeight={500}>
-                                            Resources
-                                          </Text>
-                                        </VStack>
-                                      </HStack>
-                                      <Flex alignItems={'center'} px={4}>
-                                        <Badge
-                                          variant="subtle"
-                                          colorScheme="blue"
-                                          p={1}
-                                          letterSpacing="wide"
-                                          textTransform="none"
-                                          borderRadius={8}
-                                          cursor={'grab'}
-                                          onClick={() => {
-                                            updateState({
-                                              recurrenceStartDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.startDate
-                                              )
-                                            });
-                                            updateState({
-                                              recurrenceStartDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.startDate
-                                              ),
-                                              recurrenceEndDate: new Date(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.recurrence?.endDate
-                                              ),
-                                              selectedTopic: topic._id,
-                                              selectedStudyEvent:
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?._id
-                                            });
-
-                                            onOpenCadence();
-                                          }}
-                                        >
-                                          {studyPlanResources[
-                                            topic.topicDetails.label
-                                          ]
-                                            ? `
-                                        ${
-                                          findStudyEventsByTopic(
-                                            topic.topicDetails.label
-                                          )?.recurrence?.frequency
-                                        } 
-                                        from  ${moment(
-                                          findStudyEventsByTopic(
-                                            topic.topicDetails.label
-                                          )?.startDate
-                                        ).format('MM.DD.YYYY')} - ${moment(
-                                                findStudyEventsByTopic(
-                                                  topic.topicDetails.label
-                                                )?.recurrence?.endDate
-                                              ).format('MM.DD.YYYY')}`
-                                            : '...'}
-                                        </Badge>
-
-                                        <Spacer />
-                                        <Button
-                                          size={'sm'}
-                                          my={4}
-                                          onClick={() => {
-                                            updateState({
-                                              selectedTopic:
-                                                topic.topicDetails.label
-                                            });
-
-                                            openBountyModal();
-                                          }}
-                                        >
-                                          Find a tutor
-                                        </Button>
-                                      </Flex>
-                                    </Box>
-                                  </Box>
-                                </>
-                              ))}
-                            </Flex>
-                            <Box
-                              bg="#e2e8f0"
-                              rounded="md"
-                              shadow="md"
-                              border="1px dotted #207df7"
-                              p={4}
-                              my={4}
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="space-between"
-                            >
-                              <Box>
-                                <Text
-                                  fontSize="16px"
-                                  fontWeight="500"
-                                  color="gray.700"
-                                >
-                                  Test Date:
-                                </Text>
-                                <Text fontSize="14px" color="gray.600">
-                                  {testTopics[0]}
-                                </Text>
-                              </Box>
-
-                              {/* Add any additional content or styling as needed */}
-                            </Box>
-                          </>
-                        ))}
-                    </Box>
-                  </Box>
+                  <Topics
+                    planTopics={state.topics}
+                    selectedPlan={state.selectedPlan}
+                  />
                 </TabPanel>
                 <TabPanel>
-                  <Box>
-                    {' '}
-                    <Card
-                      // height={{ base: 'auto', md: '275px' }}
-                      borderRadius={{ base: '5px', md: '10px' }}
-                      border="1px solid #eeeff2"
-                      position={'relative'}
-                      marginBottom={{ base: '26px', md: 'none' }}
-                    >
-                      {studyPlanReport?.studiedFlashcards > 0 ? (
-                        <>
-                          <Grid
-                            h={{ base: 'auto', md: 'auto' }}
-                            px={3}
-                            templateRows="repeat(1, 1fr)"
-                            templateColumns={{
-                              base: 'repeat(1, 1fr)',
-                              md: 'repeat(2, 1fr)'
-                            }}
-                            gap={1}
-                          >
-                            <GridItem
-                              borderBottom={'1px solid #eeeff2'}
-                              position="relative"
-                              p={2}
-                            >
-                              <Box>
-                                <Text
-                                  fontSize={{ base: 'md' }}
-                                  fontWeight={500}
-                                  color="text.400"
-                                >
-                                  Cards studied
-                                </Text>
-                                <Text
-                                  fontSize={{ base: 'xl', md: '2xl' }}
-                                  fontWeight={600}
-                                >
-                                  {studyPlanReport.studiedFlashcards}
-                                  <span
-                                    style={{
-                                      fontSize: 14,
-                                      fontWeight: '400',
-                                      color: '#6e7682'
-                                    }}
-                                  >
-                                    {' '}
-                                    cards
-                                  </span>
-                                </Text>
-                              </Box>
-                            </GridItem>
-
-                            <GridItem
-                              borderBottom={'1px solid #eeeff2'}
-                              position="relative"
-                              p={2}
-                            >
-                              <Box>
-                                <Text
-                                  fontSize={{ base: 'md' }}
-                                  fontWeight={500}
-                                  color="text.400"
-                                >
-                                  Time studied
-                                </Text>
-                                <Flex gap={1}>
-                                  <Text
-                                    fontSize={{ base: 'xl', md: '2xl' }}
-                                    fontWeight={600}
-                                  >
-                                    {studyPlanReport.flashcardStudyDuration}
-                                    <span
-                                      style={{
-                                        fontSize: 12,
-                                        fontWeight: '400',
-                                        color: '#6e7682'
-                                      }}
-                                    >
-                                      {' '}
-                                      hrs
-                                    </span>
-                                  </Text>{' '}
-                                  <Text
-                                    fontSize={{ base: 'xl', md: '2xl' }}
-                                    fontWeight={600}
-                                  >
-                                    {/* {
-                                  timeStudied(
-                                    studentReport.totalWeeklyStudyTime
-                                  ).minute
-                                } */}
-                                    0
-                                    <span
-                                      style={{
-                                        fontSize: 14,
-                                        fontWeight: '400',
-                                        color: '#6e7682'
-                                      }}
-                                    >
-                                      {' '}
-                                      mins
-                                    </span>
-                                  </Text>
-                                </Flex>
-                              </Box>
-                            </GridItem>
-                          </Grid>
-                          <Grid
-                            // h={{ base: 'auto', md: '140px' }}
-                            templateRows={{
-                              base: 'repeat(2, 1fr)',
-                              md: 'repeat(1, 1fr)'
-                            }}
-                            templateColumns={{
-                              base: 'repeat(1, 1fr)',
-                              md: 'repeat(2, 1fr)'
-                            }}
-                            gap={0}
-                          >
-                            <GridItem rowSpan={1} colSpan={1} p={3}>
-                              <Text
-                                fontSize={14}
-                                fontWeight={500}
-                                color="text.400"
-                                my={'auto'}
-                              >
-                                Flashcard performance
-                              </Text>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#4caf50"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it right</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.passPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#fb8441"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Didn't remember</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.notRememberedPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="red"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it wrong</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.failPercentage}%`}</Text>
-                              </Flex>
-                            </GridItem>
-                            <GridItem
-                              rowSpan={1}
-                              colSpan={1}
-                              position="relative"
-                              borderLeft="1px solid #eeeff2"
-                              p={3}
-                            >
-                              <Text
-                                fontSize={14}
-                                fontWeight={500}
-                                color="text.400"
-                                my={'auto'}
-                              >
-                                Quiz performance
-                              </Text>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#4caf50"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it right</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.passPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="#fb8441"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Didn't remember</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.notRememberedPercentage}%`}</Text>
-                              </Flex>
-                              <Flex alignItems={'center'} fontSize={12} my={2}>
-                                <Box
-                                  boxSize="12px"
-                                  bg="red"
-                                  borderRadius={'3px'}
-                                  mr={2}
-                                />
-                                <Text color="text.300">Got it wrong</Text>
-                                <Spacer />
-                                <Text
-                                  fontWeight={600}
-                                >{`${studyPlanReport.failPercentage}%`}</Text>
-                              </Flex>
-                            </GridItem>
-                          </Grid>
-                          <CardFooter
-                            bg="#f0f2f4"
-                            // h={"45px"}
-                            borderBottom="1px solid #eeeff2"
-                            borderBottomRadius={'10px'}
-                          >
-                            {/* <Flex
-                            h="16px"
-                            alignItems={'center'}
-                            gap={1}
-                            direction="row"
-                          >
-                            <Flash />
-                            <Text
-                              fontSize={14}
-                              fontWeight={400}
-                              color="text.300"
-                            >
-                              Current study streak:
-                            </Text>
-                            <Text fontSize="14px" fontWeight="500" color="#000">
-                              0 day
-                            </Text>
-                          </Flex> */}
-                          </CardFooter>
-                        </>
-                      ) : (
-                        <Box textAlign={'center'} px={20} mt={5} py={25}>
-                          <VStack spacing={5}>
-                            <EmptyFlashcard />
-                            <Text
-                              fontSize={13}
-                              fontWeight={500}
-                              color="text.400"
-                            >
-                              Monitor your study plan performance for the week.
-                              Start Practicing Today.
-                            </Text>
-                          </VStack>
-                        </Box>
-                      )}
-                    </Card>
-                  </Box>
+                  <Analytics studyPlanReport={studyPlanReport} />
                 </TabPanel>
               </TabPanels>
             </Tabs>
@@ -1362,227 +497,6 @@ function CoursePlan() {
       {showNoteModal && (
         <SelectedNoteModal show={showNoteModal} setShow={setShowNoteModal} />
       )}
-      <Modal
-        isOpen={isOpenResource}
-        onClose={() => {
-          updateState({ topicResource: null });
-          onCloseResource();
-        }}
-        size="3xl"
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <HStack>
-              <ResourceIcon />
-              <Text fontSize="16px" fontWeight="500">
-                Extra Resources
-              </Text>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
-            {!state.isLoading ? (
-              state.topicResource ? (
-                <Box w="full">
-                  <Flex alignItems={'center'} my={2}>
-                    {' '}
-                    <Text
-                      fontSize={'17px'}
-                      fontWeight="500"
-                      px={1}
-                      color="#000"
-                    >
-                      Summary
-                    </Text>
-                    <Spacer />{' '}
-                    <Button
-                      variant="outline"
-                      color={'#585F68'}
-                      size="sm"
-                      // bgColor={checkBookmarks() ? '#F0F6FE' : '#fff'}
-                      border="1px solid #E7E8E9"
-                      borderRadius="6px"
-                      fontSize="12px"
-                      leftIcon={<Ribbon />}
-                      // p={'2px 24px'}
-                      display="flex"
-                      _hover={{
-                        boxShadow: 'lg',
-                        transform: 'translateY(-2px)'
-                      }}
-                      disabled={user === null}
-                      style={{ pointerEvents: user ? 'auto' : 'none' }}
-                      onClick={() => saveTopicSummary(state.selectedTopic)}
-                    >
-                      Save
-                    </Button>
-                  </Flex>
-
-                  <Box
-                    p={4}
-                    maxH="350px"
-                    overflowY="auto"
-                    // borderWidth="1px"
-                    // borderRadius="md"
-                    // borderColor="gray.200"
-                    // boxShadow="md"
-                    className="custom-scroll"
-                  >
-                    <Text lineHeight="6">{state.topicResource?.response}</Text>
-                  </Box>
-                  <Text
-                    fontSize={'17px'}
-                    fontWeight="500"
-                    px={1}
-                    color="#000"
-                    my={4}
-                  >
-                    Sources
-                  </Text>
-                  <SimpleGrid minChildWidth="150px" spacing="10px">
-                    {state.topicResource?.search_results.map(
-                      (source, index) => (
-                        <a
-                          key={index}
-                          href={`${source.url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Box
-                            bg="#F3F5F6"
-                            p={4}
-                            borderRadius="md"
-                            boxShadow="md"
-                            borderWidth="1px"
-                            borderColor="gray.200"
-                            cursor="pointer"
-                            transition="transform 0.3s"
-                            _hover={{ transform: 'scale(1.05)' }}
-                          >
-                            <Flex direction="column" textAlign="left" gap={2}>
-                              <Text fontWeight={600} fontSize="sm">
-                                {source.title.length > 15
-                                  ? source.title.substring(0, 15) + '...'
-                                  : source.title}
-                              </Text>
-                              <Flex alignItems="center">
-                                <Text color="gray.500" fontSize="xs">
-                                  {source.url.length > 19
-                                    ? source.url.substring(0, 19) + '...'
-                                    : source.url}
-                                </Text>
-                                <Spacer />
-                                <img
-                                  className="h-3 w-3"
-                                  alt={source.url}
-                                  src={`https://www.google.com/s2/favicons?domain=${
-                                    source.url
-                                  }&sz=${16}`}
-                                />
-                              </Flex>
-                            </Flex>
-                          </Box>
-                        </a>
-                      )
-                    )}
-                  </SimpleGrid>
-                </Box>
-              ) : (
-                'No resource'
-              )
-            ) : (
-              <Spinner />
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={isOpenCadence} onClose={onCloseCadence} size="lg">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <HStack>
-              <ResourceIcon />
-              <Text fontSize="16px" fontWeight="500">
-                Set Cadence For your Reminders
-              </Text>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
-            <Box width="100%">
-              <FormControl id="startDay" marginBottom="20px">
-                <FormLabel>Start Date</FormLabel>
-                <DatePicker
-                  name={'recurrenceStartDate'}
-                  placeholder="Select Start Date"
-                  selected={state.recurrenceStartDate}
-                  dateFormat="MM/dd/yyyy"
-                  onChange={(newDate) => {
-                    updateState({ recurrenceStartDate: newDate });
-                  }}
-                  minDate={new Date()}
-                />
-              </FormControl>
-              <FormControl id="recurrenceEndDate" marginBottom="20px">
-                <FormLabel>End Date</FormLabel>
-                <DatePicker
-                  name={'recurrenceEndDate'}
-                  placeholder="Select End Date"
-                  selected={state.recurrenceEndDate}
-                  dateFormat="MM/dd/yyyy"
-                  onChange={(newDate) => {
-                    updateState({ recurrenceEndDate: newDate });
-                  }}
-                  minDate={state.recurrenceStartDate}
-                />
-              </FormControl>
-              <FormControl id="frequency" marginBottom="20px">
-                <FormLabel>Frequency</FormLabel>
-                <Select
-                  defaultValue={frequencyOptions.find(
-                    (option) => option.value === state.selectedRecurrence
-                  )}
-                  tagVariant="solid"
-                  placeholder="Select Time"
-                  options={frequencyOptions}
-                  size={'md'}
-                  onChange={(option) => {
-                    updateState({
-                      selectedRecurrence: (option as Option).value
-                    });
-                  }}
-                />
-              </FormControl>
-              <FormControl id="time" marginBottom="20px">
-                <FormLabel>Time</FormLabel>
-                <Select
-                  defaultValue={timeOptions.find(
-                    (option) => option.value === state.selectedRecurrenceTime
-                  )}
-                  tagVariant="solid"
-                  placeholder="Select Time"
-                  options={timeOptions}
-                  size={'md'}
-                  onChange={(option) => {
-                    updateState({
-                      selectedRecurrenceTime: (option as Option).value
-                    });
-                  }}
-                />
-              </FormControl>
-            </Box>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              isLoading={state.isLoading}
-              onClick={() => handleUpdatePlanCadence()}
-            >
-              Update
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </>
   );
 }

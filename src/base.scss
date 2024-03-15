@@ -1221,7 +1221,9 @@ code {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
     var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
+#language_select {
+  padding-bottom: 0px !important;
+}
 .model .left::after {
   --border-radius: 1rem;
   border: 10px solid white;
@@ -1331,6 +1333,13 @@ input[type='text']:focus {
 .rmsc .dropdown-heading:focus {
   outline: none !important;
   box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
+}
+
+//STUDY PLAN
+
+.sortable-ghost {
+  opacity: 0.5;
+  background: #88898a;
 }
 
 #root {

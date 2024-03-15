@@ -126,8 +126,6 @@ function AllBounties() {
     onClose: closeBountyModal
   } = useDisclosure();
 
-  console.log('is bounty modal  open', isBountyModalOpen);
-
   const doFetchBountyOffers = useCallback(async () => {
     await fetchBountyOffers(page, limit, 'student');
     setAllTutors(bounties);

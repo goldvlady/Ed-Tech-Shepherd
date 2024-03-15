@@ -1,5 +1,6 @@
 import TableTag from '../../../../components/CustomComponents/CustomTag';
 import SelectComponent, { Option } from '../../../../components/Select';
+import { languages } from '../../../../helpers';
 import {
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
@@ -15,7 +16,12 @@ import {
   Textarea,
   Input,
   HStack,
-  Button
+  Button,
+  Select,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem
 } from '@chakra-ui/react';
 import {
   forEach,
@@ -30,6 +36,7 @@ import {
   values
 } from 'lodash';
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 
 const ManualQuizForm = ({
   // addQuestion,
@@ -40,7 +47,9 @@ const ManualQuizForm = ({
   title,
   handleSetTitle,
   uploadingState,
-  handleCreateUpdateQuiz
+  handleCreateUpdateQuiz,
+  preferredLang,
+  setPreferredLang
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<
     Omit<QuizQuestion & { canEdit?: boolean }, 'options'> & {
@@ -53,6 +62,8 @@ const ManualQuizForm = ({
     answer: '',
     canEdit: true
   });
+
+  const [searchValue, setSearchValue] = useState('');
 
   const handleChangeQuestionType = (
     e: React.ChangeEvent<
@@ -190,6 +201,57 @@ const ManualQuizForm = ({
           ))}
         </HStack>
       )}
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLang || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLang(lang as typeof preferredLang)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input

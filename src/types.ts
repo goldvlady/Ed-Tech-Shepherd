@@ -131,7 +131,7 @@ export enum SubscriptionTier {
   PREMIUM = 'Premium',
   FOUNDING_MEMBER = 'Founding Member'
 }
-
+export type Prettify<T> = T extends object ? { [K in keyof T]: T[K] } : T;
 export type SubscriptionMetadata = {
   flashcard_limit?: number;
   quiz_limit?: number;
@@ -626,3 +626,9 @@ export type StudyPlanJob = {
   studyPlan?: StudyPlanWeek[];
   syllabusData?: SyllabusData;
 };
+
+export interface StudyPlanTopicDocumentPayload {
+  studyPlanId: string;
+  topicId: string;
+  documentId: string;
+}

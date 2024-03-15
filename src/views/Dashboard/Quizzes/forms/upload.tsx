@@ -11,6 +11,7 @@ import {
   MIXED,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  Prettify,
   QuizQuestion,
   TRUE_FALSE
 } from '../../../../types';
@@ -22,8 +23,13 @@ import {
   FormHelperText,
   Input,
   HStack,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
   Button,
   Tooltip,
+  Select,
   Flex,
   Icon,
   Text,
@@ -34,6 +40,8 @@ import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import PlansModal from '../../../../components/PlansModal';
 import FileUpload from '../components/fileUpload';
 import { useToggle } from 'usehooks-ts';
+import { languages } from '../../../../helpers';
+import { FiChevronDown } from 'react-icons/fi';
 
 type LocalDummyData = {
   subject: string;
@@ -67,10 +75,10 @@ const UploadQuizForm = ({
   };
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const typeOptions = [
@@ -81,6 +89,9 @@ const UploadQuizForm = ({
   ];
 
   const [localData, setLocalData] = useState<any>(dummyData);
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const toast = useCustomToast();
   const { handleIsLoadingQuizzes } = quizStore();
 
@@ -98,13 +109,18 @@ const UploadQuizForm = ({
   const [openModal, _, setOpenModal] = useToggle(false);
   const [ingestedDocument, setIngestedDocument] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
-  const handleGenerateQuestions = async (data: LocalDummyData) => {
+  const handleGenerateQuestions = async (
+    data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>
+  ) => {
+    const { lang, ...d } = data;
     try {
       const result = await ApiService.generateQuizQuestionFromDocs({
-        ...data,
-        count: toNumber(data?.count),
-        subscriptionTier: user.subscription?.tier
+        ...d,
+        count: toNumber(d?.count),
+        subscriptionTier: user.subscription?.tier,
+        lang
       });
 
       const resultJson = await result.json();
@@ -302,7 +318,8 @@ const UploadQuizForm = ({
             'contentType',
             'documentID',
             'ingestDoc'
-          ]) as any)
+          ]) as any),
+          lang: preferredLanguage
         });
       } else {
         await handleGenerateQuestions({
@@ -314,7 +331,8 @@ const UploadQuizForm = ({
             'ingestDoc'
           ]) as any),
           studentId: user._id,
-          documentId: ingestedDocument?.value
+          documentId: ingestedDocument?.value,
+          lang: preferredLanguage
         });
       }
       watchJobs(
@@ -369,6 +387,57 @@ const UploadQuizForm = ({
 
   return (
     <Box width={'100%'} mt="20px">
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            height="42px"
+            fontSize="0.875rem"
+            fontFamily="Inter"
+            color=" #212224"
+            fontWeight="400"
+            textAlign="left"
+          >
+            {preferredLanguage || 'Select a language...'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            <Input
+              size="sm"
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Search Language"
+              value={searchValue}
+            />
+            <div
+              style={{
+                maxHeight: '200px',
+                overflowY: 'auto'
+              }}
+            >
+              {languages
+                .filter((lang) =>
+                  lang.toLowerCase().includes(searchValue.toLowerCase())
+                )
+                .map((lang) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={lang}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() =>
+                      setPreferredLanguage(lang as typeof preferredLanguage)
+                    }
+                  >
+                    {lang}
+                  </MenuItem>
+                ))}
+            </div>
+          </MenuList>
+        </Menu>
+      </FormControl>
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
         <Input

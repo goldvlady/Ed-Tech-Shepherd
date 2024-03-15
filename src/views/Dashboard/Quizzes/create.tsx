@@ -70,6 +70,7 @@ import clsx from 'clsx';
 import PlansModal from '../../../components/PlansModal';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
+import { languages } from '../../../helpers';
 
 type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
@@ -94,6 +95,9 @@ const CreateQuizPage = () => {
     handleToggleStartQuizModal,
     handleDeleteQuizQuestion: handleDeleteQuizQuestionService
   } = quizStore();
+  const [preferredLanguage, setPreferredLanguage] = useState<
+    (typeof languages)[number]
+  >(languages[0]);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [quizId, setQuizId] = useState<string | null | undefined>(null);
 
@@ -201,7 +205,7 @@ const CreateQuizPage = () => {
       // Set messages and show the modal if the user has no active subscription
       setPlansModalMessage(
         !user.hadSubscription
-          ? 'Start Your Free Trial!'
+          ? 'Subscribe to unlock your AI Study Tools! 🚀'
           : 'Pick a plan to access your AI Study Tools! 🚀'
       );
       setPlansModalSubMessage('One-click Cancel at anytime.');
@@ -301,7 +305,7 @@ const CreateQuizPage = () => {
       }
     );
   };
-
+  // may need to handle
   const handleUpdateQuiz = async (
     quizId,
     payload: {
@@ -341,7 +345,6 @@ const CreateQuizPage = () => {
         setIsLoadingButton(false);
         setUploadingState(false);
         if (error) {
-          console.log('QUIZ ERROR: ', error);
           toast({
             position: 'top-right',
             title: `failed to update quiz`,
@@ -693,6 +696,8 @@ const CreateQuizPage = () => {
                     removeTag={handleRemoveTag}
                     title={title}
                     handleSetTitle={handleSetTitle}
+                    preferredLang={preferredLanguage}
+                    setPreferredLang={setPreferredLanguage}
                     isLoadingButton={isLoadingButton}
                     handleCreateUpdateQuiz={handleCreateUpdateQuiz}
                     uploadingState={uploadingState}
