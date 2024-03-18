@@ -202,6 +202,12 @@ const RequireAuth = ({
   unAuthenticated: any;
 }) => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const isShareable = params.get('shareable');
+  const apiKey = params.get('apiKey');
+
+  const allowTempAccess = Boolean(isShareable && apiKey);
+
   const {
     state: { isAuthenticated, loading, user }
   } = useAuth();
@@ -214,10 +220,10 @@ const RequireAuth = ({
     );
   }
 
-  if (isAuthenticated && !user?.isVerified) {
+  if (isAuthenticated && !allowTempAccess && !user?.isVerified) {
     navigate('/verification_pending');
   }
-  return isAuthenticated ? authenticated : unAuthenticated;
+  return isAuthenticated || allowTempAccess ? authenticated : unAuthenticated;
 };
 
 const NotFound = () => {
