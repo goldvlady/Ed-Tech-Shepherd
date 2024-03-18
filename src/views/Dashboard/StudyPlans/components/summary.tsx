@@ -187,7 +187,7 @@ function StudyPlanSummary(props) {
           <Text mb={0}>{`${weekday}, ${month} ${monthday}`}</Text>
         </Flex>
         <Box my={4} fontSize={16}>
-          <Text fontWeight={500}>Hey {user.name?.first}</Text>
+          <Text fontWeight={500}>Hey {user?.name?.first || 'User'}</Text>
           <Text color={'text.300'} fontSize={13}>
             {` You have
         ${data ? data.length : 0}

@@ -1132,7 +1132,9 @@ class ApiService {
     minReadinessScore?: number,
     maxReadinessScore?: number,
     title?: string,
-    subject?: string
+    subject?: string,
+    id?: string,
+    apiKey?: string
   ) => {
     let apiUrl = `${ApiService.baseEndpoint}/getStudyPlans?page=${page}&limit=${limit}`;
     if (minReadinessScore !== undefined && maxReadinessScore !== undefined) {
@@ -1145,12 +1147,42 @@ class ApiService {
     if (subject) {
       apiUrl += `&course=${subject}`;
     }
-
-    return doFetch(apiUrl);
-  };
-  static getStudyPlanResources = async (planId: string) => {
+    if (id) {
+      apiUrl += `&id=${id}`;
+    }
+    if (apiKey) {
+      apiUrl += `&shareable=true`;
+    }
+    const headers: HeadersInit = {};
+    if (apiKey) {
+      headers['x-api-key'] = apiKey;
+    }
     return doFetch(
-      `${ApiService.baseEndpoint}/getStudyPlanResources?studyPlanId=${planId}`
+      apiUrl,
+      {
+        method: 'GET'
+      },
+      true,
+      headers
+    );
+  };
+  static getStudyPlanResources = async (planId: string, apiKey?: string) => {
+    let apiUrl = `${ApiService.baseEndpoint}/getStudyPlanResources?studyPlanId=${planId}`;
+    const headers: HeadersInit = {};
+    if (apiKey) {
+      apiUrl += `&shareable=true`;
+    }
+    if (apiKey) {
+      headers['x-api-key'] = apiKey;
+    }
+
+    return doFetch(
+      apiUrl,
+      {
+        method: 'GET'
+      },
+      false,
+      headers
     );
   };
   static getStudyPlanReport = async (planId: string) => {

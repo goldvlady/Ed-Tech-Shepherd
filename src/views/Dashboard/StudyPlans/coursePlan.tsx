@@ -218,7 +218,22 @@ function CoursePlan() {
     if (state.studyPlans.length === 0) {
       const fetchData = async () => {
         try {
-          await fetchPlans(state.page, state.limit);
+          const shareable = params.get('shareable');
+          let id = null;
+          if (shareable) {
+            const { pathname } = location;
+            const planId = pathname.split('planId=')[1];
+            id = planId;
+          }
+          await fetchPlans(
+            state.page,
+            state.limit,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            id
+          );
           updateState({ studyPlans: storePlans });
 
           // Update session storage only if storePlans are different from the plans in storage
