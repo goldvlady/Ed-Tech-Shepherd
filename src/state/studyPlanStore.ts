@@ -16,7 +16,8 @@ type StudyPlanStore = {
     minReadinessScore?: number,
     maxReadinessScore?: number,
     title?: string,
-    subject?: string
+    subject?: string,
+    id?: string
   ) => Promise<void>;
   fetchPlanResources: (planId: string) => Promise<void>;
   fetchPlanReport: (planId: string) => Promise<void>;
@@ -39,9 +40,13 @@ export default create<StudyPlanStore>((set) => ({
     minReadinessScore?: number,
     maxReadinessScore?: number,
     title?: string,
-    subject?: string
+    subject?: string,
+    id?: string
   ) => {
     set({ isLoading: true });
+
+    const searchParamApiKey =
+      new URLSearchParams(window.location.search).get('apiKey') || null;
 
     try {
       const apiUrl = ApiService.getStudyPlans(
@@ -50,7 +55,9 @@ export default create<StudyPlanStore>((set) => ({
         minReadinessScore,
         maxReadinessScore,
         title,
-        subject
+        subject,
+        id,
+        searchParamApiKey
       );
 
       const response = await apiUrl;
@@ -82,7 +89,12 @@ export default create<StudyPlanStore>((set) => ({
   fetchPlanResources: async (planId: string) => {
     set({ isLoading: true });
     try {
-      const response = await ApiService.getStudyPlanResources(planId);
+      const searchParamApiKey =
+        new URLSearchParams(window.location.search).get('apiKey') || null;
+      const response = await ApiService.getStudyPlanResources(
+        planId,
+        searchParamApiKey
+      );
       const { data } = await response.json();
 
       set({ studyPlanResources: data });

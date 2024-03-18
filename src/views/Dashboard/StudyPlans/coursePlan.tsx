@@ -45,6 +45,7 @@ import {
   Spinner,
   Center
 } from '@chakra-ui/react';
+import ShareModal from '../../../components/ShareModal';
 
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -217,7 +218,22 @@ function CoursePlan() {
     if (state.studyPlans.length === 0) {
       const fetchData = async () => {
         try {
-          await fetchPlans(state.page, state.limit);
+          const shareable = params.get('shareable');
+          let id = null;
+          if (shareable) {
+            const { pathname } = location;
+            const planId = pathname.split('planId=')[1];
+            id = planId;
+          }
+          await fetchPlans(
+            state.page,
+            state.limit,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            id
+          );
           updateState({ studyPlans: storePlans });
 
           // Update session storage only if storePlans are different from the plans in storage
@@ -449,8 +465,18 @@ function CoursePlan() {
           ) : (
             <Tabs variant="soft-rounded" color="#F9F9FB">
               <TabList mb="1em">
-                <Tab>Topics</Tab>
-                <Tab>Analytics</Tab>
+                <HStack
+                  width={'full'}
+                  display="flex"
+                  px={4}
+                  justifyContent={'space-between'}
+                >
+                  <Box display={'flex'}>
+                    <Tab>Topics</Tab>
+                    <Tab>Analytics</Tab>
+                  </Box>
+                  <ShareModal type="studyPlan" />
+                </HStack>
               </TabList>
               <TabPanels>
                 <TabPanel>
