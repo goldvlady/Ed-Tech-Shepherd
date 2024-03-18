@@ -132,6 +132,14 @@ const studentRoutes = [
   // { path: 'quizzes/take', element: <TakeQuizzes /> }
 ];
 
+const shareableRoutes = [
+  {
+    path: 'ace-homework/:id',
+    element: <HomeWorkHelp />
+  },
+  { path: 'study-plans/:planId', element: <CoursePlan /> }
+];
+
 const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
@@ -184,6 +192,7 @@ const AuthAction = (props: any) => {
 const userRoutes = {
   student: studentRoutes,
   tutor: tutorRoutes,
+  shareable: shareableRoutes,
   both: [
     ...[
       { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
@@ -254,7 +263,7 @@ const AppRoutes: React.FC = () => {
     return userData?.userRole;
   }, [userData]);
 
-  const userRoute = userRoutes[userType];
+  const userRoute = userType ? userRoutes[userType] : userRoutes.shareable;
   const posthog = usePostHog();
 
   const RedirectToExternal = ({ url }) => {
