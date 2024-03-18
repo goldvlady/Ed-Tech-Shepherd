@@ -45,6 +45,7 @@ import {
   Spinner,
   Center
 } from '@chakra-ui/react';
+import ShareModal from '../../../components/ShareModal';
 
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -449,8 +450,18 @@ function CoursePlan() {
           ) : (
             <Tabs variant="soft-rounded" color="#F9F9FB">
               <TabList mb="1em">
-                <Tab>Topics</Tab>
-                <Tab>Analytics</Tab>
+                <HStack
+                  width={'full'}
+                  display="flex"
+                  px={4}
+                  justifyContent={'space-between'}
+                >
+                  <Box display={'flex'}>
+                    <Tab>Topics</Tab>
+                    <Tab>Analytics</Tab>
+                  </Box>
+                  <ShareModal type="studyPlan" />
+                </HStack>
               </TabList>
               <TabPanels>
                 <TabPanel>
