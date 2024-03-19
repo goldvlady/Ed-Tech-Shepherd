@@ -192,11 +192,13 @@ function StudyPlans() {
     setMinScore(0);
     setMaxScore(100);
     setSearchTerm('');
-    setSubject('');
+    setSubject([]);
   };
+  console.log(subject);
+
   return (
     <>
-      <Flex p={3} justifyContent="space-between" alignItems="center">
+      <Flex p={3} justifyContent="space-between" alignItems="center" gap={1}>
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
             Study Plans
@@ -205,6 +207,7 @@ function StudyPlans() {
             Chart success: Monitor your personalized study plans.
           </Text>
         </Box>
+        <Spacer />
         <Flex gap={2} alignItems="center">
           <MdCancel size={'50px'} color="lightgray" onClick={clearFilters} />
           <Box marginRight={'-15px'}>
@@ -278,7 +281,7 @@ function StudyPlans() {
             whiteSpace="nowrap"
             h="35px"
           />
-        </Flex>{' '}
+        </Flex>
         {studyPlans.length > 0 && (
           <Button
             size={'md'}
