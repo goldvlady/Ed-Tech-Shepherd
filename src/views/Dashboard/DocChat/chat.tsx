@@ -77,6 +77,7 @@ import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
 import { set } from 'lodash';
 import ShareModal from '../../../components/ShareModal';
 import userStore from '../../../state/userStore';
+import { FlashcardData } from '../../../types';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -233,18 +234,22 @@ const Chat = forwardRef(
     const onFlashCard = useCallback(() => {
       if (!isFlashCard) {
         resetFlashcard();
-
-        setFlashcardData((prev) => ({
-          ...prev,
+        const flashcardData: { [key: string]: any } = {
           deckname: '',
           studyType: '',
           studyPeriod: '',
           numQuestions: 0,
           timerDuration: '',
-          hasSubmitted: false,
-          ingestId: documentUrl,
-          documentId: documentUrl
-        }));
+          hasSubmitted: false
+        };
+        if (noteId) {
+          flashcardData.noteDoc = noteId;
+        } else {
+          flashcardData.ingestId = documentUrl;
+          flashcardData.documentId = documentUrl;
+        }
+
+        setFlashcardData((prev) => ({ ...prev, ...flashcardData }));
       }
       setFlashCard((prevState) => !prevState);
     }, [
@@ -252,7 +257,8 @@ const Chat = forwardRef(
       setFlashCard,
       setFlashcardData,
       resetFlashcard,
-      documentUrl
+      documentUrl,
+      noteId
     ]);
 
     const onPinnedMessages = useCallback(() => {

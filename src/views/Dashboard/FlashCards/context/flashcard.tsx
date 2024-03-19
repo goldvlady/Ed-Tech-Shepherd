@@ -562,15 +562,19 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     ) => {
       let reqData = data || flashcardData;
       try {
-        const { canProceed, adjustedCount } = await checkFlashcardLimit(
-          reqData.numQuestions
-        );
-        if (!canProceed) {
-          return;
-        }
-        reqData.numQuestions = adjustedCount;
+        // const { canProceed, adjustedCount } = await checkFlashcardLimit(
+        //   reqData.numQuestions
+        // );
+        // if (!canProceed) {
+        //   return;
+        // }
+        // reqData.numQuestions = adjustedCount;
         data = data || ({} as FlashcardData);
-        reqData = { ...flashcardData, ...data, numQuestions: adjustedCount };
+        reqData = {
+          ...flashcardData,
+          ...data,
+          numQuestions: reqData.numQuestions
+        };
         setIsLoading(true);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
         const aiData: AIRequestBody = {

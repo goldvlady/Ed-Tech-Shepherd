@@ -208,31 +208,31 @@ const FlashCardSetupInit = ({
     }));
     if (isAutomated) {
       try {
-        const { hasActiveSubscription } = userStore.getState();
-        const flashcardCountResponse = await ApiService.checkFlashcardCount(
-          user.student._id
-        );
-        const userFlashcardCount = await flashcardCountResponse.json();
+        // const { hasActiveSubscription } = userStore.getState();
+        // const flashcardCountResponse = await ApiService.checkFlashcardCount(
+        //   user.student._id
+        // );
+        // const userFlashcardCount = await flashcardCountResponse.json();
 
-        if (
-          (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
-          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
-            userFlashcardCount.count >=
-              user.subscription.subscriptionMetadata.flashcard_limit)
-        ) {
-          setPlansModalMessage(
-            !hasActiveSubscription
-              ? "Let's get you on a plan so you can generate flashcards! "
-              : "Looks like you've filled up your flashcard deck! 🚀"
-          );
-          setPlansModalSubMessage(
-            !hasActiveSubscription
-              ? 'Get started today for free!'
-              : "Let's upgrade your plan so you can keep generating more."
-          );
-          setTogglePlansModal(true); // Show the PlansModal
-          return;
-        }
+        // if (
+        //   (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
+        //   (user.subscription?.subscriptionMetadata?.flashcard_limit &&
+        //     userFlashcardCount.count >=
+        //       user.subscription.subscriptionMetadata.flashcard_limit)
+        // ) {
+        //   setPlansModalMessage(
+        //     !hasActiveSubscription
+        //       ? "Let's get you on a plan so you can generate flashcards! "
+        //       : "Looks like you've filled up your flashcard deck! 🚀"
+        //   );
+        //   setPlansModalSubMessage(
+        //     !hasActiveSubscription
+        //       ? 'Get started today for free!'
+        //       : "Let's upgrade your plan so you can keep generating more."
+        //   );
+        //   setTogglePlansModal(true); // Show the PlansModal
+        //   return;
+        // }
         generateFlashcardQuestions(preferredLanguage, data, handleDone);
         setIsGenerating(false);
       } catch (error) {
