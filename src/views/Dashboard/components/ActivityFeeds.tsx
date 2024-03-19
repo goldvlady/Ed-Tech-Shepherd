@@ -189,38 +189,40 @@ function ActivityFeeds(props) {
       : navigate('/dashboard/messaging');
   };
   useEffect(() => {
-    const currentTime = new Date();
+    if (feeds?.data) {
+      const currentTime = new Date();
 
-    const filterByPeriod = (feed: any) => {
-      const feedTime = new Date(feed.updatedAt);
-      if (feedPeriod === 'all') {
-        return true;
-      } else if (feedPeriod === 'today') {
-        return isSameDay(currentTime, feedTime);
-      } else if (feedPeriod === 'week') {
-        return isSameWeek(currentTime, feedTime);
-      } else if (feedPeriod === 'month') {
-        return isSameMonth(currentTime, feedTime);
+      const filterByPeriod = (feed: any) => {
+        const feedTime = new Date(feed.updatedAt);
+        if (feedPeriod === 'all') {
+          return true;
+        } else if (feedPeriod === 'today') {
+          return isSameDay(currentTime, feedTime);
+        } else if (feedPeriod === 'week') {
+          return isSameWeek(currentTime, feedTime);
+        } else if (feedPeriod === 'month') {
+          return isSameMonth(currentTime, feedTime);
+        } else {
+          return false;
+        }
+      };
+      if (isTutor) {
+        setFilteredFeeds(
+          feeds?.data
+            .filter(
+              (feed) =>
+                feed.activityType === 'transaction' ||
+                feed.activityType === 'bounty'
+            )
+            .filter(filterByPeriod)
+        );
       } else {
-        return false;
+        setFilteredFeeds(
+          feeds?.data
+            .filter((feed) => feed.activityType !== 'contract')
+            .filter(filterByPeriod)
+        );
       }
-    };
-    if (isTutor) {
-      setFilteredFeeds(
-        feeds?.data
-          .filter(
-            (feed) =>
-              feed.activityType === 'transaction' ||
-              feed.activityType === 'bounty'
-          )
-          .filter(filterByPeriod)
-      );
-    } else {
-      setFilteredFeeds(
-        feeds?.data
-          .filter((feed) => feed.activityType !== 'contract')
-          .filter(filterByPeriod)
-      );
     }
   }, [isTutor, feedPeriod, feeds?.data]);
 
