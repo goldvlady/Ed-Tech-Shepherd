@@ -4,7 +4,6 @@ import PultoJPG from '../../../assets/PlutoAi.jpg';
 import HightLightIcon from '../../../assets/highlightIcn.svg?react';
 import { useLocation } from 'react-router';
 import HistoryIcn from '../../../assets/large-clock-icn.svg?react';
-import PDFImg from '../../../assets/pdf_img.png';
 import { useFlashcardWizard } from '../FlashCards/context/flashcard';
 // import { ReactComponent as PinLogo } from '../../../assets/pin.svg';
 import SocratesImg from '../../../assets/socrates-image.png';
@@ -20,10 +19,8 @@ import { useChatScroll } from '../../../components/hooks/useChatScroll';
 import { PinLogo, ThumbsUp, ThumbsDown } from '../../../components/icons';
 import { snip } from '../../../helpers/file.helpers';
 import useIsMobile from '../../../helpers/useIsMobile';
-import FlashcardDataProvider from '../FlashCards/context/flashcard';
 import SetupFlashcardPage from '../FlashCards/forms/flashcard_setup';
 import PinnedMessages from './PinnedMessages';
-import ChatHistory from './chatHistory';
 import DocchatHistory from './docchatHistory';
 import HighLight from './highlist';
 import {
@@ -60,7 +57,7 @@ import {
   Wrapper
 } from './styles';
 import Summary from './summary';
-import { Text, Icon, Box } from '@chakra-ui/react';
+import { Text } from '@chakra-ui/react';
 import clsx from 'clsx';
 import React, {
   useState,
@@ -68,16 +65,12 @@ import React, {
   useCallback,
   useRef,
   useMemo,
-  forwardRef,
-  ForwardedRef
+  forwardRef
 } from 'react';
-import Typewriter from 'typewriter-effect';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import ViewUploadDoc from '../HomeWorkHelp/ViewUploadDoc';
-import { set } from 'lodash';
 import ShareModal from '../../../components/ShareModal';
 import userStore from '../../../state/userStore';
-import { FlashcardData } from '../../../types';
 
 interface IChat {
   HomeWorkHelp?: boolean;
@@ -205,16 +198,13 @@ const Chat = forwardRef(
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [isFlashCard, setFlashCard] = useState<boolean>(false);
     const { user } = userStore();
-    const [isQuiz, setQuiz] = useState<boolean>(false);
     const textAreaRef = useRef<any>();
     const textAreaRef2 = useRef<any>();
     const scrollRef = useChatScroll(messages);
     const [hoveredIndex, setHoveredIndex] = useState(0);
-    const [hoveredUserIndex, setHoveredUserIndex] = useState(0);
     const isMobile = useIsMobile();
     const chatList = useRef<Array<[]> | null | HTMLDivElement[] | any[]>([]);
     const [isPinnedMessages, setPinnedMessages] = useState(false);
-    const [isNumber, setIsNumber] = useState(true);
     const [chatHisotry, setIsChatHistory] = useState(false);
     const [docModal, setDocModal] = useState(false);
     const { setFlashcardData, resetFlashcard } = useFlashcardWizard();
