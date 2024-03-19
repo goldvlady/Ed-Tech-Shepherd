@@ -59,6 +59,7 @@ import ApiService from '../../../../services/ApiService';
 import SelectedNoteModal from '../../../../components/SelectedNoteModal';
 import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
 import { FaPlus } from 'react-icons/fa';
+import R2RClient from '../../../../services/R2R';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -212,19 +213,45 @@ function Topics(props) {
       return 'To Do';
     }
   };
+  // const getTopicResource = async (topic: string) => {
+  //   updateState({ isLoading: true });
+  //   try {
+  //     // Instantiate SciPhiService
+  //     const sciPhiService = new SciPhiService();
+
+  //     // Define search options
+  //     const searchOptions = {
+  //       query: topic
+  //     };
+
+  //     // Call searchRag method
+  //     const response = await sciPhiService.searchRag(searchOptions);
+  //     if (response) {
+  //       updateState({ isLoading: false, topicResource: response });
+  //     }
+  //   } catch (error) {
+  //     updateState({ isLoading: false });
+  //     console.error('Error searching topic:', error);
+  //   }
+  // };
   const getTopicResource = async (topic: string) => {
     updateState({ isLoading: true });
     try {
-      // Instantiate SciPhiService
-      const sciPhiService = new SciPhiService();
+      const client = new R2RClient();
 
-      // Define search options
-      const searchOptions = {
-        query: topic
-      };
+      // Define search parameters
+      const query = topic;
+      const limit = 10;
+      const filters = { tags: 'example' };
+      const settings = {};
 
-      // Call searchRag method
-      const response = await sciPhiService.searchRag(searchOptions);
+      // ragCompletion method
+      const response = await client.ragCompletion(
+        query,
+        limit,
+        filters,
+        settings
+      );
       if (response) {
         updateState({ isLoading: false, topicResource: response });
       }
@@ -233,7 +260,6 @@ function Topics(props) {
       console.error('Error searching topic:', error);
     }
   };
-
   const findQuizzesByTopic = (topic) => {
     // const topicKey = topic.toLowerCase();
 
@@ -327,7 +353,9 @@ function Topics(props) {
   };
 
   const frequencyOptions = [
-    { label: 'Daily', value: 'daily' },
+    { label: 'Once daily', value: 'once' },
+    { label: 'Twice daily', value: 'twice' },
+    // { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
     { label: "Doesn't Repeat", value: 'none' }
@@ -343,7 +371,7 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
-
+  console.log(state.topicResource);
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
     const [initializing, setInitializing] = useState(false);
@@ -856,7 +884,12 @@ from  ${moment(
                     // boxShadow="md"
                     className="custom-scroll"
                   >
-                    <Text lineHeight="6">{state.topicResource?.response}</Text>
+                    <Text lineHeight="6">
+                      {state.topicResource?.completion.choices[0].message.content.replace(
+                        /\[.*?\]/g,
+                        ''
+                      )}
+                    </Text>
                   </Box>
                   <Text
                     fontSize={'17px'}
@@ -868,11 +901,12 @@ from  ${moment(
                     Sources
                   </Text>
                   <SimpleGrid minChildWidth="150px" spacing="10px">
-                    {state.topicResource?.search_results.map(
-                      (source, index) => (
+                    {state.topicResource?.search_results
+                      .filter((item) => item.title)
+                      .map((source, index) => (
                         <a
                           key={index}
-                          href={`${source.url}`}
+                          href={`${source.link}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -889,30 +923,29 @@ from  ${moment(
                           >
                             <Flex direction="column" textAlign="left" gap={2}>
                               <Text fontWeight={600} fontSize="sm">
-                                {source.title.length > 15
-                                  ? source.title.substring(0, 15) + '...'
+                                {source.title?.length > 15
+                                  ? source.title?.substring(0, 15) + '...'
                                   : source.title}
                               </Text>
                               <Flex alignItems="center">
                                 <Text color="gray.500" fontSize="xs">
-                                  {source.url.length > 19
-                                    ? source.url.substring(0, 19) + '...'
-                                    : source.url}
+                                  {source.link?.length > 19
+                                    ? source.link?.substring(0, 19) + '...'
+                                    : source.link}
                                 </Text>
                                 <Spacer />
                                 <img
                                   className="h-3 w-3"
-                                  alt={source.url}
+                                  alt={source.link}
                                   src={`https://www.google.com/s2/favicons?domain=${
-                                    source.url
+                                    source.link
                                   }&sz=${16}`}
                                 />
                               </Flex>
                             </Flex>
                           </Box>
                         </a>
-                      )
-                    )}
+                      ))}
                   </SimpleGrid>
                 </Box>
               ) : (

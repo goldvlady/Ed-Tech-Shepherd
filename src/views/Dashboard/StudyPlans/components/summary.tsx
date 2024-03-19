@@ -189,9 +189,11 @@ function StudyPlanSummary(props) {
         <Box my={4} fontSize={16}>
           <Text fontWeight={500}>Hey {user.name?.first}</Text>
           <Text color={'text.300'} fontSize={13}>
-            {` You have
+            {/* {` You have
         ${data ? data.length : 0}
-        topics to study before your big-day.`}
+        topics to study before your big-day.`} */}
+            Here is a list of topics you should check out between now and next
+            month
           </Text>
         </Box>
         <Box mt={4}>
@@ -201,36 +203,6 @@ function StudyPlanSummary(props) {
               Summary
             </Text>
             <Spacer />{' '}
-            {/* <Menu>
-              <MenuButton
-                as={Button}
-                leftIcon={<RiCalendar2Fill />}
-                rightIcon={<BsChevronDown />}
-                variant="outline"
-                fontSize={14}
-                fontWeight={500}
-                color="#5C5F64"
-                p={2}
-                size="sm"
-              >
-                {eventPeriod}
-              </MenuButton>
-              <MenuList minWidth={'auto'}>
-                <MenuItem onClick={() => setEventPeriod('All')}>All</MenuItem>
-                <MenuItem onClick={() => setEventPeriod('Today')}>
-                  Today
-                </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('This week')}>
-                  This week
-                </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('Next week')}>
-                  Next week
-                </MenuItem>
-                <MenuItem onClick={() => setEventPeriod('This month')}>
-                  This month
-                </MenuItem>
-              </MenuList>
-            </Menu> */}
           </Flex>
 
           <ul className="space-y-3">
