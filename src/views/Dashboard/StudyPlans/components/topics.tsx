@@ -593,11 +593,14 @@ function Topics(props) {
                                 {!isTutor && (
                                   <Tooltip label="Take">
                                     <Box
-                                      onClick={() =>
+                                      onClick={() => {
+                                        const baseUrl = isTutor
+                                          ? '/dashboard/tutordashboard'
+                                          : '/dashboard';
                                         navigate(
-                                          `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                                        )
-                                      }
+                                          `${baseUrl}/quizzes/take?quiz_id=${quiz.id}`
+                                        );
+                                      }}
                                     >
                                       <AiFillThunderbolt
                                         color="#207df7"
@@ -610,8 +613,11 @@ function Topics(props) {
                                   <Box
                                     onClick={() => {
                                       loadQuiz(quiz?.id);
+                                      const baseUrl = isTutor
+                                        ? '/dashboard/tutordashboard'
+                                        : '/dashboard';
                                       navigate(
-                                        `/dashboard/quizzes/create?quiz_id=${quiz.id}`
+                                        `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
                                       );
                                     }}
                                   >
