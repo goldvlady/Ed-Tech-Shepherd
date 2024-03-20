@@ -82,6 +82,10 @@ function CoursePlan() {
 
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
   const {
     courses: courseList,
     levels: levelOptions,
@@ -363,7 +367,8 @@ function CoursePlan() {
     navigate(updatedPathname, { replace: true });
   };
   const handlePlanSelection = (planId) => {
-    navigate(`/dashboard/study-plans/planId=${planId}`);
+    const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+    navigate(`${baseUrl}/study-plans/planId=${planId}`);
   };
 
   return (
@@ -451,7 +456,8 @@ function CoursePlan() {
         </Box>
 
         <Box
-          p={6}
+          py={6}
+          px={4}
           className="topics custom-scroll"
           bg="#F9F9FB"
           overflowY="scroll"

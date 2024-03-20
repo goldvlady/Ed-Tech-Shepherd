@@ -110,7 +110,7 @@ const Clients = () => {
       component: (
         <AllClientTab
           allTutorClients={allTutorClients.filter(
-            (client) => client.offer.expired === false
+            (client) => client?.offer?.expired === false
           )}
         />
       )
@@ -120,7 +120,7 @@ const Clients = () => {
       component: (
         <AllClientTab
           allTutorClients={allTutorClients.filter(
-            (client) => client.offer.expired === true
+            (client) => client?.offer?.expired === true
           )}
         />
       )
@@ -161,11 +161,11 @@ const Clients = () => {
     const sortedArray = sortedWithStartDate.sort((a, b) => {
       if (direction === 'ASC') {
         return a.offer.contractStartDate.localeCompare(
-          b.offer.contractStartDate
+          b.offer?.contractStartDate
         );
       } else {
         return b.offer.contractStartDate.localeCompare(
-          a.offer.contractStartDate
+          a.offer?.contractStartDate
         );
       }
     });
@@ -232,7 +232,7 @@ const Clients = () => {
       <NotesWrapper>
         <header className="flex my-4 justify-between">
           <StyledHeader>
-            <span className="font-bold">Clients</span>
+            <span className="font-bold">Students</span>
             <span className="count-badge">{allTutorClients?.length}</span>
           </StyledHeader>
           <FlexContainer>
@@ -297,7 +297,7 @@ const Clients = () => {
                   fontWeight="400"
                   p="6px 8px 6px 8px"
                 >
-                  Client name (A-Z)
+                  Student name (A-Z)
                 </MenuItem>
                 <MenuItem
                   _hover={{ bgColor: '#F2F4F7' }}
@@ -308,7 +308,7 @@ const Clients = () => {
                   fontWeight="400"
                   p="6px 8px 6px 8px"
                 >
-                  Client name (Z-A)
+                  Student name (Z-A)
                 </MenuItem>
               </MenuList>
             </Menu>

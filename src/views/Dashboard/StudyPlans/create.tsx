@@ -147,7 +147,9 @@ function CreateStudyPlans() {
   const btnRef = useRef();
   const toast = useCustomToast();
   const navigate = useNavigate();
+  const currentPath = window.location.pathname;
 
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
   const subjectOptions = [
     { label: 'Eng', value: 'English' },
     { label: 'Maths', value: 'Maths' },
@@ -615,7 +617,8 @@ function CreateStudyPlans() {
             status: 'success',
             isClosable: true
           });
-          navigate('/dashboard/study-plans');
+          const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+          navigate(`${baseUrl}/study-plans`);
         } else {
           setLoading(false);
           toast({

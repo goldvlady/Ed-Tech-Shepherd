@@ -97,7 +97,7 @@ export default function GridList(props) {
         <Flex direction="column" minW="0" flex="1">
           <Box position="absolute" inset="0" aria-hidden="true" />
           <Text fontSize="sm" fontWeight="medium" color="gray.400">
-            Total Clients
+            Total Students
           </Text>
           <Text fontSize="2xl" my={0.5} fontWeight="semibold">
             {data.completedClientsCount}

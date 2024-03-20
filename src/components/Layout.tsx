@@ -71,7 +71,7 @@ const dummyNavigation: NavigationItem[] = [
     current: true
   },
   {
-    name: 'Clients',
+    name: 'Students',
     href: '/dashboard/tutordashboard/clients',
     icon: UserGroupIcon,
     current: false
@@ -91,6 +91,12 @@ const dummyNavigation: NavigationItem[] = [
   {
     name: 'Messages',
     href: '/dashboard/tutordashboard/messages',
+    icon: MessagesIcon,
+    current: false
+  },
+  {
+    name: 'Study Plans',
+    href: '/dashboard/tutordashboard/study-plans',
     icon: MessagesIcon,
     current: false
   }
