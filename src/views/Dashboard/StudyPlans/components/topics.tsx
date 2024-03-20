@@ -34,7 +34,8 @@ import {
   PopoverTrigger,
   Popover,
   CircularProgress,
-  Icon
+  Icon,
+  Tooltip
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
@@ -48,10 +49,10 @@ import studyPlanStore from '../../../../state/studyPlanStore';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import flashcardStore from '../../../../state/flashcardStore';
 import resourceStore from '../../../../state/resourceStore';
-import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
+import { AiFillThunderbolt, AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { parseISO, format, parse } from 'date-fns';
-import { SmallCloseIcon } from '@chakra-ui/icons';
+import { EditIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons';
 import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
@@ -60,9 +61,15 @@ import SelectedNoteModal from '../../../../components/SelectedNoteModal';
 import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
 import { FaPlus } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
+import { IoCreateOutline } from 'react-icons/io5';
+import quizStore from '../../../../state/quizStore';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   const {
     fetchPlanResources,
     studyPlanResources,
@@ -70,6 +77,7 @@ function Topics(props) {
   } = studyPlanStore();
   const { user } = useUserStore();
   const { fetchSingleFlashcard } = flashcardStore();
+  const { loadQuiz } = quizStore();
   const {
     courses: courseList,
     levels: levelOptions,
@@ -576,15 +584,42 @@ function Topics(props) {
                     findQuizzesByTopic(topic.topicDetails?.label)?.map(
                       (quiz) => (
                         <>
-                          <MenuItem
-                            key={quiz.id}
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                              )
-                            }
-                          >
-                            {quiz.title}
+                          <MenuItem key={quiz.id}>
+                            <Flex alignItems={'center'} gap={4} w="full">
+                              <Text fontSize={12}>{quiz.title}</Text>
+
+                              <Spacer />
+                              <Flex alignItems="center" gap={2}>
+                                {!isTutor && (
+                                  <Tooltip label="Take">
+                                    <Box
+                                      onClick={() =>
+                                        navigate(
+                                          `/dashboard/quizzes/take?quiz_id=${quiz.id}`
+                                        )
+                                      }
+                                    >
+                                      <AiFillThunderbolt
+                                        color="#207df7"
+                                        size={18}
+                                      />
+                                    </Box>
+                                  </Tooltip>
+                                )}
+                                <Tooltip label="Edit">
+                                  <Box
+                                    onClick={() => {
+                                      loadQuiz(quiz?.id);
+                                      navigate(
+                                        `/dashboard/quizzes/create?quiz_id=${quiz.id}`
+                                      );
+                                    }}
+                                  >
+                                    <EditIcon color="#207df7" boxSize={4} />
+                                  </Box>
+                                </Tooltip>
+                              </Flex>
+                            </Flex>
                           </MenuItem>
                         </>
                       )
@@ -606,11 +641,42 @@ function Topics(props) {
                     findFlashcardsByTopic(topic.topicDetails?.label).map(
                       (flashcard) => (
                         <>
-                          <MenuItem
-                            key={flashcard.id}
-                            onClick={() => fetchSingleFlashcard(flashcard.id)}
-                          >
-                            {flashcard.deckname}
+                          <MenuItem key={flashcard.id}>
+                            <Flex alignItems={'center'} gap={4} w="full">
+                              <Text fontSize={12}> {flashcard.deckname}</Text>
+
+                              <Spacer />
+                              <Flex alignItems="center" gap={2}>
+                                {!isTutor && (
+                                  <Tooltip label="Study">
+                                    <Box
+                                      onClick={() =>
+                                        fetchSingleFlashcard(flashcard.id)
+                                      }
+                                    >
+                                      <AiFillThunderbolt
+                                        color="#207df7"
+                                        size={18}
+                                      />
+                                    </Box>
+                                  </Tooltip>
+                                )}
+                                <Tooltip label="Edit">
+                                  <Box
+                                    onClick={() => {
+                                      const baseUrl = isTutor
+                                        ? '/dashboard/tutordashboard'
+                                        : '/dashboard';
+                                      navigate(
+                                        `${baseUrl}/flashcards/${flashcard.id}/edit`
+                                      );
+                                    }}
+                                  >
+                                    <EditIcon color="#207df7" boxSize={4} />
+                                  </Box>
+                                </Tooltip>
+                              </Flex>
+                            </Flex>
                           </MenuItem>
                         </>
                       )
@@ -721,13 +787,13 @@ function Topics(props) {
                 </Text>
               </VStack>
             </HStack>
-            <Flex alignItems={'center'} px={4}>
+            <Flex alignItems={'center'} px={4} my={4}>
               <Badge
                 variant="subtle"
                 colorScheme="blue"
                 p={1}
                 letterSpacing="wide"
-                textTransform="none"
+                textTransform="capitalize"
                 borderRadius={8}
                 cursor={'grab'}
                 onClick={() => {
@@ -770,19 +836,20 @@ from  ${moment(
               </Badge>
 
               <Spacer />
-              <Button
-                size={'sm'}
-                my={4}
-                onClick={() => {
-                  updateState({
-                    selectedTopic: topic.topicDetails?.label
-                  });
+              {!isTutor && (
+                <Button
+                  size={'sm'}
+                  onClick={() => {
+                    updateState({
+                      selectedTopic: topic.topicDetails?.label
+                    });
 
-                  openBountyModal();
-                }}
-              >
-                Find a tutor
-              </Button>
+                    openBountyModal();
+                  }}
+                >
+                  Find a tutor
+                </Button>
+              )}
             </Flex>
           </Box>
         </Box>

@@ -138,7 +138,7 @@ const AllClientsTab = (props) => {
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'name',
-      title: 'ClientName',
+      title: 'Student Name',
       dataIndex: 'name',
       align: 'left'
       // render: ({ name }) => (

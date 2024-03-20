@@ -149,7 +149,13 @@ const tutorRoutes = [
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
   { path: 'tutordashboard/bounties/:bidId', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
-  { path: 'tutordashboard/messages', element: <Messaging /> }
+  { path: 'tutordashboard/messages', element: <Messaging /> },
+  { path: 'tutordashboard/create-study-plans', element: <CreateStudyPlans /> },
+  { path: 'tutordashboard/study-plans', element: <StudyPlans /> },
+  { path: 'tutordashboard/study-plans/:planId', element: <CoursePlan /> },
+  // { path: 'tutordashboard/flashcards/create', element: <CreateFlashCard /> },
+  { path: 'tutordashboard/flashcards/:id/edit', element: <EditFlashCard /> },
+  { path: 'tutordashboard/quizzes/create', element: <CreateQuizzes /> }
 ];
 
 const userLayouts = {

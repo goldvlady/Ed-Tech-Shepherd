@@ -73,6 +73,10 @@ function StudyPlans() {
     onClose: closeConfirmDelete
   } = useDisclosure();
 
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   const DropdownIndicator = (props) => {
     return (
       <components.DropdownIndicator {...props}>
@@ -197,7 +201,7 @@ function StudyPlans() {
   console.log(subject);
 
   return (
-    <>
+    <Box height={'100vh'}>
       <Flex p={3} justifyContent="space-between" alignItems="center" gap={1}>
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
@@ -285,7 +289,12 @@ function StudyPlans() {
         {studyPlans.length > 0 && (
           <Button
             size={'md'}
-            onClick={() => navigate('/dashboard/create-study-plans')}
+            onClick={() => {
+              const baseUrl = isTutor
+                ? '/dashboard/tutordashboard'
+                : '/dashboard';
+              navigate(`${baseUrl}/create-study-plans`);
+            }}
           >
             Create New
           </Button>
@@ -341,7 +350,14 @@ function StudyPlans() {
           <div className="text-center">
             <img src="/images/notes.png" alt="" />
             <Text>You don't have any study plans yet!</Text>
-            <Button onClick={() => navigate('/dashboard/create-study-plans')}>
+            <Button
+              onClick={() => {
+                const baseUrl = isTutor
+                  ? '/dashboard/tutordashboard'
+                  : '/dashboard';
+                navigate(`${baseUrl}/create-study-plans`);
+              }}
+            >
               Create New
             </Button>
           </div>
@@ -446,7 +462,7 @@ function StudyPlans() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </Box>
   );
 }
 
