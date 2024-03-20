@@ -55,6 +55,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { FiChevronDown } from 'react-icons/fi';
 import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
+import { IoIosArrowRoundBack } from 'react-icons/io';
 
 interface NavigationItem {
   name: string;
@@ -411,6 +412,14 @@ export default function Layout({ children, className }) {
 
       <div className="lg:pl-72 bg-white">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+          <Flex
+            alignItems={'center'}
+            onClick={() => navigate(-1)}
+            _hover={{ cursor: 'pointer' }}
+          >
+            <IoIosArrowRoundBack />
+            {/* <Text fontSize={12}>Back</Text> */}
+          </Flex>
           <button
             type="button"
             className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
@@ -650,7 +659,6 @@ export default function Layout({ children, className }) {
             </div>
           </div>
         </div>
-
         {/* <main className={className}>{children}</main>  */}
         <Box pt={2} position={'relative'}>
           <Outlet />
