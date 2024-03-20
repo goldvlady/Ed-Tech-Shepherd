@@ -58,7 +58,7 @@ function ChatRoom() {
           name: user.name.first,
           query: ''
         };
-        const response = await fetch(`${process.env.REACT_APP_AI_II}/maths`, {
+        const response = await fetch(`${process.env.REACT_APP_AI_II}/maths/`, {
           method: 'POST',
           headers: {
             'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
@@ -74,7 +74,7 @@ function ChatRoom() {
 
         // Create a new EventSource instance to handle server-sent events
         const eventSource = new EventSource(
-          `${process.env.REACT_APP_AI_II}/maths`
+          `${process.env.REACT_APP_AI_II}/maths/`
         );
 
         // Event listener to handle incoming events
@@ -241,7 +241,7 @@ function ChatRoom() {
                 };
                 const body = JSON.stringify(b);
                 const response = await fetch(
-                  `${process.env.REACT_APP_AI_II}/maths`,
+                  `${process.env.REACT_APP_AI_II}/maths/`,
                   {
                     method: 'POST',
                     headers: {
@@ -257,7 +257,7 @@ function ChatRoom() {
 
                 // Create a new EventSource instance to handle server-sent events
                 const eventSource = new EventSource(
-                  `${process.env.REACT_APP_AI_II}/maths`
+                  `${process.env.REACT_APP_AI_II}/`
                 );
                 eventSource.onmessage = async (event) => {
                   if (event.data.includes('done with stream')) {

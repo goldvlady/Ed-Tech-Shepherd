@@ -100,13 +100,11 @@ function AiChatBotWindow() {
           subject,
           referenceId: studentId
         });
+        console.log(data.data, 'DATA?');
         setChatWindowParams({ connectionQuery: cq, isNewWindow: true });
-        navigate(
-          `/dashboard/ace-homework/${conversationId}?initial_messages=true`,
-          {
-            replace: true
-          }
-        );
+        navigate(`/dashboard/ace-homework/${data.data}?initial_messages=true`, {
+          replace: true
+        });
       } catch (error) {
         // render toast
       }

@@ -124,11 +124,12 @@ class ApiService {
     referenceId: string;
   }) => {
     const body = JSON.stringify(b);
-    return fetch(`${process.env.REACT_APP_AI_II}/conversations`, {
+    return fetch(`${process.env.REACT_APP_AI_II}/conversations/`, {
       method: 'POST',
       body,
       headers: {
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+        'Content-Type': 'application/json'
       }
     })
       .then((resp) => resp.json())
