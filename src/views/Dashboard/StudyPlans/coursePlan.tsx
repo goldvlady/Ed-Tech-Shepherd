@@ -127,6 +127,8 @@ function CoursePlan() {
     recurrenceEndDate: new Date()
   });
 
+  console.log(state.selectedPlan);
+
   // Batch state updates
   const updateState = (newState) =>
     setState((prevState) => ({ ...prevState, ...newState }));
@@ -338,7 +340,7 @@ function CoursePlan() {
     }
   }, [state.selectedTopic]);
   console.log(state.topicResource);
-  console.log(state.topics);
+  console.log('study plan ===>', state.topics);
 
   const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
@@ -371,6 +373,18 @@ function CoursePlan() {
     navigate(`${baseUrl}/study-plans/planId=${planId}`);
   };
 
+  const handleSavePlan = async () => {
+    if (!user) {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      toast({
+        title: 'You need to login to save a plan',
+        status: 'info',
+        position: 'top',
+        isClosable: true
+      });
+      navigate(`/login?redirect=${currentPathWithQuery}`);
+    }
+  };
   return (
     <>
       <Grid
@@ -483,7 +497,13 @@ function CoursePlan() {
                     <Tab>Topics</Tab>
                     <Tab>Analytics</Tab>
                   </Box>
-                  <ShareModal type="studyPlan" />
+                  {user && state.topics?.creator === user._id ? (
+                    <ShareModal type="studyPlan" />
+                  ) : (
+                    <Button onClick={() => handleSavePlan()} size={'sm'}>
+                      Save Plan
+                    </Button>
+                  )}
                 </HStack>
               </TabList>
               <TabPanels>

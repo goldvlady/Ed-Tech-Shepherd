@@ -253,6 +253,7 @@ const NotFound = () => {
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
+  const [params] = useSearchParams();
   const { fetchNotifications, fetchUserDocuments } = userStore();
   /* chameleon.io NPM script */
 
@@ -265,11 +266,16 @@ const AppRoutes: React.FC = () => {
     state: { user: userData, loading, isAuthenticated }
   } = useAuth();
 
+  console.log('userData', userData);
   const userType = useMemo(() => {
     return userData?.userRole;
   }, [userData]);
 
-  const userRoute = userType ? userRoutes[userType] : userRoutes.shareable;
+  let userRoute = userRoutes[userType] || [];
+  if (params.get('shareable')) {
+    userRoute = [...userRoutes.shareable, ...userRoute];
+  }
+  console.log('userRoute', userRoute);
   const posthog = usePostHog();
 
   const RedirectToExternal = ({ url }) => {

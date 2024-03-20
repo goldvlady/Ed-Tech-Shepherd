@@ -6,6 +6,7 @@ import {
   googleProvider
 } from '../firebase';
 import { useTitle } from '../hooks';
+import { useSearchParams } from 'react-router-dom';
 import userStore from '../state/userStore';
 import {
   Box,
@@ -27,7 +28,7 @@ import {
 } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Field, Form, Formik } from 'formik';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -49,10 +50,25 @@ const Login: React.FC = () => {
   const toast = useCustomToast();
   const navigate = useNavigate();
   const auth = getAuth();
+  const [params] = useSearchParams();
+  const redirectPath = params.get('redirect');
+  const [isLoading, setLoading] = useState(false);
   const { user: appUser, fetchUser } = userStore();
+
+  const signupPath = useMemo(() => {
+    let path = '/signup';
+    if (redirectPath) {
+      path = `/signup?redirect=${redirectPath}`;
+    }
+    return path;
+  }, [redirectPath]);
 
   const handleNavigation = useCallback(async () => {
     let path = '/dashboard';
+    const url = window.location.href;
+    const redirectIndex = url.indexOf('redirect=');
+    const redirectPath = url.substring(redirectIndex + 'redirect='.length);
+
     sessionStorage.setItem('Just Signed in', 'true');
     if (appUser?.type.includes('tutor')) {
       const resp = await ApiService.toggleUserRole(appUser._id, 'tutor');
@@ -74,6 +90,9 @@ const Login: React.FC = () => {
     ) {
       const resp = await ApiService.toggleUserRole(appUser._id, 'student');
       path = '/dashboard';
+    }
+    if (redirectPath) {
+      path = redirectPath;
     }
     window.location.href = path;
   }, [appUser, navigate]);
@@ -104,6 +123,7 @@ const Login: React.FC = () => {
         } else {
           handleNavigation();
         }
+        setLoading(false);
       }
     });
 
@@ -114,6 +134,8 @@ const Login: React.FC = () => {
     try {
       authBasis = 'google';
       const result = await signInWithPopup(firebaseAuth, googleProvider);
+      setLoading(true);
+
       await fetchUser();
       const userEmail = result?.user?.email;
       if (!userEmail) {
@@ -142,6 +164,8 @@ const Login: React.FC = () => {
           values.email,
           values.password
         );
+        await fetchUser();
+        setLoading(true);
       } catch (e: any) {
         let errorMessage = '';
         switch (e.code) {
@@ -245,7 +269,7 @@ const Login: React.FC = () => {
               >
                 <Button
                   isDisabled={Object.values(errors).length !== 0}
-                  isLoading={isSubmitting}
+                  isLoading={isSubmitting || isLoading}
                   width={'100%'}
                   size="lg"
                   onClick={() => {
@@ -269,7 +293,7 @@ const Login: React.FC = () => {
                   color="primary.400"
                   className="body2 text-center"
                   as={RouterLink}
-                  to="/signup"
+                  to={signupPath}
                 >
                   <span className="body2">Don’t have an account?</span> Sign up
                 </Link>
