@@ -672,6 +672,11 @@ function Topics(props) {
                                   <Box
                                     onClick={() => {
                                       loadQuiz(quiz?.id);
+                                      if (!user) {
+                                        redirectToLogin(
+                                          'You need to login to edit a quiz'
+                                        );
+                                      }
                                       const baseUrl = isTutor
                                         ? '/dashboard/tutordashboard'
                                         : '/dashboard';
@@ -729,6 +734,11 @@ function Topics(props) {
                                 <Tooltip label="Edit">
                                   <Box
                                     onClick={() => {
+                                      if (!user) {
+                                        redirectToLogin(
+                                          'You need to login to edit a flashcard'
+                                        );
+                                      }
                                       const baseUrl = isTutor
                                         ? '/dashboard/tutordashboard'
                                         : '/dashboard';

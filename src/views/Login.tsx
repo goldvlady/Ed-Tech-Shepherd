@@ -67,7 +67,10 @@ const Login: React.FC = () => {
     let path = '/dashboard';
     const url = window.location.href;
     const redirectIndex = url.indexOf('redirect=');
-    const redirectPath = url.substring(redirectIndex + 'redirect='.length);
+    const redirectPath =
+      redirectIndex > -1
+        ? url.substring(redirectIndex + 'redirect='.length)
+        : null;
 
     sessionStorage.setItem('Just Signed in', 'true');
     if (appUser?.type.includes('tutor')) {
@@ -94,6 +97,7 @@ const Login: React.FC = () => {
     if (redirectPath) {
       path = redirectPath;
     }
+    console.log('path', path);
     window.location.href = path;
   }, [appUser, navigate]);
   useEffect(() => {
