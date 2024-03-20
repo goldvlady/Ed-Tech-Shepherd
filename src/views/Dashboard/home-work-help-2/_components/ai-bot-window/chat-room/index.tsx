@@ -1,7 +1,7 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
@@ -16,9 +16,11 @@ const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
+  const location = useLocation();
   const { user } = useUserStore();
   const search = useSearchQuery();
   const apiKey = search.get('apiKey');
+  const hasInitialMessagesParam = search.get('initial_messages');
   const studentId = user?._id;
   const query = useQueryClient();
 
@@ -30,6 +32,8 @@ function ChatRoom() {
     messages,
     currentChat,
     sendMessage,
+    setCurrentChat,
+    fetchHistory,
     onEvent,
     currentSocket,
     getChatWindowParams,
@@ -40,10 +44,72 @@ function ChatRoom() {
   });
 
   const [autoScroll, setAutoScroll] = useState(true);
-
+  const [streamEnded, setStreamEnded] = useState(false);
+  const [subject, setSubject] = useState<'maths' | 'any'>('any');
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
-    if (chatWindowParams) {
+    const { connectionQuery } = chatWindowParams;
+    if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
+      const fetchData = async () => {
+        const response = await fetch('/maths', {
+          method: 'POST',
+          // Add any necessary headers here
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          // Add your request body here if needed
+          body: JSON.stringify({
+            /* Your request body */
+          })
+        });
+
+        // Check if response status is OK
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        // Create a new EventSource instance to handle server-sent events
+        const eventSource = new EventSource('/maths');
+
+        // Event listener to handle incoming events
+        eventSource.onmessage = async (event) => {
+          if (event.data.includes('done with stream')) {
+            await fetchHistory(30, 0, id);
+            eventSource.close();
+            setStreamEnded(true);
+            return;
+          }
+          // Append the streamed text data to the current state
+          setCurrentChat((prevData) => prevData + event.data);
+        };
+
+        // Event listener for errors
+        eventSource.onerror = (error) => {
+          console.error('EventSource failed:', error);
+          // Close the EventSource connection
+          eventSource.close();
+        };
+
+        // Cleanup function to close EventSource connection
+        return () => {
+          eventSource.close();
+        };
+      };
+      fetchData();
+      const newSearchParams = new URLSearchParams(location.search);
+      newSearchParams.delete('initial_messages');
+      window.history.replaceState(
+        {},
+        '',
+        `${location.pathname}?${newSearchParams.toString()}`
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, hasInitialMessagesParam, id]);
+  useEffect(() => {
+    const chatWindowParams = getChatWindowParams();
+    const { connectionQuery } = chatWindowParams;
+    if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -58,7 +124,7 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
-    } else if (apiKey) {
+    } else if (apiKey && connectionQuery.subject !== 'Math') {
       startConversation(
         {
           conversationId: id

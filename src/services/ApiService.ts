@@ -116,6 +116,25 @@ class ApiService {
     });
   };
 
+  static createMathConversation = async (b: {
+    subject: string;
+    topic: string;
+    level: string;
+    language: (typeof languages)[number];
+    referenceId: string;
+  }) => {
+    const body = JSON.stringify(b);
+    return fetch(`${process.env.REACT_APP_AI_II}/conversations`, {
+      method: 'POST',
+      body,
+      headers: {
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    })
+      .then((resp) => resp.json())
+      .then((r: { data: string }) => r);
+  };
+
   static rescheduleStudyEvent = async (data: any) => {
     if (data.updates) {
       data.updates.tz = Intl.DateTimeFormat().resolvedOptions().timeZone;

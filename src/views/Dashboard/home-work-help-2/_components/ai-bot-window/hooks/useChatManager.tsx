@@ -437,6 +437,7 @@ const useChatManager = (
     conversationId,
     startConversation,
     sendMessage,
+    setCurrentChat,
     fetchHistory,
     onEvent,
     emitEvent,

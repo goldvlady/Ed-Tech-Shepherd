@@ -6,6 +6,8 @@ import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import LimitReachModel from './chat-initiator/_components/limit-reach-model';
 import PlansModal from '../../../../../components/PlansModal';
 import { languages } from '../../../../../helpers';
+import { useMutation } from '@tanstack/react-query';
+import ApiService from '../../../../../services/ApiService';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -35,7 +37,15 @@ function AiChatBotWindow() {
     resetLimitReached,
     ...rest
   } = useChatManager('homework-help');
-
+  const createMathConvoMutation = useMutation({
+    mutationFn: (b: {
+      subject: string;
+      topic: string;
+      level: string;
+      language: (typeof languages)[number];
+      referenceId: string;
+    }) => ApiService.createMathConversation(b)
+  });
   const [limitReachedModal, setLimitReachedModal] = useState(false);
   const [isPlansModalOpen, setPlansModalOpen] = useState(false);
 
@@ -67,7 +77,7 @@ function AiChatBotWindow() {
     }
   }, [conversationId]);
 
-  const initiateConversation = ({
+  const initiateConversation = async ({
     subject,
     topic,
     level,
@@ -78,18 +88,40 @@ function AiChatBotWindow() {
     level: string;
     language: (typeof languages)[number];
   }) => {
-    setConnectionQuery({ subject, topic, level, language });
+    const cq = { subject, topic, level, language };
+    setConnectionQuery(cq);
     // alert(JSON.stringify({ subject, topic }));
-    startConversation({
-      subject,
-      topic,
-      level,
-      language,
-      name: user?.name?.first,
-      studentId: studentId,
-      firebaseId: user?.firebaseId,
-      namespace: 'homework-help'
-    });
+    if (subject === 'Math') {
+      try {
+        const data = await createMathConvoMutation.mutateAsync({
+          language,
+          topic,
+          level,
+          subject,
+          referenceId: studentId
+        });
+        setChatWindowParams({ connectionQuery: cq, isNewWindow: true });
+        navigate(
+          `/dashboard/ace-homework/${conversationId}?initial_messages=true`,
+          {
+            replace: true
+          }
+        );
+      } catch (error) {
+        // render toast
+      }
+    } else {
+      startConversation({
+        subject,
+        topic,
+        level,
+        language,
+        name: user?.name?.first,
+        studentId: studentId,
+        firebaseId: user?.firebaseId,
+        namespace: 'homework-help'
+      });
+    }
   };
 
   useEffect(() => {
