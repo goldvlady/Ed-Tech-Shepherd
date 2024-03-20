@@ -134,6 +134,8 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
+    } else {
+      fetchHistory(30, 0, id);
     }
 
     query.invalidateQueries({
