@@ -13,7 +13,7 @@ const SERVER_URL = process.env.REACT_APP_AI_API;
 
 // Interface definitions for the chat log and chat message structures
 interface ChatLog {
-  role: 'assistant' | 'user';
+  role: 'assistant' | 'user' | 'function' | 'system';
   content: string;
 }
 

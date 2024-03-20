@@ -45,31 +45,37 @@ function ChatRoom() {
 
   const [autoScroll, setAutoScroll] = useState(true);
   const [streamEnded, setStreamEnded] = useState(false);
-  const [subject, setSubject] = useState<'maths' | 'any'>('any');
+  const [subject, setSubject] = useState<'Math' | 'any'>('any');
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
     if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
       const fetchData = async () => {
-        const response = await fetch('/maths', {
+        const b = {
+          ...connectionQuery,
+          studentId,
+          firebaseid: user.firebaseId,
+          name: user.name.first,
+          query: ''
+        };
+        const response = await fetch(`${process.env.REACT_APP_AI_II}/maths`, {
           method: 'POST',
-          // Add any necessary headers here
           headers: {
-            'Content-Type': 'application/json'
+            'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
           },
-          // Add your request body here if needed
           body: JSON.stringify({
-            /* Your request body */
+            b
           })
         });
 
-        // Check if response status is OK
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
 
         // Create a new EventSource instance to handle server-sent events
-        const eventSource = new EventSource('/maths');
+        const eventSource = new EventSource(
+          `${process.env.REACT_APP_AI_II}/maths`
+        );
 
         // Event listener to handle incoming events
         eventSource.onmessage = async (event) => {
@@ -96,6 +102,7 @@ function ChatRoom() {
         };
       };
       fetchData();
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
       const newSearchParams = new URLSearchParams(location.search);
       newSearchParams.delete('initial_messages');
       window.history.replaceState(
@@ -183,6 +190,7 @@ function ChatRoom() {
             ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
             )
+            .filter((message) => message.log.role !== 'function')
             .sort((a, b) => a.id - b.id)
             .map((message) => (
               <ChatMessage
@@ -220,9 +228,58 @@ function ChatRoom() {
           />
           <PromptInput
             disabled={apiKey ? true : false}
-            onSubmit={(message: string) => {
-              sendMessage(message);
-              handleAutoScroll();
+            onSubmit={async (message: string) => {
+              if (subject === 'Math') {
+                const chatWindowParams = getChatWindowParams();
+                const { connectionQuery } = chatWindowParams;
+                const b = {
+                  ...connectionQuery,
+                  studentId,
+                  firebaseid: user.firebaseId,
+                  name: user.name.first,
+                  query: message
+                };
+                const body = JSON.stringify(b);
+                const response = await fetch(
+                  `${process.env.REACT_APP_AI_II}/maths`,
+                  {
+                    method: 'POST',
+                    headers: {
+                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                    },
+                    body
+                  }
+                );
+
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+
+                // Create a new EventSource instance to handle server-sent events
+                const eventSource = new EventSource(
+                  `${process.env.REACT_APP_AI_II}/maths`
+                );
+                eventSource.onmessage = async (event) => {
+                  if (event.data.includes('done with stream')) {
+                    await fetchHistory(30, 0, id);
+                    eventSource.close();
+                    setStreamEnded(true);
+                    return;
+                  }
+                  // Append the streamed text data to the current state
+                  setCurrentChat((prevData) => prevData + event.data);
+                };
+
+                // Event listener for errors
+                eventSource.onerror = (error) => {
+                  console.error('EventSource failed:', error);
+                  // Close the EventSource connection
+                  eventSource.close();
+                };
+              } else {
+                sendMessage(message);
+                handleAutoScroll();
+              }
             }}
             conversationId={id}
             onClick={() => {
