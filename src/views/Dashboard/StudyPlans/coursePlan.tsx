@@ -133,6 +133,42 @@ function CoursePlan() {
 
   const toast = useCustomToast();
 
+  const cloneStudyPlan = async (planId: string) => {
+    try {
+      setState((state) => ({ ...state, isPageLoading: true }));
+      const response = await ApiService.cloneStudyPlan(planId);
+      if (!response.ok) {
+        toast({
+          title: 'Error cloning study plan',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        return;
+      }
+      toast({
+        title: 'Study plan cloned successfully',
+        status: 'success',
+        position: 'top',
+        isClosable: true
+      });
+      const { data } = await response.json();
+      const { _id } = data;
+      const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+      navigate(`${baseUrl}/study-plans/planId=${_id}`);
+      await fetchData(true);
+    } catch (error) {
+      toast({
+        title: 'Error cloning study plan',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+    } finally {
+      setState((state) => ({ ...state, isPageLoading: false }));
+    }
+  };
+
   const {
     isOpen: isBountyModalOpen,
     onOpen: openBountyModal,
@@ -219,41 +255,45 @@ function CoursePlan() {
   const selectedPlanRef = useRef(null);
   const selectedTopicRef = useRef(null);
 
-  useEffect(() => {
-    // Fetch plans only if session storage is empty
-    if (state.studyPlans.length === 0) {
-      const fetchData = async () => {
-        try {
-          const shareable = params.get('shareable');
-          let id = null;
-          if (shareable) {
-            const { pathname } = location;
-            const planId = pathname.split('planId=')[1];
-            id = planId;
-          }
-          await fetchPlans(
-            state.page,
-            state.limit,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            id
-          );
-          updateState({ studyPlans: storePlans });
+  const removeRefreshParam = () => {
+    const { pathname } = location;
+    if (!pathname.includes('refresh_study_plans')) return;
+    const updatedPathname = pathname.split('?')[0];
+    navigate(updatedPathname, { replace: true });
+  };
 
-          // Update session storage only if storePlans are different from the plans in storage
-          if (JSON.stringify(storePlans) !== plansFromStorage) {
-            sessionStorage.setItem('studyPlans', JSON.stringify(storePlans));
-          }
-        } catch (error) {
-          console.error('Error fetching plans:', error);
-        }
-      };
+  const fetchData = async (fetchWithoutId?: boolean) => {
+    try {
+      const shareable = params.get('shareable');
+      let id = null;
+      if (shareable && !fetchWithoutId) {
+        const { pathname } = location;
+        const planId = pathname.split('planId=')[1];
+        id = planId;
+      }
+      await fetchPlans(
+        state.page,
+        state.limit,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        id
+      );
+      updateState({ studyPlans: storePlans });
 
-      fetchData();
+      if (JSON.stringify(storePlans) !== plansFromStorage) {
+        sessionStorage.setItem('studyPlans', JSON.stringify(storePlans));
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error);
     }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       updateState({ isPageLoading: true });
@@ -337,8 +377,6 @@ function CoursePlan() {
       selectedTopicElement.scrollIntoView({ behavior: 'smooth' });
     }
   }, [state.selectedTopic]);
-  console.log(state.topicResource);
-  console.log(state.topics);
 
   const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
@@ -371,6 +409,45 @@ function CoursePlan() {
     navigate(`${baseUrl}/study-plans/planId=${planId}`);
   };
 
+  const handleSavePlan = async () => {
+    if (!user) {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      toast({
+        title: 'You need to login to save a plan',
+        status: 'info',
+        position: 'top',
+        isClosable: true
+      });
+      navigate(`/login?redirect=${currentPathWithQuery}`);
+      return;
+    }
+    await cloneStudyPlan(state.selectedPlan);
+  };
+
+  const renderStudyPlan = () => {
+    if (!user || user._id !== state.topics?.user) {
+      return (
+        <Button onClick={() => handleSavePlan()} size={'sm'}>
+          Save Study Plan
+        </Button>
+      );
+    }
+    if (state.topics?.creator === user?._id) {
+      return <ShareModal prefferredBaseUrl="/dashboard" type="studyPlan" />;
+    }
+    return '';
+
+    // {user && state.topics?.creator === user._id ? (
+    //   <ShareModal
+    //     prefferredBaseUrl="/dashboard"
+    //     type="studyPlan"
+    //   />
+    // ) : (
+    //   <Button onClick={() => handleSavePlan()} size={'sm'}>
+    //     Save Study Plan
+    //   </Button>
+    // )}
+  };
   return (
     <>
       <Grid
@@ -483,7 +560,7 @@ function CoursePlan() {
                     <Tab>Topics</Tab>
                     <Tab>Analytics</Tab>
                   </Box>
-                  <ShareModal type="studyPlan" />
+                  {renderStudyPlan()}
                 </HStack>
               </TabList>
               <TabPanels>

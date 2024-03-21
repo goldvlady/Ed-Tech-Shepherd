@@ -198,7 +198,6 @@ function StudyPlans() {
     setSearchTerm('');
     setSubject([]);
   };
-  console.log(subject);
 
   return (
     <Box height={'100vh'}>

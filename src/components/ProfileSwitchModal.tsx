@@ -403,7 +403,6 @@ const ProfileSwitchModal = ({
                                   data.message ===
                                   'User role updated successfully'
                                 ) {
-                                  console.log('RESP', data);
                                   if (data.data.userRole === 'tutor') {
                                     // navigate('/dashboard/tutordashboard', {});
                                     window.location.href =

@@ -38,6 +38,7 @@ import {
   Tooltip
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
+import { useSearchParams } from 'react-router-dom';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
 import moment from 'moment';
@@ -76,8 +77,11 @@ function Topics(props) {
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = useUserStore();
-  const { fetchSingleFlashcard } = flashcardStore();
+  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey } =
+    flashcardStore();
   const { loadQuiz } = quizStore();
+
+  const [params] = useSearchParams();
   const {
     courses: courseList,
     levels: levelOptions,
@@ -149,8 +153,6 @@ function Topics(props) {
     return grouped;
   }, new Map());
 
-  console.log(groupedTopics);
-
   function getColorForStatus(status) {
     switch (status) {
       case 'Done':
@@ -221,6 +223,20 @@ function Topics(props) {
       return 'To Do';
     }
   };
+
+  const redirectToLogin = (toastMessage?: string) => {
+    const currentPathWithQuery = window.location.href.split('dashboard')[1];
+    if (toastMessage) {
+      toast({
+        title: 'You need to login to take a quiz',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+    navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+  };
+
   // const getTopicResource = async (topic: string) => {
   //   updateState({ isLoading: true });
   //   try {
@@ -299,6 +315,18 @@ function Topics(props) {
     return [];
   };
 
+  const loadFlashcard = async (flashcardId: string) => {
+    if (!user) {
+      return redirectToLogin('You need to login to load a flashcard');
+    }
+    const apiKeyParam = params.get('apiKey');
+    if (apiKeyParam) {
+      fetchSingleFlashcardForAPIKey(flashcardId, apiKeyParam);
+    } else {
+      fetchSingleFlashcard(flashcardId);
+    }
+  };
+
   const handleUpdatePlanCadence = async () => {
     updateState({ isLoading: true });
     const parsedTime = parse(
@@ -325,7 +353,6 @@ function Topics(props) {
         }
       }
     };
-    console.log(payload);
     try {
       const resp = await ApiService.rescheduleStudyEvent(payload);
       if (resp) {
@@ -379,7 +406,7 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
-  console.log(state.topicResource);
+
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
     const [initializing, setInitializing] = useState(false);
@@ -388,6 +415,7 @@ function Topics(props) {
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
     };
+
     const { loading, error } = useStoreConversationIdToStudyPlan(
       selectedPlan,
       topic.topic,
@@ -404,6 +432,19 @@ function Topics(props) {
     //   );
     // };
 
+    const redirectToLogin = (toastMessage?: string) => {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      if (toastMessage) {
+        toast({
+          title: 'You need to login to take a quiz',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+      navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+    };
+
     const saveStudyPlanMetaData = useCallback(
       async (conversationId: string) => {
         try {
@@ -416,10 +457,9 @@ function Topics(props) {
           });
           if (response) {
             const data = await response.json();
-            console.log('Metadata saved:', data);
           }
         } catch (error) {
-          console.error('Error saving metadata:', error);
+          // console.error('Error saving metadata:', error);
         }
       },
       [topic]
@@ -429,10 +469,15 @@ function Topics(props) {
       navigateOnInitialized: true,
       onInitialized: saveStudyPlanMetaData
     });
+
     const handleAiTutor = () => {
       const convoId = topic.topicMetaData[0]?.conversationId;
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
       if (convoId) {
-        navigate(`/dashboard/ace-homework/${convoId}`);
+        const queryString = window.location.search;
+        navigate(`/dashboard/ace-homework/${convoId}${queryString}`);
       } else {
         initializeAItutor({
           topic: topic.topicDetails?.label,
@@ -447,8 +492,11 @@ function Topics(props) {
     };
 
     const handleDocAction = async (doc) => {
-      console.log('Ingested doc', doc);
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
       try {
+        let docId = doc.ingestId;
         if (!doc.ingestId) {
           updateState({ isLoading: true });
           const ingestHandler = new FileProcessingService(doc, true);
@@ -456,13 +504,11 @@ function Topics(props) {
           const {
             data: [{ documentId }]
           } = response;
-          navigate(
-            `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${documentId}&language=English`
-          );
+          docId = documentId;
         }
-        navigate(
-          `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
-        );
+        let path = `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${docId}&language=English`;
+        path += window.location.search.replace('?', '&');
+        navigate(path);
       } catch (error) {
         toast({
           title: 'Error opening document',
@@ -472,6 +518,18 @@ function Topics(props) {
         });
       } finally {
         updateState({ isLoading: false });
+      }
+    };
+
+    const navigateToQuizPage = (quizId: string) => {
+      const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+
+      if (!user) {
+        redirectToLogin('You need to login to take a quiz');
+      } else {
+        let quizPathWithQuery = `${baseUrl}/quizzes/take?quiz_id=${quizId}`;
+        quizPathWithQuery += window.location.search.replace('?', '&');
+        navigate(quizPathWithQuery);
       }
     };
 
@@ -594,12 +652,7 @@ function Topics(props) {
                                   <Tooltip label="Take">
                                     <Box
                                       onClick={() => {
-                                        const baseUrl = isTutor
-                                          ? '/dashboard/tutordashboard'
-                                          : '/dashboard';
-                                        navigate(
-                                          `${baseUrl}/quizzes/take?quiz_id=${quiz.id}`
-                                        );
+                                        navigateToQuizPage(quiz.id);
                                       }}
                                     >
                                       <AiFillThunderbolt
@@ -613,6 +666,11 @@ function Topics(props) {
                                   <Box
                                     onClick={() => {
                                       loadQuiz(quiz?.id);
+                                      if (!user) {
+                                        redirectToLogin(
+                                          'You need to login to edit a quiz'
+                                        );
+                                      }
                                       const baseUrl = isTutor
                                         ? '/dashboard/tutordashboard'
                                         : '/dashboard';
@@ -657,7 +715,7 @@ function Topics(props) {
                                   <Tooltip label="Study">
                                     <Box
                                       onClick={() =>
-                                        fetchSingleFlashcard(flashcard.id)
+                                        loadFlashcard(flashcard.id)
                                       }
                                     >
                                       <AiFillThunderbolt
@@ -670,6 +728,11 @@ function Topics(props) {
                                 <Tooltip label="Edit">
                                   <Box
                                     onClick={() => {
+                                      if (!user) {
+                                        redirectToLogin(
+                                          'You need to login to edit a flashcard'
+                                        );
+                                      }
                                       const baseUrl = isTutor
                                         ? '/dashboard/tutordashboard'
                                         : '/dashboard';
