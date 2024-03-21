@@ -153,8 +153,6 @@ function Topics(props) {
     return grouped;
   }, new Map());
 
-  console.log(groupedTopics);
-
   function getColorForStatus(status) {
     switch (status) {
       case 'Done':
@@ -236,7 +234,6 @@ function Topics(props) {
         isClosable: true
       });
     }
-    console.log('No User');
     navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
   };
 
@@ -356,7 +353,6 @@ function Topics(props) {
         }
       }
     };
-    console.log(payload);
     try {
       const resp = await ApiService.rescheduleStudyEvent(payload);
       if (resp) {
@@ -446,7 +442,6 @@ function Topics(props) {
           isClosable: true
         });
       }
-      console.log('No User');
       navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
     };
 
@@ -462,10 +457,9 @@ function Topics(props) {
           });
           if (response) {
             const data = await response.json();
-            console.log('Metadata saved:', data);
           }
         } catch (error) {
-          console.error('Error saving metadata:', error);
+          // console.error('Error saving metadata:', error);
         }
       },
       [topic]

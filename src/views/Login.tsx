@@ -94,12 +94,12 @@ const Login: React.FC = () => {
       const resp = await ApiService.toggleUserRole(appUser._id, 'student');
       path = '/dashboard';
     }
-    if (redirectPath) {
-      path = redirectPath;
+    if (redirectPath && !path.includes('complete')) {
+      path = path + redirectPath;
     }
-    console.log('path', path);
     window.location.href = path;
   }, [appUser, navigate]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       if (user && !user.emailVerified) {

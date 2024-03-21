@@ -266,7 +266,6 @@ const AppRoutes: React.FC = () => {
     state: { user: userData, loading, isAuthenticated }
   } = useAuth();
 
-  console.log('userData', userData);
   const userType = useMemo(() => {
     return userData?.userRole;
   }, [userData]);
@@ -275,7 +274,6 @@ const AppRoutes: React.FC = () => {
   if (params.get('shareable')) {
     userRoute = [...userRoutes.shareable, ...userRoute];
   }
-  console.log('userRoute', userRoute);
   const posthog = usePostHog();
 
   const RedirectToExternal = ({ url }) => {
