@@ -74,7 +74,7 @@ function ChatRoom() {
           throw new Error('Network response was not ok');
         }
 
-        // Create a new EventSource instance to handle server-sent events
+        // Create a new EventSource instance to handle server sent events
         const eventSource = new EventSource(
           `${process.env.REACT_APP_AI_II}/maths/`
         );
@@ -87,7 +87,7 @@ function ChatRoom() {
             setStreamEnded(true);
             return;
           }
-          // Append the streamed text data to the current state
+
           setCurrentChat((prevData) => prevData + event.data);
         };
 
@@ -98,7 +98,6 @@ function ChatRoom() {
           eventSource.close();
         };
 
-        // Cleanup function to close EventSource connection
         return () => {
           eventSource.close();
         };
