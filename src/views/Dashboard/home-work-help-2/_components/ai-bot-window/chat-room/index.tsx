@@ -1,7 +1,7 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
@@ -11,14 +11,17 @@ import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
-
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
+  const location = useLocation();
   const { user } = useUserStore();
   const search = useSearchQuery();
   const apiKey = search.get('apiKey');
+  const hasInitialMessagesParam = search.get('initial_messages');
+
   const studentId = user?._id;
   const query = useQueryClient();
 
@@ -30,6 +33,8 @@ function ChatRoom() {
     messages,
     currentChat,
     sendMessage,
+    setCurrentChat,
+    fetchHistory,
     onEvent,
     currentSocket,
     getChatWindowParams,
@@ -40,10 +45,81 @@ function ChatRoom() {
   });
 
   const [autoScroll, setAutoScroll] = useState(true);
-
+  const [streamEnded, setStreamEnded] = useState(false);
+  const [subject, setSubject] = useState<'Math' | 'any'>('any');
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
-    if (chatWindowParams) {
+    const { connectionQuery } = chatWindowParams;
+    if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
+      const fetchData = async () => {
+        const b = {
+          ...connectionQuery,
+          studentId,
+          firebaseid: user.firebaseId,
+          name: user.name.first,
+          query: ''
+        };
+        const response = await fetch(`${process.env.REACT_APP_AI_II}/maths/`, {
+          method: 'POST',
+          headers: {
+            'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            b
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        // Create a new EventSource instance to handle server-sent events
+        const eventSource = new EventSource(
+          `${process.env.REACT_APP_AI_II}/maths/`
+        );
+
+        // Event listener to handle incoming events
+        eventSource.onmessage = async (event) => {
+          if (event.data.includes('done with stream')) {
+            await fetchHistory(30, 0, id);
+            eventSource.close();
+            setStreamEnded(true);
+            return;
+          }
+          // Append the streamed text data to the current state
+          setCurrentChat((prevData) => prevData + event.data);
+        };
+
+        // Event listener for errors
+        eventSource.onerror = (error) => {
+          console.error('EventSource failed:', error);
+          // Close the EventSource connection
+          eventSource.close();
+        };
+
+        // Cleanup function to close EventSource connection
+        return () => {
+          eventSource.close();
+        };
+      };
+      fetchData();
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
+      const newSearchParams = new URLSearchParams(location.search);
+      newSearchParams.delete('initial_messages');
+      window.history.replaceState(
+        {},
+        '',
+        `${location.pathname}?${newSearchParams.toString()}`
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, hasInitialMessagesParam, id]);
+  useEffect(() => {
+    const chatWindowParams = getChatWindowParams();
+    const { connectionQuery } = chatWindowParams;
+
+    if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -58,7 +134,7 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
-    } else if (apiKey) {
+    } else if (apiKey && connectionQuery.subject !== 'Math') {
       startConversation(
         {
           conversationId: id
@@ -68,6 +144,8 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
+    } else {
+      fetchHistory(30, 0, id);
     }
 
     query.invalidateQueries({
@@ -115,6 +193,7 @@ function ChatRoom() {
             ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
             )
+            .filter((message) => message.log.role !== 'function')
             .sort((a, b) => a.id - b.id)
             .map((message) => (
               <ChatMessage
@@ -152,9 +231,50 @@ function ChatRoom() {
           />
           <PromptInput
             disabled={apiKey ? true : false}
-            onSubmit={(message: string) => {
-              sendMessage(message);
-              handleAutoScroll();
+            onSubmit={async (message: string) => {
+              if (subject === 'Math') {
+                const chatWindowParams = getChatWindowParams();
+                const { connectionQuery } = chatWindowParams;
+                const b = {
+                  ...connectionQuery,
+                  studentId,
+                  firebaseid: user.firebaseId,
+                  name: user.name.first,
+                  query: message,
+                  messages: messages.map((el) => el.log)
+                };
+                const body = JSON.stringify(b);
+                sendMessage(message, 'math');
+                handleAutoScroll();
+                fetchEventSource(`${process.env.REACT_APP_AI_II}/maths/`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                  },
+                  body,
+                  async onmessage(event) {
+                    if (event.data.includes('done with stream')) {
+                      await fetchHistory(30, 0, id);
+                      setStreamEnded(true);
+                      return;
+                    }
+                    // Append the streamed text data to the current state
+                    setCurrentChat((prevData) => prevData + event.data);
+                    handleAutoScroll();
+                  },
+                  onclose() {
+                    // if the server closes the connection unexpectedly, retry:
+                  },
+                  onerror(err) {
+                    //
+                  }
+                });
+              } else {
+                console.log('no?');
+                sendMessage(message);
+                handleAutoScroll();
+              }
             }}
             conversationId={id}
             onClick={() => {
