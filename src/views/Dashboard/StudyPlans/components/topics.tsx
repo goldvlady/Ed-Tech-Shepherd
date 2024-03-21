@@ -116,7 +116,7 @@ function Topics(props) {
     recurrenceEndDate: new Date()
   });
 
-  const updateState = (newState) =>
+  const updateState = (newState: Partial<typeof state>) =>
     setState((prevState) => ({ ...prevState, ...newState }));
 
   const toast = useCustomToast();
@@ -127,6 +127,7 @@ function Topics(props) {
     onOpen: onOpenResource,
     onClose: onCloseResource
   } = useDisclosure();
+
   const {
     isOpen: isOpenCadence,
     onOpen: onOpenCadence,
@@ -503,8 +504,11 @@ function Topics(props) {
       try {
         let docId = doc.ingestId;
         if (!doc.ingestId) {
-          updateState({ isLoading: true });
-          const ingestHandler = new FileProcessingService(doc, true);
+          updateState({ isPageLoading: true });
+          const ingestHandler = new FileProcessingService(
+            { ...doc, student: user?._id },
+            true
+          );
           const response = await ingestHandler.process();
           const {
             data: [{ documentId }]
@@ -522,7 +526,7 @@ function Topics(props) {
           isClosable: true
         });
       } finally {
-        updateState({ isLoading: false });
+        updateState({ isPageLoading: false });
       }
     };
 
