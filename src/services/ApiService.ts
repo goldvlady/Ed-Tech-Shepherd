@@ -1186,6 +1186,13 @@ class ApiService {
       headers
     );
   };
+
+  static cloneStudyPlan = async (id: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/cloneStudyPlan`, {
+      method: 'POST',
+      body: JSON.stringify({ studyPlanId: id })
+    });
+  };
   static getStudyPlanResources = async (planId: string, apiKey?: string) => {
     let apiUrl = `${ApiService.baseEndpoint}/getStudyPlanResources?studyPlanId=${planId}`;
     const headers: HeadersInit = {};

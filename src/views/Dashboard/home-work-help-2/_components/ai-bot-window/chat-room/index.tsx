@@ -74,6 +74,7 @@ function ChatRoom() {
           throw new Error('Network response was not ok');
         }
 
+
         // Create a new EventSource instance to handle server sent events
         const eventSource = new EventSource(
           `${process.env.REACT_APP_AI_II}/maths/`

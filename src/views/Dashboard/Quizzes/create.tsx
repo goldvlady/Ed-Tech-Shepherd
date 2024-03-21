@@ -215,6 +215,7 @@ const CreateQuizPage = () => {
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
+    console.log(quiz, queryQuizId);
 
     if (isNil(quiz) && !isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {

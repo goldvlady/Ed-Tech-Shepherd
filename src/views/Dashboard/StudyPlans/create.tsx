@@ -280,7 +280,6 @@ function CreateStudyPlans() {
             setIsLoading(false);
             setSyllabusUrl(downloadURL);
             setFileName(snip(file.name));
-            console.log('done', downloadURL);
           });
         }
       );
@@ -418,9 +417,8 @@ function CreateStudyPlans() {
         }
       });
       syllabusData[weekIndex] = weekToUpdate;
-      console.log(`Week ${weekNumber} properties updated successfully.`);
     } else {
-      console.log(`Week ${weekNumber} not found.`);
+      // console.log(`Week ${weekNumber} not found.`);
     }
   }
   const updateMainTopic = (index, newMainTopic) => {
@@ -480,7 +478,6 @@ function CreateStudyPlans() {
   const deleteSubTopic = (weekIndex, subTopicIndex) => {
     const updatedSyllabusData = [...syllabusData];
     if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
-      console.log(updatedSyllabusData[weekIndex - 1], weekIndex, subTopicIndex);
       const mainTopic = updatedSyllabusData[weekIndex].topics[0];
 
       if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
@@ -532,7 +529,6 @@ function CreateStudyPlans() {
     let currentStartDate = moment(startDate, 'MM/DD/YYYY');
     let topicsRemaining = syllabusData.slice();
     let i = 0;
-    console.log(currentStartDate);
 
     const getLastMoment = (date) =>
       moment.max(moment(date, 'MM/DD/YYYY'), moment());
@@ -730,7 +726,6 @@ function CreateStudyPlans() {
     // Wait for all upload promises to resolve
     try {
       await Promise.all(uploadPromises);
-      console.log(downloadUrls);
       return downloadUrls;
     } catch (error) {
       // Handle any errors that occurred during uploads

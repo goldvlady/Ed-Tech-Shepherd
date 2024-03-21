@@ -28,6 +28,7 @@ function SubjectCard({
       boxShadow="md"
       bg="white"
       onClick={handleClick}
+      cursor="pointer"
     >
       <Box>
         <Flex>
