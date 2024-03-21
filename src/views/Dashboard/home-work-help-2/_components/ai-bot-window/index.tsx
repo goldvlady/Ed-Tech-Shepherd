@@ -5,7 +5,7 @@ import useChatManager from './hooks/useChatManager';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import LimitReachModel from './chat-initiator/_components/limit-reach-model';
 import PlansModal from '../../../../../components/PlansModal';
-import { languages } from '../../../../../helpers';
+import { encodeQueryParams, languages } from '../../../../../helpers';
 import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
 
@@ -100,9 +100,12 @@ function AiChatBotWindow() {
           subject,
           referenceId: studentId
         });
-        console.log(data.data, 'DATA?');
+
+        const query = encodeQueryParams({
+          initial_messages: 'true'
+        });
         setChatWindowParams({ connectionQuery: cq, isNewWindow: true });
-        navigate(`/dashboard/ace-homework/${data.data}?initial_messages=true`, {
+        navigate(`/dashboard/ace-homework/${data.data}${query}`, {
           replace: true
         });
       } catch (error) {

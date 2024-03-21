@@ -11,7 +11,7 @@ import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
-
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
@@ -61,7 +61,8 @@ function ChatRoom() {
         const response = await fetch(`${process.env.REACT_APP_AI_II}/maths/`, {
           method: 'POST',
           headers: {
-            'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+            'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             b
@@ -237,45 +238,36 @@ function ChatRoom() {
                   studentId,
                   firebaseid: user.firebaseId,
                   name: user.name.first,
-                  query: message
+                  query: message,
+                  messages: messages.map((el) => el.log)
                 };
                 const body = JSON.stringify(b);
-                const response = await fetch(
-                  `${process.env.REACT_APP_AI_II}/maths/`,
-                  {
-                    method: 'POST',
-                    headers: {
-                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                    },
-                    body
+                sendMessage(message, 'math');
+                handleAutoScroll();
+                fetchEventSource(`${process.env.REACT_APP_AI_II}/maths/`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                  },
+                  body,
+                  async onmessage(event) {
+                    if (event.data.includes('done with stream')) {
+                      await fetchHistory(30, 0, id);
+                      setStreamEnded(true);
+                      return;
+                    }
+                    // Append the streamed text data to the current state
+                    setCurrentChat((prevData) => prevData + event.data);
+                    handleAutoScroll();
+                  },
+                  onclose() {
+                    // if the server closes the connection unexpectedly, retry:
+                  },
+                  onerror(err) {
+                    //
                   }
-                );
-
-                if (!response.ok) {
-                  throw new Error('Network response was not ok');
-                }
-
-                // Create a new EventSource instance to handle server-sent events
-                const eventSource = new EventSource(
-                  `${process.env.REACT_APP_AI_II}/`
-                );
-                eventSource.onmessage = async (event) => {
-                  if (event.data.includes('done with stream')) {
-                    await fetchHistory(30, 0, id);
-                    eventSource.close();
-                    setStreamEnded(true);
-                    return;
-                  }
-                  // Append the streamed text data to the current state
-                  setCurrentChat((prevData) => prevData + event.data);
-                };
-
-                // Event listener for errors
-                eventSource.onerror = (error) => {
-                  console.error('EventSource failed:', error);
-                  // Close the EventSource connection
-                  eventSource.close();
-                };
+                });
               } else {
                 sendMessage(message);
                 handleAutoScroll();
