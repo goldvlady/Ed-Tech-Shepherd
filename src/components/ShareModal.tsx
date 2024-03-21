@@ -29,6 +29,7 @@ type ShareModalProps = {
     | 'tutor'
     | 'studyPlan';
   customTriggerComponent?: React.ReactNode;
+  prefferredBaseUrl?: string;
 };
 
 interface ModalContentLayoutProps {
@@ -58,20 +59,26 @@ const appendParamsToUrl = (baseUrl, paramsToAppend) => {
 
   return url.toString();
 };
-const ShareModal = ({ type, customTriggerComponent }: ShareModalProps) => {
+const ShareModal = ({
+  type,
+  customTriggerComponent,
+  prefferredBaseUrl
+}: ShareModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [shareLink, setShareLink] = useState('');
   const [presentableLink, setPresentableLink] = useState('');
   const toast = useCustomToast();
+
   const generateShareLink = () => {
     const apiKey = newId('shep');
+    const url = prefferredBaseUrl || window.location.href;
     const shareLink = appendParamsToUrl(
       window.location.href,
       new URLSearchParams([
         ['shareable', 'true'],
         ['apiKey', apiKey]
       ])
-    );
+    ).replace('/tutordashboard', '');
     setPresentableLink(shareLink.split('dashboard').at(-1));
     setShareLink(shareLink);
     setTimeout(() => {
