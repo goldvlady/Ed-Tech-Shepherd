@@ -53,7 +53,12 @@ import resourceStore from '../../../../state/resourceStore';
 import { AiFillThunderbolt, AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { parseISO, format, parse } from 'date-fns';
-import { EditIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import {
+  EditIcon,
+  RepeatIcon,
+  SearchIcon,
+  SmallCloseIcon
+} from '@chakra-ui/icons';
 import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
@@ -199,7 +204,7 @@ function Topics(props) {
   }, [courseList, studyPlanCourses]);
 
   const getTopicStatus = (topicId) => {
-    const selectedTopic = planTopics.progressLog[0].topicProgress.find(
+    const selectedTopic = planTopics.progressLog[0]?.topicProgress?.find(
       (topic) => topic.topic === topicId
     );
 
@@ -844,7 +849,7 @@ function Topics(props) {
                 cursor={'pointer'}
                 onClick={() => {
                   updateState({
-                    selectedTopic: topic._id
+                    selectedTopic: topic.topicDetails?.label
                   });
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
@@ -1085,7 +1090,13 @@ from  ${moment(
                   </SimpleGrid>
                 </Box>
               ) : (
-                'No resource'
+                <VStack>
+                  <Text>No resource, Please try again</Text>
+                  <RepeatIcon
+                    boxSize={6}
+                    onClick={() => getTopicResource(state.selectedTopic)}
+                  />
+                </VStack>
               )
             ) : (
               <Spinner />

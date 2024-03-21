@@ -56,6 +56,7 @@ import { FaBell } from 'react-icons/fa';
 import { FiChevronDown } from 'react-icons/fi';
 import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
+import { PiClipboardTextLight } from 'react-icons/pi';
 
 interface NavigationItem {
   name: string;
@@ -98,7 +99,7 @@ const dummyNavigation: NavigationItem[] = [
   {
     name: 'Study Plans',
     href: '/dashboard/tutordashboard/study-plans',
-    icon: MessagesIcon,
+    icon: PiClipboardTextLight,
     current: false
   }
 ];
@@ -416,9 +417,10 @@ export default function Layout({ children, className }) {
             alignItems={'center'}
             onClick={() => navigate(-1)}
             _hover={{ cursor: 'pointer' }}
+            gap={1}
           >
             <IoIosArrowRoundBack />
-            {/* <Text fontSize={12}>Back</Text> */}
+            <Text fontSize={12}>Back</Text>
           </Flex>
           <button
             type="button"
