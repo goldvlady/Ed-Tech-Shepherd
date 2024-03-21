@@ -21,6 +21,7 @@ function ChatRoom() {
   const search = useSearchQuery();
   const apiKey = search.get('apiKey');
   const hasInitialMessagesParam = search.get('initial_messages');
+
   const studentId = user?._id;
   const query = useQueryClient();
 
@@ -117,6 +118,7 @@ function ChatRoom() {
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
+
     if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
@@ -269,6 +271,7 @@ function ChatRoom() {
                   }
                 });
               } else {
+                console.log('no?');
                 sendMessage(message);
                 handleAutoScroll();
               }
