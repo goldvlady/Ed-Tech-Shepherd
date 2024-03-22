@@ -69,6 +69,7 @@ import { FaPlus } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
+import TimePicker from '../../../../components/TimePicker';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -82,7 +83,7 @@ function Topics(props) {
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = useUserStore();
-  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey } =
+  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey, isLoading } =
     flashcardStore();
   const { loadQuiz } = quizStore();
 
@@ -393,9 +394,9 @@ function Topics(props) {
   };
 
   const frequencyOptions = [
-    { label: 'Once daily', value: 'once' },
-    { label: 'Twice daily', value: 'twice' },
-    // { label: 'Daily', value: 'daily' },
+    // { label: 'Once daily', value: 'once' },
+    // { label: 'Twice daily', value: 'twice' },
+    { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
     { label: "Doesn't Repeat", value: 'none' }
@@ -1171,7 +1172,22 @@ from  ${moment(
               </FormControl>
               <FormControl id="time" marginBottom="20px">
                 <FormLabel>Time</FormLabel>
-                <Select
+                <TimePicker
+                  inputGroupProps={{
+                    size: 'lg'
+                  }}
+                  inputProps={{
+                    size: 'md',
+                    placeholder: `01:00 PM`
+                  }}
+                  value={state.selectedRecurrenceTime}
+                  onChange={(v) =>
+                    updateState({
+                      selectedRecurrenceTime: v
+                    })
+                  }
+                />
+                {/* <Select
                   defaultValue={timeOptions.find(
                     (option) => option.value === state.selectedRecurrenceTime
                   )}
@@ -1184,7 +1200,7 @@ from  ${moment(
                       selectedRecurrenceTime: (option as Option).value
                     });
                   }}
-                />
+                /> */}
               </FormControl>
             </Box>
           </ModalBody>
