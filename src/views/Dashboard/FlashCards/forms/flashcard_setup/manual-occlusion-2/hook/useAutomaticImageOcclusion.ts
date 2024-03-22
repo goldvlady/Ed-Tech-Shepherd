@@ -79,7 +79,6 @@ function useAutomaticImageOcclusion() {
     const context = canvas.getContext('2d');
     context.drawImage(img, 0, 0, 714, 475);
 
-
     /** Previous OCR code */
     /**
      * const worker = await createWorker('eng');
@@ -108,13 +107,16 @@ function useAutomaticImageOcclusion() {
     console.log('resizedImageURI', resizedImageURI);
 
     // Temp endpoint - later replace with original
-    const data = await fetch('http://127.0.0.1:3000/ocr', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ image_uri: resizedImageURI })
-    }).then((res) => res.json());
+    const data = await fetch(
+      'https://deploy-preview-285--api-sheperdtutors.netlify.app/getOcclusionImageText',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ imageUri: resizedImageURI })
+      }
+    ).then((res) => res.json());
     const elements = data.data;
     console.log('elements', elements);
     let processedData = data.data.map((block, index) => {
