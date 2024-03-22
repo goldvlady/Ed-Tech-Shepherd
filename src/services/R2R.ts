@@ -28,6 +28,28 @@ class R2RClient {
     return response.data;
   }
 
+  private saveSearchResults(query: string, data: any) {
+    const searchResults = localStorage.getItem('ragResult');
+
+    const existingData = searchResults ? JSON.parse(searchResults) : {};
+
+    // Associate the new data with the query and save
+    existingData[query] = data;
+    localStorage.setItem('ragResult', JSON.stringify(existingData));
+  }
+
+  // Load search results from localStorage
+  private loadSearchResults(query: string): any | null {
+    const searchResults = localStorage.getItem('ragResult');
+
+    const existingData = searchResults ? JSON.parse(searchResults) : null;
+
+    if (existingData && existingData[query]) {
+      return existingData[query];
+    }
+    return null;
+  }
+
   async addEntry(
     documentId,
     blobs,
@@ -89,6 +111,9 @@ class R2RClient {
       throw new Error('To stream, use the `streamRagCompletion` method.');
     }
 
+    const cachedResponse = this.loadSearchResults(query);
+    if (cachedResponse) return cachedResponse;
+
     const url = `${this.baseUrl}/rag_completion/`;
     const data = {
       query: query,
@@ -99,6 +124,8 @@ class R2RClient {
     };
 
     const response = await axios.post(url, data);
+    this.saveSearchResults(query, response.data);
+    return response.data;
     return response.data;
   }
 

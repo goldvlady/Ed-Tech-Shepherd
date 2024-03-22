@@ -13,7 +13,7 @@ const SERVER_URL = process.env.REACT_APP_AI_API;
 
 // Interface definitions for the chat log and chat message structures
 interface ChatLog {
-  role: 'assistant' | 'user';
+  role: 'assistant' | 'user' | 'function' | 'system';
   content: string;
 }
 
@@ -153,7 +153,12 @@ const useChatManager = (
 
   // useCallback for sending messages through the WebSocket and updating the local state
   const sendMessage = useCallback(
-    (message: string) => {
+    (message: string, topic: 'math' | 'rest' = 'rest') => {
+      if (topic === 'math') {
+        const newMessage = formatMessage(message);
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        return;
+      }
       if (!socketRef.current) {
         debugLog('SEND MESSAGE', message);
         return;
@@ -437,6 +442,7 @@ const useChatManager = (
     conversationId,
     startConversation,
     sendMessage,
+    setCurrentChat,
     fetchHistory,
     onEvent,
     emitEvent,

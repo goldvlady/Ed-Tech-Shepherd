@@ -19,7 +19,10 @@ type StudyPlanStore = {
     subject?: string,
     id?: string
   ) => Promise<void>;
-  fetchPlanResources: (planId: string) => Promise<void>;
+  fetchPlanResources: (
+    planId: string,
+    isSilentRequest?: boolean
+  ) => Promise<void>;
   fetchPlanReport: (planId: string) => Promise<void>;
   fetchUpcomingPlanEvent: () => Promise<void>;
   createStudyPlan: (data: any) => Promise<boolean>;
@@ -91,8 +94,10 @@ export default create<StudyPlanStore>((set) => ({
     }
   },
 
-  fetchPlanResources: async (planId: string) => {
-    set({ isLoading: true });
+  fetchPlanResources: async (planId: string, isSilentRequest = false) => {
+    if (!isSilentRequest) {
+      set({ isLoading: true });
+    }
     try {
       const searchParamApiKey =
         new URLSearchParams(window.location.search).get('apiKey') || null;
