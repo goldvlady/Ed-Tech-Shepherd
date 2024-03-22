@@ -207,14 +207,6 @@ function CoursePlan() {
     }
     /* eslint-disable */
   }, [clientSecret]);
-  const frequencyOptions = [
-    { label: 'Once daily', value: 'once' },
-    { label: 'Twice daily', value: 'twice' },
-    { label: 'Daily', value: 'daily' },
-    { label: 'Weekly', value: 'weekly' },
-    { label: 'Monthly', value: 'monthly' },
-    { label: "Doesn't Repeat", value: 'none' }
-  ];
 
   // const handleUpdateTopicStatus = (status, topicId) => {
   //   // Update the status for the specific topic by topicId

@@ -575,22 +575,26 @@ function Topics(props) {
                     </Box>
                   </Tooltip>
                 )}
-                <Tooltip label="Edit">
-                  <Box
-                    onClick={() => {
-                      loadQuiz(quiz?.id);
-                      if (!user) {
-                        redirectToLogin('You need to login to edit a quiz');
-                      }
-                      const baseUrl = isTutor
-                        ? '/dashboard/tutordashboard'
-                        : '/dashboard';
-                      navigate(`${baseUrl}/quizzes/create?quiz_id=${quiz.id}`);
-                    }}
-                  >
-                    <EditIcon color="#207df7" boxSize={4} />
-                  </Box>
-                </Tooltip>
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        loadQuiz(quiz?.id);
+                        if (!user) {
+                          redirectToLogin('You need to login to edit a quiz');
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(
+                          `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
+                        );
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
               </Flex>
             </Flex>
           </MenuItem>
@@ -617,23 +621,25 @@ function Topics(props) {
                     </Box>
                   </Tooltip>
                 )}
-                <Tooltip label="Edit">
-                  <Box
-                    onClick={() => {
-                      if (!user) {
-                        redirectToLogin(
-                          'You need to login to edit a flashcard'
-                        );
-                      }
-                      const baseUrl = isTutor
-                        ? '/dashboard/tutordashboard'
-                        : '/dashboard';
-                      navigate(`${baseUrl}/flashcards/${flashcard.id}/edit`);
-                    }}
-                  >
-                    <EditIcon color="#207df7" boxSize={4} />
-                  </Box>
-                </Tooltip>
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        if (!user) {
+                          redirectToLogin(
+                            'You need to login to edit a flashcard'
+                          );
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(`${baseUrl}/flashcards/${flashcard.id}/edit`);
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
               </Flex>
             </Flex>
           </MenuItem>
