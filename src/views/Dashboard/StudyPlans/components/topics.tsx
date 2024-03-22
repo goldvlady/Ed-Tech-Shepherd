@@ -670,6 +670,8 @@ function Topics(props) {
     //     setInitializing(false);
     //   }
     // };
+    const disableClick = !user || user._id !== planTopics?.user;
+
     return (
       <>
         {' '}
@@ -740,6 +742,8 @@ function Topics(props) {
               p={4}
               justifyContent="space-between"
               textColor={'black'}
+              pointerEvents={disableClick ? 'none' : 'auto'} // Disable pointer events if not a valid user
+              opacity={disableClick ? 0.5 : 1} // Reduce opacity for disabled items
             >
               <Menu isLazy>
                 <MenuButton>
@@ -883,28 +887,32 @@ function Topics(props) {
                 borderRadius={8}
                 cursor={'grab'}
                 onClick={() => {
-                  updateState({
-                    recurrenceStartDate: new Date(
-                      findStudyEventsByTopic(
+                  if (disableClick) {
+                    return;
+                  } else {
+                    updateState({
+                      recurrenceStartDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.startDate
+                      ),
+                      recurrenceEndDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.recurrence?.endDate
+                      ),
+                      selectedRecurrence: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.startDate
-                    ),
-                    recurrenceEndDate: new Date(
-                      findStudyEventsByTopic(
+                      )?.recurrence?.frequency,
+
+                      selectedTopic: topic._id,
+                      selectedStudyEvent: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.recurrence?.endDate
-                    ),
-                    selectedRecurrence: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?.recurrence?.frequency,
+                      )?._id
+                    });
 
-                    selectedTopic: topic._id,
-                    selectedStudyEvent: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?._id
-                  });
-
-                  onOpenCadence();
+                    onOpenCadence();
+                  }
                 }}
               >
                 {studyPlanResources &&
