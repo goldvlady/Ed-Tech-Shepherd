@@ -12,8 +12,9 @@ import quizStore from './state/quizStore';
 import resourceStore from './state/resourceStore';
 import theme from './theme';
 import FlashcardWizardProvider from './views/Dashboard/FlashCards/context/flashcard';
+import FlashcardSkeleton from './components/FlashcardSkeleton';
 import MnemonicSetupProvider from './views/Dashboard/FlashCards/context/mneomics';
-import { Box, ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider, Skeleton } from '@chakra-ui/react';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import { BrowserRouter } from 'react-router-dom';
@@ -34,7 +35,11 @@ const queryClient = new QueryClient();
 
 function App() {
   const { fetchResources } = resourceStore();
-  const { flashcard, showStudyList } = flashcardStore();
+  const {
+    flashcard,
+    showStudyList,
+    isLoading: isLoadingFlashcard
+  } = flashcardStore();
   const { startQuizModal, quiz } = quizStore();
   useActiveUserPresence();
 
@@ -63,6 +68,11 @@ function App() {
               <AuthProvider>
                 <FlashcardWizardProvider>
                   <MnemonicSetupProvider>
+                    <FlashcardSkeleton
+                      isOpen={isLoadingFlashcard}
+                      onClose={!isLoadingFlashcard}
+                    />
+
                     <FlashCardModal
                       isOpen={Boolean(flashcard) || showStudyList}
                     />

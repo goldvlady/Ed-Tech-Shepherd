@@ -238,6 +238,7 @@ export default create<Store>((set) => ({
   },
   fetchSingleFlashcard: async (id: string) => {
     try {
+      set({ isLoading: true });
       const response = await ApiService.getSingleFlashcard(id);
       const { data } = await response.json();
       set({ flashcard: data });
@@ -286,6 +287,7 @@ export default create<Store>((set) => ({
       if (currentStudy) {
         nextState.minimizedStudy = currentStudy;
       }
+
       return nextState;
     });
   },

@@ -69,6 +69,7 @@ import { FaPlus } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
+import TimePicker from '../../../../components/TimePicker';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -82,7 +83,7 @@ function Topics(props) {
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = useUserStore();
-  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey } =
+  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey, isLoading } =
     flashcardStore();
   const { loadQuiz } = quizStore();
 
@@ -116,7 +117,7 @@ function Topics(props) {
     recurrenceEndDate: new Date()
   });
 
-  const updateState = (newState) =>
+  const updateState = (newState: Partial<typeof state>) =>
     setState((prevState) => ({ ...prevState, ...newState }));
 
   const toast = useCustomToast();
@@ -127,6 +128,7 @@ function Topics(props) {
     onOpen: onOpenResource,
     onClose: onCloseResource
   } = useDisclosure();
+
   const {
     isOpen: isOpenCadence,
     onOpen: onOpenCadence,
@@ -286,10 +288,9 @@ function Topics(props) {
       }
     } catch (error) {
       updateState({ isLoading: false });
-      console.error('Error searching topic:', error);
     }
   };
-  const findQuizzesByTopic = (topic) => {
+  const findQuizzesByTopic = (topic): any[] => {
     // const topicKey = topic.toLowerCase();
 
     if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
@@ -393,9 +394,9 @@ function Topics(props) {
   };
 
   const frequencyOptions = [
-    { label: 'Once daily', value: 'once' },
-    { label: 'Twice daily', value: 'twice' },
-    // { label: 'Daily', value: 'daily' },
+    // { label: 'Once daily', value: 'once' },
+    // { label: 'Twice daily', value: 'twice' },
+    { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
     { label: "Doesn't Repeat", value: 'none' }
@@ -503,8 +504,11 @@ function Topics(props) {
       try {
         let docId = doc.ingestId;
         if (!doc.ingestId) {
-          updateState({ isLoading: true });
-          const ingestHandler = new FileProcessingService(doc, true);
+          updateState({ isPageLoading: true });
+          const ingestHandler = new FileProcessingService(
+            { ...doc, student: user?._id },
+            true
+          );
           const response = await ingestHandler.process();
           const {
             data: [{ documentId }]
@@ -522,7 +526,7 @@ function Topics(props) {
           isClosable: true
         });
       } finally {
-        updateState({ isLoading: false });
+        updateState({ isPageLoading: false });
       }
     };
 
@@ -537,6 +541,111 @@ function Topics(props) {
         navigate(quizPathWithQuery);
       }
     };
+
+    const resourceEmtpyState = (entity: 'quizzes' | 'flashcards') => {
+      return (
+        <Box textAlign={'center'} py={4} px={4}>
+          <CircularProgress isIndeterminate color="blue.300" />
+          <Text fontSize={12} mt="4" color="gray.500">
+            Your {entity} are being prepared. Please wait a moment.
+          </Text>
+        </Box>
+      );
+    };
+
+    const renderQuizzes = useCallback(() => {
+      const quizzes = findQuizzesByTopic(topic.topicDetails?.label);
+      if (!quizzes || !quizzes.length) return resourceEmtpyState('quizzes');
+      return findQuizzesByTopic(topic.topicDetails?.label)?.map((quiz) => (
+        <>
+          <MenuItem key={quiz.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}>{quiz.title}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Take">
+                    <Box
+                      onClick={() => {
+                        navigateToQuizPage(quiz.id);
+                      }}
+                    >
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        loadQuiz(quiz?.id);
+                        if (!user) {
+                          redirectToLogin('You need to login to edit a quiz');
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(
+                          `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
+                        );
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
+
+    const renderFlashcards = useCallback(() => {
+      const flashcards = findFlashcardsByTopic(topic.topicDetails?.label);
+      if (!flashcards || !flashcards.length)
+        return resourceEmtpyState('flashcards');
+      return flashcards.map((flashcard) => (
+        <>
+          <MenuItem key={flashcard.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}> {flashcard.deckname}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Study">
+                    <Box onClick={() => loadFlashcard(flashcard.id)}>
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        if (!user) {
+                          redirectToLogin(
+                            'You need to login to edit a flashcard'
+                          );
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(`${baseUrl}/flashcards/${flashcard.id}/edit`);
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
 
     // const handleInitializeAiTutor = async () => {
     //   setInitializing(true);
@@ -561,6 +670,8 @@ function Topics(props) {
     //     setInitializing(false);
     //   }
     // };
+    const disableClick = !user || user._id !== planTopics?.user;
+
     return (
       <>
         {' '}
@@ -631,6 +742,8 @@ function Topics(props) {
               p={4}
               justifyContent="space-between"
               textColor={'black'}
+              pointerEvents={disableClick ? 'none' : 'auto'} // Disable pointer events if not a valid user
+              opacity={disableClick ? 0.5 : 1} // Reduce opacity for disabled items
             >
               <Menu isLazy>
                 <MenuButton>
@@ -643,56 +756,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findQuizzesByTopic(topic.topicDetails?.label)?.map(
-                      (quiz) => (
-                        <>
-                          <MenuItem key={quiz.id}>
-                            <Flex alignItems={'center'} gap={4} w="full">
-                              <Text fontSize={12}>{quiz.title}</Text>
-
-                              <Spacer />
-                              <Flex alignItems="center" gap={2}>
-                                {!isTutor && (
-                                  <Tooltip label="Take">
-                                    <Box
-                                      onClick={() => {
-                                        navigateToQuizPage(quiz.id);
-                                      }}
-                                    >
-                                      <AiFillThunderbolt
-                                        color="#207df7"
-                                        size={18}
-                                      />
-                                    </Box>
-                                  </Tooltip>
-                                )}
-                                <Tooltip label="Edit">
-                                  <Box
-                                    onClick={() => {
-                                      loadQuiz(quiz?.id);
-                                      if (!user) {
-                                        redirectToLogin(
-                                          'You need to login to edit a quiz'
-                                        );
-                                      }
-                                      const baseUrl = isTutor
-                                        ? '/dashboard/tutordashboard'
-                                        : '/dashboard';
-                                      navigate(
-                                        `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
-                                      );
-                                    }}
-                                  >
-                                    <EditIcon color="#207df7" boxSize={4} />
-                                  </Box>
-                                </Tooltip>
-                              </Flex>
-                            </Flex>
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderQuizzes()}
                 </MenuList>
               </Menu>
               <Menu isLazy>
@@ -706,55 +770,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findFlashcardsByTopic(topic.topicDetails?.label).map(
-                      (flashcard) => (
-                        <>
-                          <MenuItem key={flashcard.id}>
-                            <Flex alignItems={'center'} gap={4} w="full">
-                              <Text fontSize={12}> {flashcard.deckname}</Text>
-
-                              <Spacer />
-                              <Flex alignItems="center" gap={2}>
-                                {!isTutor && (
-                                  <Tooltip label="Study">
-                                    <Box
-                                      onClick={() =>
-                                        loadFlashcard(flashcard.id)
-                                      }
-                                    >
-                                      <AiFillThunderbolt
-                                        color="#207df7"
-                                        size={18}
-                                      />
-                                    </Box>
-                                  </Tooltip>
-                                )}
-                                <Tooltip label="Edit">
-                                  <Box
-                                    onClick={() => {
-                                      if (!user) {
-                                        redirectToLogin(
-                                          'You need to login to edit a flashcard'
-                                        );
-                                      }
-                                      const baseUrl = isTutor
-                                        ? '/dashboard/tutordashboard'
-                                        : '/dashboard';
-                                      navigate(
-                                        `${baseUrl}/flashcards/${flashcard.id}/edit`
-                                      );
-                                    }}
-                                  >
-                                    <EditIcon color="#207df7" boxSize={4} />
-                                  </Box>
-                                </Tooltip>
-                              </Flex>
-                            </Flex>
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderFlashcards()}
                 </MenuList>
               </Menu>
               {initializing ? (
@@ -871,28 +887,32 @@ function Topics(props) {
                 borderRadius={8}
                 cursor={'grab'}
                 onClick={() => {
-                  updateState({
-                    recurrenceStartDate: new Date(
-                      findStudyEventsByTopic(
+                  if (disableClick) {
+                    return;
+                  } else {
+                    updateState({
+                      recurrenceStartDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.startDate
+                      ),
+                      recurrenceEndDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.recurrence?.endDate
+                      ),
+                      selectedRecurrence: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.startDate
-                    ),
-                    recurrenceEndDate: new Date(
-                      findStudyEventsByTopic(
+                      )?.recurrence?.frequency,
+
+                      selectedTopic: topic._id,
+                      selectedStudyEvent: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.recurrence?.endDate
-                    ),
-                    selectedRecurrence: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?.recurrence?.frequency,
+                      )?._id
+                    });
 
-                    selectedTopic: topic._id,
-                    selectedStudyEvent: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?._id
-                  });
-
-                  onOpenCadence();
+                    onOpenCadence();
+                  }
                 }}
               >
                 {studyPlanResources &&
@@ -1171,7 +1191,22 @@ from  ${moment(
               </FormControl>
               <FormControl id="time" marginBottom="20px">
                 <FormLabel>Time</FormLabel>
-                <Select
+                <TimePicker
+                  inputGroupProps={{
+                    size: 'lg'
+                  }}
+                  inputProps={{
+                    size: 'md',
+                    placeholder: `01:00 PM`
+                  }}
+                  value={state.selectedRecurrenceTime}
+                  onChange={(v) =>
+                    updateState({
+                      selectedRecurrenceTime: v
+                    })
+                  }
+                />
+                {/* <Select
                   defaultValue={timeOptions.find(
                     (option) => option.value === state.selectedRecurrenceTime
                   )}
@@ -1184,7 +1219,7 @@ from  ${moment(
                       selectedRecurrenceTime: (option as Option).value
                     });
                   }}
-                />
+                /> */}
               </FormControl>
             </Box>
           </ModalBody>

@@ -53,6 +53,7 @@ function ChatRoom() {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
     if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
+
       // on streamEnded use useQuery's refetch function to fetch title
       const b = {
         ...connectionQuery,
