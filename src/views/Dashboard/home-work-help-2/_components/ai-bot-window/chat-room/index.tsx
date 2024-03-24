@@ -12,6 +12,7 @@ import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { encodeQueryParams } from '../../../../../../helpers';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
@@ -45,64 +46,25 @@ function ChatRoom() {
   });
 
   const [autoScroll, setAutoScroll] = useState(true);
-  const [streamEnded, setStreamEnded] = useState(false);
+  const [streamEnded, setStreamEnded] = useState(true);
+  const [streamStarted, setStreamStarted] = useState(false);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
     if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
-      const fetchData = async () => {
-        const b = {
-          ...connectionQuery,
-          studentId,
-          firebaseid: user.firebaseId,
-          name: user.name.first,
-          query: ''
-        };
-        const response = await fetch(`${process.env.REACT_APP_AI_II}/maths/`, {
-          method: 'POST',
-          headers: {
-            'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            b
-          })
-        });
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        // Create a new EventSource instance to handle server sent events
-        const eventSource = new EventSource(
-          `${process.env.REACT_APP_AI_II}/maths/`
-        );
-
-        // Event listener to handle incoming events
-        eventSource.onmessage = async (event) => {
-          if (event.data.includes('done with stream')) {
-            await fetchHistory(30, 0, id);
-            eventSource.close();
-            setStreamEnded(true);
-            return;
-          }
-
-          setCurrentChat((prevData) => prevData + event.data);
-        };
-
-        // Event listener for errors
-        eventSource.onerror = (error) => {
-          console.error('EventSource failed:', error);
-          // Close the EventSource connection
-          eventSource.close();
-        };
-
-        return () => {
-          eventSource.close();
-        };
+      // on streamEnded use useQuery's refetch function to fetch title
+      const b = {
+        ...connectionQuery,
+        studentId,
+        firebaseid: user.firebaseId,
+        name: user.name.first,
+        query: '',
+        messages: JSON.stringify([])
       };
-      fetchData();
+      const q = encodeQueryParams(b);
+
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
       const newSearchParams = new URLSearchParams(location.search);
       newSearchParams.delete('initial_messages');
@@ -117,7 +79,7 @@ function ChatRoom() {
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
-
+    console.log(connectionQuery);
     if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
@@ -133,6 +95,7 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     } else if (apiKey && connectionQuery.subject !== 'Math') {
       startConversation(
         {
@@ -145,6 +108,7 @@ function ChatRoom() {
       );
     } else {
       fetchHistory(30, 0, id);
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 
     query.invalidateQueries({
@@ -160,9 +124,14 @@ function ChatRoom() {
     }
 
     return (
-      <ChatMessage key={Math.random()} message={currentChat} type={'bot'} />
+      <ChatMessage
+        streaming={!streamEnded}
+        key={Math.random()}
+        message={currentChat}
+        type={'bot'}
+      />
     );
-  }, [currentChat]);
+  }, [currentChat, streamEnded]);
 
   const handleAutoScroll = () => {
     setAutoScroll(true);
@@ -171,7 +140,7 @@ function ChatRoom() {
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
-
+  console.log(streamEnded, 'has the stream ended');
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -230,45 +199,98 @@ function ChatRoom() {
           />
           <PromptInput
             disabled={apiKey ? true : false}
+            streaming={!streamEnded}
             onSubmit={async (message: string) => {
               if (subject === 'Math') {
+                console.log('make it?????');
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
-                const b = {
+                const body = {
                   ...connectionQuery,
                   studentId,
                   firebaseid: user.firebaseId,
                   name: user.name.first,
                   query: message,
-                  messages: messages.map((el) => el.log)
+                  messages: JSON.stringify(messages.map((el) => el.log))
                 };
-                const body = JSON.stringify(b);
+                setStreamEnded(false);
+                const q = encodeQueryParams(body);
                 sendMessage(message, 'math');
                 handleAutoScroll();
-                fetchEventSource(`${process.env.REACT_APP_AI_II}/maths/`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                  },
-                  body,
-                  async onmessage(event) {
-                    if (event.data.includes('done with stream')) {
-                      await fetchHistory(30, 0, id);
+                await fetchEventSource(
+                  `${process.env.REACT_APP_AI_II}/solve/${q}`,
+                  {
+                    method: 'GET',
+                    headers: {
+                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                    },
+                    openWhenHidden: true,
+                    credentials: 'include',
+                    async onmessage(event) {
+                      console.log(event, 'the event log ->');
+                      if (event.data.includes('done with stream')) {
+                        await fetchHistory(30, 0, id);
+                        setStreamEnded(true);
+                        return;
+                      }
+                      // Append the streamed text data to the current state
+                      setCurrentChat((prevData) => prevData + event.data);
+                      handleAutoScroll();
+                    },
+                    onclose() {
                       setStreamEnded(true);
-                      return;
+                    },
+                    onerror(err) {
+                      //
+                      setStreamEnded(true);
+                      console.log('ERROR ->', err);
                     }
-                    // Append the streamed text data to the current state
-                    setCurrentChat((prevData) => prevData + event.data);
-                    handleAutoScroll();
-                  },
-                  onclose() {
-                    // if the server closes the connection unexpectedly, retry:
-                  },
-                  onerror(err) {
-                    //
                   }
-                });
+                );
+                // const fetchData = () => {
+                //   console.log('FETCH');
+                //   // const response = await fetch(
+                //   //   `${process.env.REACT_APP_AI_II}/solve/${q}`,
+                //   //   {
+                //   //     method: 'GET',
+                //   //     headers: {
+                //   //       'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                //   //     }
+                //   //   }
+                //   // );
+
+                //   // if (!response.ok) {
+                //   //   throw new Error('Network response was not ok');
+                //   // }
+
+                //   // Create a new EventSource instance to handle server sent events
+                //   const eventSource = new EventSource(
+                //     `${process.env.REACT_APP_AI_II}/solve/${q}`
+                //   );
+
+                //   // Event listener to handle incoming events
+                //   eventSource.onmessage = async (event) => {
+                //     console.log(event, 'THE E');
+                //     if (event.data.includes('done with stream')) {
+                //       await fetchHistory(30, 0, id);
+                //       eventSource.close();
+                //       setStreamEnded(true);
+                //       return;
+                //     }
+
+                //     setCurrentChat((prevData) => prevData + event.data);
+                //     handleAutoScroll();
+                //   };
+
+                //   // Event listener for errors
+                //   eventSource.onerror = (error) => {
+                //     setStreamEnded(true);
+                //     console.error('EventSource failed:', error);
+                //     // Close the EventSource connection
+                //     eventSource.close();
+                //   };
+                // };
+                // fetchData();
               } else {
                 console.log('no?');
                 sendMessage(message);
