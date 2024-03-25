@@ -68,14 +68,19 @@ function ImageUploader({
   const handleUpload = async () => {
     if (!imageURI) return;
     if (enableAIOcclusion) {
-      setLoadOcclusionGeneration(true);
-      const elements = await getOcclusionCoordinates(imageURI);
-      setLoadOcclusionGeneration(false);
-      setImage(imageURI);
-      setElements(elements);
-      handleClose({});
-      setImageName('');
-      setEnableAIOcclusion(false);
+      try {
+        setLoadOcclusionGeneration(true);
+        const elements = await getOcclusionCoordinates(imageURI);
+        setLoadOcclusionGeneration(false);
+        setImage(imageURI);
+        setElements(elements);
+        handleClose({});
+        setImageName('');
+        setEnableAIOcclusion(false);
+      } catch (error) {
+        console.error('Error ocurred during occlusion generation:', error);
+        // Handle the error here, such as displaying an error message to the user
+      }
     } else {
       setImage(imageURI);
       handleClose({});

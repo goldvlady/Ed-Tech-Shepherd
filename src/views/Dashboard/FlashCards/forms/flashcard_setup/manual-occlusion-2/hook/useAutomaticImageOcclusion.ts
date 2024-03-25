@@ -79,30 +79,6 @@ function useAutomaticImageOcclusion() {
     const context = canvas.getContext('2d');
     context.drawImage(img, 0, 0, 714, 475);
 
-    /** Previous OCR code */
-    /**
-     * const worker = await createWorker('eng');
-      const ret = await worker.recognize(canvas.toDataURL('image/png'));
-
-      const elements: Occlusion[] = ret.data.words
-        .filter((item) => item.confidence > 90)
-        .map((block, index) => {
-          return {
-            id: index,
-            coor: [
-              block.bbox.x0 - 5,
-              block.bbox.y0 - 5,
-              block.bbox.x1 - block.bbox.x0 + 10,
-              block.bbox.y1 - block.bbox.y0 + 10
-            ]
-        };
-      });
-
-      const clusteredElements = clusterElements(elements);
-
-      return clusteredElements;
-     */
-
     const resizedImageURI = canvas.toDataURL('image/jpeg');
     console.log('resizedImageURI', resizedImageURI);
 
