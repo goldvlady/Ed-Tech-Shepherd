@@ -244,7 +244,7 @@ function ChatRoom() {
                     }
                   })
                     .then((response) => {
-                      // Check if the response is OK
+                      // Check if the response is OK, before continuing
                       if (!response.ok) {
                         throw new Error('Failed to connect to SSE endpoint');
                       }
