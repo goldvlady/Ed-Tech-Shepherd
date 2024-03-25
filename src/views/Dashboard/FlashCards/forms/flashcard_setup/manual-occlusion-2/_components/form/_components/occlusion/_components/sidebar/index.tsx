@@ -36,7 +36,7 @@ function Sidebar({
           <>
             <TextIcon
               icon={<CropIcon className="w-8 h-8 text-[#444444]" />}
-              label="Crop"
+              label="Resize"
               onClick={() => setMode('resizable')}
               active={mode === 'resizable'}
             />
