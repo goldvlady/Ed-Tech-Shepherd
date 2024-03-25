@@ -54,7 +54,6 @@ function ChatRoom() {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
     if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
-
       // on streamEnded use useQuery's refetch function to fetch title
       const b = {
         ...connectionQuery,
@@ -240,7 +239,8 @@ function ChatRoom() {
                     headers: {
                       'Content-Type': 'text/event-stream',
                       'Cache-Control': 'no-cache',
-                      Connection: 'keep-alive'
+                      Connection: 'keep-alive',
+                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
                     }
                   })
                     .then((response) => {
