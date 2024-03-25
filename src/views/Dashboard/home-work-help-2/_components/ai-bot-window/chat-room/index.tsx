@@ -25,6 +25,7 @@ function ChatRoom() {
 
   const studentId = user?._id;
   const query = useQueryClient();
+  let accumulatedBuffer = '';
 
   const [openPricingModel, setOpenPricingModel] = useState(false); // It will open when conversation is in share mode and user try to chat
 
@@ -136,7 +137,22 @@ function ChatRoom() {
   const handleAutoScroll = () => {
     setAutoScroll(true);
   };
+  const handleSSE = async (incomingBuffer: string) => {
+    const buffer = accumulatedBuffer + incomingBuffer;
 
+    if (buffer.includes('done with stream')) {
+      await fetchHistory(30, 0, id);
+      setStreamEnded(true);
+      setAutoScroll(true);
+      return;
+    }
+
+    // Append the streamed text data to the current state
+    setCurrentChat(incomingBuffer);
+    setAutoScroll(true);
+
+    accumulatedBuffer = buffer.substring(buffer.lastIndexOf('\n\n') + 2);
+  };
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
@@ -217,82 +233,50 @@ function ChatRoom() {
                 const q = encodeQueryParams(body);
                 sendMessage(message, 'math');
                 handleAutoScroll();
-                await fetchEventSource(
-                  `${process.env.REACT_APP_AI_II}/solve/${q}`,
-                  {
+                const startSSE = () => {
+                  // Make a GET request to the SSE endpoint
+                  fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
                     method: 'GET',
                     headers: {
-                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                    },
-                    openWhenHidden: true,
-                    credentials: 'include',
-                    async onmessage(event) {
-                      console.log(event, 'the event log ->');
-                      if (event.data.includes('done with stream')) {
-                        await fetchHistory(30, 0, id);
-                        setStreamEnded(true);
-                        return;
-                      }
-                      // Append the streamed text data to the current state
-                      setCurrentChat((prevData) => prevData + event.data);
-                      handleAutoScroll();
-                    },
-                    onclose() {
-                      setStreamEnded(true);
-                    },
-                    onerror(err) {
-                      //
-                      setStreamEnded(true);
-                      console.log('ERROR ->', err);
+                      'Content-Type': 'text/event-stream',
+                      'Cache-Control': 'no-cache',
+                      Connection: 'keep-alive'
                     }
-                  }
-                );
-                // const fetchData = () => {
-                //   console.log('FETCH');
-                //   // const response = await fetch(
-                //   //   `${process.env.REACT_APP_AI_II}/solve/${q}`,
-                //   //   {
-                //   //     method: 'GET',
-                //   //     headers: {
-                //   //       'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                //   //     }
-                //   //   }
-                //   // );
+                  })
+                    .then((response) => {
+                      // Check if the response is OK
+                      if (!response.ok) {
+                        throw new Error('Failed to connect to SSE endpoint');
+                      }
 
-                //   // if (!response.ok) {
-                //   //   throw new Error('Network response was not ok');
-                //   // }
+                      // Start processing incoming events
+                      const reader = response.body.getReader();
+                      const decoder = new TextDecoder('utf-8');
+                      let buffer = '';
 
-                //   // Create a new EventSource instance to handle server sent events
-                //   const eventSource = new EventSource(
-                //     `${process.env.REACT_APP_AI_II}/solve/${q}`
-                //   );
+                      reader.read().then(function processText({ done, value }) {
+                        if (done) {
+                          setStreamEnded(true);
+                          return;
+                        }
 
-                //   // Event listener to handle incoming events
-                //   eventSource.onmessage = async (event) => {
-                //     console.log(event, 'THE E');
-                //     if (event.data.includes('done with stream')) {
-                //       await fetchHistory(30, 0, id);
-                //       eventSource.close();
-                //       setStreamEnded(true);
-                //       return;
-                //     }
+                        buffer += decoder.decode(value, { stream: true });
 
-                //     setCurrentChat((prevData) => prevData + event.data);
-                //     handleAutoScroll();
-                //   };
+                        const parts = buffer.split('\n\n');
 
-                //   // Event listener for errors
-                //   eventSource.onerror = (error) => {
-                //     setStreamEnded(true);
-                //     console.error('EventSource failed:', error);
-                //     // Close the EventSource connection
-                //     eventSource.close();
-                //   };
-                // };
-                // fetchData();
+                        //buffer = parts[parts.length - 1];
+                        handleSSE(buffer);
+                        setAutoScroll(true);
+
+                        return reader.read().then(processText);
+                      });
+                    })
+                    .catch((error) => {
+                      setStreamEnded(true);
+                    });
+                };
+                startSSE();
               } else {
-                console.log('no?');
                 sendMessage(message);
                 handleAutoScroll();
               }
