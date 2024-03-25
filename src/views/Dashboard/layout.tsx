@@ -931,9 +931,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <FlashCardEventNotifier />
       <div className="flex flex-col w-full h-full relative bg-white">
         <div className="h-full flex w-full">
-          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
-            <Sidebar />
-            {/* <SidebarContent
+          <Sidebar />
+          {/* <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
               aiChatMenu={aiChatMenu}
@@ -949,7 +948,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               openModal={openModal}
               closeModal={closeModal}
             /> */}
-          </div>
           <Drawer
             autoFocus={false}
             isOpen={isOpen}
