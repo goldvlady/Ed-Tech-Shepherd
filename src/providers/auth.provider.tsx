@@ -21,7 +21,8 @@ enum ActionTypes {
   AUTH_SUCCESS = 'AUTH_SUCCESS',
   AUTH_FAILURE = 'AUTH_FAILURE',
   SET_LOADING = 'SET_LOADING',
-  AUTH_ATTEMPTED = 'AUTH_ATTEMPTED'
+  AUTH_ATTEMPTED = 'AUTH_ATTEMPTED',
+  SET_AUTHENTICATED = 'SET_AUTHENTICATED'
 }
 
 interface Action {
@@ -45,6 +46,8 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 const authReducer = (state: State, action: Action) => {
   switch (action.type) {
+    case ActionTypes.SET_AUTHENTICATED:
+      return { ...state, isAuthenticated: true };
     case ActionTypes.AUTH_SUCCESS:
       return {
         ...state,

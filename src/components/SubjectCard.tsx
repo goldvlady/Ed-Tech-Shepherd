@@ -15,6 +15,10 @@ function SubjectCard({
 }) {
   const navigate = useNavigate();
 
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   return (
     <Box
       maxW="sm"
@@ -24,28 +28,31 @@ function SubjectCard({
       boxShadow="md"
       bg="white"
       onClick={handleClick}
+      cursor="pointer"
     >
       <Box>
         <Flex>
           <Text fontSize="16px" fontWeight="500" p={4}>
             {title.length > 23 ? `${title.slice(0, 20)}...` : title}
           </Text>
-          <Spacer />{' '}
-          <Button
-            float="right"
-            size={'xs'}
-            m={4}
-            variant="outline"
-            color={'#FC9B65'}
-            borderColor={'#FC9B65'}
-            _hover={{ bgColor: '#FEE1D0' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/dashboard/find-tutor?subjectId=${subjectId}`);
-            }}
-          >
-            Find a Shepherd
-          </Button>
+          <Spacer />
+          {!isTutor && (
+            <Button
+              float="right"
+              size={'xs'}
+              m={4}
+              variant="outline"
+              color={'#FC9B65'}
+              borderColor={'#FC9B65'}
+              _hover={{ bgColor: '#FEE1D0' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/dashboard/find-tutor?subjectId=${subjectId}`);
+              }}
+            >
+              Find a Shepherd
+            </Button>
+          )}
         </Flex>
 
         <Divider mb={2} color="#EAEBEB" />

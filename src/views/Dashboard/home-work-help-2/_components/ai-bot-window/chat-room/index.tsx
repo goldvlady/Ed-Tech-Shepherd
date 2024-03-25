@@ -1,7 +1,7 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
@@ -11,14 +11,18 @@ import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
-
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { encodeQueryParams } from '../../../../../../helpers';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
   const { id } = useParams();
+  const location = useLocation();
   const { user } = useUserStore();
   const search = useSearchQuery();
   const apiKey = search.get('apiKey');
+  const hasInitialMessagesParam = search.get('initial_messages');
+
   const studentId = user?._id;
   const query = useQueryClient();
 
@@ -30,6 +34,8 @@ function ChatRoom() {
     messages,
     currentChat,
     sendMessage,
+    setCurrentChat,
+    fetchHistory,
     onEvent,
     currentSocket,
     getChatWindowParams,
@@ -40,10 +46,41 @@ function ChatRoom() {
   });
 
   const [autoScroll, setAutoScroll] = useState(true);
-
+  const [streamEnded, setStreamEnded] = useState(true);
+  const [streamStarted, setStreamStarted] = useState(false);
+  const [subject, setSubject] = useState<'Math' | 'any'>('any');
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
-    if (chatWindowParams) {
+    const { connectionQuery } = chatWindowParams;
+    if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
+
+      // on streamEnded use useQuery's refetch function to fetch title
+      const b = {
+        ...connectionQuery,
+        studentId,
+        firebaseid: user.firebaseId,
+        name: user.name.first,
+        query: '',
+        messages: JSON.stringify([])
+      };
+      const q = encodeQueryParams(b);
+
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
+      const newSearchParams = new URLSearchParams(location.search);
+      newSearchParams.delete('initial_messages');
+      window.history.replaceState(
+        {},
+        '',
+        `${location.pathname}?${newSearchParams.toString()}`
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, hasInitialMessagesParam, id]);
+  useEffect(() => {
+    const chatWindowParams = getChatWindowParams();
+    const { connectionQuery } = chatWindowParams;
+    console.log(connectionQuery);
+    if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -58,7 +95,8 @@ function ChatRoom() {
           isNewConversation: isNewWindow
         }
       );
-    } else if (apiKey) {
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
+    } else if (apiKey && connectionQuery.subject !== 'Math') {
       startConversation(
         {
           conversationId: id
@@ -68,6 +106,9 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
+    } else {
+      fetchHistory(30, 0, id);
+      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 
     query.invalidateQueries({
@@ -83,9 +124,14 @@ function ChatRoom() {
     }
 
     return (
-      <ChatMessage key={Math.random()} message={currentChat} type={'bot'} />
+      <ChatMessage
+        streaming={!streamEnded}
+        key={Math.random()}
+        message={currentChat}
+        type={'bot'}
+      />
     );
-  }, [currentChat]);
+  }, [currentChat, streamEnded]);
 
   const handleAutoScroll = () => {
     setAutoScroll(true);
@@ -94,7 +140,7 @@ function ChatRoom() {
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
-
+  console.log(streamEnded, 'has the stream ended');
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -115,6 +161,7 @@ function ChatRoom() {
             ?.filter(
               (message) => message.log.content !== CONVERSATION_INITIALIZER
             )
+            .filter((message) => message.log.role !== 'function')
             .sort((a, b) => a.id - b.id)
             .map((message) => (
               <ChatMessage
@@ -152,9 +199,103 @@ function ChatRoom() {
           />
           <PromptInput
             disabled={apiKey ? true : false}
-            onSubmit={(message: string) => {
-              sendMessage(message);
-              handleAutoScroll();
+            streaming={!streamEnded}
+            onSubmit={async (message: string) => {
+              if (subject === 'Math') {
+                console.log('make it?????');
+                const chatWindowParams = getChatWindowParams();
+                const { connectionQuery } = chatWindowParams;
+                const body = {
+                  ...connectionQuery,
+                  studentId,
+                  firebaseid: user.firebaseId,
+                  name: user.name.first,
+                  query: message,
+                  messages: JSON.stringify(messages.map((el) => el.log))
+                };
+                setStreamEnded(false);
+                const q = encodeQueryParams(body);
+                sendMessage(message, 'math');
+                handleAutoScroll();
+                await fetchEventSource(
+                  `${process.env.REACT_APP_AI_II}/solve/${q}`,
+                  {
+                    method: 'GET',
+                    headers: {
+                      'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                    },
+                    openWhenHidden: true,
+                    credentials: 'include',
+                    async onmessage(event) {
+                      console.log(event, 'the event log ->');
+                      if (event.data.includes('done with stream')) {
+                        await fetchHistory(30, 0, id);
+                        setStreamEnded(true);
+                        return;
+                      }
+                      // Append the streamed text data to the current state
+                      setCurrentChat((prevData) => prevData + event.data);
+                      handleAutoScroll();
+                    },
+                    onclose() {
+                      setStreamEnded(true);
+                    },
+                    onerror(err) {
+                      //
+                      setStreamEnded(true);
+                      console.log('ERROR ->', err);
+                    }
+                  }
+                );
+                // const fetchData = () => {
+                //   console.log('FETCH');
+                //   // const response = await fetch(
+                //   //   `${process.env.REACT_APP_AI_II}/solve/${q}`,
+                //   //   {
+                //   //     method: 'GET',
+                //   //     headers: {
+                //   //       'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+                //   //     }
+                //   //   }
+                //   // );
+
+                //   // if (!response.ok) {
+                //   //   throw new Error('Network response was not ok');
+                //   // }
+
+                //   // Create a new EventSource instance to handle server sent events
+                //   const eventSource = new EventSource(
+                //     `${process.env.REACT_APP_AI_II}/solve/${q}`
+                //   );
+
+                //   // Event listener to handle incoming events
+                //   eventSource.onmessage = async (event) => {
+                //     console.log(event, 'THE E');
+                //     if (event.data.includes('done with stream')) {
+                //       await fetchHistory(30, 0, id);
+                //       eventSource.close();
+                //       setStreamEnded(true);
+                //       return;
+                //     }
+
+                //     setCurrentChat((prevData) => prevData + event.data);
+                //     handleAutoScroll();
+                //   };
+
+                //   // Event listener for errors
+                //   eventSource.onerror = (error) => {
+                //     setStreamEnded(true);
+                //     console.error('EventSource failed:', error);
+                //     // Close the EventSource connection
+                //     eventSource.close();
+                //   };
+                // };
+                // fetchData();
+              } else {
+                console.log('no?');
+                sendMessage(message);
+                handleAutoScroll();
+              }
             }}
             conversationId={id}
             onClick={() => {

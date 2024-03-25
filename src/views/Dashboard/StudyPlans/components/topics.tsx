@@ -34,9 +34,11 @@ import {
   PopoverTrigger,
   Popover,
   CircularProgress,
-  Icon
+  Icon,
+  Tooltip
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
+import { useSearchParams } from 'react-router-dom';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
 import moment from 'moment';
@@ -48,10 +50,15 @@ import studyPlanStore from '../../../../state/studyPlanStore';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import flashcardStore from '../../../../state/flashcardStore';
 import resourceStore from '../../../../state/resourceStore';
-import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
+import { AiFillThunderbolt, AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { parseISO, format, parse } from 'date-fns';
-import { SmallCloseIcon } from '@chakra-ui/icons';
+import {
+  EditIcon,
+  RepeatIcon,
+  SearchIcon,
+  SmallCloseIcon
+} from '@chakra-ui/icons';
 import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
@@ -59,16 +66,28 @@ import ApiService from '../../../../services/ApiService';
 import SelectedNoteModal from '../../../../components/SelectedNoteModal';
 import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
 import { FaPlus } from 'react-icons/fa';
+import R2RClient from '../../../../services/R2R';
+import { IoCreateOutline } from 'react-icons/io5';
+import quizStore from '../../../../state/quizStore';
+import TimePicker from '../../../../components/TimePicker';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   const {
     fetchPlanResources,
     studyPlanResources,
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = useUserStore();
-  const { fetchSingleFlashcard } = flashcardStore();
+  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey, isLoading } =
+    flashcardStore();
+  const { loadQuiz } = quizStore();
+
+  const [params] = useSearchParams();
   const {
     courses: courseList,
     levels: levelOptions,
@@ -98,7 +117,7 @@ function Topics(props) {
     recurrenceEndDate: new Date()
   });
 
-  const updateState = (newState) =>
+  const updateState = (newState: Partial<typeof state>) =>
     setState((prevState) => ({ ...prevState, ...newState }));
 
   const toast = useCustomToast();
@@ -109,6 +128,7 @@ function Topics(props) {
     onOpen: onOpenResource,
     onClose: onCloseResource
   } = useDisclosure();
+
   const {
     isOpen: isOpenCadence,
     onOpen: onOpenCadence,
@@ -139,8 +159,6 @@ function Topics(props) {
     grouped.get(testDate).push(topic);
     return grouped;
   }, new Map());
-
-  console.log(groupedTopics);
 
   function getColorForStatus(status) {
     switch (status) {
@@ -188,7 +206,7 @@ function Topics(props) {
   }, [courseList, studyPlanCourses]);
 
   const getTopicStatus = (topicId) => {
-    const selectedTopic = planTopics.progressLog[0].topicProgress.find(
+    const selectedTopic = planTopics.progressLog[0]?.topicProgress?.find(
       (topic) => topic.topic === topicId
     );
 
@@ -212,29 +230,67 @@ function Topics(props) {
       return 'To Do';
     }
   };
+
+  const redirectToLogin = (toastMessage?: string) => {
+    const currentPathWithQuery = window.location.href.split('dashboard')[1];
+    if (toastMessage) {
+      toast({
+        title: 'You need to login to take a quiz',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+    navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+  };
+
+  // const getTopicResource = async (topic: string) => {
+  //   updateState({ isLoading: true });
+  //   try {
+  //     // Instantiate SciPhiService
+  //     const sciPhiService = new SciPhiService();
+
+  //     // Define search options
+  //     const searchOptions = {
+  //       query: topic
+  //     };
+
+  //     // Call searchRag method
+  //     const response = await sciPhiService.searchRag(searchOptions);
+  //     if (response) {
+  //       updateState({ isLoading: false, topicResource: response });
+  //     }
+  //   } catch (error) {
+  //     updateState({ isLoading: false });
+  //     console.error('Error searching topic:', error);
+  //   }
+  // };
   const getTopicResource = async (topic: string) => {
     updateState({ isLoading: true });
     try {
-      // Instantiate SciPhiService
-      const sciPhiService = new SciPhiService();
+      const client = new R2RClient();
 
-      // Define search options
-      const searchOptions = {
-        query: topic
-      };
+      // Define search parameters
+      const query = topic;
+      const limit = 10;
+      const filters = { tags: 'example' };
+      const settings = {};
 
-      // Call searchRag method
-      const response = await sciPhiService.searchRag(searchOptions);
+      // ragCompletion method
+      const response = await client.ragCompletion(
+        query,
+        limit,
+        filters,
+        settings
+      );
       if (response) {
         updateState({ isLoading: false, topicResource: response });
       }
     } catch (error) {
       updateState({ isLoading: false });
-      console.error('Error searching topic:', error);
     }
   };
-
-  const findQuizzesByTopic = (topic) => {
+  const findQuizzesByTopic = (topic): any[] => {
     // const topicKey = topic.toLowerCase();
 
     if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
@@ -265,6 +321,18 @@ function Topics(props) {
     return [];
   };
 
+  const loadFlashcard = async (flashcardId: string) => {
+    if (!user) {
+      return redirectToLogin('You need to login to load a flashcard');
+    }
+    const apiKeyParam = params.get('apiKey');
+    if (apiKeyParam) {
+      fetchSingleFlashcardForAPIKey(flashcardId, apiKeyParam);
+    } else {
+      fetchSingleFlashcard(flashcardId);
+    }
+  };
+
   const handleUpdatePlanCadence = async () => {
     updateState({ isLoading: true });
     const parsedTime = parse(
@@ -291,7 +359,6 @@ function Topics(props) {
         }
       }
     };
-    console.log(payload);
     try {
       const resp = await ApiService.rescheduleStudyEvent(payload);
       if (resp) {
@@ -327,6 +394,8 @@ function Topics(props) {
   };
 
   const frequencyOptions = [
+    // { label: 'Once daily', value: 'once' },
+    // { label: 'Twice daily', value: 'twice' },
     { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
@@ -352,6 +421,7 @@ function Topics(props) {
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
     };
+
     const { loading, error } = useStoreConversationIdToStudyPlan(
       selectedPlan,
       topic.topic,
@@ -368,6 +438,19 @@ function Topics(props) {
     //   );
     // };
 
+    const redirectToLogin = (toastMessage?: string) => {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      if (toastMessage) {
+        toast({
+          title: 'You need to login to take a quiz',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+      navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+    };
+
     const saveStudyPlanMetaData = useCallback(
       async (conversationId: string) => {
         try {
@@ -380,10 +463,9 @@ function Topics(props) {
           });
           if (response) {
             const data = await response.json();
-            console.log('Metadata saved:', data);
           }
         } catch (error) {
-          console.error('Error saving metadata:', error);
+          // console.error('Error saving metadata:', error);
         }
       },
       [topic]
@@ -393,10 +475,15 @@ function Topics(props) {
       navigateOnInitialized: true,
       onInitialized: saveStudyPlanMetaData
     });
+
     const handleAiTutor = () => {
       const convoId = topic.topicMetaData[0]?.conversationId;
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
       if (convoId) {
-        navigate(`/dashboard/ace-homework/${convoId}`);
+        const queryString = window.location.search;
+        navigate(`/dashboard/ace-homework/${convoId}${queryString}`);
       } else {
         initializeAItutor({
           topic: topic.topicDetails?.label,
@@ -411,22 +498,26 @@ function Topics(props) {
     };
 
     const handleDocAction = async (doc) => {
-      console.log('Ingested doc', doc);
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
       try {
+        let docId = doc.ingestId;
         if (!doc.ingestId) {
-          updateState({ isLoading: true });
-          const ingestHandler = new FileProcessingService(doc, true);
+          updateState({ isPageLoading: true });
+          const ingestHandler = new FileProcessingService(
+            { ...doc, student: user?._id },
+            true
+          );
           const response = await ingestHandler.process();
           const {
             data: [{ documentId }]
           } = response;
-          navigate(
-            `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${documentId}&language=English`
-          );
+          docId = documentId;
         }
-        navigate(
-          `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
-        );
+        let path = `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${docId}&language=English`;
+        path += window.location.search.replace('?', '&');
+        navigate(path);
       } catch (error) {
         toast({
           title: 'Error opening document',
@@ -435,9 +526,126 @@ function Topics(props) {
           isClosable: true
         });
       } finally {
-        updateState({ isLoading: false });
+        updateState({ isPageLoading: false });
       }
     };
+
+    const navigateToQuizPage = (quizId: string) => {
+      const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+
+      if (!user) {
+        redirectToLogin('You need to login to take a quiz');
+      } else {
+        let quizPathWithQuery = `${baseUrl}/quizzes/take?quiz_id=${quizId}`;
+        quizPathWithQuery += window.location.search.replace('?', '&');
+        navigate(quizPathWithQuery);
+      }
+    };
+
+    const resourceEmtpyState = (entity: 'quizzes' | 'flashcards') => {
+      return (
+        <Box textAlign={'center'} py={4} px={4}>
+          <CircularProgress isIndeterminate color="blue.300" />
+          <Text fontSize={12} mt="4" color="gray.500">
+            Your {entity} are being prepared. Please wait a moment.
+          </Text>
+        </Box>
+      );
+    };
+
+    const renderQuizzes = useCallback(() => {
+      const quizzes = findQuizzesByTopic(topic.topicDetails?.label);
+      if (!quizzes || !quizzes.length) return resourceEmtpyState('quizzes');
+      return findQuizzesByTopic(topic.topicDetails?.label)?.map((quiz) => (
+        <>
+          <MenuItem key={quiz.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}>{quiz.title}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Take">
+                    <Box
+                      onClick={() => {
+                        navigateToQuizPage(quiz.id);
+                      }}
+                    >
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        loadQuiz(quiz?.id);
+                        if (!user) {
+                          redirectToLogin('You need to login to edit a quiz');
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(
+                          `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
+                        );
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
+
+    const renderFlashcards = useCallback(() => {
+      const flashcards = findFlashcardsByTopic(topic.topicDetails?.label);
+      if (!flashcards || !flashcards.length)
+        return resourceEmtpyState('flashcards');
+      return flashcards.map((flashcard) => (
+        <>
+          <MenuItem key={flashcard.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}> {flashcard.deckname}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Study">
+                    <Box onClick={() => loadFlashcard(flashcard.id)}>
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        if (!user) {
+                          redirectToLogin(
+                            'You need to login to edit a flashcard'
+                          );
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(`${baseUrl}/flashcards/${flashcard.id}/edit`);
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
 
     // const handleInitializeAiTutor = async () => {
     //   setInitializing(true);
@@ -462,6 +670,8 @@ function Topics(props) {
     //     setInitializing(false);
     //   }
     // };
+    const disableClick = !user || user._id !== planTopics?.user;
+
     return (
       <>
         {' '}
@@ -532,6 +742,8 @@ function Topics(props) {
               p={4}
               justifyContent="space-between"
               textColor={'black'}
+              pointerEvents={disableClick ? 'none' : 'auto'} // Disable pointer events if not a valid user
+              opacity={disableClick ? 0.5 : 1} // Reduce opacity for disabled items
             >
               <Menu isLazy>
                 <MenuButton>
@@ -544,23 +756,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findQuizzesByTopic(topic.topicDetails?.label)?.map(
-                      (quiz) => (
-                        <>
-                          <MenuItem
-                            key={quiz.id}
-                            onClick={() =>
-                              navigate(
-                                `/dashboard/quizzes/take?quiz_id=${quiz.id}`
-                              )
-                            }
-                          >
-                            {quiz.title}
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderQuizzes()}
                 </MenuList>
               </Menu>
               <Menu isLazy>
@@ -574,19 +770,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findFlashcardsByTopic(topic.topicDetails?.label).map(
-                      (flashcard) => (
-                        <>
-                          <MenuItem
-                            key={flashcard.id}
-                            onClick={() => fetchSingleFlashcard(flashcard.id)}
-                          >
-                            {flashcard.deckname}
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderFlashcards()}
                 </MenuList>
               </Menu>
               {initializing ? (
@@ -681,7 +865,7 @@ function Topics(props) {
                 cursor={'pointer'}
                 onClick={() => {
                   updateState({
-                    selectedTopic: topic._id
+                    selectedTopic: topic.topicDetails?.label
                   });
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
@@ -693,38 +877,42 @@ function Topics(props) {
                 </Text>
               </VStack>
             </HStack>
-            <Flex alignItems={'center'} px={4}>
+            <Flex alignItems={'center'} px={4} my={4}>
               <Badge
                 variant="subtle"
                 colorScheme="blue"
                 p={1}
                 letterSpacing="wide"
-                textTransform="none"
+                textTransform="capitalize"
                 borderRadius={8}
                 cursor={'grab'}
                 onClick={() => {
-                  updateState({
-                    recurrenceStartDate: new Date(
-                      findStudyEventsByTopic(
+                  if (disableClick) {
+                    return;
+                  } else {
+                    updateState({
+                      recurrenceStartDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.startDate
+                      ),
+                      recurrenceEndDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.recurrence?.endDate
+                      ),
+                      selectedRecurrence: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.startDate
-                    ),
-                    recurrenceEndDate: new Date(
-                      findStudyEventsByTopic(
+                      )?.recurrence?.frequency,
+
+                      selectedTopic: topic._id,
+                      selectedStudyEvent: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.recurrence?.endDate
-                    ),
-                    selectedRecurrence: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?.recurrence?.frequency,
+                      )?._id
+                    });
 
-                    selectedTopic: topic._id,
-                    selectedStudyEvent: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?._id
-                  });
-
-                  onOpenCadence();
+                    onOpenCadence();
+                  }
                 }}
               >
                 {studyPlanResources &&
@@ -742,19 +930,20 @@ from  ${moment(
               </Badge>
 
               <Spacer />
-              <Button
-                size={'sm'}
-                my={4}
-                onClick={() => {
-                  updateState({
-                    selectedTopic: topic.topicDetails?.label
-                  });
+              {!isTutor && (
+                <Button
+                  size={'sm'}
+                  onClick={() => {
+                    updateState({
+                      selectedTopic: topic.topicDetails?.label
+                    });
 
-                  openBountyModal();
-                }}
-              >
-                Find a tutor
-              </Button>
+                    openBountyModal();
+                  }}
+                >
+                  Find a tutor
+                </Button>
+              )}
             </Flex>
           </Box>
         </Box>
@@ -856,7 +1045,12 @@ from  ${moment(
                     // boxShadow="md"
                     className="custom-scroll"
                   >
-                    <Text lineHeight="6">{state.topicResource?.response}</Text>
+                    <Text lineHeight="6">
+                      {state.topicResource?.completion.choices[0].message.content.replace(
+                        /\[.*?\]/g,
+                        ''
+                      )}
+                    </Text>
                   </Box>
                   <Text
                     fontSize={'17px'}
@@ -868,11 +1062,12 @@ from  ${moment(
                     Sources
                   </Text>
                   <SimpleGrid minChildWidth="150px" spacing="10px">
-                    {state.topicResource?.search_results.map(
-                      (source, index) => (
+                    {state.topicResource?.search_results
+                      .filter((item) => item.title)
+                      .map((source, index) => (
                         <a
                           key={index}
-                          href={`${source.url}`}
+                          href={`${source.link}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -889,34 +1084,39 @@ from  ${moment(
                           >
                             <Flex direction="column" textAlign="left" gap={2}>
                               <Text fontWeight={600} fontSize="sm">
-                                {source.title.length > 15
-                                  ? source.title.substring(0, 15) + '...'
+                                {source.title?.length > 15
+                                  ? source.title?.substring(0, 15) + '...'
                                   : source.title}
                               </Text>
                               <Flex alignItems="center">
                                 <Text color="gray.500" fontSize="xs">
-                                  {source.url.length > 19
-                                    ? source.url.substring(0, 19) + '...'
-                                    : source.url}
+                                  {source.link?.length > 19
+                                    ? source.link?.substring(0, 19) + '...'
+                                    : source.link}
                                 </Text>
                                 <Spacer />
                                 <img
                                   className="h-3 w-3"
-                                  alt={source.url}
+                                  alt={source.link}
                                   src={`https://www.google.com/s2/favicons?domain=${
-                                    source.url
+                                    source.link
                                   }&sz=${16}`}
                                 />
                               </Flex>
                             </Flex>
                           </Box>
                         </a>
-                      )
-                    )}
+                      ))}
                   </SimpleGrid>
                 </Box>
               ) : (
-                'No resource'
+                <VStack>
+                  <Text>No resource, Please try again</Text>
+                  <RepeatIcon
+                    boxSize={6}
+                    onClick={() => getTopicResource(state.selectedTopic)}
+                  />
+                </VStack>
               )
             ) : (
               <Spinner />
@@ -991,7 +1191,22 @@ from  ${moment(
               </FormControl>
               <FormControl id="time" marginBottom="20px">
                 <FormLabel>Time</FormLabel>
-                <Select
+                <TimePicker
+                  inputGroupProps={{
+                    size: 'lg'
+                  }}
+                  inputProps={{
+                    size: 'md',
+                    placeholder: `01:00 PM`
+                  }}
+                  value={state.selectedRecurrenceTime}
+                  onChange={(v) =>
+                    updateState({
+                      selectedRecurrenceTime: v
+                    })
+                  }
+                />
+                {/* <Select
                   defaultValue={timeOptions.find(
                     (option) => option.value === state.selectedRecurrenceTime
                   )}
@@ -1004,7 +1219,7 @@ from  ${moment(
                       selectedRecurrenceTime: (option as Option).value
                     });
                   }}
-                />
+                /> */}
               </FormControl>
             </Box>
           </ModalBody>

@@ -47,7 +47,9 @@ function Notifications(props) {
           'new_offer_received',
           'upcoming_class',
           'BOUNTY_ACCEPTED',
-          'BOUNTY_BID_ACCEPTED'
+          'BOUNTY_BID_ACCEPTED',
+          'STUDY_PLAN_FOR_FLASHCARD_CREATED',
+          'QUIZ_FOR_STUDY_PLAN_CREATED'
         ];
         return (
           allowedTypes.includes(item.type) && isWithinAWeek(item.createdAt)
@@ -104,6 +106,8 @@ function Notifications(props) {
         return <OfferIcon />;
       case 'STUDY_PLAN_FOR_FLASHCARD_CREATED':
         return <OfferIcon />;
+      case 'QUIZ_FOR_STUDY_PLAN_CREATED':
+        return <OfferIcon />;
       case 'UPCOMING_FLASHCARD_STUDY':
         return <OfferIcon />;
       default:
@@ -138,8 +142,14 @@ function Notifications(props) {
         return `Your "${
           attributes.topic ? attributes.topic : attributes.deckname
         }" ${
-          attributes.quizId ? 'quiz was' : 'flashcards were'
-        }  created successfully`;
+          attributes.quizId ? 'quiz' : 'flashcards'
+        }  and 5 others were created successfully`;
+      case 'QUIZ_FOR_STUDY_PLAN_CREATED':
+        return `Your "${
+          attributes.topic ? attributes.topic : attributes.deckname
+        }" ${
+          attributes.quizId ? 'quiz' : 'flashcards'
+        }  and 5 others were created successfully`;
       case 'UPCOMING_FLASHCARD_STUDY':
         return 'You have an upcoming Flashcard study ';
       default:

@@ -73,6 +73,10 @@ function StudyPlans() {
     onClose: closeConfirmDelete
   } = useDisclosure();
 
+  const isTutor = window.location.pathname.includes(
+    '/dashboard/tutordashboard'
+  );
+
   const DropdownIndicator = (props) => {
     return (
       <components.DropdownIndicator {...props}>
@@ -192,11 +196,12 @@ function StudyPlans() {
     setMinScore(0);
     setMaxScore(100);
     setSearchTerm('');
-    setSubject('');
+    setSubject([]);
   };
+
   return (
-    <>
-      <Flex p={3} justifyContent="space-between" alignItems="center">
+    <Box height={'100vh'}>
+      <Flex p={3} justifyContent="space-between" alignItems="center" gap={1}>
         <Box>
           <Text fontSize={24} fontWeight={600} color="text.200">
             Study Plans
@@ -205,6 +210,7 @@ function StudyPlans() {
             Chart success: Monitor your personalized study plans.
           </Text>
         </Box>
+        <Spacer />
         <Flex gap={2} alignItems="center">
           <MdCancel size={'50px'} color="lightgray" onClick={clearFilters} />
           <Box marginRight={'-15px'}>
@@ -278,11 +284,16 @@ function StudyPlans() {
             whiteSpace="nowrap"
             h="35px"
           />
-        </Flex>{' '}
+        </Flex>
         {studyPlans.length > 0 && (
           <Button
             size={'md'}
-            onClick={() => navigate('/dashboard/create-study-plans')}
+            onClick={() => {
+              const baseUrl = isTutor
+                ? '/dashboard/tutordashboard'
+                : '/dashboard';
+              navigate(`${baseUrl}/create-study-plans`);
+            }}
           >
             Create New
           </Button>
@@ -338,7 +349,14 @@ function StudyPlans() {
           <div className="text-center">
             <img src="/images/notes.png" alt="" />
             <Text>You don't have any study plans yet!</Text>
-            <Button onClick={() => navigate('/dashboard/create-study-plans')}>
+            <Button
+              onClick={() => {
+                const baseUrl = isTutor
+                  ? '/dashboard/tutordashboard'
+                  : '/dashboard';
+                navigate(`${baseUrl}/create-study-plans`);
+              }}
+            >
               Create New
             </Button>
           </div>
@@ -443,7 +461,7 @@ function StudyPlans() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </Box>
   );
 }
 

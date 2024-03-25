@@ -49,6 +49,7 @@ import {
   Spinner,
   FormLabel
 } from '@chakra-ui/react';
+import Select from 'react-select';
 import { format, isBefore } from 'date-fns';
 import { StudyPlanJob, StudyPlanWeek } from '../../../types';
 import Logo from '../../../components/Logo';
@@ -125,6 +126,7 @@ function CreateStudyPlans() {
     // }
   ]);
   const today = moment();
+
   const [gradeLevel, setGradeLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [timezone, setTimezone] = useState('');
@@ -139,12 +141,15 @@ function CreateStudyPlans() {
     { id: 1, name: 'shrek' },
     { id: 2, name: 'fiona' }
   ]);
+  const [tzOptions, setTzOptions] = useState([]);
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
   const btnRef = useRef();
   const toast = useCustomToast();
   const navigate = useNavigate();
+  const currentPath = window.location.pathname;
 
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
   const subjectOptions = [
     { label: 'Eng', value: 'English' },
     { label: 'Maths', value: 'Maths' },
@@ -155,6 +160,18 @@ function CreateStudyPlans() {
     { label: 'College', value: 'College' }
   ];
 
+  useEffect(() => {
+    const getTimeZoneOptions = () => {
+      const timezones = moment.tz.names();
+      const formattedOptions = timezones.map((timezone) => ({
+        value: timezone,
+        label: timezone
+      }));
+      setTzOptions(formattedOptions);
+    };
+
+    getTimeZoneOptions();
+  }, []);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState('');
   const handleDragEnter = (e) => {
@@ -233,7 +250,6 @@ function CreateStudyPlans() {
 
     // Check if the file size exceeds the limit
     if (file.size > fileSizeLimitBytes) {
-
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
@@ -264,7 +280,6 @@ function CreateStudyPlans() {
             setIsLoading(false);
             setSyllabusUrl(downloadURL);
             setFileName(snip(file.name));
-            console.log('done', downloadURL);
           });
         }
       );
@@ -402,9 +417,8 @@ function CreateStudyPlans() {
         }
       });
       syllabusData[weekIndex] = weekToUpdate;
-      console.log(`Week ${weekNumber} properties updated successfully.`);
     } else {
-      console.log(`Week ${weekNumber} not found.`);
+      // console.log(`Week ${weekNumber} not found.`);
     }
   }
   const updateMainTopic = (index, newMainTopic) => {
@@ -464,7 +478,6 @@ function CreateStudyPlans() {
   const deleteSubTopic = (weekIndex, subTopicIndex) => {
     const updatedSyllabusData = [...syllabusData];
     if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
-      console.log(updatedSyllabusData[weekIndex - 1], weekIndex, subTopicIndex);
       const mainTopic = updatedSyllabusData[weekIndex].topics[0];
 
       if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
@@ -516,7 +529,6 @@ function CreateStudyPlans() {
     let currentStartDate = moment(startDate, 'MM/DD/YYYY');
     let topicsRemaining = syllabusData.slice();
     let i = 0;
-    console.log(currentStartDate);
 
     const getLastMoment = (date) =>
       moment.max(moment(date, 'MM/DD/YYYY'), moment());
@@ -601,7 +613,8 @@ function CreateStudyPlans() {
             status: 'success',
             isClosable: true
           });
-          navigate('/dashboard/study-plans');
+          const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+          navigate(`${baseUrl}/study-plans`);
         } else {
           setLoading(false);
           toast({
@@ -637,8 +650,6 @@ function CreateStudyPlans() {
       });
     }
   };
-
-  console.log(syllabusData);
 
   const deleteTopicFromWeek = (weekIndex, topicIndex) => {
     const updatedStudyPlan = [...studyPlanData];
@@ -715,7 +726,6 @@ function CreateStudyPlans() {
     // Wait for all upload promises to resolve
     try {
       await Promise.all(uploadPromises);
-      console.log(downloadUrls);
       return downloadUrls;
     } catch (error) {
       // Handle any errors that occurred during uploads
@@ -850,14 +860,14 @@ function CreateStudyPlans() {
                 Shepherd
               </Text>
               <Text fontSize="sm" color="gray.600">
-                Just starting school
+                Study Planner
               </Text>
             </Box>
           </Flex>
           <Text fontSize="13px" my={2}>
-            Let's get you ready for test day. Just provide your topic or
+            Let's get you ready for test day. Just provide a subject or
             syllabus, and we'll create a tailored study schedule with resources
-            and reminders to make your learning efficient and effective.
+            and reminders to make your learning efficient and effective.{' '}
           </Text>
         </Box>
         {activeTab === 0 ? (
@@ -1039,46 +1049,6 @@ function CreateStudyPlans() {
               display="block"
               fontWeight={'semibold'}
             >
-              Select timezone
-            </Text>
-            <FormControl mb={8}>
-              <Menu isLazy>
-                <MenuButton
-                  as={Button}
-                  variant="outline"
-                  rightIcon={<FiChevronDown />}
-                  borderRadius="8px"
-                  fontSize="0.875rem"
-                  fontFamily="Inter"
-                  color="#212224"
-                  fontWeight="400"
-                  width="100%"
-                  height="42px"
-                  textAlign="left"
-                >
-                  {timezone}
-                </MenuButton>
-                <MenuList minWidth={'auto'} maxH={64} overflowY="scroll">
-                  {moment.tz.names().map((tz, index) => (
-                    <MenuItem
-                      fontSize="0.875rem"
-                      key={index}
-                      _hover={{ bgColor: '#F2F4F7' }}
-                      onClick={() => setTimezone(tz)}
-                    >
-                      {tz}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-            </FormControl>
-            <Text
-              as="label"
-              htmlFor="subjects"
-              mb={2}
-              display="block"
-              fontWeight={'semibold'}
-            >
               Enter your test dates
             </Text>
             <Flex direction={'column'} gap={2}>
@@ -1153,6 +1123,16 @@ function CreateStudyPlans() {
               <Icon as={FaPlus} mr={2} />
               Add Date
             </Button>{' '}
+            <Select
+              value={tzOptions.find((option) => option.value === timezone)}
+              onChange={(selectedOption) => setTimezone(selectedOption.value)}
+              options={tzOptions}
+              placeholder={'Select Timezone'}
+              getOptionLabel={(option) => option.label}
+              getOptionValue={(option) => option.value}
+              className="my-4"
+              // styles={customStyles}
+            />
             <Button
               colorScheme="blue"
               variant="solid"
@@ -1318,7 +1298,7 @@ function CreateStudyPlans() {
                                     addSubTopic(topicIndex, 'new sub topic')
                                   }
                                   my={2}
-                                  fontSize={10}
+                                  fontSize={12}
                                 >
                                   <Icon as={FaPlus} mr={2} />
                                   Add Subtopic
@@ -1326,9 +1306,9 @@ function CreateStudyPlans() {
                               </Flex>{' '}
                               <Divider my={2} />
                               <Flex justify="space-between" gap={1}>
-                                <Box color="green.500">
+                                {/* <Box color="green.500">
                                   <Icon as={FaCheckCircle} />
-                                </Box>
+                                </Box> */}
                                 <Flex
                                   direction="row"
                                   overflowX={'scroll'}
@@ -1427,7 +1407,7 @@ function CreateStudyPlans() {
                     <div className="text-center">
                       <img src="/images/notes.png" alt="" />
                       <Text color="#000000" fontSize={12}>
-                        You are yet to generate a syllabus!
+                        Looks like you haven't created a syllabus yet
                       </Text>
                     </div>
                   </section>

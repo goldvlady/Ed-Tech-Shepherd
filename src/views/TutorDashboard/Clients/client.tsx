@@ -86,7 +86,7 @@ export default function Client() {
                 to="/dashboard/tutordashboard/clients"
                 className="text-sm font-medium text-gray-400 hover:text-gray-700"
               >
-                Clients
+                Students
               </Link>
             </button>
           </li>
@@ -271,8 +271,8 @@ export default function Client() {
                   i
                 </div>
                 <Text className="text-sm">
-                  Initial payment will not be made until after the client
-                  reviews the offer after the first session. The client may
+                  Initial payment will not be made until after the student
+                  reviews the offer after the first session. The student may
                   decide to continue with you or withdraw the offer
                 </Text>
               </div>

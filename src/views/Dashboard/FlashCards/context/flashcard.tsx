@@ -571,7 +571,11 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         reqData.numQuestions = adjustedCount;
         data = data || ({} as FlashcardData);
-        reqData = { ...flashcardData, ...data, numQuestions: adjustedCount };
+        reqData = {
+          ...flashcardData,
+          ...data,
+          numQuestions: reqData.numQuestions
+        };
         setIsLoading(true);
         setQuestionGenerationStatus(QuestionGenerationStatusEnum.INIT);
         const aiData: AIRequestBody = {

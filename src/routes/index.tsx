@@ -132,6 +132,14 @@ const studentRoutes = [
   // { path: 'quizzes/take', element: <TakeQuizzes /> }
 ];
 
+const shareableRoutes = [
+  {
+    path: 'ace-homework/:id',
+    element: <HomeWorkHelp />
+  },
+  { path: 'study-plans/:planId', element: <CoursePlan /> }
+];
+
 const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
@@ -141,7 +149,13 @@ const tutorRoutes = [
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
   { path: 'tutordashboard/bounties/:bidId', element: <TutorBounties /> },
   { path: 'tutordashboard/account-settings', element: <TutorSettings /> },
-  { path: 'tutordashboard/messages', element: <Messaging /> }
+  { path: 'tutordashboard/messages', element: <Messaging /> },
+  { path: 'tutordashboard/create-study-plans', element: <CreateStudyPlans /> },
+  { path: 'tutordashboard/study-plans', element: <StudyPlans /> },
+  { path: 'tutordashboard/study-plans/:planId', element: <CoursePlan /> },
+  // { path: 'tutordashboard/flashcards/create', element: <CreateFlashCard /> },
+  { path: 'tutordashboard/flashcards/:id/edit', element: <EditFlashCard /> },
+  { path: 'tutordashboard/quizzes/create', element: <CreateQuizzes /> }
 ];
 
 const userLayouts = {
@@ -184,6 +198,7 @@ const AuthAction = (props: any) => {
 const userRoutes = {
   student: studentRoutes,
   tutor: tutorRoutes,
+  shareable: shareableRoutes,
   both: [
     ...[
       { path: 'ace-homework/:id', element: <HomeWorkHelp /> },
@@ -202,6 +217,12 @@ const RequireAuth = ({
   unAuthenticated: any;
 }) => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const isShareable = params.get('shareable');
+  const apiKey = params.get('apiKey');
+
+  const allowTempAccess = Boolean(isShareable && apiKey);
+
   const {
     state: { isAuthenticated, loading, user }
   } = useAuth();
@@ -214,10 +235,10 @@ const RequireAuth = ({
     );
   }
 
-  if (isAuthenticated && !user?.isVerified) {
+  if (isAuthenticated && !allowTempAccess && !user?.isVerified) {
     navigate('/verification_pending');
   }
-  return isAuthenticated ? authenticated : unAuthenticated;
+  return isAuthenticated || allowTempAccess ? authenticated : unAuthenticated;
 };
 
 const NotFound = () => {
@@ -232,6 +253,7 @@ const NotFound = () => {
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
+  const [params] = useSearchParams();
   const { fetchNotifications, fetchUserDocuments } = userStore();
   /* chameleon.io NPM script */
 
@@ -248,7 +270,10 @@ const AppRoutes: React.FC = () => {
     return userData?.userRole;
   }, [userData]);
 
-  const userRoute = userRoutes[userType];
+  let userRoute = userRoutes[userType] || [];
+  if (params.get('shareable')) {
+    userRoute = [...userRoutes.shareable, ...userRoute];
+  }
   const posthog = usePostHog();
 
   const RedirectToExternal = ({ url }) => {
