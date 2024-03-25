@@ -51,7 +51,6 @@ const ChatMessage = ({
           showDot={type === 'bot' && streaming}
           className="text-sm w-full py-2 px-4 font-normal"
         />
-
         {type === 'bot' && suggestionPromptsVisible && (
           <div className="question-suggestions absolute bottom-[-3.5rem] w-full flex gap-2">
             <div

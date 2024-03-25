@@ -80,7 +80,7 @@ function ChatRoom() {
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
-
+    console.log(connectionQuery);
     if (chatWindowParams && connectionQuery.topic !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
@@ -156,7 +156,7 @@ function ChatRoom() {
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
-
+  console.log(streamEnded, 'has the stream ended');
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -218,6 +218,7 @@ function ChatRoom() {
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
               if (subject === 'Math') {
+                console.log('make it?????');
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
                 const body = {
@@ -232,7 +233,6 @@ function ChatRoom() {
                 const q = encodeQueryParams(body);
                 sendMessage(message, 'math');
                 handleAutoScroll();
-
                 const startSSE = () => {
                   // Make a GET request to the SSE endpoint
                   fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
