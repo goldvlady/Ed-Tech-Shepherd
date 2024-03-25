@@ -30,6 +30,7 @@ function ImageUploader({
   const { getOcclusionCoordinates } = useAutomaticImageOcclusion();
   const [imageURI, setImageURI] = useState('');
   const [imageName, setImageName] = useState('');
+  const [error, setError] = useState('');
 
   console.log('imageURI', {
     imageURI,
@@ -70,16 +71,21 @@ function ImageUploader({
     if (enableAIOcclusion) {
       try {
         setLoadOcclusionGeneration(true);
-        const elements = await getOcclusionCoordinates(imageURI);
+        const { mergedEle: elements } = await getOcclusionCoordinates(imageURI);
         setLoadOcclusionGeneration(false);
         setImage(imageURI);
         setElements(elements);
         handleClose({});
         setImageName('');
         setEnableAIOcclusion(false);
+        setError('');
       } catch (error) {
-        console.error('Error ocurred during occlusion generation:', error);
-        // Handle the error here, such as displaying an error message to the user
+        if (error) {
+          setLoadOcclusionGeneration(false);
+          setImageName('');
+          setImageURI('');
+          setError('Something went wrong');
+        }
       }
     } else {
       setImage(imageURI);
@@ -159,9 +165,14 @@ function ImageUploader({
             </div>
             <p className="max-w-80 mx-auto text-[#585F68] text-sm font-normal">
               Shepherd supports{' '}
-              <span className="font-medium">.jpg, .jpeg & .png</span>{' '}
-              document formats. (Max file size 1MB)
+              <span className="font-medium">.jpg, .jpeg & .png</span> document
+              formats. (Max file size 1MB)
             </p>
+            {error && (
+              <p className="text-xs text-left w-full pl-10 text-red-600">
+                *{error}
+              </p>
+            )}
           </div>
           <div className="footer px-6 bg-[#F7F7F8] py-2.5">
             <div className="flex justify-between gap-2">
@@ -196,6 +207,8 @@ function ImageUploader({
                     handleClose({
                       formReset: true
                     });
+                    setEnableAIOcclusion(false);
+                    setLoadOcclusionGeneration(false);
                     setImageURI('');
                   }}
                 >
@@ -203,7 +216,7 @@ function ImageUploader({
                 </Button>
                 <Button
                   onClick={handleUpload}
-                  disabled={loadOcclusionGeneration}
+                  disabled={loadOcclusionGeneration || !imageURI}
                 >
                   {enableAIOcclusion && loadOcclusionGeneration && (
                     <ReloadIcon className="animate-spin mr-2" />

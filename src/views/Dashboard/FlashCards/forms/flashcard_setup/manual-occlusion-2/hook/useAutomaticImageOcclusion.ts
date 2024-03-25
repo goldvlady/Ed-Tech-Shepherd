@@ -82,17 +82,35 @@ function useAutomaticImageOcclusion() {
     const resizedImageURI = canvas.toDataURL('image/jpeg');
     console.log('resizedImageURI', resizedImageURI);
 
-    // Temp endpoint - later replace with original
-    const data = await fetch(
-      'https://deploy-preview-285--api-sheperdtutors.netlify.app/getOcclusionImageText',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ imageUri: resizedImageURI })
+    let data;
+    let error = '';
+    try {
+      const response = await fetch(
+        'https://deploy-preview-285--api-sheperdtutors.netlify.app/getOcclusionImageText',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ imageUri: resizedImageURI })
+        }
+      );
+
+      if (!response.ok) {
+        error = 'Something went wrong. Please try again later.';
+        throw new Error(
+          `There was a problem with the network request. Status: ${response.status}`
+        );
       }
-    ).then((res) => res.json());
+
+      data = await response.json();
+    } catch (error) {
+      error = 'Something went wrong. Please try again later.';
+      throw new Error(
+        'There was a problem fetching the occlusion coordinates. Please try again later.'
+      );
+    }
+
     const elements = data.data;
     console.log('elements', elements);
     let processedData = data.data.map((block, index) => {
@@ -108,7 +126,7 @@ function useAutomaticImageOcclusion() {
     });
     const mergedEle = clusterElements(processedData);
 
-    return mergedEle;
+    return { mergedEle, error };
   };
   return { getOcclusionCoordinates };
 }
