@@ -56,7 +56,7 @@ function OcclusionWorkSpace({
             <ResizableBox
               width={item.position.width}
               height={item.position.height}
-              minConstraints={[30, 30]}
+              minConstraints={[30, 20]}
               style={{
                 position: 'relative',
                 border: '1px solid black'

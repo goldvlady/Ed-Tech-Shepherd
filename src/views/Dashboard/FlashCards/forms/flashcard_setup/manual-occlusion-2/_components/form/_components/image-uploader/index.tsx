@@ -12,6 +12,62 @@ import { Switch } from '../../../../../../../../../../components/ui/switch';
 import { Label } from '../../../../../../../../../../components/ui/label';
 import useAutomaticImageOcclusion from '../../../../hook/useAutomaticImageOcclusion';
 
+function resizeImageToWindow(src, callback) {
+  const targetWidth = 714;
+  const targetHeight = 475;
+
+  // Create an image element
+  const img = new Image();
+
+  // Once the image is loaded, resize and create the data URI
+  img.onload = () => {
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Calculate the scaling factor to maintain aspect ratio
+    const scalingFactor = Math.min(
+      targetWidth / img.width,
+      targetHeight / img.height
+    );
+
+    // Calculate the new image size
+    const newWidth = img.width * scalingFactor;
+    const newHeight = img.height * scalingFactor;
+
+    // Set canvas size to target dimensions
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+
+    // Clear the canvas
+    ctx.clearRect(0, 0, targetWidth, targetHeight);
+
+    // Optional: fill the background if you want the empty area to have a color (e.g., white). Remove if transparency is desired.
+    ctx.fillStyle = '#ffffff'; // Background color
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+    // Draw the adjusted image in the center of the canvas
+    const xOffset = (targetWidth - newWidth) / 2; // xOffset for centering the image
+    const yOffset = (targetHeight - newHeight) / 2; // yOffset for centering the image
+
+    ctx.drawImage(img, xOffset, yOffset, newWidth, newHeight);
+
+    // Get the new image as a data URI
+    const dataURI = canvas.toDataURL('image/png');
+
+    // Return the data URI through a callback
+    callback(dataURI);
+  };
+
+  // Handle errors in loading the image
+  img.onerror = (error) => {
+    callback(null, error);
+  };
+
+  // Set the source of the image to trigger the load
+  img.src = src;
+}
+
 function ImageUploader({
   open,
   setImage,
@@ -47,7 +103,10 @@ function ImageUploader({
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageURI(reader.result as string);
+        resizeImageToWindow(reader.result as string, (dataURI) => {
+          console.log('dataURI', dataURI);
+          setImageURI(dataURI);
+        });
       };
       reader.readAsDataURL(file);
       setImageName(file.name);
@@ -79,6 +138,7 @@ function ImageUploader({
         setImageName('');
         setEnableAIOcclusion(false);
         setError('');
+        setImageURI('');
       } catch (error) {
         if (error) {
           setLoadOcclusionGeneration(false);
@@ -102,8 +162,8 @@ function ImageUploader({
         onOpenChange={(open) => {
           if (open) {
             handleOpen();
+            setImageName('');
           }
-          setImageName('');
         }}
       >
         <DialogTrigger asChild>
