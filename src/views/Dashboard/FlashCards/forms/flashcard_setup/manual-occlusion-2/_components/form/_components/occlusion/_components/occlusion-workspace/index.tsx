@@ -11,7 +11,8 @@ function OcclusionWorkSpace({
   itemClick,
   studyMode,
   studySessionStarted,
-  removeItem
+  removeItem,
+  setMode
 }: {
   imageURI: string;
   items: any[];
@@ -21,6 +22,7 @@ function OcclusionWorkSpace({
   studyMode?: boolean;
   studySessionStarted?: boolean;
   removeItem?: (index: number) => void;
+  setMode?: (mode: 'draggable' | 'resizable' | 'preview') => void;
 }) {
   return (
     <div
@@ -74,9 +76,16 @@ function OcclusionWorkSpace({
               handle={
                 <div
                   className={cn(
-                    'w-[10px] h-[10px] absolute bottom-0 right-0 cursor-se-resize',
-                    mode === 'resizable' ? 'block' : 'hidden'
+                    'w-[10px] h-[10px] absolute bottom-0 right-0 cursor-se-resize'
                   )}
+                  onMouseOver={(e) => {
+                    e.stopPropagation();
+                    setMode && setMode('resizable');
+                  }}
+                  onMouseLeave={(e) => {
+                    e.stopPropagation();
+                    setMode && setMode('draggable');
+                  }}
                 >
                   <CornerBottomRightIcon />
                 </div>

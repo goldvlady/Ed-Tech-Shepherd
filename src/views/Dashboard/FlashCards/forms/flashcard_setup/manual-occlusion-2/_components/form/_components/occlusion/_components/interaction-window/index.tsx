@@ -41,6 +41,7 @@ function InteractionWindow({
         mode={mode}
         setItems={setElements}
         removeItem={removeElement}
+        setMode={setMode}
       />
     </div>
   );
