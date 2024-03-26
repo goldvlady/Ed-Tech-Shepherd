@@ -119,21 +119,21 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
       <TableCell
-        className="font-medium text-[#207DF7] cursor-pointer hover:font-semibold"
+        className="font-medium text-[#207DF7] cursor-pointer hover:font-semibold text-center"
         onClick={() => handleOpen(row._id)}
       >
         {row.title}
       </TableCell>
-      <TableCell>{row.labels.length}</TableCell>
-      <TableCell>-</TableCell>
-      <TableCell>
+      <TableCell className='text-center'>{row.labels.length}</TableCell>
+      <TableCell className='text-center'>-</TableCell>
+      <TableCell className='text-center'>
         {/* 20-March-2024 */}
         {format(new Date(row.createdAt), 'd-MMMM-yyyy')}
       </TableCell>
-      <TableCell>
+      <TableCell className='text-center'>
         {format(new Date(row.updatedAt), 'd-MMMM-yyyy')}
       </TableCell>
-      <TableCell>
+      <TableCell className='text-center'>
         {row.percentages.passPercentage ? (
           <div
             className={`w-fit px-2 py-0.5 rounded bg-[${
@@ -386,12 +386,12 @@ const OcclusionFlashcardTab = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[200px]">Deckname</TableHead>
-            <TableHead>No. of Rectangles</TableHead>
-            <TableHead>Tags</TableHead>
-            <TableHead>Created At</TableHead>
-            <TableHead>Last attempted</TableHead>
-            <TableHead>Last attempted score</TableHead>
+            <TableHead className="w-[200px] text-center">Deckname</TableHead>
+            <TableHead className='text-center'>No. of Rectangles</TableHead>
+            <TableHead className='text-center'>Tags</TableHead>
+            <TableHead className='text-center'>Created At</TableHead>
+            <TableHead className='text-center'>Last attempted</TableHead>
+            <TableHead className='text-center'>Last attempted score</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
