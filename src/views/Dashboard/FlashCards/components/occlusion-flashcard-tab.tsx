@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ApiService from '../../../../services/ApiService';
 import {
   Table,
@@ -216,6 +216,7 @@ const initialState = {
 };
 
 const OcclusionFlashcardTab = () => {
+  const queryClient = useQueryClient();
   const [state, setState] = useState(initialState);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -225,7 +226,7 @@ const OcclusionFlashcardTab = () => {
     pagination.page
   );
 
-  const { data, isLoading, isFetching } = useQuery({
+  const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['image-occlusions', pagination.page, pagination.limit],
     queryFn: () =>
       ApiService.fetchOcclusionCards(pagination.page, pagination.limit).then(
@@ -246,6 +247,26 @@ const OcclusionFlashcardTab = () => {
     },
     refetchOnWindowFocus: false
   });
+
+  useEffect(() => {
+    if (isSuccess) {
+      for (let i = 0; i < 5; i++) {
+        const pageIndex = pagination.page + i;
+        const queryKey = ['image-occlusions', pageIndex, pagination.limit];
+
+        // Only prefetch if the data for this page is not already in the cache
+        if (!queryClient.getQueryData(queryKey)) {
+          queryClient.prefetchQuery({
+            queryKey,
+            queryFn: () =>
+              ApiService.fetchOcclusionCards(pageIndex, pagination.limit).then(
+                (res) => res.json()
+              )
+          });
+        }
+      }
+    }
+  }, [isSuccess, pagination.page, pagination.limit, queryClient]);
 
   const handleOpen = useCallback((id: string) => {
     setState((pS) => ({
