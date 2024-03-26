@@ -34,6 +34,7 @@ function ChatInfoDropdown({
     enabled: false,
     title: 'Chat title'
   });
+  const { setTitle } = useChatManager('homework-help');
   useStudentConversations({
     studentId: studentId,
     select: (data) => {
@@ -57,6 +58,7 @@ function ChatInfoDropdown({
   const { renameConversation, renaming, deleteConversationById, deleting } =
     useListItem({
       onRenameSuccess: (values: any) => {
+        setTitle(values.newTitle);
         setRenameMode(() => ({ title: values.newTitle, enabled: false }));
         toast({
           status: 'success',
