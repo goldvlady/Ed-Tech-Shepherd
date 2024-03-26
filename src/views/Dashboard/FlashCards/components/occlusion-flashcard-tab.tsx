@@ -57,16 +57,6 @@ const LoadingRow = () => (
   </TableRow>
 );
 
-const FetchingRow = () => (
-  <TableRow className="border-none p-0">
-    <TableCell colSpan={7} className="text-center">
-      <div className="w-full">
-        <Progress size="xs" isIndeterminate />
-      </div>
-    </TableCell>
-  </TableRow>
-);
-
 const DataRow = ({ row, handleOpen }) => {
   const queryClient = useQueryClient();
   const toast = useCustomToast();
@@ -127,7 +117,7 @@ const DataRow = ({ row, handleOpen }) => {
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
       <TableCell
-        className="font-medium text-[#207DF7] cursor-pointer"
+        className="font-medium text-[#207DF7] cursor-pointer hover:font-semibold"
         onClick={() => handleOpen(row._id)}
       >
         {row.title}
@@ -370,7 +360,6 @@ const OcclusionFlashcardTab = () => {
   return (
     <div className="w-full h-full pt-4">
       <Table>
-        {/* <TableCaption>List of Image Occlusion Flashcards</TableCaption> */}
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px]">Deckname</TableHead>
@@ -384,7 +373,6 @@ const OcclusionFlashcardTab = () => {
         </TableHeader>
 
         <TableBody>
-          {isFetching && !isLoading ? <FetchingRow /> : null}
           {isLoading
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
             : null}
