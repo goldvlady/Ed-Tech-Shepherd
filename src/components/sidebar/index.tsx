@@ -1,17 +1,11 @@
 import { Link } from 'react-router-dom';
 import Logo from '../Logo';
-import {
-  FiBarChart2,
-  FiBriefcase,
-  FiChevronDown,
-  FiHome,
-  FiMenu
-} from 'react-icons/fi';
+import { FiHome } from 'react-icons/fi';
 import { cn } from '../../library/utils';
 import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
 import { TbCards } from 'react-icons/tb';
-import { LuBot, LuFileQuestion } from 'react-icons/lu';
+import { LuFileQuestion } from 'react-icons/lu';
 import { PiClipboardTextLight } from 'react-icons/pi';
 import BarnImg from '../../assets/Barn.svg';
 import { MdOutlineFeedback } from 'react-icons/md';
@@ -23,7 +17,7 @@ import {
   AccordionTrigger
 } from '../ui/accordion';
 import { useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import { ChevronLeftIcon } from '@radix-ui/react-icons';
 
 const listItems = [
   { name: 'Library', icon: BsBook, path: '/dashboard/library', coming: false },
