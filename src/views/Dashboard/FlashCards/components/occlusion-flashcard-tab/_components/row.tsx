@@ -331,7 +331,14 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
   });
 
   useEffect(() => {
-    if (open) refetch();
+    if (open) {
+      const previous: {
+        card: { tags: [] };
+      } = queryClient.getQueryData(['occlusion-card', row._id]);
+      if (previous.card.tags.join(',') !== tags.join(',')) {
+        refetch();
+      }
+    }
   }, [open]);
 
   useEffect(() => {
