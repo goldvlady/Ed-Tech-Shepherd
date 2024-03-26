@@ -144,10 +144,57 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
                   className="hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleOpen(row._id)}
                 >
+                  <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                    <svg
+                      width="10"
+                      height="14"
+                      viewBox="0 0 10 14"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5.5835 5.83301H9.66683L4.41683 13.4163V8.16634H0.333496L5.5835 0.583008V5.83301Z"
+                        fill="#6E7682"
+                      />
+                    </svg>
+                  </div>
                   Study
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                  <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      width="12"
+                      height="12"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        fill="#6E7682"
+                        d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  Schedule
                 </DropdownMenuItem>
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                    <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                          fill="#F53535"
+                        />
+                      </svg>
+                    </div>
                     Delete
                   </DropdownMenuItem>
                 </AlertDialogTrigger>
