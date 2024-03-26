@@ -54,19 +54,6 @@ import {
   TabsList,
   TabsTrigger
 } from '../../../components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '../../../components/ui/table';
-import { useQuery } from '@tanstack/react-query';
-import ApiService from '../../../services/ApiService';
-import StudySession from './forms/flashcard_setup/manual-occlusion-2/_components/study-session';
-import OccResultsDialog from './forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 import OcclusionFlashcardTab from './components/occlusion-flashcard-tab';
 
 const StyledImage = styled(Box)`
@@ -92,70 +79,6 @@ type DataSourceItem = {
   currentStudy?: MinimizedStudy;
   tags: string[];
 };
-
-function findNextFlashcard(
-  flashcards: FlashcardData[]
-): FlashcardData | undefined {
-  // Order of preference for studyPeriods
-  const studyPeriodPreference = [
-    'daily',
-    'weekly',
-    'biweekly',
-    'spacedRepetition'
-  ];
-
-  // Sort flashcards based on studyPeriodPreference
-  const sortedFlashcards = flashcards.sort((a, b) => {
-    return (
-      studyPeriodPreference.indexOf(a.studyPeriod) -
-      studyPeriodPreference.indexOf(b.studyPeriod)
-    );
-  });
-
-  // Get today's date
-  const today = new Date();
-
-  // Go through sorted flashcards to find the one that should be loaded
-  for (const card of sortedFlashcards) {
-    // Get date of last attempt
-    const lastAttemptDate =
-      card.scores.length > 0
-        ? new Date(card.scores[card.scores.length - 1].date)
-        : undefined;
-
-    // Check if the flashcard should be attempted today based on its studyPeriod
-    switch (card.studyPeriod) {
-      case 'daily':
-        if (!lastAttemptDate || !isSameDay(lastAttemptDate, today)) {
-          return card;
-        }
-        break;
-      case 'weekly':
-        if (!lastAttemptDate || !isThisWeek(lastAttemptDate)) {
-          return card;
-        }
-        break;
-      case 'biweekly':
-        if (
-          !lastAttemptDate ||
-          !isThisWeek(lastAttemptDate) ||
-          getISOWeek(today) % 2 === 0
-        ) {
-          return card;
-        }
-        break;
-      case 'spacedRepetition':
-        // In case of spaced repetition, load the card only if it's due
-        // Here we need more information on how the spaced repetition should work
-        break;
-      default:
-        break;
-    }
-  }
-
-  // If no card is found, return undefined
-  return undefined;
-}
 
 interface Option {
   label: string;

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import ApiService from '../../../../services/ApiService';
+import ApiService from '../../../../../services/ApiService';
 import {
   Table,
   TableBody,
@@ -8,10 +8,10 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from '../../../../components/ui/table';
+} from '../../../../../components/ui/table';
 import { format } from 'date-fns';
-import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
-import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
+import StudySession from '../../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
+import OccResultsDialog from '../../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
 import { BsThreeDots } from 'react-icons/bs';
 import {
   DropdownMenu,
@@ -19,8 +19,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger
-} from '../../../../components/ui/dropdown-menu';
-import { Button } from '../../../../components/ui/button';
+} from '../../../../../components/ui/dropdown-menu';
+import { Button } from '../../../../../components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,8 +31,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger
-} from '../../../../components/ui/alert-dialog';
-import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+} from '../../../../../components/ui/alert-dialog';
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import {
   Pagination,
   PaginationContent,
@@ -41,8 +41,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious
-} from '../../../../components/ui/pagination';
-import { Input } from '../../../../components/ui/input';
+} from '../../../../../components/ui/pagination';
+import { Input } from '../../../../../components/ui/input';
 import { TrackNextIcon } from '@radix-ui/react-icons';
 
 const LoadingRow = () => (
@@ -124,16 +124,16 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
       >
         {row.title}
       </TableCell>
-      <TableCell className='text-center'>{row.labels.length}</TableCell>
-      <TableCell className='text-center'>-</TableCell>
-      <TableCell className='text-center'>
+      <TableCell className="text-center">{row.labels.length}</TableCell>
+      <TableCell className="text-center">-</TableCell>
+      <TableCell className="text-center">
         {/* 20-March-2024 */}
         {format(new Date(row.createdAt), 'd-MMMM-yyyy')}
       </TableCell>
-      <TableCell className='text-center'>
+      <TableCell className="text-center">
         {format(new Date(row.updatedAt), 'd-MMMM-yyyy')}
       </TableCell>
-      <TableCell className='text-center'>
+      <TableCell className="text-center">
         {row.percentages.passPercentage ? (
           <div
             className={`w-fit px-2 py-0.5 rounded bg-[${
@@ -387,11 +387,11 @@ const OcclusionFlashcardTab = () => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[200px] text-center">Deckname</TableHead>
-            <TableHead className='text-center'>No. of Rectangles</TableHead>
-            <TableHead className='text-center'>Tags</TableHead>
-            <TableHead className='text-center'>Created At</TableHead>
-            <TableHead className='text-center'>Last attempted</TableHead>
-            <TableHead className='text-center'>Last attempted score</TableHead>
+            <TableHead className="text-center">No. of Rectangles</TableHead>
+            <TableHead className="text-center">Tags</TableHead>
+            <TableHead className="text-center">Created At</TableHead>
+            <TableHead className="text-center">Last attempted</TableHead>
+            <TableHead className="text-center">Last attempted score</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
