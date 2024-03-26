@@ -4,7 +4,6 @@ import ApiService from '../../../../services/ApiService';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,7 +12,6 @@ import {
 import { format } from 'date-fns';
 import StudySession from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session';
 import OccResultsDialog from '../forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
-import { Progress } from '@chakra-ui/react';
 import { BsThreeDots } from 'react-icons/bs';
 import {
   DropdownMenu,
