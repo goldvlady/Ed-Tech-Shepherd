@@ -301,31 +301,41 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
   );
 };
 
+const updateCardTags = (oldData, rowId, tags) => {
+  return {
+    ...oldData,
+    data: oldData.data.map((item) => {
+      if (item._id === rowId) {
+        return {
+          ...item,
+          tags: tags
+        };
+      }
+      return item;
+    })
+  };
+};
+
 const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
   const queryClient = useQueryClient();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>('');
+
   const { isSuccess, data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['occlusion-card', row._id],
     queryFn: () =>
       ApiService.getOcclusionCard(row._id).then((res) => res.json()),
     enabled: Boolean(row._id),
-    select: (data) => {
-      return data.card.tags;
-    },
+    select: (data) => data.card.tags,
     refetchOnWindowFocus: false
   });
 
   useEffect(() => {
-    if (open) {
-      refetch();
-    }
+    if (open) refetch();
   }, [open]);
 
   useEffect(() => {
-    if (isSuccess) {
-      setTags(data);
-    }
+    if (isSuccess) setTags(data);
   }, [isSuccess, isLoading, isFetching]);
 
   const { mutate, isPending: isSubmittingTags } = useMutation({
@@ -336,30 +346,15 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
         queryKey: ['image-occlusions', page, limit]
       });
 
-      // Snapshot the previous value
       const previous = queryClient.getQueryData([
         'image-occlusions',
         page,
         limit
       ]);
-      queryClient.setQueryData(
-        ['image-occlusions', page, limit],
-        (old: { data: { _id: string }[] }) => {
-          return {
-            ...old,
-            // Update card tags
-            data: old.data.map((item) => {
-              if (item._id === row._id) {
-                return {
-                  ...item,
-                  tags: tags
-                };
-              }
-              return item;
-            })
-          };
-        }
+      queryClient.setQueryData(['image-occlusions', page, limit], (oldData) =>
+        updateCardTags(oldData, row._id, tags)
       );
+
       return { previous };
     }
   });
@@ -426,7 +421,8 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
                 <Badge
                   variant="default"
                   className={cn('text-xs', {
-                    'cursor-not-allowed opacity-70': isSubmittingTags || isFetching
+                    'cursor-not-allowed opacity-70':
+                      isSubmittingTags || isFetching
                   })}
                 >
                   {tag}
@@ -457,9 +453,7 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
           <Button
             size="sm"
             disabled={tags.length === 0 || isFetching || isSubmittingTags}
-            onClick={() => {
-              handleSave();
-            }}
+            onClick={handleSave}
           >
             {isSubmittingTags ? (
               <ReloadIcon className="mr-2 animate-spin" />
