@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '../../../../../../components/ui/dropdown-menu';
+import { Input } from '../../../../../../components/ui/input';
 import { TableCell, TableRow } from '../../../../../../components/ui/table';
 import { format } from 'date-fns';
 import {
@@ -24,6 +25,15 @@ import {
 } from '../../../../../../components/ui/alert-dialog';
 import { Button } from '../../../../../../components/ui/button';
 import { Badge } from '../../../../../../components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '../../../../../../components/ui/dialog';
+import { useState } from 'react';
 
 const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
@@ -149,101 +159,188 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
         )}
       </TableCell>
       <TableCell className="text-right flex justify-end h-full items-center">
-        <AlertDialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <BsThreeDots />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white">
-              <DropdownMenuGroup>
-                <DropdownMenuItem
-                  className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleOpen(row._id)}
-                >
-                  <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
-                    <svg
-                      width="10"
-                      height="14"
-                      viewBox="0 0 10 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M5.5835 5.83301H9.66683L4.41683 13.4163V8.16634H0.333496L5.5835 0.583008V5.83301Z"
-                        fill="#6E7682"
-                      />
-                    </svg>
-                  </div>
-                  Study
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
-                  <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      width="12"
-                      height="12"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        fill="#6E7682"
-                        d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  Schedule
-                </DropdownMenuItem>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+        <Dialog>
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <BsThreeDots />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    className="hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleOpen(row._id)}
+                  >
                     <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
                       <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 12 12"
+                        width="10"
+                        height="14"
+                        viewBox="0 0 10 14"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                          d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
-                          fill="#F53535"
+                          d="M5.5835 5.83301H9.66683L4.41683 13.4163V8.16634H0.333496L5.5835 0.583008V5.83301Z"
+                          fill="#6E7682"
                         />
                       </svg>
                     </div>
-                    Delete
+                    Study
                   </DropdownMenuItem>
-                </AlertDialogTrigger>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <AlertDialogContent className="bg-white">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-xs">
-                <p className="text-lg">Are you absolutely sure?</p>
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-stone-500">
-                This action cannot be undone. This will permanently delete the
-                occlusion flashcard deck.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="bg-error"
-                onClick={() => {
-                  mutate(row._id);
-                }}
-              >
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+                  <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                    <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        width="12"
+                        height="12"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          fill="#6E7682"
+                          d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Schedule
+                  </DropdownMenuItem>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                      <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            fill="#6E7682"
+                            d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      Edit Tags
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                      <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
+                            fill="#F53535"
+                          />
+                        </svg>
+                      </div>
+                      Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent className="bg-white">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-xs">
+                  <p className="text-lg">Are you absolutely sure?</p>
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-stone-500">
+                  This action cannot be undone. This will permanently delete the
+                  occlusion flashcard deck.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-error"
+                  onClick={() => {
+                    mutate(row._id);
+                  }}
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <EditTagsDialog page={page} limit={limit} />
+        </Dialog>
       </TableCell>
     </TableRow>
+  );
+};
+
+const EditTagsDialog = ({ page, limit }) => {
+  const queryClient = useQueryClient();
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState<string>('');
+
+  const handleAddTag = () => {
+    if (!tagInput || tagInput.trim().length === 0) return;
+    setTags((prev) => [...prev, tagInput]);
+    setTagInput('');
+  };
+
+  const handleDeleteTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
+
+  const handleSave = () => {
+    alert('Temp Save');
+  };
+
+  return (
+    <DialogContent className="sm:max-w-[425px] bg-white">
+      <DialogHeader className="text-sm">
+        <DialogTitle className="text-sm">
+          <p className="text-lg">Edit Tags</p>
+        </DialogTitle>
+      </DialogHeader>
+      <div className="w-full flex flex-col gap-2">
+        <Input
+          placeholder="Add a tag and press enter"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleAddTag();
+          }}
+        />
+        <div className="flex gap-2 flex-wrap">
+          {tags.map((tag) => (
+            <Badge variant="default" className="text-xs">
+              {tag}
+              <span
+                onClick={() => handleDeleteTag(tag)}
+                className="ml-2 cursor-pointer"
+              >
+                &times;
+              </span>
+            </Badge>
+          ))}
+        </div>
+      </div>
+      <DialogFooter>
+        <Button
+          disabled={tags.length === 0}
+          onClick={() => {
+            handleSave();
+          }}
+        >
+          Save
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   );
 };
 
