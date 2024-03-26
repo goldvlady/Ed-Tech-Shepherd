@@ -67,7 +67,13 @@ function AiChatBotWindow() {
   const handleClosePlansModal = () => {
     setPlansModalOpen(false);
   };
-
+  useEffect(() => {
+    // "ping" the endpoint
+    console.log('PING ->');
+    fetch(`${process.env.REACT_APP_AI_II}`)
+      .then((resp) => resp.json())
+      .catch((err) => console.error(JSON.stringify(err), 'error'));
+  }, []);
   useEffect(() => {
     if (conversationId) {
       setChatWindowParams({ connectionQuery, isNewWindow: true });

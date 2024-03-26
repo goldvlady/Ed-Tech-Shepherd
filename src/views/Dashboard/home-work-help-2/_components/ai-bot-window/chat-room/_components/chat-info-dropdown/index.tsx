@@ -14,12 +14,22 @@ import useUserStore from '../../../../../../../../state/userStore';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { cn } from '../../../../../../../../library/utils';
 import { useNavigate } from 'react-router';
+import useChatManager from '../../../hooks/useChatManager';
 
-function ChatInfoDropdown({ id, disabled }: { id: string; disabled: boolean }) {
+function ChatInfoDropdown({
+  id,
+  disabled,
+  title
+}: {
+  id: string;
+  disabled: boolean;
+  title: string | null;
+}) {
   const toast = useCustomToast();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const studentId = useUserStore((state) => state.user?._id);
+
   const [renameMode, setRenameMode] = useState({
     enabled: false,
     title: 'Chat title'
@@ -35,7 +45,7 @@ function ChatInfoDropdown({ id, disabled }: { id: string; disabled: boolean }) {
           renameMode.title !== conversation.title
         ) {
           setRenameMode((prev) => ({
-            title: conversation.title ?? 'Chat title',
+            title: conversation.title ?? title ?? 'Chat title',
             enabled: false
           }));
         }
@@ -102,7 +112,7 @@ function ChatInfoDropdown({ id, disabled }: { id: string; disabled: boolean }) {
                 'cursor-not-allowed': renaming && deleting
               })}
             >
-              <ConversationTitle title={renameMode.title} />
+              <ConversationTitle title={title ?? renameMode.title} />
             </div>
           </DropdownMenuTrigger>
         )}

@@ -1,6 +1,6 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
 import useChatManager from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
@@ -25,7 +25,6 @@ function ChatRoom() {
 
   const studentId = user?._id;
   const query = useQueryClient();
-  let accumulatedBuffer = '';
 
   const [openPricingModel, setOpenPricingModel] = useState(false); // It will open when conversation is in share mode and user try to chat
 
@@ -34,12 +33,14 @@ function ChatRoom() {
     conversationId,
     messages,
     currentChat,
+    title,
     sendMessage,
     setCurrentChat,
     fetchHistory,
     onEvent,
     currentSocket,
     getChatWindowParams,
+    setTitle,
     ...rest
   } = useChatManager('homework-help', {
     autoHydrateChat: true,
@@ -48,41 +49,115 @@ function ChatRoom() {
 
   const [autoScroll, setAutoScroll] = useState(true);
   const [streamEnded, setStreamEnded] = useState(true);
-  const [streamStarted, setStreamStarted] = useState(false);
+  const isFirstRun = useRef(true);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
   useEffect(() => {
-    const chatWindowParams = getChatWindowParams();
-    const { connectionQuery } = chatWindowParams;
-    if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
-      // on streamEnded use useQuery's refetch function to fetch title
-      const b = {
-        ...connectionQuery,
-        studentId,
-        firebaseid: user.firebaseId,
-        name: user.name.first,
-        query: '',
-        messages: JSON.stringify([])
-      };
-      const q = encodeQueryParams(b);
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      const chatWindowParams = getChatWindowParams();
+      const { connectionQuery } = chatWindowParams;
+      if (
+        hasInitialMessagesParam &&
+        connectionQuery.subject === 'Math' &&
+        user
+      ) {
+        // on streamEnded use useQuery's refetch function to fetch title
+        const b = {
+          ...connectionQuery,
+          studentId,
+          conversationId: id,
+          firebaseId: user?.firebaseId,
+          name: user.name.first,
+          query: '',
+          messages: JSON.stringify([])
+        };
+        const q = encodeQueryParams(b);
+        const newSearchParams = new URLSearchParams(location.search);
+        newSearchParams.delete('initial_messages');
+        window.history.replaceState(
+          {},
+          '',
+          `${location.pathname}?${newSearchParams.toString()}`
+        );
+        console.log('how many times');
+        setStreamEnded(false);
+        const startSSE = () => {
+          // Make a GET request to the SSE endpoint
+          fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              Connection: 'keep-alive',
+              'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+            }
+          })
+            .then((response) => {
+              // Check if the response is OK, before continuing
+              if (!response.ok) {
+                throw new Error('Failed to connect to SSE endpoint');
+              }
 
-      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
-      const newSearchParams = new URLSearchParams(location.search);
-      newSearchParams.delete('initial_messages');
-      window.history.replaceState(
-        {},
-        '',
-        `${location.pathname}?${newSearchParams.toString()}`
-      );
+              // Start processing incoming events
+              const reader = response.body.getReader();
+              const decoder = new TextDecoder('utf-8');
+              let buffer = '';
+
+              reader.read().then(function processText({ done, value }) {
+                if (done) {
+                  // delay a bit and then fetch the title
+                  setTimeout(() => {
+                    fetch(
+                      `${process.env.REACT_APP_AI_II}/conversations/title/?id=${id}`,
+                      {
+                        headers: {
+                          'X-Shepherd-Header':
+                            process.env.REACT_APP_AI_HEADER_KEY
+                        }
+                      }
+                    )
+                      .then((resp) => resp.json())
+                      .then(async (d: { data: string }) => {
+                        setTitle(d.data);
+                        await query.invalidateQueries({
+                          queryKey: ['chatHistory', { studentId }]
+                        });
+                      });
+                  }, 700);
+                  setStreamEnded(true);
+                  return;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+
+                handleSSE(buffer);
+                setAutoScroll(true);
+
+                return reader.read().then(processText);
+              });
+            })
+            .catch((error) => {
+              setStreamEnded(true);
+            });
+        };
+        startSSE();
+
+        fetchHistory(30, 0, id);
+        query.invalidateQueries({
+          queryKey: ['chatHistory', { studentId }]
+        });
+        setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, hasInitialMessagesParam, id]);
+  }, []);
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
-    console.log(connectionQuery);
-    if (chatWindowParams && connectionQuery.topic !== 'Math') {
-      const { isNewWindow, connectionQuery } = chatWindowParams;
 
+    if (chatWindowParams && connectionQuery.subject !== 'Math') {
+      const { isNewWindow, connectionQuery } = chatWindowParams;
+      console.log('here?');
       startConversation(
         {
           studentId: user._id,
@@ -107,6 +182,9 @@ function ChatRoom() {
         }
       );
     } else {
+      console.log('????');
+      console.log(id);
+      console.log('subject ->', subject);
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
@@ -119,7 +197,7 @@ function ChatRoom() {
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
-    if (!currentChat) {
+    if (currentChat.length <= 0) {
       return ''; // Don't render anything if there's no current chat content
     }
 
@@ -136,21 +214,22 @@ function ChatRoom() {
   const handleAutoScroll = () => {
     setAutoScroll(true);
   };
-  const handleSSE = async (incomingBuffer: string) => {
-    const buffer = accumulatedBuffer + incomingBuffer;
-
+  const handleSSE = async (buffer: string) => {
     if (buffer.includes('done with stream')) {
-      await fetchHistory(30, 0, id);
-      setStreamEnded(true);
-      setAutoScroll(true);
+      console.log('done with stream');
+
+      setTimeout(async () => {
+        await fetchHistory(30, 0, id);
+        setStreamEnded(true);
+        setAutoScroll(true);
+      }, 700);
+
       return;
     }
 
     // Append the streamed text data to the current state
-    setCurrentChat(incomingBuffer);
+    setCurrentChat(buffer);
     setAutoScroll(true);
-
-    accumulatedBuffer = buffer.substring(buffer.lastIndexOf('\n\n') + 2);
   };
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
@@ -166,7 +245,11 @@ function ChatRoom() {
           }}
         ></div>
         <header className="flex justify-center absolute top-[4%] items-center w-full z-10">
-          <ChatInfoDropdown id={id} disabled={apiKey ? true : false} />
+          <ChatInfoDropdown
+            title={title}
+            id={id}
+            disabled={apiKey ? true : false}
+          />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
@@ -223,7 +306,8 @@ function ChatRoom() {
                 const body = {
                   ...connectionQuery,
                   studentId,
-                  firebaseid: user.firebaseId,
+                  firebaseId: user.firebaseId,
+                  conversationId: id,
                   name: user.name.first,
                   query: message,
                   messages: JSON.stringify(messages.map((el) => el.log))
