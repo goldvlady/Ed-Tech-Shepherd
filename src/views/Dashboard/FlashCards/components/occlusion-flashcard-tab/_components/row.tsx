@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCustomToast } from '../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../../../../services/ApiService';
 import { BsThreeDots } from 'react-icons/bs';
@@ -33,11 +33,16 @@ import {
   DialogTitle,
   DialogTrigger
 } from '../../../../../../components/ui/dialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
   const toast = useCustomToast();
+  const [tagsDialogState, setTagsDialogState] = useState({
+    open: false,
+    id: ''
+  });
   const { mutate } = useMutation({
     mutationFn: (id: string) => ApiService.deleteOcclusionCard(id),
     onSuccess: () => {
@@ -208,27 +213,33 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
                     </div>
                     Schedule
                   </DropdownMenuItem>
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
-                      <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            fill="#6E7682"
-                            d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                      Edit Tags
-                    </DropdownMenuItem>
-                  </DialogTrigger>
+                  <DropdownMenuItem
+                    className="hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setTagsDialogState({
+                        open: true,
+                        id: row._id
+                      });
+                    }}
+                  >
+                    <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          fill="#6E7682"
+                          d="M5.25 2.25a3 3 0 00-3 3v4.318a3 3 0 00.879 2.121l9.58 9.581c.92.92 2.39 1.186 3.548.428a18.849 18.849 0 005.441-5.44c.758-1.16.492-2.629-.428-3.548l-9.58-9.581a3 3 0 00-2.122-.879H5.25zM6.375 7.5a1.125 1.125 0 100-2.25 1.125 1.125 0 000 2.25z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    Edit Tags
+                  </DropdownMenuItem>
                   <AlertDialogTrigger asChild>
                     <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
                       <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
@@ -274,17 +285,86 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <EditTagsDialog page={page} limit={limit} />
+          <EditTagsDialog
+            page={page}
+            limit={limit}
+            row={row}
+            open={tagsDialogState.open}
+            handleClose={() =>
+              setTagsDialogState({ open: false, id: tagsDialogState.id })
+            }
+          />
         </Dialog>
       </TableCell>
     </TableRow>
   );
 };
 
-const EditTagsDialog = ({ page, limit }) => {
+const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
   const queryClient = useQueryClient();
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>('');
+  const { isSuccess, data, isLoading, isFetching, refetch } = useQuery({
+    queryKey: ['occlusion-card', row._id],
+    queryFn: () =>
+      ApiService.getOcclusionCard(row._id).then((res) => res.json()),
+    enabled: Boolean(row._id),
+    select: (data) => {
+      return data.card.tags;
+    },
+    refetchOnWindowFocus: false
+  });
+
+  useEffect(() => {
+    if (open) {
+      refetch();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      setTags(data);
+    }
+  }, [isSuccess, isLoading, isFetching]);
+
+  const { mutate, isPending: isSubmittingTags } = useMutation({
+    mutationFn: (data: { card: {}; percentages: {} }) =>
+      ApiService.editOcclusionCard(data.card).then((res) => res.json()),
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({
+        queryKey: ['image-occlusions', page, limit]
+      });
+
+      // Snapshot the previous value
+      const previous = queryClient.getQueryData([
+        'image-occlusions',
+        page,
+        limit
+      ]);
+      queryClient.setQueryData(
+        ['image-occlusions', page, limit],
+        (old: { data: { _id: string }[] }) => {
+          return {
+            ...old,
+            // Update card tags
+            data: old.data.map((item) => {
+              if (item._id === row._id) {
+                return {
+                  ...item,
+                  tags: tags
+                };
+              }
+              return item;
+            })
+          };
+        }
+      );
+      handleClose();
+      setTags([]);
+      setTagInput('');
+      return { previous };
+    }
+  });
 
   const handleAddTag = () => {
     if (!tagInput || tagInput.trim().length === 0) return;
@@ -297,50 +377,92 @@ const EditTagsDialog = ({ page, limit }) => {
   };
 
   const handleSave = () => {
-    alert('Temp Save');
+    mutate(
+      {
+        card: {
+          ...row,
+          tags: tags
+        },
+        percentages: {}
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ['image-occlusions', page, limit]
+          });
+          handleClose();
+          setTags([]);
+          setTagInput('');
+        }
+      }
+    );
   };
 
   return (
-    <DialogContent className="sm:max-w-[425px] bg-white">
-      <DialogHeader className="text-sm">
-        <DialogTitle className="text-sm">
-          <p className="text-lg">Edit Tags</p>
-        </DialogTitle>
-      </DialogHeader>
-      <div className="w-full flex flex-col gap-2">
-        <Input
-          placeholder="Add a tag and press enter"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleAddTag();
-          }}
-        />
-        <div className="flex gap-2 flex-wrap">
-          {tags.map((tag) => (
-            <Badge variant="default" className="text-xs">
-              {tag}
-              <span
-                onClick={() => handleDeleteTag(tag)}
-                className="ml-2 cursor-pointer"
-              >
-                &times;
-              </span>
-            </Badge>
-          ))}
+    <Dialog open={open}>
+      <DialogContent className="sm:max-w-[425px] bg-white">
+        <DialogHeader className="text-sm">
+          <DialogTitle className="text-sm">
+            <p className="text-lg">Edit Tags</p>
+          </DialogTitle>
+        </DialogHeader>
+        <div className="w-full flex flex-col gap-2">
+          <Input
+            placeholder="Add a tag and press enter"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleAddTag();
+            }}
+          />
+          <div className="">
+            {isFetching && (
+              <p className="text-xs flex gap-2">
+                Fetching latest tags in background{' '}
+                <ReloadIcon className="animate-spin" />
+              </p>
+            )}
+            <div className="flex gap-2 flex-wrap">
+              {tags.map((tag) => (
+                <Badge variant="default" className="text-xs">
+                  {tag}
+                  <span
+                    onClick={() => handleDeleteTag(tag)}
+                    className="ml-2 cursor-pointer"
+                  >
+                    &times;
+                  </span>
+                </Badge>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-      <DialogFooter>
-        <Button
-          disabled={tags.length === 0}
-          onClick={() => {
-            handleSave();
-          }}
-        >
-          Save
-        </Button>
-      </DialogFooter>
-    </DialogContent>
+        <DialogFooter>
+          <Button
+            size="sm"
+            onClick={() => {
+              handleClose();
+              setTags([]);
+              setTagInput('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            disabled={tags.length === 0 || isFetching}
+            onClick={() => {
+              handleSave();
+            }}
+          >
+            {isSubmittingTags ? (
+              <ReloadIcon className="mr-2 animate-spin" />
+            ) : null}
+            {isSubmittingTags ? 'Submitting' : 'Save'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
