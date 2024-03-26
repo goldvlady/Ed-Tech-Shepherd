@@ -127,10 +127,11 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
       <TableCell>{row.labels.length}</TableCell>
       <TableCell>-</TableCell>
       <TableCell>
-        {format(new Date(row.createdAt), 'MMM d, yy h:mm a')}
+        {/* 20-March-2024 */}
+        {format(new Date(row.createdAt), 'd-MMMM-yyyy')}
       </TableCell>
       <TableCell>
-        {format(new Date(row.updatedAt), 'MMM d, yy h:mm a')}
+        {format(new Date(row.updatedAt), 'd-MMMM-yyyy')}
       </TableCell>
       <TableCell>
         {row.percentages.passPercentage ? (
@@ -398,16 +399,15 @@ const OcclusionFlashcardTab = () => {
         <TableBody>
           {isLoading
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
-            : null}
-          {data?.list.map((row) => (
-            <DataRow
-              key={row._id}
-              row={row}
-              handleOpen={handleOpen}
-              page={pagination.page}
-              limit={pagination.limit}
-            />
-          ))}
+            : data?.list.map((row) => (
+                <DataRow
+                  key={row._id}
+                  row={row}
+                  handleOpen={handleOpen}
+                  page={pagination.page}
+                  limit={pagination.limit}
+                />
+              ))}
         </TableBody>
       </Table>
       <div className="flex items-center justify-end space-x-2 py-4">
