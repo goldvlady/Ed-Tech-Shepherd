@@ -55,14 +55,14 @@ const LoadingRow = () => (
   </TableRow>
 );
 
-const DataRow = ({ row, handleOpen }) => {
+const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationFn: (id: string) => ApiService.deleteOcclusionCard(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['image-occlusions']
+        queryKey: ['image-occlusions', page, limit]
       });
       toast({
         title: 'Occlusion flashcard deleted',
@@ -71,13 +71,17 @@ const DataRow = ({ row, handleOpen }) => {
     },
     onMutate: async (variables) => {
       await queryClient.cancelQueries({
-        queryKey: ['image-occlusions']
+        queryKey: ['image-occlusions', page, limit]
       });
 
       // Snapshot the previous value
-      const previous = queryClient.getQueryData(['image-occlusions']);
+      const previous = queryClient.getQueryData([
+        'image-occlusions',
+        page,
+        limit
+      ]);
       queryClient.setQueryData(
-        ['image-occlusions'],
+        ['image-occlusions', page, limit],
         (old: { data: { _id: string }[] }) => {
           return {
             ...old,
@@ -396,7 +400,13 @@ const OcclusionFlashcardTab = () => {
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
             : null}
           {data?.list.map((row) => (
-            <DataRow key={row._id} row={row} handleOpen={handleOpen} />
+            <DataRow
+              key={row._id}
+              row={row}
+              handleOpen={handleOpen}
+              page={pagination.page}
+              limit={pagination.limit}
+            />
           ))}
         </TableBody>
       </Table>
