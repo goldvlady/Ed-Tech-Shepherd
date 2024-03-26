@@ -153,9 +153,15 @@ const useChatManager = (
 
   // useCallback for sending messages through the WebSocket and updating the local state
   const sendMessage = useCallback(
-    (message: string, topic: 'math' | 'rest' = 'rest') => {
+    (
+      message: string,
+      topic: 'math' | 'rest' = 'rest',
+      role: 'assistant' | 'user' = 'user'
+    ) => {
       if (topic === 'math') {
-        const newMessage = formatMessage(message);
+        const newMessage = formatMessage(message, role);
+        console.log(newMessage, 'new bot');
+        setCurrentChat('');
         setMessages((prevMessages) => [...prevMessages, newMessage]);
         return;
       }
@@ -226,11 +232,13 @@ const useChatManager = (
           const data = await ApiService.getConversionById({
             conversationId: id
           });
+          console.log('no freaking way', data);
           setCurrentChat('');
           setMessages((prevMessages) => {
             if (offset === 0) {
               // When offset is 0, replace the first X messages with new data,
               // where X is the length of the data received.
+              console.log([...data, ...prevMessages.slice(data.length)]);
               return [...data, ...prevMessages.slice(data.length)];
             } else {
               // When offset isn't 0, replace messages starting from the offset position
@@ -458,7 +466,8 @@ const useChatManager = (
     limitReached,
     resetLimitReached,
     disconnectSocket,
-    setTitle
+    setTitle,
+    setConversationId
   };
 };
 
