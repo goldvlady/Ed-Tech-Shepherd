@@ -41,6 +41,7 @@ function ChatRoom() {
     currentSocket,
     getChatWindowParams,
     setTitle,
+    setConversationId,
     ...rest
   } = useChatManager('homework-help', {
     autoHydrateChat: true,
@@ -61,7 +62,7 @@ function ChatRoom() {
         connectionQuery.subject === 'Math' &&
         user
       ) {
-        // on streamEnded use useQuery's refetch function to fetch title
+        setConversationId(id);
         const b = {
           ...connectionQuery,
           studentId,
@@ -197,7 +198,7 @@ function ChatRoom() {
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
-    if (currentChat.length <= 0) {
+    if (currentChat.length === 0) {
       return ''; // Don't render anything if there's no current chat content
     }
 
@@ -216,13 +217,19 @@ function ChatRoom() {
   };
   const handleSSE = async (buffer: string) => {
     if (buffer.includes('done with stream')) {
-      console.log('done with stream');
-
+      console.log('done with stream', buffer.split('done with stream')[0]);
+      console.log('the current chat is', currentChat);
+      sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
       setTimeout(async () => {
-        await fetchHistory(30, 0, id);
-        setStreamEnded(true);
-        setAutoScroll(true);
-      }, 700);
+        try {
+          await fetchHistory(30, 0, id);
+          setStreamEnded(true);
+          setAutoScroll(true);
+        } catch (error) {
+          setStreamEnded(true);
+          setAutoScroll(true);
+        }
+      }, 500);
 
       return;
     }
