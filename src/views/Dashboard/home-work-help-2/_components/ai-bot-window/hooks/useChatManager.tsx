@@ -179,7 +179,7 @@ const useChatManager = (
         setLoading(true);
         const id = convoId || conversationId;
 
-        if (!socketRef.current || !id) {
+        if (!socketRef.current && !id) {
           console.error(
             'Socket is not initialized or conversationId is not set.'
           );
@@ -191,7 +191,8 @@ const useChatManager = (
             conversationId: id,
             apiKey
           });
-
+          // reset as we have messages
+          setCurrentChat('');
           setMessages((prevMessages) => {
             if (offset === 0) {
               // When offset is 0, replace the first X messages with new data,
@@ -221,10 +222,11 @@ const useChatManager = (
           if (!token) {
             navigate('/signup');
           }
+
           const data = await ApiService.getConversionById({
             conversationId: id
           });
-
+          setCurrentChat('');
           setMessages((prevMessages) => {
             if (offset === 0) {
               // When offset is 0, replace the first X messages with new data,
@@ -455,7 +457,8 @@ const useChatManager = (
     currentSocket: socketRef?.current,
     limitReached,
     resetLimitReached,
-    disconnectSocket
+    disconnectSocket,
+    setTitle
   };
 };
 
