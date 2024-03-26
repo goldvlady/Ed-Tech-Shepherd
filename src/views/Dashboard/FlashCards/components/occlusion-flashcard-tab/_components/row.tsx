@@ -9,14 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '../../../../../../components/ui/dropdown-menu';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '../../../../../../components/ui/table';
+import { TableCell, TableRow } from '../../../../../../components/ui/table';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -30,6 +23,7 @@ import {
   AlertDialogTrigger
 } from '../../../../../../components/ui/alert-dialog';
 import { Button } from '../../../../../../components/ui/button';
+import { Badge } from '../../../../../../components/ui/badge';
 
 const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
@@ -101,9 +95,33 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
         {row.title}
       </TableCell>
       <TableCell className="text-center">{row.labels.length}</TableCell>
-      <TableCell className="text-center">-</TableCell>
       <TableCell className="text-center">
-        {/* 20-March-2024 */}
+        <div className="flex flex-wrap gap-2">
+          {row.tags.map((tag) => (
+            <Badge className="bg-[hsl(240 4.8% 95.9%)] flex items-center justify-center w-fit">
+              <div className="w-5 h-5">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-tag"
+                >
+                  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+                  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+                </svg>
+              </div>
+              <p>{tag}</p>
+            </Badge>
+          ))}
+        </div>
+      </TableCell>
+      <TableCell className="text-center">
         {format(new Date(row.createdAt), 'd-MMMM-yyyy')}
       </TableCell>
       <TableCell className="text-center">
