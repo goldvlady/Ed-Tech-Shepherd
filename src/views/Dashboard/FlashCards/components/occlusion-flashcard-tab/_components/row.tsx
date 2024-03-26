@@ -35,6 +35,7 @@ import {
 } from '../../../../../../components/ui/dialog';
 import { useEffect, useState } from 'react';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { cn } from '../../../../../../library/utils';
 
 const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
@@ -359,9 +360,6 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
           };
         }
       );
-      handleClose();
-      setTags([]);
-      setTagInput('');
       return { previous };
     }
   });
@@ -414,6 +412,7 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAddTag();
             }}
+            disabled={isSubmittingTags || isFetching}
           />
           <div className="">
             {isFetching && (
@@ -424,11 +423,18 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
             )}
             <div className="flex gap-2 flex-wrap">
               {tags.map((tag) => (
-                <Badge variant="default" className="text-xs">
+                <Badge
+                  variant="default"
+                  className={cn('text-xs', {
+                    'cursor-not-allowed opacity-70': isSubmittingTags || isFetching
+                  })}
+                >
                   {tag}
                   <span
                     onClick={() => handleDeleteTag(tag)}
-                    className="ml-2 cursor-pointer"
+                    className={cn('ml-2 cursor-pointer', {
+                      'pointer-events-none': isSubmittingTags || isFetching
+                    })}
                   >
                     &times;
                   </span>
@@ -450,7 +456,7 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
           </Button>
           <Button
             size="sm"
-            disabled={tags.length === 0 || isFetching}
+            disabled={tags.length === 0 || isFetching || isSubmittingTags}
             onClick={() => {
               handleSave();
             }}
