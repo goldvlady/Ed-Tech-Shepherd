@@ -82,7 +82,7 @@ const OcclusionFlashcardTab = () => {
   const [paginationUserInput, setPaginationUserInput] = useState(
     pagination.page
   );
-  const [sortByFilter, setSortByFilter] = useState('');
+  const [filterBy, setFilterBy] = useState('');
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['image-occlusions', pagination.page, pagination.limit],
@@ -245,17 +245,17 @@ const OcclusionFlashcardTab = () => {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button className="bg-white" variant="outline">
-              {sortByFilter ? sortByFilter : 'Sort By'}{' '}
+              {filterBy ? filterBy : 'Filter By Tag'}{' '}
               <ArrowUpDownIcon className="ml-2" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-white">
             <DropdownMenuItem
               className={cn('hover:bg-gray-100', {
-                'bg-gray-200': sortByFilter === ''
+                'bg-gray-200': filterBy === ''
               })}
               onClick={() => {
-                setSortByFilter('');
+                setFilterBy('');
               }}
             >
               None
@@ -264,10 +264,10 @@ const OcclusionFlashcardTab = () => {
               <DropdownMenuItem
                 key={tag}
                 className={cn('hover:bg-gray-100', {
-                  'bg-gray-200': sortByFilter === tag
+                  'bg-gray-200': filterBy === tag
                 })}
                 onClick={() => {
-                  setSortByFilter(tag);
+                  setFilterBy(tag);
                 }}
               >
                 {tag}
@@ -293,7 +293,7 @@ const OcclusionFlashcardTab = () => {
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
             : data?.list
                 .filter((row) =>
-                  sortByFilter ? row.tags.includes(sortByFilter) : row
+                  filterBy ? row.tags.includes(filterBy) : row
                 )
                 .map((row) => (
                   <DataRow
