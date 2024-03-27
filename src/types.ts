@@ -179,6 +179,7 @@ export interface User extends TimestampedEntity {
   isTutor?: boolean;
   type: any;
   stripeCustomerId?: string;
+  nylasGrantId?: string;
   signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
