@@ -115,7 +115,7 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
         <div className="flex flex-wrap gap-2">
           {row.tags.map((tag) => (
             <Badge className="bg-[hsl(240 4.8% 95.9%)] flex items-center justify-center w-fit">
-              <div className="w-5 h-5">
+              <div className="w-[16px] h-[16px] mr-1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
