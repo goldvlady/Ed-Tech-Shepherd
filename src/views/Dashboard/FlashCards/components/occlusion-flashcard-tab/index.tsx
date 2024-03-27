@@ -111,7 +111,7 @@ const OcclusionFlashcardTab = () => {
     },
     refetchOnWindowFocus: false
   });
-  const [sortOption, setSortOption] = useState(SortOptions.DECKNAME); // The selected sort option
+  const [sortOption, setSortOption] = useState(SortOptions.CREATED_AT); // The selected sort option
 
   ''.toLowerCase;
   const getSortedData = (data) => {
