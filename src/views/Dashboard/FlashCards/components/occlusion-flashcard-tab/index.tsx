@@ -245,7 +245,7 @@ const OcclusionFlashcardTab = () => {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button className="bg-white" variant="outline">
-              {sortByFilter ? sortByFilter : 'Sort by'}{' '}
+              {sortByFilter ? sortByFilter : 'Sort By'}{' '}
               <ArrowUpDownIcon className="ml-2" />
             </Button>
           </DropdownMenuTrigger>
