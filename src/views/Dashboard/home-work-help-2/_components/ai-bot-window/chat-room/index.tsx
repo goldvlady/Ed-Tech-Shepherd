@@ -80,7 +80,7 @@ function ChatRoom() {
           '',
           `${location.pathname}?${newSearchParams.toString()}`
         );
-        console.log('how many times');
+
         setStreamEnded(false);
         const startSSE = () => {
           // Make a GET request to the SSE endpoint
@@ -158,7 +158,7 @@ function ChatRoom() {
 
     if (chatWindowParams && connectionQuery.subject !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
-      console.log('here?');
+
       startConversation(
         {
           studentId: user._id,
@@ -183,9 +183,6 @@ function ChatRoom() {
         }
       );
     } else {
-      console.log('????');
-      console.log(id);
-      console.log('subject ->', subject);
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
@@ -198,7 +195,9 @@ function ChatRoom() {
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
+    console.log('current chat is', currentChat);
     if (currentChat.length === 0) {
+      console.log(currentChat, 'should be empty');
       return ''; // Don't render anything if there's no current chat content
     }
 
@@ -206,6 +205,7 @@ function ChatRoom() {
       <ChatMessage
         streaming={!streamEnded}
         key={Math.random()}
+        id={'current-chat'}
         message={currentChat}
         type={'bot'}
       />
@@ -217,8 +217,6 @@ function ChatRoom() {
   };
   const handleSSE = async (buffer: string) => {
     if (buffer.includes('done with stream')) {
-      console.log('done with stream', buffer.split('done with stream')[0]);
-      console.log('the current chat is', currentChat);
       sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
       setTimeout(async () => {
         try {
@@ -241,7 +239,7 @@ function ChatRoom() {
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
-  console.log(streamEnded, 'has the stream ended');
+
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -307,7 +305,6 @@ function ChatRoom() {
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
               if (subject === 'Math') {
-                console.log('make it?????');
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
                 const body = {
