@@ -56,6 +56,12 @@ const initialState = {
   showResults: false
 };
 
+const SortOptions = {
+  DECKNAME: 'deckname',
+  CREATED_AT: 'createdAt',
+  LAST_ATTEMPT: 'lastAttempt'
+};
+
 function extractUniqueTags(dataList) {
   if (!dataList || !Array.isArray(dataList)) {
     // If dataList is undefined, null, or not an array, return an empty array
@@ -105,6 +111,23 @@ const OcclusionFlashcardTab = () => {
     },
     refetchOnWindowFocus: false
   });
+  const [sortOption, setSortOption] = useState(SortOptions.LAST_ATTEMPT); // The selected sort option
+
+  "".toLowerCase
+  const getSortedData = (data) => {
+    return [...data].sort((a, b) => {
+      switch (sortOption) {
+        case SortOptions.DECKNAME:
+          return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+        case SortOptions.CREATED_AT:
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case SortOptions.LAST_UPDATED:
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        default:
+          return [];
+      }
+    });
+  };
 
   useEffect(() => {
     if (isSuccess) {
@@ -291,10 +314,8 @@ const OcclusionFlashcardTab = () => {
         <TableBody>
           {isLoading
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
-            : data?.list
-                .filter((row) =>
-                  filterBy ? row.tags.includes(filterBy) : row
-                )
+            : getSortedData(data?.list)
+                .filter((row) => (filterBy ? row.tags.includes(filterBy) : row))
                 .map((row) => (
                   <DataRow
                     key={row._id}
