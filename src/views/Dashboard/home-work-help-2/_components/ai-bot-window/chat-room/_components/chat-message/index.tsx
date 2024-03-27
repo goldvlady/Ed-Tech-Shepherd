@@ -9,6 +9,7 @@ const ChatMessage = ({
   userName,
   userImage,
   streaming,
+  id,
   sendSuggestedPrompt // This function is called when the user clicks on the suggestion prompts
 }: {
   suggestionPromptsVisible?: boolean;
@@ -18,12 +19,14 @@ const ChatMessage = ({
   userName?: string;
   userImage?: string;
   sendSuggestedPrompt?: (message: string) => void;
+  id?: string;
 }) => {
   return (
     <div
       className={`flex gap-3 relative ${
         type === 'user' ? 'flex-row-reverse' : 'flex-row'
       }`}
+      id={id}
     >
       <Avatar
         style={{
