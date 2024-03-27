@@ -50,7 +50,10 @@ type Store = {
     isPassed: boolean,
     grade: string
   ) => Promise<boolean>;
-  scheduleFlashcard: (d: SchedulePayload) => Promise<boolean>;
+  scheduleFlashcard: (
+    d: SchedulePayload,
+    disableLoader?: boolean
+  ) => Promise<boolean>;
   rescheduleFlashcard: (d: any) => Promise<boolean>;
   editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
 };
