@@ -525,7 +525,7 @@ const FlashCardSetupInit = ({
           <Button
             onClick={handleAuthClick}
             marginBottom={'40px'}
-            disabled={!!user.nylasGrantId}
+            isDisabled={!!user.nylasGrantId}
           >
             {user.nylasGrantId ? 'Calendar Connected' : 'Connect Calendar'}
           </Button>
