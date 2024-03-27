@@ -57,9 +57,9 @@ const initialState = {
 };
 
 const SortOptions = {
-  DECKNAME: 'deckname',
-  CREATED_AT: 'createdAt',
-  LAST_ATTEMPT: 'lastAttempt'
+  DECKNAME: 'Deckname',
+  CREATED_AT: 'Created At',
+  LAST_ATTEMPT: 'Last Attempted'
 };
 
 function extractUniqueTags(dataList) {
@@ -265,10 +265,32 @@ const OcclusionFlashcardTab = () => {
 
   const uniqueTags = extractUniqueTags(data ? data.list : undefined);
 
-  console.log('Unique tags', uniqueTags);
   return (
     <div className="w-full h-full pt-4">
-      <div className="filter-section flex justify-end px-4">
+      <div className="filter-section flex justify-end px-4 gap-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button className="bg-white" variant="outline">
+              Sort By
+              <ArrowUpDownIcon className="ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-white">
+            {Object.values(SortOptions).map((item) => (
+              <DropdownMenuItem
+                key={item}
+                className={cn('hover:bg-gray-100', {
+                  'bg-gray-200': filterBy === item
+                })}
+                onClick={() => {
+                  setSortOption(item);
+                }}
+              >
+                {item}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button className="bg-white" variant="outline">
