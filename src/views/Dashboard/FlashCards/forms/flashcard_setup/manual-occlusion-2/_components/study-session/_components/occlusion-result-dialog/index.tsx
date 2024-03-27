@@ -96,7 +96,7 @@ const OccResultsDialog: React.FC<Props> = ({
               label="Didn't remember"
               score={notRemembered}
             />
-            <ScoreDetail color="#4CAF50" label="Got it wrong" score={wrong} />
+            <ScoreDetail color="red" label="Got it wrong" score={wrong} />
           </div>
           {/* Button */}
           <div className="flex w-[628px] mx-auto justify-between mt-8">
