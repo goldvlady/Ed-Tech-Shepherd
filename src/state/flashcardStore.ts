@@ -291,9 +291,11 @@ export default create<Store>((set) => ({
       return nextState;
     });
   },
-  scheduleFlashcard: async (data: SchedulePayload) => {
+  scheduleFlashcard: async (data: SchedulePayload, disableLoader?: boolean) => {
     try {
-      set({ isLoading: true });
+      if (!disableLoader) {
+        set({ isLoading: true });
+      }
       const response = await ApiService.scheduleStudyEvent(data);
       return response.status === 200;
     } catch (error) {

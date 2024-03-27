@@ -30,11 +30,21 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '../../../../../../components/ui/dialog';
 import { useEffect, useState } from 'react';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../library/utils';
+import { DatePicker } from '../../../../../../components/ui/date-picker';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../../../../components/ui/select';
+import flashcardStore from '../../../../../../state/flashcardStore';
+import { SchedulePayload } from '../../../../../../types';
 
 const DataRow = ({ row, handleOpen, page, limit }) => {
   const queryClient = useQueryClient();
@@ -43,6 +53,11 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
     open: false,
     id: ''
   });
+  const [scheduleDialog, setScheduleDialog] = useState({
+    open: false,
+    id: ''
+  });
+
   const { mutate } = useMutation({
     mutationFn: (id: string) => ApiService.deleteOcclusionCard(id),
     onSuccess: () => {
@@ -194,7 +209,12 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
                     </div>
                     Study
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
+                  <DropdownMenuItem
+                    className="hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setScheduleDialog({ open: true, id: row._id });
+                    }}
+                  >
                     <div className="border rounded-full shadow w-6 h-6 flex items-center justify-center mr-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -296,6 +316,13 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
           />
         </Dialog>
       </TableCell>
+      <ScheduleStudyDialog
+        handleClose={() => {
+          setScheduleDialog({ open: false, id: '' });
+        }}
+        open={scheduleDialog.open}
+        id={scheduleDialog.id}
+      />
     </TableRow>
   );
 };
@@ -313,6 +340,141 @@ const updateCardTags = (oldData, rowId, tags) => {
       return item;
     })
   };
+};
+
+function createTimeKeyValuePairs() {
+  const time = {};
+  let hour = 0;
+  let minute = 0;
+
+  while (true) {
+    // Construct 24-hour format key
+    const key = `${hour.toString().padStart(2, '0')}:${minute
+      .toString()
+      .padStart(2, '0')}`;
+
+    // Determine AM or PM for value
+    const amPm = hour >= 12 ? 'PM' : 'AM';
+
+    // Convert to 12-hour format for value
+    const hour12 = hour % 12 || 12;
+    const value = `${hour12.toString().padStart(2, '0')}:${minute
+      .toString()
+      .padStart(2, '0')} ${amPm}`;
+
+    // Assign the key-value pair
+    time[key] = value;
+
+    // Exit the loop if we reach 10:15 PM
+    if (hour === 22 && minute === 15) break;
+
+    // Increment the time by 15 minutes
+    minute += 15;
+    if (minute === 60) {
+      minute = 0;
+      hour++;
+    }
+  }
+
+  return time;
+}
+
+function setTimeToMidnight(dateString) {
+  const date = new Date(dateString);
+
+  // Set hours and minutes to 0 to get midnight time
+  date.setUTCHours(0, 0, 0, 0);
+
+  // Convert back to an ISO string and retain the 'Z' UTC designation
+  return date.toISOString();
+}
+
+const ScheduleStudyDialog = ({ open, id, handleClose }) => {
+  const [date, setDate] = useState<Date>();
+  const [time, setTime] = useState<string>('');
+  const toast = useCustomToast();
+  const { scheduleFlashcard } = flashcardStore();
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (payload: SchedulePayload) =>
+      await scheduleFlashcard(payload, true)
+  });
+
+  const handleSubmit = () => {
+    const dateWithTime = setTimeToMidnight(date);
+    const payload = {
+      entityId: id,
+      entityType: 'flashcard',
+      startDates: [dateWithTime],
+      startTime: time
+    };
+    mutate(payload, {
+      onSuccess() {
+        handleClose();
+        toast({
+          title: 'Study scheduled',
+          status: 'success'
+        });
+      }
+    });
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-[425px] bg-white">
+        <DialogHeader>
+          <DialogTitle>
+            <p className="text-lg">Schedule Study</p>
+          </DialogTitle>
+        </DialogHeader>
+        <hr />
+        <div className="flex flex-col gap-4">
+          <div className="bg-white flex flex-col">
+            <DatePicker onDateChange={setDate} />
+          </div>
+          <div className="bg-white flex flex-col">
+            <Select onValueChange={setTime}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pick a time" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {
+                  // Create time key-value pairs
+                  Object.entries(createTimeKeyValuePairs()).map(
+                    ([key, value]) => (
+                      <SelectItem
+                        key={key}
+                        value={key}
+                        className="hover:bg-gray-200"
+                      >
+                        {value as string}
+                      </SelectItem>
+                    )
+                  )
+                }
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex justify-end w-full">
+            <Button
+              disabled={!date || !time || isPending}
+              size="sm"
+              onClick={handleSubmit}
+            >
+              {isPending ? <ReloadIcon className="mr-2 animate-spin" /> : null}
+              Schedule
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
