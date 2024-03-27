@@ -111,20 +111,24 @@ const OcclusionFlashcardTab = () => {
     },
     refetchOnWindowFocus: false
   });
-  const [sortOption, setSortOption] = useState(SortOptions.LAST_ATTEMPT); // The selected sort option
+  const [sortOption, setSortOption] = useState(SortOptions.DECKNAME); // The selected sort option
 
-  "".toLowerCase
+  ''.toLowerCase;
   const getSortedData = (data) => {
     return [...data].sort((a, b) => {
       switch (sortOption) {
         case SortOptions.DECKNAME:
           return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
         case SortOptions.CREATED_AT:
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        case SortOptions.LAST_UPDATED:
-          return new Date(b.updatedAt) - new Date(a.updatedAt);
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        case SortOptions.LAST_ATTEMPT:
+          return (
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          );
         default:
-          return [];
+          return 0;
       }
     });
   };
