@@ -25,6 +25,14 @@ import {
 import { Input } from '../../../../../components/ui/input';
 import { TrackNextIcon } from '@radix-ui/react-icons';
 import DataRow from './_components/row';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '../../../../../components/ui/dropdown-menu';
+import { ArrowUpDownIcon } from '@chakra-ui/icons';
+import { cn } from '../../../../../library/utils';
 
 const LoadingRow = () => (
   <TableRow>
@@ -48,6 +56,22 @@ const initialState = {
   showResults: false
 };
 
+function extractUniqueTags(dataList) {
+  if (!dataList || !Array.isArray(dataList)) {
+    // If dataList is undefined, null, or not an array, return an empty array
+    return [];
+  }
+
+  const allTags = dataList.reduce((acc, obj) => {
+    if (obj && Array.isArray(obj.tags)) {
+      acc = [...new Set([...acc, ...obj.tags])];
+    }
+    return acc;
+  }, []);
+
+  return allTags.sort((a, b) => a - b); // Optional: return sorted tags
+}
+
 const OcclusionFlashcardTab = () => {
   const queryClient = useQueryClient();
   const [state, setState] = useState(initialState);
@@ -58,6 +82,7 @@ const OcclusionFlashcardTab = () => {
   const [paginationUserInput, setPaginationUserInput] = useState(
     pagination.page
   );
+  const [sortByFilter, setSortByFilter] = useState('');
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['image-occlusions', pagination.page, pagination.limit],
@@ -211,8 +236,46 @@ const OcclusionFlashcardTab = () => {
     return items;
   };
 
+  const uniqueTags = extractUniqueTags(data ? data.list : undefined);
+
+  console.log('Unique tags', uniqueTags);
   return (
     <div className="w-full h-full pt-4">
+      <div className="filter-section flex justify-end px-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button className="bg-white" variant="outline">
+              {sortByFilter ? sortByFilter : 'Sort by'}{' '}
+              <ArrowUpDownIcon className="ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-white">
+            <DropdownMenuItem
+              className={cn('hover:bg-gray-100', {
+                'bg-gray-200': sortByFilter === ''
+              })}
+              onClick={() => {
+                setSortByFilter('');
+              }}
+            >
+              None
+            </DropdownMenuItem>
+            {uniqueTags.map((tag) => (
+              <DropdownMenuItem
+                key={tag}
+                className={cn('hover:bg-gray-100', {
+                  'bg-gray-200': sortByFilter === tag
+                })}
+                onClick={() => {
+                  setSortByFilter(tag);
+                }}
+              >
+                {tag}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <Table>
         <TableHeader>
           <TableRow>
@@ -225,19 +288,22 @@ const OcclusionFlashcardTab = () => {
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
-
         <TableBody>
           {isLoading
             ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
-            : data?.list.map((row) => (
-                <DataRow
-                  key={row._id}
-                  row={row}
-                  handleOpen={handleOpen}
-                  page={pagination.page}
-                  limit={pagination.limit}
-                />
-              ))}
+            : data?.list
+                .filter((row) =>
+                  sortByFilter ? row.tags.includes(sortByFilter) : row
+                )
+                .map((row) => (
+                  <DataRow
+                    key={row._id}
+                    row={row}
+                    handleOpen={handleOpen}
+                    page={pagination.page}
+                    limit={pagination.limit}
+                  />
+                ))}
         </TableBody>
       </Table>
       <div className="flex items-center justify-end space-x-2 py-4">
