@@ -154,6 +154,8 @@ function ChatRoom() {
   useEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
+    const searchIncludesInitialMessages =
+      window.location.search.includes('initial_messages');
 
     if (chatWindowParams && connectionQuery.subject !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
@@ -181,7 +183,7 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
-    } else if (!hasInitialMessagesParam) {
+    } else if (!searchIncludesInitialMessages) {
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
