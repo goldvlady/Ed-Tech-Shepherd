@@ -143,7 +143,6 @@ function ChatRoom() {
         };
         startSSE();
 
-        fetchHistory(30, 0, id);
         query.invalidateQueries({
           queryKey: ['chatHistory', { studentId }]
         });
@@ -182,7 +181,7 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
-    } else {
+    } else if (!hasInitialMessagesParam) {
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
@@ -218,16 +217,8 @@ function ChatRoom() {
   const handleSSE = async (buffer: string) => {
     if (buffer.includes('done with stream')) {
       sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
-      setTimeout(async () => {
-        try {
-          await fetchHistory(30, 0, id);
-          setStreamEnded(true);
-          setAutoScroll(true);
-        } catch (error) {
-          setStreamEnded(true);
-          setAutoScroll(true);
-        }
-      }, 500);
+      setStreamEnded(true);
+      setAutoScroll(true);
 
       return;
     }
