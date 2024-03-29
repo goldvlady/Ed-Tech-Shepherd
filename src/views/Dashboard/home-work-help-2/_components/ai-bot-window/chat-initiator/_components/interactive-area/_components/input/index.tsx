@@ -6,6 +6,7 @@ import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
 import { Box, Select } from '@chakra-ui/react';
+
 type Language = (typeof languages)[number];
 function Input({
   actions: {
@@ -15,7 +16,9 @@ function Input({
     handleLevelChange,
     onSubmit
   },
-  state: { chatContext }
+  state: { chatContext },
+  showMathModeInfo,
+  setShowMathModeInfo
 }: {
   actions: {
     handleSubjectChange: (subject: string) => void;
@@ -32,6 +35,8 @@ function Input({
       language: string;
     };
   };
+  showMathModeInfo: boolean;
+  setShowMathModeInfo: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { courses: courseList, levels } = useResourceStore();
   const [currentInputType, setCurrentInputType] = useState<
@@ -259,7 +264,20 @@ function Input({
           <Chip
             key={subject}
             title={subject}
-            onClick={() => handleSubjectChange(subject)}
+            onClick={() => {
+              handleSubjectChange(subject);
+              if (subject === 'Math') {
+                setShowMathModeInfo(true);
+                // Make API call to set notifyMathmode to true
+                // fetch("/api/notifyMathMode", {
+                //   method: "POST",
+                //   headers: {
+                //     "Content-Type": "application/json",
+                //   },
+                //   body: JSON.stringify({ notifyMathmode: true }),
+                // });
+              }
+            }}
           />
         ))}
       </div>
