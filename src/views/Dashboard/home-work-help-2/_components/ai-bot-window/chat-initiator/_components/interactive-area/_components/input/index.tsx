@@ -6,6 +6,7 @@ import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
 import { Box, Select } from '@chakra-ui/react';
+import ApiService from '../../../../../../../../../../services/ApiService';
 
 type Language = (typeof languages)[number];
 function Input({
@@ -67,6 +68,12 @@ function Input({
     }
 
     setCurrentInputType(type);
+  };
+
+  const setNotifyMathMode = async () => {
+    const resp = await ApiService.setNotifyMathMode().catch((error) => {
+      console.error('Error enabling math mode notification:', error);
+    });
   };
 
   const handleSubmit = () => {
@@ -268,14 +275,7 @@ function Input({
               handleSubjectChange(subject);
               if (subject === 'Math') {
                 setShowMathModeInfo(true);
-                // Make API call to set notifyMathmode to true
-                // fetch("/api/notifyMathMode", {
-                //   method: "POST",
-                //   headers: {
-                //     "Content-Type": "application/json",
-                //   },
-                //   body: JSON.stringify({ notifyMathmode: true }),
-                // });
+                setNotifyMathMode();
               }
             }}
           />
