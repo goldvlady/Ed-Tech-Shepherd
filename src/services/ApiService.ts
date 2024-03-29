@@ -1412,6 +1412,15 @@ class ApiService {
       body: JSON.stringify(data)
     });
   };
+  static setNotifyMathMode = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/setNotifyMathMode`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ notifyMathMode: true })
+    });
+  };
 }
 
 export default ApiService;

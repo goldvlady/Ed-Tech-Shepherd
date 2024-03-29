@@ -16,7 +16,7 @@ export const MathModeInfoTip = ({ isOpen, onClose }) => {
       </div>
       <div className="flex items-center mb-2">
         <BellIcon className="w-5 h-5 text-[#207DF7] mr-2" />
-        <h4 className="text-base font-semibold">Math Mode Disclaimer</h4>
+        <h5 className="text-base font-semibold">Math Mode Disclaimer</h5>
       </div>
       <p className="text-gray-600 text-sm">
         Math mode (with 100% accuracy) is currently in Beta!
