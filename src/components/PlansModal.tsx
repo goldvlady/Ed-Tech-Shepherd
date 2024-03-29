@@ -16,12 +16,15 @@ import {
   TabPanels,
   Tab,
   TabPanel,
-  Text
+  Text,
+  ModalHeader,
+  ModalFooter
 } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
+import SubscriptionRedirectModal from './SubscriptionRedirectModal';
 
 interface ToggleProps {
   setTogglePlansModal: (state: boolean) => void;
@@ -45,6 +48,8 @@ interface PriceCardListProps {
   getButtonText: (userSubscription, priceCard) => string;
   getTrialButtonText: (priceCard) => string;
   handleSubscriptionClick: (priceId, priceTier) => void;
+  activeSubscription: any;
+  activePlanLookupKey: string;
 }
 
 const PriceCardList: React.FC<PriceCardListProps> = ({
@@ -54,7 +59,9 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
   redirectToCustomerPortal,
   getButtonText,
   getTrialButtonText,
-  handleSubscriptionClick
+  handleSubscriptionClick,
+  activeSubscription,
+  activePlanLookupKey
 }) => {
   return (
     <Box padding={'10px'}>
@@ -63,8 +70,8 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
           {priceData.map((priceCard) => (
             <div
               className={`landing-price-card ${
-                user.subscription &&
-                user.subscription.lookup_key === priceCard.lookup_key
+                activeSubscription &&
+                activePlanLookupKey === priceCard.lookup_key
                   ? 'landing-price-card-active'
                   : ''
               }`}
@@ -73,19 +80,19 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
               }}
             >
               {priceCard.popular &&
-                !(user.subscription.lookup_key === priceCard.lookup_key) && (
+                !(activePlanLookupKey === priceCard.lookup_key) && (
                   <Text className="landing-price-sub-bubble">Popular</Text>
                 )}
               <div
                 className={`${
-                  user.subscription &&
-                  user.subscription.lookup_key === priceCard.lookup_key
+                  activeSubscription &&
+                  activePlanLookupKey === priceCard.lookup_key
                     ? 'landing-plan-wrapper'
                     : 'landing-metric-wrapper'
                 }`}
               >
                 <Text className="landing-price-level">{priceCard.tier}</Text>
-                {user.subscription.lookup_key === priceCard.lookup_key && (
+                {activePlanLookupKey === priceCard.lookup_key && (
                   <Box className="landing-price-level-plan">Current Plan</Box>
                 )}
               </div>
@@ -117,7 +124,7 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
                   className="landing-price-btn"
                   onClick={() => redirectToCustomerPortal()}
                 >
-                  {getButtonText(user.subscription, priceCard)}
+                  {getButtonText(activeSubscription, priceCard)}
                 </Button>
               </div>
             </div>
@@ -214,8 +221,10 @@ const PlansModal = ({
 }: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user, fetchUser }: any = userStore();
-
+  const { user, fetchUser, getActiveSubscription }: any = userStore();
+  const activeSubscription = getActiveSubscription();
+  const activePlanLookupKey = activeSubscription?.lookup_key || 'free';
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const navigate = useNavigate();
@@ -296,6 +305,13 @@ const PlansModal = ({
       return;
     }
 
+    if (user?.isMobileSubscription) {
+      handleClose();
+      closeModal();
+      setIsRedirectModalOpen(true);
+      return;
+    }
+
     let session;
     const priceId = process.env[priceIdKey];
 
@@ -317,6 +333,12 @@ const PlansModal = ({
 
   // Function to redirect to Stripe's customer portal
   const redirectToCustomerPortal = async () => {
+    if (user?.isMobileSubscription) {
+      handleClose();
+      closeModal();
+      setIsRedirectModalOpen(true);
+      return;
+    }
     const session = await ApiService.getStripeCustomerPortalUrl(
       user.stripeCustomerId,
       user.subscription.stripeSubscriptionId,
@@ -341,6 +363,10 @@ const PlansModal = ({
 
   return (
     <div className="pm">
+      <SubscriptionRedirectModal
+        isOpen={isRedirectModalOpen}
+        onClose={() => setIsRedirectModalOpen(false)}
+      />
       {togglePlansModal && (
         <Transition.Root show={togglePlansModal} as={Fragment}>
           <Dialog as="div" className="relative z-[2000]" onClose={() => null}>
@@ -435,6 +461,8 @@ const PlansModal = ({
                       <PriceCardList
                         priceData={filterPriceData('/month')}
                         hasActiveSubscription={hasActiveSubscription}
+                        activeSubscription={activeSubscription}
+                        activePlanLookupKey={activePlanLookupKey}
                         user={user}
                         redirectToCustomerPortal={redirectToCustomerPortal}
                         getButtonText={getButtonText}

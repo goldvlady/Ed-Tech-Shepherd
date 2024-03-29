@@ -1,6 +1,11 @@
 import { fetchStudentDocuments } from '../services/AI';
 import ApiService from '../services/ApiService';
-import { User, UserNotifications } from '../types';
+import {
+  Subscription,
+  MobileSubscription,
+  User,
+  UserNotifications
+} from '../types';
 import { create } from 'zustand';
 
 type List = {
@@ -24,6 +29,9 @@ type Store = {
   userDocuments: Array<List> | [];
   setUserData: (data: Partial<User>) => void;
   logoutUser: () => void;
+  getActiveSubscription: (
+    user: User
+  ) => Subscription | MobileSubscription | null;
 };
 
 // Function to save state to local storage
@@ -58,7 +66,7 @@ const loadState = (): Partial<Store> => {
       };
 };
 
-const useUserStore = create<Store>((set) => ({
+const useUserStore = create<Store>((set, get) => ({
   user: null,
   userNotifications: [],
   userDocuments: [],
@@ -72,17 +80,29 @@ const useUserStore = create<Store>((set) => ({
     if (response.status !== 200) return false;
     const userData = await response.json();
 
-    const hasActiveSubscription = !!(
+    const hasActiveWebSubscription = !!(
       userData.subscription &&
       (userData.subscription.status === 'active' ||
-        userData.subscription.status === 'trialing' ||
-        userData.subscription.tier === 'Founding Member')
+        userData.subscription.status === 'trialing')
     );
+
+    const hasActiveMobileSubscription = !!(
+      userData.mobileSubscription &&
+      (userData.mobileSubscription.status === 'active' ||
+        userData.mobileSubscription.status === 'trialing')
+    );
+
+    const hasActiveSubscription =
+      hasActiveWebSubscription || hasActiveMobileSubscription;
 
     const onboardCompleted = userData.onboardCompleted;
 
+    const activeSubscription = userData.isMobileSubscription
+      ? userData.mobileSubscription
+      : userData.subscription;
+
     const fileSizeLimitMB =
-      userData.subscription?.subscriptionMetadata?.file_mb_limit || 5;
+      activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
     const newState = {
@@ -145,6 +165,15 @@ const useUserStore = create<Store>((set) => ({
     const userDocuments = await fetchStudentDocuments(userId);
     set({ userDocuments });
     saveState({ userDocuments });
+  },
+  getActiveSubscription: () => {
+    const { user } = get();
+    if (user?.isMobileSubscription) {
+      return user.mobileSubscription;
+    } else if (user?.subscription) {
+      return user.subscription;
+    }
+    return null;
   }
 }));
 
