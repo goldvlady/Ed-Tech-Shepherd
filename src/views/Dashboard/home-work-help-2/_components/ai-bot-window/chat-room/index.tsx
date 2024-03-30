@@ -13,6 +13,7 @@ import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { encodeQueryParams } from '../../../../../../helpers';
+import ApiService from '../../../../../../services/ApiService';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
@@ -300,6 +301,10 @@ function ChatRoom() {
               if (subject === 'Math') {
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
+                const updatedMessages = await ApiService.getConversionById({
+                  conversationId: id
+                });
+                console.log('messages are:', updatedMessages);
                 const body = {
                   ...connectionQuery,
                   studentId,
@@ -307,7 +312,7 @@ function ChatRoom() {
                   conversationId: id,
                   name: user.name.first,
                   query: message,
-                  messages: JSON.stringify(messages.map((el) => el.log))
+                  messages: JSON.stringify(updatedMessages.map((el) => el.log))
                 };
                 setStreamEnded(false);
                 const q = encodeQueryParams(body);
