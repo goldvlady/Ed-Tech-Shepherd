@@ -312,7 +312,11 @@ function ChatRoom() {
                   conversationId: id,
                   name: user.name.first,
                   query: message,
-                  messages: JSON.stringify(updatedMessages.map((el) => el.log))
+                  messages: JSON.stringify(
+                    updatedMessages
+                      .map((el) => el.log)
+                      .sort((a, b) => a.id - b.id)
+                  )
                 };
                 setStreamEnded(false);
                 const q = encodeQueryParams(body);
