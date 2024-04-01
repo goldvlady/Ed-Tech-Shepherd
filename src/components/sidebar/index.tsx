@@ -88,7 +88,7 @@ function Sidebar() {
             title="Home"
             active={true}
             icon={<FiHome />}
-            link="/"
+            link="/dashboard"
           />
         </div>
         <hr className="h-1 mt-[.56rem] mb-[0.56rem]" />
@@ -120,7 +120,7 @@ function Sidebar() {
                     title="AI Tutor"
                     active={false}
                     icon={null}
-                    link="/dashboard/ai-tutor"
+                    link="/dashboard/ace-homework"
                   />
                 </AccordionContent>
               </AccordionItem>
