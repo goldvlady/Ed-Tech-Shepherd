@@ -60,14 +60,23 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
 
   const { mutate } = useMutation({
     mutationFn: (id: string) => ApiService.deleteOcclusionCard(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['image-occlusions', page, limit]
-      });
-      toast({
-        title: 'Occlusion flashcard deleted',
-        status: 'success'
-      });
+    onSuccess: async (data) => {
+      const res = await data.json();
+      console.log('mutationFn', res);
+      if (res.message === 'Occlusion card deleted successfully!') {
+        queryClient.invalidateQueries({
+          queryKey: ['image-occlusions', page, limit]
+        });
+        toast({
+          title: 'Occlusion flashcard deleted',
+          status: 'success'
+        });
+      } else {
+        toast({
+          title: res.message,
+          status: 'error'
+        });
+      }
     },
     onMutate: async (variables) => {
       await queryClient.cancelQueries({
