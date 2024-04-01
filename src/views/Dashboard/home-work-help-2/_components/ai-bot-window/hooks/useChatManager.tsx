@@ -17,7 +17,7 @@ interface ChatLog {
   content: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   id: number;
   studentId: string;
   log: ChatLog;

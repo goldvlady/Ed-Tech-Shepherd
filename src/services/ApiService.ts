@@ -12,6 +12,7 @@ import {
   StudyPlanTopicDocumentPayload
 } from '../types';
 import { doFetch } from '../util';
+import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
 import {
   processDocument,
   createDocchatFlashCards,
@@ -134,6 +135,27 @@ class ApiService {
     })
       .then((resp) => resp.json())
       .then((r: { data: string }) => r);
+  };
+
+  static createConvoLog = async (b: {
+    query: string;
+    conversationId: string;
+    studentId: string;
+  }) => {
+    const body = JSON.stringify(b);
+    return fetch(
+      `${process.env.REACT_APP_AI_II}/conversations/conversation-log/`,
+      {
+        method: 'POST',
+        body,
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+      .then((resp) => resp.json())
+      .then((r: { data: ChatMessage }) => r);
   };
 
   static rescheduleStudyEvent = async (data: any) => {

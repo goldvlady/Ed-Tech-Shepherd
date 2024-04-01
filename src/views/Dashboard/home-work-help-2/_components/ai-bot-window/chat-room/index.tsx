@@ -2,11 +2,13 @@ import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
-import useChatManager from '../hooks/useChatManager';
+import useChatManager, {
+  ChatMessage as ChatMessageType
+} from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 import ChatInfoDropdown from './_components/chat-info-dropdown';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
@@ -53,6 +55,13 @@ function ChatRoom() {
   const [streamEnded, setStreamEnded] = useState(true);
   const isFirstRun = useRef(true);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
+  const createMathConvoLogMutation = useMutation({
+    mutationFn: (b: {
+      query: string;
+      conversationId: string;
+      studentId: string;
+    }) => ApiService.createConvoLog(b)
+  });
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
@@ -274,9 +283,95 @@ function ChatRoom() {
                   messages.length >= 4 &&
                   (apiKey ? false : true)
                 }
-                sendSuggestedPrompt={(message: string) => {
-                  sendMessage(message);
-                  handleAutoScroll();
+                sendSuggestedPrompt={async (message: string) => {
+                  if (subject === 'Math') {
+                    const chatWindowParams = getChatWindowParams();
+                    const { connectionQuery } = chatWindowParams;
+                    const fetchedMessages: Array<ChatMessageType> =
+                      await ApiService.getConversionById({
+                        conversationId: id
+                      });
+                    const updatedMessages = fetchedMessages
+                      .sort((a, b) => a.id - b.id)
+                      .map((el) => el.log);
+
+                    console.log('sorted messages are:', updatedMessages);
+                    const lastMessage = updatedMessages.at(-1);
+
+                    if (lastMessage.role === 'user') {
+                      const d = await createMathConvoLogMutation.mutateAsync({
+                        query: message,
+                        studentId,
+                        conversationId: id
+                      });
+                      updatedMessages.push(d.data.log);
+                    }
+                    const body = {
+                      ...connectionQuery,
+                      studentId,
+                      firebaseId: user.firebaseId,
+                      conversationId: id,
+                      name: user.name.first,
+                      query: message,
+                      messages: JSON.stringify(updatedMessages)
+                    };
+                    setStreamEnded(false);
+                    const q = encodeQueryParams(body);
+                    sendMessage(message, 'math');
+                    handleAutoScroll();
+                    const startSSE = () => {
+                      // Make a GET request to the SSE endpoint
+                      fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
+                        method: 'GET',
+                        headers: {
+                          'Content-Type': 'text/event-stream',
+                          'Cache-Control': 'no-cache',
+                          Connection: 'keep-alive',
+                          'X-Shepherd-Header':
+                            process.env.REACT_APP_AI_HEADER_KEY
+                        }
+                      })
+                        .then((response) => {
+                          // Check if the response is OK, before continuing
+                          if (!response.ok) {
+                            throw new Error(
+                              'Failed to connect to SSE endpoint'
+                            );
+                          }
+
+                          // Start processing incoming events
+                          const reader = response.body.getReader();
+                          const decoder = new TextDecoder('utf-8');
+                          let buffer = '';
+
+                          reader
+                            .read()
+                            .then(function processText({ done, value }) {
+                              if (done) {
+                                setStreamEnded(true);
+                                return;
+                              }
+
+                              buffer += decoder.decode(value, { stream: true });
+
+                              const parts = buffer.split('\n\n');
+
+                              //buffer = parts[parts.length - 1];
+                              handleSSE(buffer);
+                              setAutoScroll(true);
+
+                              return reader.read().then(processText);
+                            });
+                        })
+                        .catch((error) => {
+                          setStreamEnded(true);
+                        });
+                    };
+                    startSSE();
+                  } else {
+                    sendMessage(message);
+                    handleAutoScroll();
+                  }
                 }}
               />
             ))}
@@ -301,10 +396,25 @@ function ChatRoom() {
               if (subject === 'Math') {
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
-                const updatedMessages = await ApiService.getConversionById({
-                  conversationId: id
-                });
-                console.log('messages are:', updatedMessages);
+                const fetchedMessages: Array<ChatMessageType> =
+                  await ApiService.getConversionById({
+                    conversationId: id
+                  });
+                const updatedMessages = fetchedMessages
+                  .sort((a, b) => a.id - b.id)
+                  .map((el) => el.log);
+
+                console.log('sorted messages are:', updatedMessages);
+                const lastMessage = updatedMessages.at(-1);
+
+                if (lastMessage.role === 'user') {
+                  const d = await createMathConvoLogMutation.mutateAsync({
+                    query: message,
+                    studentId,
+                    conversationId: id
+                  });
+                  updatedMessages.push(d.data.log);
+                }
                 const body = {
                   ...connectionQuery,
                   studentId,
@@ -312,11 +422,7 @@ function ChatRoom() {
                   conversationId: id,
                   name: user.name.first,
                   query: message,
-                  messages: JSON.stringify(
-                    updatedMessages
-                      .map((el) => el.log)
-                      .sort((a, b) => a.id - b.id)
-                  )
+                  messages: JSON.stringify(updatedMessages)
                 };
                 setStreamEnded(false);
                 const q = encodeQueryParams(body);
