@@ -45,8 +45,9 @@ import {
 } from '../../../../../../components/ui/select';
 import flashcardStore from '../../../../../../state/flashcardStore';
 import { SchedulePayload } from '../../../../../../types';
+import { Checkbox } from '../../../../../../components/ui/checkbox';
 
-const DataRow = ({ row, handleOpen, page, limit }) => {
+const DataRow = ({ row, handleOpen, page, limit, checked, handleCheck }) => {
   const queryClient = useQueryClient();
   const toast = useCustomToast();
   const [tagsDialogState, setTagsDialogState] = useState({
@@ -127,6 +128,9 @@ const DataRow = ({ row, handleOpen, page, limit }) => {
 
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
+      <TableCell className="text-center w-[50px]">
+        <Checkbox checked={checked} onCheckedChange={handleCheck} />
+      </TableCell>
       <TableCell
         className="font-medium text-[#207DF7] cursor-pointer hover:font-semibold text-center"
         onClick={() => handleOpen(row._id)}
@@ -412,7 +416,7 @@ const ScheduleStudyDialog = ({ open, id, handleClose }) => {
     const dateWithTime = setTimeToMidnight(date);
     const payload = {
       entityId: id,
-      entityType: 'flashcard',
+      entityType: 'occlusionCard',
       startDates: [dateWithTime],
       startTime: time
     };

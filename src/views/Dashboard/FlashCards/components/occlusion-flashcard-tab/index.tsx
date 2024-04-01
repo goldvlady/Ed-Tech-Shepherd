@@ -33,6 +33,7 @@ import {
 } from '../../../../../components/ui/dropdown-menu';
 import { ArrowUpDownIcon } from '@chakra-ui/icons';
 import { cn } from '../../../../../library/utils';
+import { Checkbox } from '../../../../../components/ui/checkbox';
 
 const LoadingRow = () => (
   <TableRow>
@@ -89,6 +90,7 @@ const OcclusionFlashcardTab = () => {
     pagination.page
   );
   const [filterBy, setFilterBy] = useState('');
+  const [checkedRows, setCheckedRows] = useState([]);
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ['image-occlusions', pagination.page, pagination.limit],
@@ -112,8 +114,6 @@ const OcclusionFlashcardTab = () => {
     refetchOnWindowFocus: false
   });
   const [sortOption, setSortOption] = useState(SortOptions.CREATED_AT); // The selected sort option
-
-  ''.toLowerCase;
   const getSortedData = (data) => {
     return [...data].sort((a, b) => {
       switch (sortOption) {
@@ -265,69 +265,97 @@ const OcclusionFlashcardTab = () => {
 
   const uniqueTags = extractUniqueTags(data ? data.list : undefined);
 
+  console.log('checked row', checkedRows);
+
   return (
     <div className="w-full h-full pt-4">
-      <div className="filter-section flex justify-end px-4 gap-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button className="bg-white" variant="outline">
-              Sort By
-              <ArrowUpDownIcon className="ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white">
-            {Object.values(SortOptions).map((item) => (
+      <div className="filter-section flex justify-between px-4 gap-4">
+        <div
+          className={cn('flex gap-4 items-center transition-opacity', {
+            'opacity-0': !checkedRows.length,
+            'pointer-events-none': !checkedRows.length
+          })}
+        >
+          <Button className="bg-red-500">Delete Selected</Button>
+          <Button>Add Tags</Button>
+        </div>
+        <div className="flex gap-4 items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button className="bg-white" variant="outline">
+                Sort By
+                <ArrowUpDownIcon className="ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white">
+              {Object.values(SortOptions).map((item) => (
+                <DropdownMenuItem
+                  key={item}
+                  className={cn('hover:bg-gray-100', {
+                    'bg-gray-200': filterBy === item
+                  })}
+                  onClick={() => {
+                    setSortOption(item);
+                  }}
+                >
+                  {item}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button className="bg-white" variant="outline">
+                {filterBy ? filterBy : 'Filter By Tag'}{' '}
+                <ArrowUpDownIcon className="ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white">
               <DropdownMenuItem
-                key={item}
                 className={cn('hover:bg-gray-100', {
-                  'bg-gray-200': filterBy === item
+                  'bg-gray-200': filterBy === ''
                 })}
                 onClick={() => {
-                  setSortOption(item);
+                  setFilterBy('');
                 }}
               >
-                {item}
+                None
               </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button className="bg-white" variant="outline">
-              {filterBy ? filterBy : 'Filter By Tag'}{' '}
-              <ArrowUpDownIcon className="ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white">
-            <DropdownMenuItem
-              className={cn('hover:bg-gray-100', {
-                'bg-gray-200': filterBy === ''
-              })}
-              onClick={() => {
-                setFilterBy('');
-              }}
-            >
-              None
-            </DropdownMenuItem>
-            {uniqueTags.map((tag) => (
-              <DropdownMenuItem
-                key={tag}
-                className={cn('hover:bg-gray-100', {
-                  'bg-gray-200': filterBy === tag
-                })}
-                onClick={() => {
-                  setFilterBy(tag);
-                }}
-              >
-                {tag}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {uniqueTags.map((tag) => (
+                <DropdownMenuItem
+                  key={tag}
+                  className={cn('hover:bg-gray-100', {
+                    'bg-gray-200': filterBy === tag
+                  })}
+                  onClick={() => {
+                    setFilterBy(tag);
+                  }}
+                >
+                  {tag}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px] pl-5">
+              <Checkbox
+                checked={
+                  data?.list?.length === checkedRows.length &&
+                  data?.list?.length !== 0
+                }
+                onCheckedChange={(value) => {
+                  if (value) {
+                    setCheckedRows(data?.list?.map((row) => row._id));
+                  } else {
+                    setCheckedRows([]);
+                  }
+                }}
+              />
+            </TableHead>
             <TableHead className="w-[200px] text-center">Deckname</TableHead>
             <TableHead className="text-center">No. of Rectangles</TableHead>
             <TableHead className="text-center">Tags</TableHead>
@@ -344,6 +372,16 @@ const OcclusionFlashcardTab = () => {
                 .filter((row) => (filterBy ? row.tags.includes(filterBy) : row))
                 .map((row) => (
                   <DataRow
+                    checked={checkedRows.includes(row._id) ? true : false}
+                    handleCheck={(value) => {
+                      if (value) {
+                        setCheckedRows((pS) => [...pS, row._id]);
+                      } else {
+                        setCheckedRows((pS) => {
+                          return pS.filter((r) => r !== row._id);
+                        });
+                      }
+                    }}
                     key={row._id}
                     row={row}
                     handleOpen={handleOpen}
