@@ -52,7 +52,8 @@ type Store = {
   ) => Promise<boolean>;
   scheduleFlashcard: (
     d: SchedulePayload,
-    disableLoader?: boolean
+    disableLoader?: boolean,
+    type?: 'normal' | 'image-occlusion'
   ) => Promise<boolean>;
   rescheduleFlashcard: (d: any) => Promise<boolean>;
   editFlashcard: (id: string, data: Partial<FlashcardData>) => Promise<boolean>;
@@ -294,13 +295,24 @@ export default create<Store>((set) => ({
       return nextState;
     });
   },
-  scheduleFlashcard: async (data: SchedulePayload, disableLoader?: boolean) => {
+  scheduleFlashcard: async (
+    data: SchedulePayload,
+    disableLoader?: boolean,
+    type: 'normal' | 'image-occlusion' = 'normal'
+  ) => {
     try {
       if (!disableLoader) {
         set({ isLoading: true });
       }
-      const response = await ApiService.scheduleStudyEvent(data);
-      return response.status === 200;
+      if (type === 'normal') {
+        const response = await ApiService.scheduleStudyEvent(data);
+        return response.status === 200;
+      } else {
+        const response = await ApiService.scheduleImageOcclusionStudyEvent(
+          data
+        );
+        return response.status === 200;
+      }
     } catch (error) {
       return false;
     } finally {

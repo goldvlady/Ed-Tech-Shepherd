@@ -116,6 +116,20 @@ class ApiService {
     });
   };
 
+  static scheduleImageOcclusionStudyEvent = async (data: any) => {
+    const requestPayload = {
+      ...data,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/scheduleStudyEvent`,
+      {
+        method: 'POST',
+        body: JSON.stringify(requestPayload)
+      }
+    );
+  };
+
   static createMathConversation = async (b: {
     subject: string;
     topic: string;
@@ -382,7 +396,7 @@ class ApiService {
       }
     );
   };
-  
+
   static storeStudyPlanMetaData = async (data: {
     studyPlanId: string;
     metadata?: {

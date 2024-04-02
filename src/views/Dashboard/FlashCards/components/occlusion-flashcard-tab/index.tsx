@@ -265,8 +265,6 @@ const OcclusionFlashcardTab = () => {
 
   const uniqueTags = extractUniqueTags(data ? data.list : undefined);
 
-  console.log('checked row', checkedRows);
-
   return (
     <div className="w-full h-full pt-4">
       <div className="filter-section flex justify-between px-4 gap-4">

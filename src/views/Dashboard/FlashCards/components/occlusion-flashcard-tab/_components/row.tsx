@@ -409,7 +409,7 @@ const ScheduleStudyDialog = ({ open, id, handleClose }) => {
   const { scheduleFlashcard } = flashcardStore();
   const { mutate, isPending } = useMutation({
     mutationFn: async (payload: SchedulePayload) =>
-      await scheduleFlashcard(payload, true)
+      await scheduleFlashcard(payload, true, 'image-occlusion')
   });
 
   const handleSubmit = () => {
