@@ -41,6 +41,7 @@ import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import ImageOcclusion from './forms/flashcard_setup/manual-occlusion-2';
+import { cn } from '../../../library/utils';
 
 const Wrapper = styled(Box)`
   select {
@@ -326,7 +327,16 @@ const CreateFlashPage = () => {
       return <AnkiType />;
     }
     if (settings.source === SourceEnum.IMAGE_OCCLUSION) {
-      return <ImageOcclusion />;
+      return (
+        <div
+          className={cn({
+            'opacity-50 pointer-events-none':
+              user.subscription && user.subscription.tier !== 'Premium'
+          })}
+        >
+          <ImageOcclusion />
+        </div>
+      );
     }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
@@ -400,6 +410,13 @@ const CreateFlashPage = () => {
   //     </Center>
   //   );
   // } else {
+
+  const [openPlansModel, setPlansModel] = useState(false);
+
+  const handleClosePlansModal = () => {
+    setPlansModel(false);
+  };
+
   return (
     <Box width={'100%'}>
       {isLoading && <LoaderOverlay />}
@@ -486,12 +503,21 @@ const CreateFlashPage = () => {
                         hasSubmitted: false
                       }));
                     }
-                    // if (value === SourceEnum.DOCUMENT) {
-                    //   handleBadgeClick(TypeEnum.FLASHCARD);
-                    // }
+                    if (value === SourceEnum.IMAGE_OCCLUSION) {
+                      if (
+                        user.subscription &&
+                        user.subscription.tier !== 'Premium'
+                      ) {
+                        setPlansModel(true);
+                      }
+                    }
                   }}
                   value={settings.source}
                 >
+                  <PlansModal
+                    togglePlansModal={openPlansModel}
+                    setTogglePlansModal={handleClosePlansModal}
+                  />
                   <HStack align="start" spacing={7}>
                     <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
                       <Text color="#585F68">Document</Text>
@@ -508,12 +534,9 @@ const CreateFlashPage = () => {
                           <Text color="#585F68">Anki</Text>
                         </Radio>
                       )}
-                    {user.subscription &&
-                      user.subscription.tier === 'Premium' && (
-                        <Radio value={SourceEnum.IMAGE_OCCLUSION}>
-                          <Text color="#585F68">Image Occlusion</Text>
-                        </Radio>
-                      )}
+                    <Radio value={SourceEnum.IMAGE_OCCLUSION}>
+                      <Text color="#585F68">Image Occlusion</Text>
+                    </Radio>
                   </HStack>
                 </RadioGroup>
               </Box>
