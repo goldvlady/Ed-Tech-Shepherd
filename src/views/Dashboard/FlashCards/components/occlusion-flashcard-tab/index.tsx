@@ -456,6 +456,7 @@ const OcclusionFlashcardTab = () => {
         close={handleCloseResults}
         restartStudySession={handleRestart}
         handleEditImage={() => null}
+        editImageDisabled={true}
       />
     </div>
   );

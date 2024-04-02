@@ -8,7 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import StudySessionHeader from './_components/header';
 import StudySessionBody from './_components/body';
 
-interface StudySessionProps {
+export interface StudySessionProps {
   open: boolean;
   id: string;
   close: () => void;

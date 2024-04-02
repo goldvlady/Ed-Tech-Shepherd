@@ -748,7 +748,7 @@ class ApiService {
   };
 
   static getCalendarEvents = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
+    return doFetch(`https://deploy-preview-285--api-sheperdtutors.netlify.app/getCalenderEvents`);
   };
 
   static getUpcomingEvent = async () => {

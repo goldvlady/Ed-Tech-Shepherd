@@ -7,6 +7,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ApiService from '../../../../../../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { cn } from '../../../../../../../../../../library/utils';
 
 interface Score {
   right: number;
@@ -21,6 +22,7 @@ interface Props {
   restartStudySession: () => void;
   id: string;
   handleEditImage: () => void;
+  editImageDisabled?: boolean;
 }
 
 function calculatePercentage(score: Score) {
@@ -38,7 +40,8 @@ const OccResultsDialog: React.FC<Props> = ({
   close,
   score,
   restartStudySession,
-  handleEditImage
+  handleEditImage,
+  editImageDisabled = false
 }) => {
   const queryClient = useQueryClient();
   const [currentScore, setCurrentScore] = useState(calculatePercentage(score));
@@ -110,7 +113,13 @@ const OccResultsDialog: React.FC<Props> = ({
               ) : null}
               Restart Flashcard
             </Button>
-            <Button className="w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium" onClick={handleEditImage}>
+            <Button
+              className={cn(
+                'w-[304px] h-[42px] bg-white text-[#5C5F64] text-sm font-medium',
+                editImageDisabled ? 'opacity-50 cursor-not-allowed' : ''
+              )}
+              onClick={handleEditImage}
+            >
               Edit Image
             </Button>
           </div>
