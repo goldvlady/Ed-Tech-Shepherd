@@ -37,7 +37,7 @@ import { Checkbox } from '../../../../../components/ui/checkbox';
 
 const LoadingRow = () => (
   <TableRow>
-    {[...Array(7)].map((_, index) => (
+    {[...Array(8)].map((_, index) => (
       <TableCell key={index}>
         <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
       </TableCell>
