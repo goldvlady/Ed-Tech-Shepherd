@@ -48,6 +48,7 @@ import { Field, Form, Formik } from 'formik';
 import StudySession from '../views/Dashboard/FlashCards/forms/flashcard_setup/manual-occlusion-2/_components/study-session';
 import { useQuery } from '@tanstack/react-query';
 import OccResultsDialog from '../views/Dashboard/FlashCards/forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
+import { cn } from '../library/utils';
 
 export default function Events({ event }: any) {
   const [loading, setLoading] = useState(false);
@@ -819,11 +820,18 @@ const ImageOcclusionItem = ({ id, time }: { id: string; time: string }) => {
     }));
   }, []);
 
+  if (isLoading) return null;
+
   return (
     <>
       <div
         role="button"
-        className="image-occlusion rounded-md bg-blue-100 border-l-2 border-blue-600 flex gap-3 cursor-pointer hover:drop-shadow-sm p-3 w-full flex-col"
+        className={cn(
+          'image-occlusion rounded-md bg-blue-100 border-l-2 border-blue-600 flex gap-3 cursor-pointer hover:drop-shadow-sm p-3 w-full flex-col',
+          {
+            'pointer-events-none': isLoading
+          }
+        )}
         onClick={() => handleOpen(id)}
       >
         <p className="text-xs">
