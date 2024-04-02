@@ -451,6 +451,7 @@ const useChatManager = (
     sendMessage,
     setCurrentChat,
     fetchHistory,
+    hydrateChat,
     onEvent,
     emitEvent,
     setChatWindowParams,

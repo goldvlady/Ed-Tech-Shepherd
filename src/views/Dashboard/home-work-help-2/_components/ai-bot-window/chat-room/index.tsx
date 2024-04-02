@@ -198,6 +198,7 @@ function ChatRoom() {
         }
       );
     } else if (!searchIncludesInitialMessages) {
+      rest.hydrateChat(id);
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
