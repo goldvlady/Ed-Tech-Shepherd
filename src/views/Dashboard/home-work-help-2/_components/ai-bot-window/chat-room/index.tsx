@@ -1,6 +1,6 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
 import useChatManager, {
   ChatMessage as ChatMessageType
@@ -165,7 +165,7 @@ function ChatRoom() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
     const searchIncludesInitialMessages =
@@ -199,7 +199,7 @@ function ChatRoom() {
       );
     } else if (!searchIncludesInitialMessages) {
       rest.hydrateChat(id);
-      fetchHistory(30, 0, id);
+      // fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 
