@@ -76,6 +76,10 @@ function ChatRoom() {
         const b = {
           ...connectionQuery,
           studentId,
+          language:
+            connectionQuery.language && connectionQuery.language.length > 0
+              ? connectionQuery.language
+              : 'English',
           conversationId: id,
           firebaseId: user?.firebaseId,
           name: user.name.first,
@@ -309,6 +313,11 @@ function ChatRoom() {
                     const body = {
                       ...connectionQuery,
                       studentId,
+                      language:
+                        connectionQuery.language &&
+                        connectionQuery.language.length > 0
+                          ? connectionQuery.language
+                          : 'English',
                       firebaseId: user.firebaseId,
                       conversationId: id,
                       name: user.name.first,
@@ -418,6 +427,11 @@ function ChatRoom() {
                 const body = {
                   ...connectionQuery,
                   studentId,
+                  language:
+                    connectionQuery.language &&
+                    connectionQuery.language.length > 0
+                      ? connectionQuery.language
+                      : 'English',
                   firebaseId: user.firebaseId,
                   conversationId: id,
                   name: user.name.first,

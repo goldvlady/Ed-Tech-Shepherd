@@ -201,8 +201,10 @@ function Input({
           />
           <Button
             disabled={
-              currentInputType === 'subject' &&
-              chatContext.subject.trim() === ''
+              (currentInputType === 'subject' &&
+                chatContext.subject.trim() === '') ||
+              (currentInputType === 'language' &&
+                chatContext.language.length === 0)
             }
             onClick={handleButtonClick}
             title={
