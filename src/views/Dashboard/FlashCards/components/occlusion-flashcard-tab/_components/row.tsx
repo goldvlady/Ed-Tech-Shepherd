@@ -128,9 +128,9 @@ const DataRow = ({ row, handleOpen, page, limit, checked, handleCheck }) => {
 
   return (
     <TableRow key={row._id} className="hover:bg-stone-100 cursor-pointer">
-      <TableCell className="text-center w-[50px]">
+      {/* <TableCell className="text-center w-[50px]">
         <Checkbox checked={checked} onCheckedChange={handleCheck} />
-      </TableCell>
+      </TableCell> */}
       <TableCell
         className="font-medium text-[#207DF7] cursor-pointer hover:font-semibold text-center"
         onClick={() => handleOpen(row._id)}

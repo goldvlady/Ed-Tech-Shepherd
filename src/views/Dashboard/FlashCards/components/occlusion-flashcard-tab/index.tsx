@@ -37,7 +37,7 @@ import { Checkbox } from '../../../../../components/ui/checkbox';
 
 const LoadingRow = () => (
   <TableRow>
-    {[...Array(8)].map((_, index) => (
+    {[...Array(7)].map((_, index) => (
       <TableCell key={index}>
         <div className="w-20 h-4 bg-gray-200 animate-pulse"></div>
       </TableCell>
@@ -339,7 +339,7 @@ const OcclusionFlashcardTab = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[50px] pl-5">
+            {/* <TableHead className="w-[50px] pl-5">
               <Checkbox
                 checked={
                   data?.list?.length === checkedRows.length &&
@@ -353,7 +353,7 @@ const OcclusionFlashcardTab = () => {
                   }
                 }}
               />
-            </TableHead>
+            </TableHead> */}
             <TableHead className="w-[200px] text-center">Deckname</TableHead>
             <TableHead className="text-center">No. of Rectangles</TableHead>
             <TableHead className="text-center">Tags</TableHead>
