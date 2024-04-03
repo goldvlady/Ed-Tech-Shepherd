@@ -11,7 +11,7 @@ import {
 
 function ChatHistory() {
   return (
-    <div className="bg-white h-full">
+    <div className="bg-white h-full flex flex-col">
       <div className="w-[17.25rem] p-[1rem] pb-0">
         <div className="w-full h-[30px] flex gap-2 my-4 items-center">
           <div>
@@ -53,8 +53,25 @@ function ChatHistory() {
           Chat History
         </h5>
       </div>
+      <div className="history flex-1 overflow-auto mt-[1rem] pb-2">
+        <HistoryItem />
+        <HistoryItem />
+        <HistoryItem />
+        <HistoryItem />
+        <HistoryItem />
+        <HistoryItem />
+        <HistoryItem />
+      </div>
     </div>
   );
 }
+
+const HistoryItem = () => {
+  return (
+    <div className="w-[10.31rem] h-[10.31rem] rounded-[10px] shadow-lg mx-auto border my-[10px] relative">
+      <div className='absolute w-8 h-8 rounded-full bg-red-300 top-0 right-0 m-[8px]'></div>
+    </div>
+  );
+};
 
 export default ChatHistory;
