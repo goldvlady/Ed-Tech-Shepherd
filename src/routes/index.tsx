@@ -14,6 +14,7 @@ import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
+import MultiRag from '../views/Dashboard/multi-rag';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -558,19 +559,15 @@ const AppRoutes: React.FC = () => {
         >
           <Route path=":id" element={<ChatRoom />} />
         </Route>
+        <Route
+          path="/dashboard/doc-chat"
+          element={
+            <Suspense fallback={<SharedLoading />}>
+              <MultiRag />
+            </Suspense>
+          }
+        />
       </Route>
-      {/* <Route
-        path="/dashboard/ace-homework/:id"
-        element={
-          <Suspense fallback={<DashboardLayoutSkeleton />}>
-            <DashboardLayout>
-              <Suspense fallback={<SharedLoading />}>
-                <HomeWorkHelp />
-              </Suspense>
-            </DashboardLayout>
-          </Suspense>
-        }
-      /> */}
       <Route
         path="/dashboard/quizzes/take"
         element={
