@@ -132,7 +132,7 @@ function transformFlashcardData(originalData: any) {
     level: originalData.level,
     studyType: originalData.studyType,
     subject: originalData.subject,
-    documentId: originalData.documentId,
+    documentId: originalData?.documentId,
     hasSubmitted: false,
     topic: originalData.topic,
     studyPeriod: originalData.studyPeriod,

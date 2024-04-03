@@ -7,8 +7,18 @@ import { Button } from '../button';
 import { cn } from '../../../library/utils';
 import { Calendar } from '../calender';
 
-export function DatePicker() {
+export function DatePicker({
+  onDateChange
+}: {
+  onDateChange?: (date: Date) => void;
+}) {
   const [date, setDate] = React.useState<Date>();
+
+  React.useEffect(() => {
+    if (date) {
+      onDateChange(date);
+    }
+  }, [date]);
 
   return (
     <Popover>
@@ -16,7 +26,7 @@ export function DatePicker() {
         <Button
           variant={'outline'}
           className={cn(
-            'w-[280px] justify-start text-left font-normal',
+            'w-full justify-start text-left font-normal',
             !date && 'text-muted-foreground'
           )}
         >
@@ -24,12 +34,13 @@ export function DatePicker() {
           {date ? format(date, 'PPP') : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
+      <PopoverContent className="w-auto p-0 bg-white">
         <Calendar
           mode="single"
           selected={date}
           onSelect={setDate}
           initialFocus
+          disabled={(date) => date <= new Date()}
         />
       </PopoverContent>
     </Popover>

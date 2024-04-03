@@ -117,6 +117,20 @@ class ApiService {
     });
   };
 
+  static scheduleImageOcclusionStudyEvent = async (data: any) => {
+    const requestPayload = {
+      ...data,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/scheduleStudyEvent`,
+      {
+        method: 'POST',
+        body: JSON.stringify(requestPayload)
+      }
+    );
+  };
+
   static createMathConversation = async (b: {
     subject: string;
     topic: string;
@@ -339,6 +353,70 @@ class ApiService {
         }
       );
     }
+  };
+
+  static createOcclusionCard = async (data: any) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/createOcclusionCard`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
+  static getOcclusionCard = async (id: string) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCard?id=${id}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+
+  static editOcclusionCard = async (data: any) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${data._id}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
+  static resetOcclusionCard = async (id: string) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${id}&reset=true`,
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    );
+  };
+
+  static deleteOcclusionCard = async (id: string) => {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/deleteOcclusionCard?id=${id}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    );
+  };
+
+  static fetchOcclusionCards = async (page: number, limit: number) => {
+    // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+    return doFetch(
+      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCards?page=${page}&limit=${limit}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({})
+      }
+    );
   };
 
   static storeStudyPlanMetaData = async (data: {
@@ -692,7 +770,7 @@ class ApiService {
   };
 
   static getCalendarEvents = async () => {
-    return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
+    return doFetch(`https://deploy-preview-285--api-sheperdtutors.netlify.app/getCalenderEvents`);
   };
 
   static getUpcomingEvent = async () => {
