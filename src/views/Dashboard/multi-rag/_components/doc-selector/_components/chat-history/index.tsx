@@ -68,7 +68,7 @@ function ChatHistory() {
 
 const HistoryItem = () => {
   return (
-    <div className="w-[10.31rem] h-[10.31rem] rounded-[10px] shadow-lg mx-auto border my-[10px] relative">
+    <div className="w-[10.31rem] h-[10.31rem] rounded-[10px] shadow mx-auto border my-[10px] relative hover:shadow-lg cursor-pointer transition-shadow will-change-auto">
       <div className='absolute w-8 h-8 rounded-full bg-red-300 top-0 right-0 m-[8px]'></div>
     </div>
   );
