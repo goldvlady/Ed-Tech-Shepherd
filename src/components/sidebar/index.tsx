@@ -161,28 +161,28 @@ function Sidebar() {
                     title="Find a Shepherd"
                     active={false}
                     icon={null}
-                    link="/dashboard/doc-chat"
+                    link="/dashboard/find-tutor"
                   />
                   <SidebarItem
                     hideLabel={collapsed}
                     title="My Shepherds"
                     active={false}
                     icon={null}
-                    link="/dashboard/ai-tutor"
+                    link="/dashboard/my-tutors"
                   />
                   <SidebarItem
                     hideLabel={collapsed}
                     title="Bookmarks"
                     active={false}
                     icon={null}
-                    link="/dashboard/ai-tutor"
+                    link="/dashboard/saved-tutors"
                   />
                   <SidebarItem
                     hideLabel={collapsed}
                     title="Bounties"
                     active={false}
                     icon={null}
-                    link="/dashboard/ai-tutor"
+                    link="/dashboard/bounties"
                   />
                 </AccordionContent>
               </AccordionItem>
@@ -216,7 +216,8 @@ function Sidebar() {
             icon={<MdOutlineFeedback />}
             active={false}
             comingSoon={false}
-            link=""
+            link="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+            external={true}
           />
         </div>
       </div>
@@ -230,7 +231,8 @@ const SidebarItem = ({
   active,
   link,
   comingSoon,
-  hideLabel
+  hideLabel,
+  external
 }: {
   title: string;
   icon?: JSX.Element;
@@ -238,11 +240,13 @@ const SidebarItem = ({
   link?: string;
   comingSoon?: boolean;
   hideLabel?: boolean;
+  external?: boolean;
 }) => {
   const Comp = link ? Link : 'div';
   return (
     <Comp
       to={link}
+      {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
       className={cn({
         'pointer-events-none': comingSoon
       })}
