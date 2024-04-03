@@ -13,6 +13,12 @@
     scrollbar-width: none; /* Firefox */
   }
 
+  .cc {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .shadow-element {
     --tw-shadow-colored: 0 0 0 0.5px var(--tw-shadow-color),
       0 0 20px var(--tw-shadow-color), 0 1px 5px var(--tw-shadow-color);
