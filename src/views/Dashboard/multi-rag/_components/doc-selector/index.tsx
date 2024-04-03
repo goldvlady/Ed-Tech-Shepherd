@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import ChatHistory from './_components/chat-history';
+import UploadingItems from './_components/uploading-items';
+import Sections from './_components/sections';
 
 function DocSelector() {
   const [active, setActive] = useState(0);
@@ -26,7 +28,8 @@ function DocSelector() {
               onClick={() => setActive(2)}
             />
           </header>
-          <main className="w-full bg-white min-h-[25rem]"></main>
+          <Sections active={active} />
+          <UploadingItems />
         </div>
       </div>
       <ChatHistory />
