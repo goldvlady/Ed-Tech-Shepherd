@@ -44,7 +44,7 @@ function SelectDocuments() {
         <Button>New Chat</Button>
       </header>
       <main
-        className={cn('w-full h-full mt-[0.9rem] transition-all overflow-scroll', {
+        className={cn('w-full h-full py-[0.9rem] transition-all overflow-scroll', {
           'grid grid-cols-4 gap-4': layout === 'grid',
           'space-y-4': layout === 'list'
         })}
@@ -85,8 +85,8 @@ const InputComp = ({
 const DocItem = ({ layout }: { layout: 'grid' | 'list' }) => {
   return (
     <div
-      className={cn('border-2 rounded-[10px] transition-all duration-300 cursor-pointer', {
-        'w-[10rem] h-[10rem] hover:shadow-xl': layout === 'grid',
+      className={cn('border-2 border-black rounded-[10px] transition-all duration-300 cursor-pointer', {
+        'w-full h-[10rem] hover:shadow-xl': layout === 'grid',
         'w-full h-8 hover:shadow': layout === 'list'
       })}
     ></div>
