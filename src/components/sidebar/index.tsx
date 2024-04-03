@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Logo from '../Logo';
 import { FiHome } from 'react-icons/fi';
 import { cn } from '../../library/utils';
@@ -243,6 +243,7 @@ const SidebarItem = ({
   external?: boolean;
 }) => {
   const Comp = link ? Link : 'div';
+  const { pathname } = useLocation();
   return (
     <Comp
       to={link}
@@ -255,7 +256,7 @@ const SidebarItem = ({
         className={cn(
           'w-full h-[2.25rem] rounded  px-[1rem] text-[#6E7682] bg-white py-[0.5rem] flex items-center gap-[10px] hover:bg-[#F0F6FE] cursor-pointer',
           {
-            'text-[#207DF7] bg-[#F0F6FE]': active
+            'text-[#207DF7] bg-[#F0F6FE]': link === pathname
           }
         )}
       >
