@@ -327,16 +327,7 @@ const CreateFlashPage = () => {
       return <AnkiType />;
     }
     if (settings.source === SourceEnum.IMAGE_OCCLUSION) {
-      return (
-        <div
-          className={cn({
-            'opacity-50 pointer-events-none':
-              user.subscription && user.subscription.tier !== 'Premium'
-          })}
-        >
-          <ImageOcclusion />
-        </div>
-      );
+      return <ImageOcclusion />;
     }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
@@ -412,10 +403,6 @@ const CreateFlashPage = () => {
   // } else {
 
   const [openPlansModel, setPlansModel] = useState(false);
-
-  const handleClosePlansModal = () => {
-    setPlansModel(false);
-  };
 
   return (
     <Box width={'100%'}>
@@ -503,21 +490,17 @@ const CreateFlashPage = () => {
                         hasSubmitted: false
                       }));
                     }
-                    if (value === SourceEnum.IMAGE_OCCLUSION) {
-                      if (
-                        user.subscription &&
-                        user.subscription.tier !== 'Premium'
-                      ) {
-                        setPlansModel(true);
-                      }
-                    }
+                    // if (value === SourceEnum.IMAGE_OCCLUSION) {
+                    //   if (
+                    //     user.subscription &&
+                    //     user.subscription.tier !== 'Premium'
+                    //   ) {
+                    //     setPlansModel(true);
+                    //   }
+                    // }
                   }}
                   value={settings.source}
                 >
-                  <PlansModal
-                    togglePlansModal={openPlansModel}
-                    setTogglePlansModal={handleClosePlansModal}
-                  />
                   <HStack align="start" spacing={7}>
                     <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
                       <Text color="#585F68">Document</Text>

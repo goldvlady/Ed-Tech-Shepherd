@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '../../../../../../../../../../components/ui/button';
 import {
   Dialog,
@@ -11,6 +11,8 @@ import { useDropzone } from 'react-dropzone';
 import { Switch } from '../../../../../../../../../../components/ui/switch';
 import { Label } from '../../../../../../../../../../components/ui/label';
 import useAutomaticImageOcclusion from '../../../../hook/useAutomaticImageOcclusion';
+import PlansModal from '../../../../../../../../../../components/PlansModal';
+import useUserStore from '../../../../../../../../../../state/userStore';
 
 function resizeImageToWindow(src, callback) {
   const targetWidth = 714;
@@ -87,6 +89,13 @@ function ImageUploader({
   const [imageURI, setImageURI] = useState('');
   const [imageName, setImageName] = useState('');
   const [error, setError] = useState('');
+  const [openPlansModel, setPlansModel] = useState(false);
+  const { user }: any = useUserStore();
+  // const user = {
+  //   subscription: {
+  //     tier: 'Basic'
+  //   }
+  // };
 
   console.log('imageURI', {
     imageURI,
@@ -155,140 +164,169 @@ function ImageUploader({
     }
   };
 
+  const handleClosePlansModal = () => {
+    setPlansModel(false);
+  };
+
   return (
-    <div className="my-4">
-      <Dialog
-        open={open}
-        onOpenChange={(open) => {
-          if (open) {
-            handleOpen();
-            setImageName('');
-          }
-        }}
-      >
-        <DialogTrigger asChild>
-          <Button
-            disabled={deckName.trim() === ''}
-            className={cn('bg-[#207DF7] text-white h-10 w-32 cursor-pointer', {
-              'cursor-not-allowed': deckName === ''
-            })}
-          >
-            <UploadIcon className="w-5 h-5 mr-2" />
-            Add Image
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="bg-white w-[25rem] h-[24.5rem] flex flex-col p-0">
-          <div className="flex justify-center items-center border-b py-4">
-            <p className="text-[#212224] font-medium text-sm">Add Image</p>
-          </div>
-          <div
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full',
-              { 'pointer-events-none': imageName }
-            )}
-            {...getRootProps()}
-          >
-            <div
+    <React.Fragment>
+      <PlansModal
+        togglePlansModal={openPlansModel}
+        setTogglePlansModal={handleClosePlansModal}
+      />
+      <div className="my-4">
+        <Dialog
+          open={open}
+          onOpenChange={(open) => {
+            if (open) {
+              handleOpen();
+              setImageName('');
+            }
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button
+              disabled={deckName.trim() === ''}
               className={cn(
-                'w-80 h-32 mx-auto border-2 rounded-md border-dashed transition-colors flex items-center justify-center pointer-events-auto',
+                'bg-[#207DF7] text-white h-10 w-32 cursor-pointer',
                 {
-                  'border-[#E4E5E7]': !isDragActive,
-                  'border-[#207DF7]': isDragActive || imageName
+                  'cursor-not-allowed': deckName === ''
                 }
               )}
             >
-              <input {...getInputProps()} />
-              {imageName ? (
-                <div className="flex flex-col justify-center items-center gap-1">
-                  <p className="text-xs max-w-[32ch] truncate text-[#207DF7]">
-                    {imageName}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <UploadIcon className="w-12 h-12 text-[#E4E5E7]" />
-                  <p className="text-[#585F68] text-sm font-normal">
-                    Drag and drop
-                  </p>
-                  <p className="text-[#585F68] text-sm font-normal">
-                    or
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="pl-1 pr-0 text-[#207DF7] font-medium"
-                    >
-                      Browse files
-                    </Button>
-                  </p>
-                </div>
+              <UploadIcon className="w-5 h-5 mr-2" />
+              Add Image
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-white w-[25rem] h-[24.5rem] flex flex-col p-0">
+            <div className="flex justify-center items-center border-b py-4">
+              <p className="text-[#212224] font-medium text-sm">Add Image</p>
+            </div>
+            <div
+              className={cn(
+                'flex-1 flex flex-col items-center justify-center gap-3 w-full h-full',
+                { 'pointer-events-none': imageName }
+              )}
+              {...getRootProps()}
+            >
+              <div
+                className={cn(
+                  'w-80 h-32 mx-auto border-2 rounded-md border-dashed transition-colors flex items-center justify-center pointer-events-auto',
+                  {
+                    'border-[#E4E5E7]': !isDragActive,
+                    'border-[#207DF7]': isDragActive || imageName
+                  }
+                )}
+              >
+                <input {...getInputProps()} />
+                {imageName ? (
+                  <div className="flex flex-col justify-center items-center gap-1">
+                    <p className="text-xs max-w-[32ch] truncate text-[#207DF7]">
+                      {imageName}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <UploadIcon className="w-12 h-12 text-[#E4E5E7]" />
+                    <p className="text-[#585F68] text-sm font-normal">
+                      Drag and drop
+                    </p>
+                    <p className="text-[#585F68] text-sm font-normal">
+                      or
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="pl-1 pr-0 text-[#207DF7] font-medium"
+                      >
+                        Browse files
+                      </Button>
+                    </p>
+                  </div>
+                )}
+              </div>
+              <p className="max-w-80 mx-auto text-[#585F68] text-sm font-normal">
+                Shepherd supports{' '}
+                <span className="font-medium">.jpg, .jpeg & .png</span> document
+                formats. (Max file size 1MB)
+              </p>
+              {error && (
+                <p className="text-xs text-left w-full pl-10 text-red-600">
+                  *{error}
+                </p>
               )}
             </div>
-            <p className="max-w-80 mx-auto text-[#585F68] text-sm font-normal">
-              Shepherd supports{' '}
-              <span className="font-medium">.jpg, .jpeg & .png</span> document
-              formats. (Max file size 1MB)
-            </p>
-            {error && (
-              <p className="text-xs text-left w-full pl-10 text-red-600">
-                *{error}
-              </p>
-            )}
-          </div>
-          <div className="footer px-6 bg-[#F7F7F8] py-2.5">
-            <div className="flex justify-between gap-2">
-              <div className="flex items-center space-x-2 cursor-pointer">
-                <Switch
-                  id="ai-occlusion-mode"
-                  onCheckedChange={(checked) => {
-                    setEnableAIOcclusion(checked);
-                  }}
-                  className={cn('cursor-pointer', {
-                    'bg-[#207df74a]': enableAIOcclusion,
-                    'bg-[#E4E5E7]': !enableAIOcclusion
-                  })}
-                />
-                <Label htmlFor="ai-occlusion-mode">
-                  <span
-                    className={cn(
-                      'text-[#212224] font-normal text-xs whitespace-nowrap cursor-pointer',
-                      {
-                        'opacity-50': !enableAIOcclusion
+            <div className="footer px-6 bg-[#F7F7F8] py-2.5">
+              <div className="flex justify-between gap-2">
+                <div className="flex items-center space-x-2 cursor-pointer">
+                  <Switch
+                    checked={enableAIOcclusion}
+                    id="ai-occlusion-mode"
+                    onCheckedChange={(checked) => {
+                      if (
+                        user.subscription &&
+                        user.subscription.tier !== 'Premium'
+                      ) {
+                        setPlansModel(true);
+                        setEnableAIOcclusion(false);
+
+                        handleClose({
+                          formReset: true
+                        });
+                        setEnableAIOcclusion(false);
+                        setLoadOcclusionGeneration(false);
+                        setImageURI('');
+                      } else {
+                        setEnableAIOcclusion(checked);
                       }
-                    )}
+                    }}
+                    className={cn('cursor-pointer', {
+                      'bg-[#207df74a]': enableAIOcclusion,
+                      'bg-[#E4E5E7]': !enableAIOcclusion
+                    })}
+                  />
+                  <Label htmlFor="ai-occlusion-mode">
+                    <span
+                      className={cn(
+                        'text-[#212224] font-normal text-xs whitespace-nowrap cursor-pointer',
+                        {
+                          'opacity-50': !enableAIOcclusion
+                        }
+                      )}
+                    >
+                      Enable AI Occlusion
+                    </span>
+                  </Label>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      handleClose({
+                        formReset: true
+                      });
+                      setEnableAIOcclusion(false);
+                      setLoadOcclusionGeneration(false);
+                      setImageURI('');
+                    }}
                   >
-                    Enable AI Occlusion
-                  </span>
-                </Label>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    handleClose({
-                      formReset: true
-                    });
-                    setEnableAIOcclusion(false);
-                    setLoadOcclusionGeneration(false);
-                    setImageURI('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleUpload}
-                  disabled={loadOcclusionGeneration || !imageURI}
-                >
-                  {enableAIOcclusion && loadOcclusionGeneration && (
-                    <ReloadIcon className="animate-spin mr-2" />
-                  )}
-                  Upload
-                </Button>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleUpload}
+                    disabled={loadOcclusionGeneration || !imageURI}
+                  >
+                    {enableAIOcclusion && loadOcclusionGeneration && (
+                      <ReloadIcon className="animate-spin mr-2" />
+                    )}
+                    Upload
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </React.Fragment>
   );
 }
 
