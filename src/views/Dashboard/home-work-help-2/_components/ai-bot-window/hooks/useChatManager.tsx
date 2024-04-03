@@ -17,7 +17,7 @@ interface ChatLog {
   content: string;
 }
 
-interface ChatMessage {
+export interface ChatMessage {
   id: number;
   studentId: string;
   log: ChatLog;
@@ -153,10 +153,16 @@ const useChatManager = (
 
   // useCallback for sending messages through the WebSocket and updating the local state
   const sendMessage = useCallback(
-    (message: string, topic: 'math' | 'rest' = 'rest') => {
+    (
+      message: string,
+      topic: 'math' | 'rest' = 'rest',
+      role: 'assistant' | 'user' = 'user'
+    ) => {
       if (topic === 'math') {
-        const newMessage = formatMessage(message);
+        const newMessage = formatMessage(message, role);
+        console.log(newMessage, 'new bot');
         setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setCurrentChat('');
         return;
       }
       if (!socketRef.current) {
@@ -179,7 +185,7 @@ const useChatManager = (
         setLoading(true);
         const id = convoId || conversationId;
 
-        if (!socketRef.current || !id) {
+        if (!socketRef.current && !id) {
           console.error(
             'Socket is not initialized or conversationId is not set.'
           );
@@ -221,6 +227,7 @@ const useChatManager = (
           if (!token) {
             navigate('/signup');
           }
+
           const data = await ApiService.getConversionById({
             conversationId: id
           });
@@ -444,6 +451,7 @@ const useChatManager = (
     sendMessage,
     setCurrentChat,
     fetchHistory,
+    hydrateChat,
     onEvent,
     emitEvent,
     setChatWindowParams,
@@ -455,7 +463,9 @@ const useChatManager = (
     currentSocket: socketRef?.current,
     limitReached,
     resetLimitReached,
-    disconnectSocket
+    disconnectSocket,
+    setTitle,
+    setConversationId
   };
 };
 

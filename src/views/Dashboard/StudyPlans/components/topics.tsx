@@ -416,6 +416,7 @@ function Topics(props) {
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
     const [initializing, setInitializing] = useState(false);
+    const [initializingDocChat, setInitializingDocChat] = useState(false);
     const [showNoteModal, setShowNoteModal] = useState(false);
 
     const toggleCollapse = () => {
@@ -477,6 +478,7 @@ function Topics(props) {
     });
 
     const handleAiTutor = () => {
+      setInitializing(true);
       const convoId = topic.topicMetaData[0]?.conversationId;
       if (!user) {
         return redirectToLogin('You need to login to use AI Tutor');
@@ -496,15 +498,19 @@ function Topics(props) {
       }
       setInitializing(false);
     };
+    console.log(initializingDocChat);
 
     const handleDocAction = async (doc) => {
+      setInitializingDocChat(true);
       if (!user) {
         return redirectToLogin('You need to login to use AI Tutor');
       }
+
       try {
         let docId = doc.ingestId;
         if (!doc.ingestId) {
           updateState({ isPageLoading: true });
+
           const ingestHandler = new FileProcessingService(
             { ...doc, student: user?._id },
             true
@@ -527,6 +533,7 @@ function Topics(props) {
         });
       } finally {
         updateState({ isPageLoading: false });
+        setInitializingDocChat(false);
       }
     };
 
@@ -742,8 +749,8 @@ function Topics(props) {
               p={4}
               justifyContent="space-between"
               textColor={'black'}
-              pointerEvents={disableClick ? 'none' : 'auto'} // Disable pointer events if not a valid user
-              opacity={disableClick ? 0.5 : 1} // Reduce opacity for disabled items
+              pointerEvents={disableClick ? 'none' : 'auto'}
+              opacity={disableClick ? 0.5 : 1}
             >
               <Menu isLazy>
                 <MenuButton>
@@ -781,7 +788,6 @@ function Topics(props) {
                 <VStack
                   cursor={'pointer'}
                   onClick={() => {
-                    setInitializing(true);
                     handleAiTutor();
                   }}
                 >
@@ -791,76 +797,94 @@ function Topics(props) {
                   </Text>
                 </VStack>
               )}
-
-              <Menu isLazy>
-                <MenuButton>
+              {initializingDocChat ? (
+                <Box textAlign={'center'}>
+                  <Spinner boxSize={'15px'} my={2} />
+                </Box>
+              ) : (
+                <>
                   {' '}
-                  <VStack>
-                    <DocChatIcon />
-                    <Text fontSize={12} fontWeight={500}>
-                      Doc Chat
-                    </Text>
-                  </VStack>
-                </MenuButton>
-                <MenuList
-                  maxH={60}
-                  overflowY="scroll"
-                  bg="white"
-                  border="1px solid #E2E8F0"
-                  borderRadius="md"
-                >
-                  {studyPlanResources && (
-                    <>
-                      {findDocumentsByTopic(topic.topicDetails?.label).map(
-                        (doc, index) => {
-                          return (
-                            <MenuItem
-                              key={index}
-                              _hover={{ bg: 'gray.100' }}
-                              fontSize={12}
-                              onClick={() => {
-                                handleDocAction(doc);
-                                // navigate(
-                                //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
-                                // )
-                              }}
-                            >
-                              {doc.title?.replace(
-                                /%20%26|%20|%2F/g,
-                                (match) => {
-                                  switch (match) {
-                                    case '%20%26':
-                                      return ' ';
-                                    case '%20':
-                                      return ' ';
-                                    case '%2F':
-                                      return ' ';
-                                    default:
-                                      return match;
-                                  }
-                                }
-                              )}
-                            </MenuItem>
-                          );
-                        }
-                      )}
+                  <Menu isLazy>
+                    <MenuButton>
+                      <VStack>
+                        <DocChatIcon />
+                        <Text fontSize={12} fontWeight={500}>
+                          Doc Chat
+                        </Text>
+                      </VStack>
+                    </MenuButton>
+                    <MenuList
+                      maxH={60}
+                      overflowY="scroll"
+                      bg="white"
+                      border="1px solid #E2E8F0"
+                      borderRadius="md"
+                    >
+                      {studyPlanResources && (
+                        <>
+                          {findDocumentsByTopic(topic.topicDetails?.label).map(
+                            (doc, index) => {
+                              return (
+                                <MenuItem
+                                  key={index}
+                                  _hover={{ bg: 'gray.100' }}
+                                  w="full"
+                                  fontSize={12}
+                                  onClick={() => {
+                                    handleDocAction(doc);
+                                    // navigate(
+                                    //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+                                    // )
+                                  }}
+                                >
+                                  <Flex alignItems={'center'} gap={2}>
+                                    <Text>
+                                      {doc.title?.replace(
+                                        /%20%26|%20|%2F/g,
+                                        (match) => {
+                                          switch (match) {
+                                            case '%20%26':
+                                              return ' ';
+                                            case '%20':
+                                              return ' ';
+                                            case '%2F':
+                                              return ' ';
+                                            default:
+                                              return match;
+                                          }
+                                        }
+                                      )}
+                                    </Text>
+                                    {initializingDocChat && (
+                                      <Box textAlign={'center'}>
+                                        <Spinner boxSize={'15px'} my={2} />
+                                      </Box>
+                                    )}
+                                  </Flex>
+                                </MenuItem>
+                              );
+                            }
+                          )}
 
-                      <Button
-                        color="gray"
-                        size={'sm'}
-                        variant="ghost"
-                        alignItems="center"
-                        float={'right'}
-                        onClick={() => setShowNoteModal(true)}
-                        fontSize={12}
-                      >
-                        <Icon as={FaPlus} mr={2} />
-                        Add New
-                      </Button>
-                    </>
-                  )}
-                </MenuList>
-              </Menu>
+                          <Button
+                            color="gray"
+                            size={'sm'}
+                            variant="ghost"
+                            alignItems="center"
+                            float={'right'}
+                            onClick={() => setShowNoteModal(true)}
+                            fontSize={12}
+                          >
+                            <Icon as={FaPlus} mr={2} />
+                            Add New
+                          </Button>
+                        </>
+                      )}
+                    </MenuList>
+                  </Menu>
+                </>
+              )}
+
               <VStack
                 cursor={'pointer'}
                 onClick={() => {

@@ -27,7 +27,8 @@ export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
   MANUAL = 'manual',
-  ANKI = 'anki'
+  ANKI = 'anki',
+  IMAGE_OCCLUSION = 'image_occlusion'
 }
 export enum QuestionGenerationStatusEnum {
   INIT = 'INIT',
@@ -357,9 +358,9 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       const responseData = {
         title: reqData.topic as string,
         student: user?._id as string,
-        documentUrl: reqData.documentId as string
+        documentUrl: reqData?.documentId as string
       };
-      let documentId = reqData.ingestId || reqData.documentId;
+      let documentId = reqData.ingestId || reqData?.documentId;
       if (ingestDoc && !reqData.ingestId) {
         const fileInfo = new FileProcessingService(responseData);
         // const {
@@ -585,14 +586,14 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
           firebaseId: user?.firebaseId,
           ...(reqData.level && { difficulty: reqData.level }),
           ...(reqData.noteDoc && { note: reqData.noteDoc }),
-          ...(reqData.documentId &&
+          ...(reqData?.documentId &&
             reqData.startPage && { start_page: reqData.startPage }),
           ...(reqData.documentId &&
             reqData.endPage && { end_page: reqData.startPage }),
           language: lang
         };
         let response;
-        if (reqData.documentId) {
+        if (reqData?.documentId) {
           response = await processDocumentRequest(reqData, ingestDoc, aiData);
         } else {
           let response: any;
@@ -620,7 +621,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       } catch (error: any) {
         handleError(onDone, error.message);
       } finally {
-        if (!reqData.documentId) {
+        if (!reqData?.documentId) {
           setIsLoading(false);
         }
       }

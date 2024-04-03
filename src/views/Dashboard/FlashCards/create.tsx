@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React from 'react';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import PlansModal from '../../../components/PlansModal';
 import { FlashCardModal } from '../../../components/flashcardDecks';
@@ -39,6 +40,8 @@ import {
 import { useParams, useLocation } from 'react-router';
 import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
+import ImageOcclusion from './forms/flashcard_setup/manual-occlusion-2';
+import { cn } from '../../../library/utils';
 
 const Wrapper = styled(Box)`
   select {
@@ -86,7 +89,8 @@ export enum SourceEnum {
   DOCUMENT = 'document',
   SUBJECT = 'subject',
   MANUAL = 'manual',
-  ANKI = 'anki'
+  ANKI = 'anki',
+  IMAGE_OCCLUSION = 'image_occlusion'
 }
 
 type SettingsType = {
@@ -322,6 +326,9 @@ const CreateFlashPage = () => {
     if (settings.source === SourceEnum.ANKI) {
       return <AnkiType />;
     }
+    if (settings.source === SourceEnum.IMAGE_OCCLUSION) {
+      return <ImageOcclusion />;
+    }
     return <></>;
   }, [settings, isCompleted, resetFlashcard, loading, currentStep]); // The callback depends on 'settings'
 
@@ -394,6 +401,9 @@ const CreateFlashPage = () => {
   //     </Center>
   //   );
   // } else {
+
+  const [openPlansModel, setPlansModel] = useState(false);
+
   return (
     <Box width={'100%'}>
       {isLoading && <LoaderOverlay />}
@@ -480,8 +490,13 @@ const CreateFlashPage = () => {
                         hasSubmitted: false
                       }));
                     }
-                    // if (value === SourceEnum.DOCUMENT) {
-                    //   handleBadgeClick(TypeEnum.FLASHCARD);
+                    // if (value === SourceEnum.IMAGE_OCCLUSION) {
+                    //   if (
+                    //     user.subscription &&
+                    //     user.subscription.tier !== 'Premium'
+                    //   ) {
+                    //     setPlansModel(true);
+                    //   }
                     // }
                   }}
                   value={settings.source}
@@ -502,6 +517,9 @@ const CreateFlashPage = () => {
                           <Text color="#585F68">Anki</Text>
                         </Radio>
                       )}
+                    <Radio value={SourceEnum.IMAGE_OCCLUSION}>
+                      <Text color="#585F68">Image Occlusion</Text>
+                    </Radio>
                   </HStack>
                 </RadioGroup>
               </Box>
@@ -581,18 +599,20 @@ const CreateFlashPage = () => {
             )}
           </VStack>
           {/* Render the right item here */}
-          <VStack
-            borderLeft="1px solid #E7E8E9"
-            top="60px"
-            width={`${boxWidth / 2}px`}
-            maxWidth={`${boxWidth / 2}px`}
-            right="0"
-            bottom={'0'}
-            position={'fixed'}
-            display={{ base: 'none', md: 'flex' }}
-          >
-            {renderPreview()}
-          </VStack>
+          {true && (
+            <VStack
+              borderLeft="1px solid #E7E8E9"
+              top="60px"
+              width={`${boxWidth / 2}px`}
+              maxWidth={`${boxWidth / 2}px`}
+              right="0"
+              bottom={'0'}
+              position={'fixed'}
+              display={{ base: 'none', md: 'flex' }}
+            >
+              {renderPreview()}
+            </VStack>
+          )}
         </HStack>
       </Wrapper>
     </Box>

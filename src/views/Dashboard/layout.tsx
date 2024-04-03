@@ -245,6 +245,7 @@ const NavItem = ({
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
+
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
   const { user, logoutUser } = userStore();
@@ -608,22 +609,13 @@ const SidebarContent = ({
   // const { unreadCount } = useStreamChat();
 
   return (
-    <Box
-      className="overflow-hidden"
-      transition="3s ease"
-      bg={useColorModeValue('white', 'gray.900')}
-      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-      w={{ base: 'full', md: 60 }}
-      // pos="fixed"
-      h="full"
-      {...rest}
-    >
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-        <Text fontWeight="bold">
+    <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
+      <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
+        <h4 className='font-bold'>
           <Logo />
-        </Text>
+        </h4>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-      </Flex>
+      </div>
       <NavItem icon={FiHome} path={'/dashboard'}>
         Home
       </NavItem>
@@ -636,18 +628,7 @@ const SidebarContent = ({
         alignItems="center"
         justifyContent="space-between"
         cursor="pointer"
-        onClick={
-          () => toggleChatMenu()
-          // hasActiveSubscription
-          //   ? () => toggleChatMenu()
-          //   : () =>
-          //       handleLockedClick(
-          //         !user.hadSubscription
-          //           ? 'Start Your Free Trial!'
-          //           : 'Pick a plan to access your AI Study Tools! 🚀',
-          //         'One-click Cancel at anytime.'
-          //       )
-        }
+        onClick={() => toggleChatMenu()}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
@@ -848,7 +829,7 @@ const SidebarContent = ({
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}
-    </Box>
+    </div>
   );
 };
 
