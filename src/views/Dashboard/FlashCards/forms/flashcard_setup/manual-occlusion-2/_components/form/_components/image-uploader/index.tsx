@@ -173,6 +173,8 @@ function ImageUploader({
       <PlansModal
         togglePlansModal={openPlansModel}
         setTogglePlansModal={handleClosePlansModal}
+        message="Upgrade to Premium to access AI Occlusion &#9889;"
+        subMessage="One-click Cancel at anytime"
       />
       <div className="my-4">
         <Dialog
