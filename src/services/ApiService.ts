@@ -123,7 +123,7 @@ class ApiService {
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/scheduleStudyEvent`,
+      `${ApiService.baseEndpoint}/scheduleStudyEvent`,
       {
         method: 'POST',
         body: JSON.stringify(requestPayload)
@@ -358,7 +358,7 @@ class ApiService {
   static createOcclusionCard = async (data: any) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/createOcclusionCard`,
+      `${ApiService.baseEndpoint}/createOcclusionCard`,
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -369,7 +369,7 @@ class ApiService {
   static getOcclusionCard = async (id: string) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCard?id=${id}`,
+      `${ApiService.baseEndpoint}/fetchOcclusionCard?id=${id}`,
       {
         method: 'POST'
       }
@@ -379,7 +379,7 @@ class ApiService {
   static editOcclusionCard = async (data: any) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${data._id}`,
+      `${ApiService.baseEndpoint}/editOcclusionCard?id=${data._id}`,
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -390,7 +390,7 @@ class ApiService {
   static resetOcclusionCard = async (id: string) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/editOcclusionCard?id=${id}&reset=true`,
+      `${ApiService.baseEndpoint}/editOcclusionCard?id=${id}&reset=true`,
       {
         method: 'POST',
         body: JSON.stringify({})
@@ -400,7 +400,7 @@ class ApiService {
 
   static deleteOcclusionCard = async (id: string) => {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/deleteOcclusionCard?id=${id}`,
+      `${ApiService.baseEndpoint}/deleteOcclusionCard?id=${id}`,
       {
         method: 'POST',
         body: JSON.stringify({})
@@ -411,7 +411,7 @@ class ApiService {
   static fetchOcclusionCards = async (page: number, limit: number) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
     return doFetch(
-      `https://deploy-preview-285--api-sheperdtutors.netlify.app/fetchOcclusionCards?page=${page}&limit=${limit}`,
+      `${ApiService.baseEndpoint}/fetchOcclusionCards?page=${page}&limit=${limit}`,
       {
         method: 'POST',
         body: JSON.stringify({})
@@ -770,7 +770,7 @@ class ApiService {
   };
 
   static getCalendarEvents = async () => {
-    return doFetch(`https://deploy-preview-285--api-sheperdtutors.netlify.app/getCalenderEvents`);
+    return doFetch(`${ApiService.baseEndpoint}/getCalenderEvents`);
   };
 
   static getUpcomingEvent = async () => {
