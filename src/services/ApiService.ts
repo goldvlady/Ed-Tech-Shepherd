@@ -122,13 +122,10 @@ class ApiService {
       ...data,
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
-    return doFetch(
-      `${ApiService.baseEndpoint}/scheduleStudyEvent`,
-      {
-        method: 'POST',
-        body: JSON.stringify(requestPayload)
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/scheduleStudyEvent`, {
+      method: 'POST',
+      body: JSON.stringify(requestPayload)
+    });
   };
 
   static createMathConversation = async (b: {
@@ -331,6 +328,16 @@ class ApiService {
     });
   };
 
+  static getOcclusionImageText = async (imageUri: string) => {
+    return doFetch(`${ApiService.baseEndpoint}/getOcclusionImageText`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ imageUri })
+    });
+  };
+
   static createFlashcard = async (
     data: any,
     generatorType = 'manual',
@@ -357,23 +364,17 @@ class ApiService {
 
   static createOcclusionCard = async (data: any) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
-    return doFetch(
-      `${ApiService.baseEndpoint}/createOcclusionCard`,
-      {
-        method: 'POST',
-        body: JSON.stringify(data)
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   };
 
   static getOcclusionCard = async (id: string) => {
     // return doFetch(`${ApiService.baseEndpoint}/createOcclusionCard`, {
-    return doFetch(
-      `${ApiService.baseEndpoint}/fetchOcclusionCard?id=${id}`,
-      {
-        method: 'POST'
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/fetchOcclusionCard?id=${id}`, {
+      method: 'POST'
+    });
   };
 
   static editOcclusionCard = async (data: any) => {
@@ -399,13 +400,10 @@ class ApiService {
   };
 
   static deleteOcclusionCard = async (id: string) => {
-    return doFetch(
-      `${ApiService.baseEndpoint}/deleteOcclusionCard?id=${id}`,
-      {
-        method: 'POST',
-        body: JSON.stringify({})
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/deleteOcclusionCard?id=${id}`, {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
   };
 
   static fetchOcclusionCards = async (page: number, limit: number) => {
