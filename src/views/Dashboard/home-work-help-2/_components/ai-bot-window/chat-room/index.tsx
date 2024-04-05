@@ -55,6 +55,7 @@ function ChatRoom() {
   const [streamEnded, setStreamEnded] = useState(true);
   const isFirstRun = useRef(true);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
+  const [handleDisabledForMaths, setHandleDisabledForMaths] = useState(false);
   const createMathConvoLogMutation = useMutation({
     mutationFn: (b: {
       query: string;
@@ -232,6 +233,11 @@ function ChatRoom() {
     setAutoScroll(true);
   };
   const handleSSE = async (buffer: string) => {
+    if (buffer.includes('run out of credits')) {
+      setOpenPricingModel(true);
+      setHandleDisabledForMaths(true);
+      return;
+    }
     if (buffer.includes('done with stream')) {
       sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
       setStreamEnded(true);
@@ -261,7 +267,7 @@ function ChatRoom() {
           <ChatInfoDropdown
             title={title}
             id={id}
-            disabled={apiKey ? true : false}
+            disabled={apiKey || handleDisabledForMaths ? true : false}
           />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
@@ -286,7 +292,7 @@ function ChatRoom() {
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
                   messages.length >= 4 &&
-                  (apiKey ? false : true)
+                  (apiKey || handleDisabledForMaths ? false : true)
                 }
                 sendSuggestedPrompt={async (message: string) => {
                   if (subject === 'Math') {
@@ -400,7 +406,7 @@ function ChatRoom() {
             setTogglePlansModal={() => setOpenPricingModel(false)}
           />
           <PromptInput
-            disabled={apiKey ? true : false}
+            disabled={apiKey || handleDisabledForMaths ? true : false}
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
               if (subject === 'Math') {
