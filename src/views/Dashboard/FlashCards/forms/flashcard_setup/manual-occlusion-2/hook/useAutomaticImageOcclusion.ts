@@ -86,16 +86,7 @@ function useAutomaticImageOcclusion() {
     let data;
     let error = '';
     try {
-      const response = await fetch(
-        `${ApiService.baseEndpoint}/getOcclusionImageText`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ imageUri: resizedImageURI })
-        }
-      );
+      const response = await ApiService.getOcclusionImageText(resizedImageURI);
 
       if (!response.ok) {
         error = 'Something went wrong. Please try again later.';

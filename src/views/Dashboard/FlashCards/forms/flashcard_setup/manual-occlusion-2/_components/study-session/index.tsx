@@ -54,7 +54,7 @@ function StudySession({
   });
 
   const { mutate, isPending: isSubmittingQuiz } = useMutation({
-    mutationFn: (data: { card: {}; percentages: {} }) =>
+    mutationFn: (data: { card: any; percentages: any }) =>
       ApiService.editOcclusionCard(data.card).then((res) => res.json())
   });
 
