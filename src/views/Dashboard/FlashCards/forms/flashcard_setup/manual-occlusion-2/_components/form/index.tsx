@@ -42,7 +42,7 @@ function Form() {
   const { mutate, isPending } = useMutation({
     mutationFn: ApiService.createOcclusionCard,
     onSuccess: async (res) => {
-      let data = await res.json();
+      const data = await res.json();
       console.log('data', data);
 
       setFormState((prevState) => ({
@@ -74,7 +74,7 @@ function Form() {
       select: (data) => data.card
     });
   const { mutate: updateOcclusion, isPending: isUpdating } = useMutation({
-    mutationFn: (data: { card: {}; percentages: {}; id: string }) =>
+    mutationFn: (data: { card: any; percentages: any; id: string }) =>
       ApiService.editOcclusionCard(data.card).then((res) => res.json()),
     onSuccess: (data, variables) => {
       setFormState((prevState) => ({

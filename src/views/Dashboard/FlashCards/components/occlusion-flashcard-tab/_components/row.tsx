@@ -115,7 +115,7 @@ const DataRow = ({ row, handleOpen, page, limit, checked, handleCheck }) => {
         color: colorRanges[2].color,
         backgroundColor: colorRanges[2].backgroundColor
       };
-    for (let range of colorRanges) {
+    for (const range of colorRanges) {
       if (percentage <= range.max && percentage >= range.min) {
         return { color: range.color, backgroundColor: range.backgroundColor };
       }
@@ -360,7 +360,8 @@ function createTimeKeyValuePairs() {
   let hour = 0;
   let minute = 0;
 
-  while (true) {
+  let loopRunning = true;
+  while (loopRunning) {
     // Construct 24-hour format key
     const key = `${hour.toString().padStart(2, '0')}:${minute
       .toString()
@@ -379,7 +380,10 @@ function createTimeKeyValuePairs() {
     time[key] = value;
 
     // Exit the loop if we reach 10:15 PM
-    if (hour === 22 && minute === 15) break;
+    if (hour === 22 && minute === 15) {
+      loopRunning = false;
+      break;
+    }
 
     // Increment the time by 15 minutes
     minute += 15;
@@ -520,7 +524,7 @@ const EditTagsDialog = ({ open, handleClose, row, page, limit }) => {
   }, [isSuccess, isLoading, isFetching]);
 
   const { mutate, isPending: isSubmittingTags } = useMutation({
-    mutationFn: (data: { card: {}; percentages: {} }) =>
+    mutationFn: (data: { card: any; percentages: any }) =>
       ApiService.editOcclusionCard(data.card).then((res) => res.json()),
     onMutate: async (variables) => {
       await queryClient.cancelQueries({

@@ -17,10 +17,7 @@ function CardSavedDialog({
     <Dialog open={open}>
       <DialogContent className="bg-white w-[400px] h-[257px] p-0 flex flex-col items-stretch gap-0">
         <header className="flex justify-end w-full py-4 px-4 pb-0">
-          <button
-            className="w-[60px] h-[22px] flex items-center justify-center gap-1 rounded-full bg-[#F3F5F6] text-[#969CA6] text-xs"
-            onClick={() => {}}
-          >
+          <button className="w-[60px] h-[22px] flex items-center justify-center gap-1 rounded-full bg-[#F3F5F6] text-[#969CA6] text-xs">
             <span className="text-[#969CA6] text-xs">Close</span>
             <span className="text-[#969CA6] text-xs"> &times;</span>
           </button>
