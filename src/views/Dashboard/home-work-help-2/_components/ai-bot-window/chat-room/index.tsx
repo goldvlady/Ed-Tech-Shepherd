@@ -1,18 +1,21 @@
 import { ShareIcon } from '../../../../../../components/icons';
 import useUserStore from '../../../../../../state/userStore';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
-import useChatManager from '../hooks/useChatManager';
+import useChatManager, {
+  ChatMessage as ChatMessageType
+} from '../hooks/useChatManager';
 import ChatMessage from './_components/chat-message';
 import PromptInput from './_components/prompt-input';
 import ChatInfoDropdown from './_components/chat-info-dropdown';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { encodeQueryParams } from '../../../../../../helpers';
+import ApiService from '../../../../../../services/ApiService';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 
 function ChatRoom() {
@@ -33,12 +36,15 @@ function ChatRoom() {
     conversationId,
     messages,
     currentChat,
+    title,
     sendMessage,
     setCurrentChat,
     fetchHistory,
     onEvent,
     currentSocket,
     getChatWindowParams,
+    setTitle,
+    setConversationId,
     ...rest
   } = useChatManager('homework-help', {
     autoHydrateChat: true,
@@ -47,40 +53,125 @@ function ChatRoom() {
 
   const [autoScroll, setAutoScroll] = useState(true);
   const [streamEnded, setStreamEnded] = useState(true);
-  const [streamStarted, setStreamStarted] = useState(false);
+  const isFirstRun = useRef(true);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
+  const createMathConvoLogMutation = useMutation({
+    mutationFn: (b: {
+      query: string;
+      conversationId: string;
+      studentId: string;
+    }) => ApiService.createConvoLog(b)
+  });
   useEffect(() => {
-    const chatWindowParams = getChatWindowParams();
-    const { connectionQuery } = chatWindowParams;
-    if (hasInitialMessagesParam && connectionQuery.subject === 'Math') {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      const chatWindowParams = getChatWindowParams();
+      const { connectionQuery } = chatWindowParams;
+      if (
+        hasInitialMessagesParam &&
+        connectionQuery.subject === 'Math' &&
+        user
+      ) {
+        setConversationId(id);
+        const b = {
+          ...connectionQuery,
+          studentId,
+          language:
+            connectionQuery.language && connectionQuery.language.length > 0
+              ? connectionQuery.language
+              : 'English',
+          conversationId: id,
+          firebaseId: user?.firebaseId,
+          name: user.name.first,
+          query: '',
+          messages: JSON.stringify([])
+        };
+        const q = encodeQueryParams(b);
+        const newSearchParams = new URLSearchParams(location.search);
+        newSearchParams.delete('initial_messages');
+        window.history.replaceState(
+          {},
+          '',
+          `${location.pathname}?${newSearchParams.toString()}`
+        );
 
-      // on streamEnded use useQuery's refetch function to fetch title
-      const b = {
-        ...connectionQuery,
-        studentId,
-        firebaseid: user.firebaseId,
-        name: user.name.first,
-        query: '',
-        messages: JSON.stringify([])
-      };
-      const q = encodeQueryParams(b);
+        setStreamEnded(false);
+        const startSSE = () => {
+          // Make a GET request to the SSE endpoint
+          fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache',
+              Connection: 'keep-alive',
+              'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+            }
+          })
+            .then((response) => {
+              // Check if the response is OK, before continuing
+              if (!response.ok) {
+                throw new Error('Failed to connect to SSE endpoint');
+              }
 
-      setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
-      const newSearchParams = new URLSearchParams(location.search);
-      newSearchParams.delete('initial_messages');
-      window.history.replaceState(
-        {},
-        '',
-        `${location.pathname}?${newSearchParams.toString()}`
-      );
+              // Start processing incoming events
+              const reader = response.body.getReader();
+              const decoder = new TextDecoder('utf-8');
+              let buffer = '';
+
+              reader.read().then(function processText({ done, value }) {
+                if (done) {
+                  // delay a bit and then fetch the title
+                  setTimeout(() => {
+                    fetch(
+                      `${process.env.REACT_APP_AI_II}/conversations/title/?id=${id}`,
+                      {
+                        headers: {
+                          'X-Shepherd-Header':
+                            process.env.REACT_APP_AI_HEADER_KEY
+                        }
+                      }
+                    )
+                      .then((resp) => resp.json())
+                      .then(async (d: { data: string }) => {
+                        setTitle(d.data);
+                        await query.invalidateQueries({
+                          queryKey: ['chatHistory', { studentId }]
+                        });
+                      });
+                  }, 700);
+                  setStreamEnded(true);
+                  return;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+
+                handleSSE(buffer);
+                setAutoScroll(true);
+
+                return reader.read().then(processText);
+              });
+            })
+            .catch((error) => {
+              setStreamEnded(true);
+            });
+        };
+        startSSE();
+
+        query.invalidateQueries({
+          queryKey: ['chatHistory', { studentId }]
+        });
+        setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, hasInitialMessagesParam, id]);
-  useEffect(() => {
+  }, []);
+  useLayoutEffect(() => {
     const chatWindowParams = getChatWindowParams();
     const { connectionQuery } = chatWindowParams;
-    console.log(connectionQuery);
-    if (chatWindowParams && connectionQuery.topic !== 'Math') {
+    const searchIncludesInitialMessages =
+      window.location.search.includes('initial_messages');
+
+    if (chatWindowParams && connectionQuery.subject !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -106,7 +197,8 @@ function ChatRoom() {
           isNewConversation: false
         }
       );
-    } else {
+    } else if (!searchIncludesInitialMessages) {
+      rest.hydrateChat(id);
       fetchHistory(30, 0, id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
@@ -119,7 +211,9 @@ function ChatRoom() {
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
-    if (!currentChat) {
+    console.log('current chat is', currentChat);
+    if (currentChat.length === 0) {
+      console.log(currentChat, 'should be empty');
       return ''; // Don't render anything if there's no current chat content
     }
 
@@ -127,6 +221,7 @@ function ChatRoom() {
       <ChatMessage
         streaming={!streamEnded}
         key={Math.random()}
+        id={'current-chat'}
         message={currentChat}
         type={'bot'}
       />
@@ -136,11 +231,23 @@ function ChatRoom() {
   const handleAutoScroll = () => {
     setAutoScroll(true);
   };
+  const handleSSE = async (buffer: string) => {
+    if (buffer.includes('done with stream')) {
+      sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
+      setStreamEnded(true);
+      setAutoScroll(true);
 
+      return;
+    }
+
+    // Append the streamed text data to the current state
+    setCurrentChat(buffer);
+    setAutoScroll(true);
+  };
   useEffect(() => {
     setAutoScroll(Boolean(currentChat));
   }, [currentChat]);
-  console.log(streamEnded, 'has the stream ended');
+
   return (
     <div className="h-full overflow-hidden bg-transparent flex justify-center min-w-[375px] mx-auto w-full px-2">
       <div className="interaction-area w-full max-w-[832px] mx-auto flex flex-col relative">
@@ -151,7 +258,11 @@ function ChatRoom() {
           }}
         ></div>
         <header className="flex justify-center absolute top-[4%] items-center w-full z-10">
-          <ChatInfoDropdown id={id} disabled={apiKey ? true : false} />
+          <ChatInfoDropdown
+            title={title}
+            id={id}
+            disabled={apiKey ? true : false}
+          />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
           </button>
@@ -177,9 +288,100 @@ function ChatRoom() {
                   messages.length >= 4 &&
                   (apiKey ? false : true)
                 }
-                sendSuggestedPrompt={(message: string) => {
-                  sendMessage(message);
-                  handleAutoScroll();
+                sendSuggestedPrompt={async (message: string) => {
+                  if (subject === 'Math') {
+                    const chatWindowParams = getChatWindowParams();
+                    const { connectionQuery } = chatWindowParams;
+                    const fetchedMessages: Array<ChatMessageType> =
+                      await ApiService.getConversionById({
+                        conversationId: id
+                      });
+                    const updatedMessages = fetchedMessages
+                      .sort((a, b) => a.id - b.id)
+                      .map((el) => el.log);
+
+                    console.log('sorted messages are:', updatedMessages);
+                    const lastMessage = updatedMessages.at(-1);
+
+                    if (lastMessage.role === 'user') {
+                      const d = await createMathConvoLogMutation.mutateAsync({
+                        query: message,
+                        studentId,
+                        conversationId: id
+                      });
+                      updatedMessages.push(d.data.log);
+                    }
+                    const body = {
+                      ...connectionQuery,
+                      studentId,
+                      language:
+                        connectionQuery.language &&
+                        connectionQuery.language.length > 0
+                          ? connectionQuery.language
+                          : 'English',
+                      firebaseId: user.firebaseId,
+                      conversationId: id,
+                      name: user.name.first,
+                      query: message,
+                      messages: JSON.stringify(updatedMessages)
+                    };
+                    setStreamEnded(false);
+                    const q = encodeQueryParams(body);
+                    sendMessage(message, 'math');
+                    handleAutoScroll();
+                    const startSSE = () => {
+                      // Make a GET request to the SSE endpoint
+                      fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
+                        method: 'GET',
+                        headers: {
+                          'Content-Type': 'text/event-stream',
+                          'Cache-Control': 'no-cache',
+                          Connection: 'keep-alive',
+                          'X-Shepherd-Header':
+                            process.env.REACT_APP_AI_HEADER_KEY
+                        }
+                      })
+                        .then((response) => {
+                          // Check if the response is OK, before continuing
+                          if (!response.ok) {
+                            throw new Error(
+                              'Failed to connect to SSE endpoint'
+                            );
+                          }
+
+                          // Start processing incoming events
+                          const reader = response.body.getReader();
+                          const decoder = new TextDecoder('utf-8');
+                          let buffer = '';
+
+                          reader
+                            .read()
+                            .then(function processText({ done, value }) {
+                              if (done) {
+                                setStreamEnded(true);
+                                return;
+                              }
+
+                              buffer += decoder.decode(value, { stream: true });
+
+                              const parts = buffer.split('\n\n');
+
+                              //buffer = parts[parts.length - 1];
+                              handleSSE(buffer);
+                              setAutoScroll(true);
+
+                              return reader.read().then(processText);
+                            });
+                        })
+                        .catch((error) => {
+                          setStreamEnded(true);
+                        });
+                    };
+                    startSSE();
+                  } else {
+                    sendMessage(message);
+                    handleAutoScroll();
+                  }
                 }}
               />
             ))}
@@ -202,97 +404,90 @@ function ChatRoom() {
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
               if (subject === 'Math') {
-                console.log('make it?????');
                 const chatWindowParams = getChatWindowParams();
                 const { connectionQuery } = chatWindowParams;
+                const fetchedMessages: Array<ChatMessageType> =
+                  await ApiService.getConversionById({
+                    conversationId: id
+                  });
+                const updatedMessages = fetchedMessages
+                  .sort((a, b) => a.id - b.id)
+                  .map((el) => el.log);
+
+                console.log('sorted messages are:', updatedMessages);
+                const lastMessage = updatedMessages.at(-1);
+
+                if (lastMessage.role === 'user') {
+                  const d = await createMathConvoLogMutation.mutateAsync({
+                    query: message,
+                    studentId,
+                    conversationId: id
+                  });
+                  updatedMessages.push(d.data.log);
+                }
                 const body = {
                   ...connectionQuery,
                   studentId,
-                  firebaseid: user.firebaseId,
+                  language:
+                    connectionQuery.language &&
+                    connectionQuery.language.length > 0
+                      ? connectionQuery.language
+                      : 'English',
+                  firebaseId: user.firebaseId,
+                  conversationId: id,
                   name: user.name.first,
                   query: message,
-                  messages: JSON.stringify(messages.map((el) => el.log))
+                  messages: JSON.stringify(updatedMessages)
                 };
                 setStreamEnded(false);
                 const q = encodeQueryParams(body);
                 sendMessage(message, 'math');
                 handleAutoScroll();
-                await fetchEventSource(
-                  `${process.env.REACT_APP_AI_II}/solve/${q}`,
-                  {
+                const startSSE = () => {
+                  // Make a GET request to the SSE endpoint
+                  fetch(`${process.env.REACT_APP_AI_II}/solve/${q}`, {
                     method: 'GET',
                     headers: {
+                      'Content-Type': 'text/event-stream',
+                      'Cache-Control': 'no-cache',
+                      Connection: 'keep-alive',
                       'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                    },
-                    openWhenHidden: true,
-                    credentials: 'include',
-                    async onmessage(event) {
-                      console.log(event, 'the event log ->');
-                      if (event.data.includes('done with stream')) {
-                        await fetchHistory(30, 0, id);
-                        setStreamEnded(true);
-                        return;
-                      }
-                      // Append the streamed text data to the current state
-                      setCurrentChat((prevData) => prevData + event.data);
-                      handleAutoScroll();
-                    },
-                    onclose() {
-                      setStreamEnded(true);
-                    },
-                    onerror(err) {
-                      //
-                      setStreamEnded(true);
-                      console.log('ERROR ->', err);
                     }
-                  }
-                );
-                // const fetchData = () => {
-                //   console.log('FETCH');
-                //   // const response = await fetch(
-                //   //   `${process.env.REACT_APP_AI_II}/solve/${q}`,
-                //   //   {
-                //   //     method: 'GET',
-                //   //     headers: {
-                //   //       'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-                //   //     }
-                //   //   }
-                //   // );
+                  })
+                    .then((response) => {
+                      // Check if the response is OK, before continuing
+                      if (!response.ok) {
+                        throw new Error('Failed to connect to SSE endpoint');
+                      }
 
-                //   // if (!response.ok) {
-                //   //   throw new Error('Network response was not ok');
-                //   // }
+                      // Start processing incoming events
+                      const reader = response.body.getReader();
+                      const decoder = new TextDecoder('utf-8');
+                      let buffer = '';
 
-                //   // Create a new EventSource instance to handle server sent events
-                //   const eventSource = new EventSource(
-                //     `${process.env.REACT_APP_AI_II}/solve/${q}`
-                //   );
+                      reader.read().then(function processText({ done, value }) {
+                        if (done) {
+                          setStreamEnded(true);
+                          return;
+                        }
 
-                //   // Event listener to handle incoming events
-                //   eventSource.onmessage = async (event) => {
-                //     console.log(event, 'THE E');
-                //     if (event.data.includes('done with stream')) {
-                //       await fetchHistory(30, 0, id);
-                //       eventSource.close();
-                //       setStreamEnded(true);
-                //       return;
-                //     }
+                        buffer += decoder.decode(value, { stream: true });
 
-                //     setCurrentChat((prevData) => prevData + event.data);
-                //     handleAutoScroll();
-                //   };
+                        const parts = buffer.split('\n\n');
 
-                //   // Event listener for errors
-                //   eventSource.onerror = (error) => {
-                //     setStreamEnded(true);
-                //     console.error('EventSource failed:', error);
-                //     // Close the EventSource connection
-                //     eventSource.close();
-                //   };
-                // };
-                // fetchData();
+                        //buffer = parts[parts.length - 1];
+                        handleSSE(buffer);
+                        setAutoScroll(true);
+
+                        return reader.read().then(processText);
+                      });
+                    })
+                    .catch((error) => {
+                      setStreamEnded(true);
+                    });
+                };
+                startSSE();
               } else {
-                console.log('no?');
                 sendMessage(message);
                 handleAutoScroll();
               }

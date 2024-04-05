@@ -106,8 +106,8 @@ function Input({
         className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
         `}
       >
-        {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
-          <span className="text-xs absolute top-[-85%] left-[4%] flex ">
+      {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
+          <span className="text-xs absolute top-[-105%] left-[4%] flex ">
             Level -
             <span
               className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
@@ -126,7 +126,7 @@ function Input({
         (currentInputType === 'level' ||
           currentInputType === 'topic' ||
           currentInputType === 'language') ? (
-          <span className="text-xs absolute top-[-48%] left-[4%] flex ">
+          <span className="text-xs absolute top-[-65%] left-[4%] flex ">
             Subject -
             <span
               className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
@@ -144,7 +144,7 @@ function Input({
         {chatContext.subject.trim() !== '' &&
           chatContext.level.trim() !== '' &&
           currentInputType === 'language' && (
-            <span className="text-xs  absolute top-[-10%] left-[4%] flex ">
+            <span className="text-xs  absolute top-[-28%] left-[4%] flex ">
               Topic -
               <span
                 className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
@@ -201,8 +201,10 @@ function Input({
           />
           <Button
             disabled={
-              currentInputType === 'subject' &&
-              chatContext.subject.trim() === ''
+              (currentInputType === 'subject' &&
+                chatContext.subject.trim() === '') ||
+              (currentInputType === 'language' &&
+                chatContext.language.length === 0)
             }
             onClick={handleButtonClick}
             title={
