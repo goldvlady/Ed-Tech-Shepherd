@@ -210,7 +210,7 @@ function Input({
                 handleTopicChange(value);
               }}
             >
-              <SelectTrigger className="w-fit h-full bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none">
+              <SelectTrigger className="w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none">
                 <SelectValue placeholder="Topic" className="mr-2" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -233,9 +233,10 @@ function Input({
               } else if (currentInputType === 'language') {
                 return chatContext.language;
               } else if (currentInputType === 'topic') {
-                return mathTopics.find(
-                  (topic) => topic.id === chatContext.topic
-                ).label;
+                return (
+                  mathTopics.find((topic) => topic.id === chatContext.topic)
+                    ?.label || ''
+                );
               }
             })()}
             onChange={(e) => {
@@ -326,7 +327,7 @@ function Input({
 
       <div
         className={`flex gap-1 md:gap-4 mt-4 flex-wrap ${
-          currentInputType !== 'subject'
+          currentInputType !== 'subject' && chatContext.subject.trim() !== ''
             ? ' transition-opacity opacity-0 pointer-events-none'
             : ''
         }`}
@@ -339,9 +340,29 @@ function Input({
           />
         ))}
       </div>
+      {chatContext.subject === 'Math' && currentInputType === 'topic' && (
+        <div className="w-full absolute bg-[#F9F9FB] h-56 z-10 rounded flex flex-col gap-[2.25rem]">
+          <SecondaryInput label="Word problem" />
+          <SecondaryInput label="Explain a concept" />
+        </div>
+      )}
     </React.Fragment>
   );
 }
+
+const SecondaryInput = ({ label }: { label: string }) => {
+  return (
+    <div className="w-full h-[4.8rem] flex flex-col justify-between">
+      <span className="block uppercase text-[0.87rem] font-semibold text-[#6E7682]">
+        {label}
+      </span>
+      <input
+        type="text"
+        className="h-[3.12rem] w-full border-none outline-none text-black rounded-lg pr-3 relative bg-white shadow-md"
+      />
+    </div>
+  );
+};
 
 const AutocompleteWindow = ({
   active,
