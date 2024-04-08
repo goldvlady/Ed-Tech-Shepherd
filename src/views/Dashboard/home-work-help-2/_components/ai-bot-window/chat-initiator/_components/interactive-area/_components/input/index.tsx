@@ -6,7 +6,50 @@ import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
 import { Box, Select } from '@chakra-ui/react';
+
+import { Button as ShadButton } from '../../../../../../../../../../components/ui/button';
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Select as ShadSelect
+} from '../../../../../../../../../../components/ui/select';
+import { cn } from '../../../../../../../../../../library/utils';
+
+const mathTopics = [
+  {
+    id: 'algebra',
+    label: 'Algebra'
+  },
+  {
+    id: 'geometry',
+    label: 'Geometry'
+  },
+  {
+    id: 'trigonometry',
+    label: 'Trigonometry'
+  },
+  {
+    id: 'calculus',
+    label: 'Calculus'
+  },
+  {
+    id: 'statistics',
+    label: 'Statistics'
+  },
+  {
+    id: 'probability',
+    label: 'Probability'
+  },
+  {
+    id: 'discrete-math',
+    label: 'Discrete Math'
+  }
+];
+
 type Language = (typeof languages)[number];
+
 function Input({
   actions: {
     handleSubjectChange,
@@ -106,7 +149,7 @@ function Input({
         className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
         `}
       >
-      {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
+        {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
           <span className="text-xs absolute top-[-105%] left-[4%] flex ">
             Level -
             <span
@@ -161,6 +204,26 @@ function Input({
           )}
 
         <>
+          {currentInputType === 'topic' && chatContext.subject === 'Math' && (
+            <ShadSelect
+              onValueChange={(value) => {
+                handleTopicChange(value);
+              }}
+            >
+              <SelectTrigger className="w-fit h-full bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none">
+                <SelectValue placeholder="Topic" className="mr-2" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {mathTopics.map((topic) => {
+                  return (
+                    <SelectItem key={topic.id} value={topic.id}>
+                      {topic.label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </ShadSelect>
+          )}
           <input
             value={(() => {
               if (currentInputType === 'subject') {
@@ -169,8 +232,10 @@ function Input({
                 return chatContext.level;
               } else if (currentInputType === 'language') {
                 return chatContext.language;
-              } else {
-                return chatContext.topic;
+              } else if (currentInputType === 'topic') {
+                return mathTopics.find(
+                  (topic) => topic.id === chatContext.topic
+                ).label;
               }
             })()}
             onChange={(e) => {
@@ -188,14 +253,23 @@ function Input({
               }
             }}
             onKeyDown={handleKeyDown}
-            className="input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0"
+            className={cn(
+              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0',
+              {
+                'pointer-events-none':
+                  chatContext.subject === 'Math' && currentInputType === 'topic'
+              }
+            )}
             placeholder={
               currentInputType === 'subject'
                 ? 'What subject would you like to start with?'
                 : currentInputType === 'level'
                 ? 'Level'
                 : currentInputType === 'topic'
-                ? 'What topic would you like to learn about?'
+                ? // ? 'What topic would you like to learn about?'
+                  chatContext.subject === 'Math'
+                  ? '<- Select Topic'
+                  : 'What topic would you like to learn about?'
                 : 'Select Language'
             }
           />
