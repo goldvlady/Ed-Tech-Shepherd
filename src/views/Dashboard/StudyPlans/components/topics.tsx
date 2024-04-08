@@ -35,7 +35,8 @@ import {
   Popover,
   CircularProgress,
   Icon,
-  Tooltip
+  Tooltip,
+  Center
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import { useSearchParams } from 'react-router-dom';
@@ -498,7 +499,6 @@ function Topics(props) {
       }
       setInitializing(false);
     };
-    console.log(initializingDocChat);
 
     const handleDocAction = async (doc) => {
       setInitializingDocChat(true);
@@ -764,6 +764,20 @@ function Topics(props) {
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
                   {studyPlanResources && renderQuizzes()}
+
+                  <Button
+                    color="gray"
+                    size={'sm'}
+                    variant="ghost"
+                    alignItems="center"
+                    float={'right'}
+                    mt={2}
+                    // onClick={() => setShowNoteModal(true)}
+                    fontSize={12}
+                  >
+                    <Icon as={FaPlus} mr={2} />
+                    Generate More
+                  </Button>
                 </MenuList>
               </Menu>
               <Menu isLazy>

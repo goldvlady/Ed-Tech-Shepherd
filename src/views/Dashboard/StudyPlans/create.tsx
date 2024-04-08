@@ -588,7 +588,14 @@ function CreateStudyPlans() {
     setStudyPlanData(studyPlan);
     return studyPlan;
   };
-
+  const updateTopicOrder = (weekIndex, newTopicOrder) => {
+    // Create a copy of the studyPlanData array
+    const updatedStudyPlanData = [...studyPlanData];
+    // Update the order of topics within the specified week
+    updatedStudyPlanData[weekIndex].topics = newTopicOrder;
+    // Update the state with the new study plan data
+    setStudyPlanData(updatedStudyPlanData);
+  };
   const saveStudyPlan = async () => {
     setLoading(true);
     const convertedArr = await convertArrays(studyPlanData);
@@ -614,7 +621,7 @@ function CreateStudyPlans() {
             isClosable: true
           });
           const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
-          navigate(`${baseUrl}/study-plans`);
+          navigate(`${baseUrl}/study-plans/planId=${response.studyPlan.id}  `);
         } else {
           setLoading(false);
           toast({
@@ -1419,6 +1426,7 @@ function CreateStudyPlans() {
                 <Flex direction="column" gap={2}>
                   {studyPlanData.length > 0 ? (
                     <>
+                      {' '}
                       {studyPlanData.map((topic, weekindex) => (
                         <>
                           <Box bg="white" p={4} rounded="md" shadow="md">
@@ -1430,19 +1438,25 @@ function CreateStudyPlans() {
                             >
                               {topic.weekRange}
                             </Text>
-                            <UnorderedList
-                              listStyleType="circle"
-                              listStylePosition="inside"
-                              color="gray.700"
-                              fontSize={14}
-                              // h={'100px'}
+
+                            <ReactSortable
+                              list={topic.topics}
+                              setList={(newList) =>
+                                updateTopicOrder(weekindex, newList)
+                              }
+                              animation="500"
+                              easing="ease-out"
                             >
+                              {/* <UnorderedList
+                                listStyleType="circle"
+                                listStylePosition="inside"
+                                color="gray.700"
+                                fontSize={14}
+                                // h={'100px'}
+                              > */}
                               {topic.topics.map((item, index) => (
-                                <Flex>
-                                  {' '}
-                                  <ListItem key={index}>
-                                    {item.mainTopic}
-                                  </ListItem>
+                                <Flex key={index} color="#585f68">
+                                  <Text fontSize={14}>{item.mainTopic}</Text>
                                   <Spacer />
                                   <SmallCloseIcon
                                     color={'gray.500'}
@@ -1452,7 +1466,8 @@ function CreateStudyPlans() {
                                   />
                                 </Flex>
                               ))}
-                            </UnorderedList>
+                              {/* </UnorderedList> */}
+                            </ReactSortable>
                             <Divider my={2} />
                             <Flex>
                               <Menu>
