@@ -422,16 +422,6 @@ const AutocompleteWindow = ({
               />
             ))
         : null}
-      {currentInputType === 'language' &&
-        languages.map((item) => (
-          <AutocompleteItem
-            key={item}
-            title={item}
-            onClick={() => {
-              onClick(item);
-            }}
-          />
-        ))}
       {currentInputType === 'language'
         ? languages
             ?.filter((item) =>
