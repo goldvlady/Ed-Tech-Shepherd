@@ -17,7 +17,8 @@ import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
-
+const KEYWORD =
+  'We can tell that this query is complex and we suggest using a human tutor for better understanding of the subject matter.';
 function ChatRoom() {
   const { id } = useParams();
   const location = useLocation();
@@ -209,6 +210,17 @@ function ChatRoom() {
     });
   }, [id]);
 
+  useEffect(() => {
+    if (
+      messages.length > 0 &&
+      messages.some(
+        (el) => el.log.content.includes(KEYWORD) || el.log.content === KEYWORD
+      )
+    ) {
+      setHandleDisabledForMaths(true);
+    }
+  }, [messages]);
+
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
@@ -233,6 +245,10 @@ function ChatRoom() {
     setAutoScroll(true);
   };
   const handleSSE = async (buffer: string) => {
+    if (buffer.includes(KEYWORD) || buffer === KEYWORD) {
+      setHandleDisabledForMaths(true);
+      return;
+    }
     if (buffer.includes('run out of credits')) {
       setOpenPricingModel(true);
       setHandleDisabledForMaths(true);
