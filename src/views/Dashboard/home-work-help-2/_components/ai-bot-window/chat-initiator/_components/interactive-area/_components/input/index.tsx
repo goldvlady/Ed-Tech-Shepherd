@@ -149,46 +149,29 @@ function Input({
         className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
         `}
       >
-        {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
-          <span className="text-xs absolute top-[-105%] left-[4%] flex ">
-            Level -
-            <span
-              className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
-              onClick={() => {
-                setCurrentInputType('level');
-                setIsSelectingLanguage(false);
-              }}
-            >
-              {' '}
-              {chatContext.level}{' '}
-              {<PencilIcon className="w-4 h-4" onClick={''} />}
+        <div className="flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-1.5rem] ml-[1rem]">
+          {chatContext.subject.trim() !== '' &&
+          (currentInputType === 'level' ||
+            currentInputType === 'topic' ||
+            currentInputType === 'language') ? (
+            <span className="text-xs flex ">
+              Subject -
+              <span
+                className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
+                onClick={() => {
+                  setCurrentInputType('subject');
+                  setIsSelectingLanguage(false);
+                }}
+              >
+                {' '}
+                {chatContext.subject}{' '}
+                {<PencilIcon className="w-4 h-4" onClick={''} />}
+              </span>
             </span>
-          </span>
-        ) : null}
-        {chatContext.subject.trim() !== '' &&
-        (currentInputType === 'level' ||
-          currentInputType === 'topic' ||
-          currentInputType === 'language') ? (
-          <span className="text-xs absolute top-[-65%] left-[4%] flex ">
-            Subject -
-            <span
-              className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
-              onClick={() => {
-                setCurrentInputType('subject');
-                setIsSelectingLanguage(false);
-              }}
-            >
-              {' '}
-              {chatContext.subject}{' '}
-              {<PencilIcon className="w-4 h-4" onClick={''} />}
-            </span>
-          </span>
-        ) : null}
-        {chatContext.subject.trim() !== '' &&
-          chatContext.level.trim() !== '' &&
-          currentInputType === 'language' && (
-            <span className="text-xs  absolute top-[-28%] left-[4%] flex ">
-              Topic -
+          ) : null}
+          {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
+            <span className="text-xs flex ">
+              Level -
               <span
                 className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
                 onClick={() => {
@@ -197,11 +180,30 @@ function Input({
                 }}
               >
                 {' '}
-                {chatContext.topic}{' '}
+                {chatContext.level}{' '}
                 {<PencilIcon className="w-4 h-4" onClick={''} />}
               </span>
             </span>
-          )}
+          ) : null}
+          {chatContext.subject.trim() !== '' &&
+            chatContext.level.trim() !== '' &&
+            currentInputType === 'language' && (
+              <span className="text-xs flex ">
+                Topic -
+                <span
+                  className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
+                  onClick={() => {
+                    setCurrentInputType('level');
+                    setIsSelectingLanguage(false);
+                  }}
+                >
+                  {' '}
+                  {chatContext.topic}{' '}
+                  {<PencilIcon className="w-4 h-4" onClick={''} />}
+                </span>
+              </span>
+            )}
+        </div>
 
         <>
           {currentInputType === 'topic' && chatContext.subject === 'Math' && (
@@ -233,10 +235,17 @@ function Input({
               } else if (currentInputType === 'language') {
                 return chatContext.language;
               } else if (currentInputType === 'topic') {
-                return (
-                  mathTopics.find((topic) => topic.id === chatContext.topic)
-                    ?.label || ''
-                );
+                if (
+                  chatContext.topic === '' &&
+                  chatContext.subject === 'Math'
+                ) {
+                  return (
+                    mathTopics.find((topic) => topic.id === chatContext.topic)
+                      ?.label || ''
+                  );
+                } else {
+                  return chatContext.topic;
+                }
               }
             })()}
             onChange={(e) => {
