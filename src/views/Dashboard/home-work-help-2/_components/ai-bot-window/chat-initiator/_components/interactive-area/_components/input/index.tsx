@@ -254,11 +254,15 @@ function Input({
                 setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
               } else if (currentInputType === 'level') {
                 handleLevelChange(e.target.value);
-                setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
+                setFilterKeyword((p) => ({
+                  ...p,
+                  keyword: e.target.value
+                }));
               } else if (currentInputType === 'language') {
                 handleLanguageChange(e.target.value);
                 setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
               } else {
+                setFilterKeyword((p) => ({ active: true, keyword: '' }));
                 handleTopicChange(e.target.value);
               }
             }}
@@ -290,7 +294,26 @@ function Input({
               (currentInputType === 'language' &&
                 chatContext.language.length === 0)
             }
-            onClick={handleButtonClick}
+            onClick={() => {
+              handleButtonClick();
+              setTimeout(() => {
+                if (
+                  currentInputType === 'subject' ||
+                  currentInputType === 'level' ||
+                  currentInputType === 'topic'
+                ) {
+                  setFilterKeyword({
+                    keyword: '',
+                    active: true
+                  });
+                } else {
+                  setFilterKeyword({
+                    keyword: '',
+                    active: false
+                  });
+                }
+              }, 200);
+            }}
             title={
               currentInputType === 'subject'
                 ? 'Select Level'
@@ -302,6 +325,12 @@ function Input({
             }
           />
           <AutocompleteWindow
+            setActive={() => {
+              setFilterKeyword({
+                keyword: '',
+                active: false
+              });
+            }}
             currentInputType={currentInputType}
             active={filterKeyword.keyword.trim() !== '' || filterKeyword.active}
             filterKeyword={filterKeyword}
@@ -383,9 +412,10 @@ const AutocompleteWindow = ({
   onClick,
   courseList,
   levels,
-  languages
+  languages,
+  setActive
 }: any) => {
-  if (!active) return null;
+  if (!active || currentInputType === 'topic') return null;
 
   return (
     <div className="w-full p-2 absolute top-[90%] bg-white rounded-lg rounded-t-none shadow-md z-10 max-h-[20rem] overflow-y-scroll py-2 no-scrollbar">
@@ -401,6 +431,7 @@ const AutocompleteWindow = ({
                 title={item.label}
                 onClick={() => {
                   onClick(item.label);
+                  setActive(false);
                 }}
               />
             ))
@@ -418,6 +449,7 @@ const AutocompleteWindow = ({
                 title={item.label}
                 onClick={() => {
                   onClick(item.label);
+                  setActive(false);
                 }}
               />
             ))
@@ -433,6 +465,7 @@ const AutocompleteWindow = ({
                 title={lang}
                 onClick={() => {
                   onClick(lang);
+                  setActive(false);
                 }}
               />
             ))
