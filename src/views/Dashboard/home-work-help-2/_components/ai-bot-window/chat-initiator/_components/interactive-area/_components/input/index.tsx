@@ -143,10 +143,22 @@ function Input({
   return (
     <React.Fragment>
       <div
-        className={`w-full h-[50px]  text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
+        className={`w-full h-[50px] text-black rounded-lg  flex gap-2 items-center pr-3 relative bg-white shadow-md
         `}
       >
-        <div className="flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-1.5rem] ml-[1rem]">
+        {chatContext.subject === 'Math' && (
+          <span className="block absolute uppercase text-[0.87rem] font-semibold text-[#6E7682] top-[-1.5rem]">
+            SOLVE
+          </span>
+        )}
+        <div
+          className={cn(
+            'flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-2.5rem] ml-[1rem]',
+            {
+              'md:top-[-1.5rem]': chatContext.subject !== 'Math'
+            }
+          )}
+        >
           {chatContext.subject.trim() !== '' &&
           (currentInputType === 'level' ||
             currentInputType === 'topic' ||
@@ -247,6 +259,12 @@ function Input({
               if (currentInputType === 'subject') {
                 handleSubjectChange(e.target.value);
                 setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
+                if (chatContext.subject !== e.target.value) {
+                  if (chatContext.subject === 'Math') {
+                    setSelectedMathsTopic('');
+                  }
+                  handleTopicChange('');
+                }
               } else if (currentInputType === 'level') {
                 handleLevelChange(e.target.value);
                 setFilterKeyword((p) => ({
