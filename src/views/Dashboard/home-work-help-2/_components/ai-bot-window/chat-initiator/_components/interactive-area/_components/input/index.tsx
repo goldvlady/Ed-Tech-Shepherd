@@ -298,7 +298,13 @@ function Input({
             }}
             onKeyDown={handleKeyDown}
             className={cn(
-              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0'
+              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0',
+              {
+                'pointer-events-none':
+                  currentInputType === 'topic' &&
+                  chatContext.subject === 'Math' &&
+                  selectedMathsTopic === ''
+              }
             )}
             placeholder={
               currentInputType === 'subject'
@@ -306,7 +312,9 @@ function Input({
                 : currentInputType === 'level'
                 ? 'Level'
                 : currentInputType === 'topic'
-                ? 'What topic would you like to learn about?'
+                ? chatContext.subject === 'Math'
+                  ? '<- Choose a topic and type here ->'
+                  : 'Topic'
                 : 'Select Language'
             }
           />
