@@ -5,9 +5,6 @@ import Button from './_components/button';
 import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
-import { Box, Select } from '@chakra-ui/react';
-
-import { Button as ShadButton } from '../../../../../../../../../../components/ui/button';
 import {
   SelectContent,
   SelectItem,
@@ -56,7 +53,8 @@ function Input({
     handleTopicChange,
     handleLanguageChange,
     handleLevelChange,
-    onSubmit
+    onSubmit,
+    handleTopicSecondaryChange
   },
   state: { chatContext }
 }: {
@@ -66,6 +64,7 @@ function Input({
     handleLanguageChange: (language: any) => void;
     handleLevelChange: (level: string) => void;
     onSubmit: () => void;
+    handleTopicSecondaryChange: (topicSecondary: string) => void;
   };
   state: {
     chatContext: {
@@ -127,7 +126,9 @@ function Input({
       if (chatContext.level === '') return;
       handleInputTypeChange('topic');
     } else if (currentInputType === 'topic') {
-      if (chatContext.topic === '') return;
+      if (chatContext.subject !== 'Math') {
+        if (chatContext.topic === '') return;
+      }
 
       handleInputTypeChange('language');
     } else {
@@ -318,7 +319,9 @@ function Input({
                 'pointer-events-none':
                   currentInputType === 'topic' &&
                   chatContext.subject === 'Math' &&
-                  selectedMathsTopic === ''
+                  (selectedMathsTopic === '' ||
+                    wordProblemValue.trim().length > 0 ||
+                    explainConceptValue.trim().length > 0)
               },
               {
                 'pointer-events-none opacity-50':
@@ -435,6 +438,7 @@ function Input({
             label="Word problem"
             value={wordProblemValue}
             onChange={(value) => {
+              handleTopicSecondaryChange(value);
               setWordProblemValue(value);
             }}
             active={
@@ -446,6 +450,7 @@ function Input({
             label="Explain a concept"
             value={explainConceptValue}
             onChange={(value) => {
+              handleTopicSecondaryChange(value);
               setExplainConceptValue(value);
             }}
             active={

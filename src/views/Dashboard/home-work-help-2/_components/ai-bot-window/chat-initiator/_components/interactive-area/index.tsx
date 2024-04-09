@@ -11,12 +11,14 @@ function InteractiveArea({
     subject,
     topic,
     level,
-    language
+    language,
+    topicSecondary
   }: {
     subject: string;
     topic: string;
     level: string;
     language: Language;
+    topicSecondary?: string;
   }) => void;
 }) {
   const [chatContext, setChatContext] = useState<{
@@ -24,11 +26,13 @@ function InteractiveArea({
     topic: string;
     level: string;
     language: Language;
+    topicSecondary?: string;
   }>({
     subject: '',
     topic: '',
     level: '',
-    language: ''
+    language: '',
+    topicSecondary: ''
   });
 
   const handleSubjectChange = (subject: string) => {
@@ -46,6 +50,10 @@ function InteractiveArea({
     setChatContext((prev) => ({ ...prev, language }));
   };
 
+  const handleTopicSecondaryChange = (topicSecondary: string) => {
+    setChatContext((prev) => ({ ...prev, topicSecondary }));
+  };
+
   const handleSubmit = () => {
     initiateConversation(chatContext);
   };
@@ -59,7 +67,8 @@ function InteractiveArea({
           handleTopicChange,
           onSubmit: handleSubmit,
           handleLevelChange,
-          handleLanguageChange
+          handleLanguageChange,
+          handleTopicSecondaryChange
         }}
         state={{ chatContext }}
       />
