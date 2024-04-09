@@ -125,7 +125,7 @@ function ChatRoom() {
                   // delay a bit and then fetch the title
                   setTimeout(() => {
                     fetch(
-                      `${process.env.REACT_APP_AI_II}/conversations/title/?id=${id}`,
+                      `${process.env.REACT_APP_AI_II}/conversations/title?id=${id}`,
                       {
                         headers: {
                           'X-Shepherd-Header':
