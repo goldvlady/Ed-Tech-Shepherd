@@ -81,14 +81,11 @@ function Input({
     'subject' | 'topic' | 'level' | 'language'
   >('subject');
   const [isSelectingLanguage, setIsSelectingLanguage] = useState(false);
-  const [preferredLanguage, setPreferredLanguage] = useState<Language>(
-    languages[0]
-  );
   const [filterKeyword, setFilterKeyword] = useState({
     keyword: '',
     active: false
   });
-  console.log(chatContext, currentInputType);
+  const [selectedMathsTopic, setSelectedMathsTopic] = useState('');
   const handleInputTypeChange = (
     type: 'subject' | 'topic' | 'level' | 'language'
   ) => {
@@ -208,8 +205,15 @@ function Input({
         <>
           {currentInputType === 'topic' && chatContext.subject === 'Math' && (
             <ShadSelect
+              value={selectedMathsTopic}
               onValueChange={(value) => {
-                handleTopicChange(value);
+                if (
+                  currentInputType === 'topic' &&
+                  chatContext.subject === 'Math'
+                ) {
+                  handleTopicChange(`[${value}] `);
+                }
+                setSelectedMathsTopic(value);
               }}
             >
               <SelectTrigger className="w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none">
@@ -235,17 +239,8 @@ function Input({
               } else if (currentInputType === 'language') {
                 return chatContext.language;
               } else if (currentInputType === 'topic') {
-                if (
-                  chatContext.topic === '' &&
-                  chatContext.subject === 'Math'
-                ) {
-                  return (
-                    mathTopics.find((topic) => topic.id === chatContext.topic)
-                      ?.label || ''
-                  );
-                } else {
-                  return chatContext.topic;
-                }
+                console.log('topic', chatContext.topic);
+                return chatContext.topic;
               }
             })()}
             onChange={(e) => {
@@ -261,18 +256,31 @@ function Input({
               } else if (currentInputType === 'language') {
                 handleLanguageChange(e.target.value);
                 setFilterKeyword((p) => ({ ...p, keyword: e.target.value }));
-              } else {
-                setFilterKeyword((p) => ({ active: true, keyword: '' }));
-                handleTopicChange(e.target.value);
+              } else if (currentInputType === 'topic') {
+                console.log('prefix', e.target.value);
+                if (
+                  chatContext.subject === 'Math' &&
+                  selectedMathsTopic !== ''
+                ) {
+                  const prefix = `[${selectedMathsTopic}] `;
+                  if (!e.target.value.startsWith(prefix)) {
+                    console.log('e.target.value', e.target.value);
+                    // Remove the prefix if it exists
+                    if (e.target.value.startsWith(prefix)) {
+                      handleTopicChange(e.target.value.slice(prefix.length));
+                    }
+                  } else {
+                    handleTopicChange(e.target.value);
+                  }
+                } else {
+                  handleTopicChange(e.target.value);
+                  setFilterKeyword((p) => ({ active: true, keyword: '' }));
+                }
               }
             }}
             onKeyDown={handleKeyDown}
             className={cn(
-              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0',
-              {
-                'pointer-events-none':
-                  chatContext.subject === 'Math' && currentInputType === 'topic'
-              }
+              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0'
             )}
             placeholder={
               currentInputType === 'subject'
@@ -280,10 +288,7 @@ function Input({
                 : currentInputType === 'level'
                 ? 'Level'
                 : currentInputType === 'topic'
-                ? // ? 'What topic would you like to learn about?'
-                  chatContext.subject === 'Math'
-                  ? '<- Select Topic'
-                  : 'What topic would you like to learn about?'
+                ? 'What topic would you like to learn about?'
                 : 'Select Language'
             }
           />
