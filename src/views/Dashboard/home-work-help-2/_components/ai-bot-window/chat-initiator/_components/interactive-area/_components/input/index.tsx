@@ -225,7 +225,11 @@ function Input({
                   currentInputType === 'topic' &&
                   chatContext.subject === 'Math'
                 ) {
-                  handleTopicChange(`[${value}] `);
+                  if (value !== null) {
+                    handleTopicChange(`[${value}] `);
+                  } else {
+                    handleTopicChange('');
+                  }
                 }
                 setSelectedMathsTopic(value);
               }}
@@ -242,6 +246,7 @@ function Input({
                 <SelectValue placeholder="Topic" className="mr-2" />
               </SelectTrigger>
               <SelectContent className="bg-white">
+                <SelectItem value={null}>None</SelectItem>
                 {mathTopics.map((topic) => {
                   return (
                     <SelectItem key={topic.id} value={topic.id}>
@@ -483,7 +488,7 @@ const SecondaryInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         type="text"
-        className="h-[3.12rem] w-full border-none outline-none text-black rounded-lg pr-3 relative bg-white shadow-md"
+        className="h-[3.12rem] w-full border-none outline-none rounded-lg pr-3 relative bg-white shadow-md text-[#6E7682] font-normal text-sm"
       />
     </div>
   );
