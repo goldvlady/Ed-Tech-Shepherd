@@ -86,6 +86,8 @@ function Input({
     active: false
   });
   const [selectedMathsTopic, setSelectedMathsTopic] = useState('');
+  const [wordProblemValue, setWordProblemValue] = useState('');
+  const [explainConceptValue, setExplainConceptValue] = useState('');
   const handleInputTypeChange = (
     type: 'subject' | 'topic' | 'level' | 'language'
   ) => {
@@ -153,7 +155,7 @@ function Input({
         )}
         <div
           className={cn(
-            'flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-2.5rem] ml-[1rem]',
+            'flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-3.0rem] ml-[1rem]',
             {
               'md:top-[-1.5rem]': chatContext.subject !== 'Math'
             }
@@ -228,7 +230,15 @@ function Input({
                 setSelectedMathsTopic(value);
               }}
             >
-              <SelectTrigger className="w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none">
+              <SelectTrigger
+                className={cn(
+                  'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
+                  {
+                    'pointer-events-none opacity-50':
+                      wordProblemValue.trim() || explainConceptValue.trim()
+                  }
+                )}
+              >
                 <SelectValue placeholder="Topic" className="mr-2" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -298,12 +308,17 @@ function Input({
             }}
             onKeyDown={handleKeyDown}
             className={cn(
-              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0',
+              'input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:text-sm placeholder:font-normal text-[#6E7682] font-normal text-sm min-w-0 transition-opacity',
               {
                 'pointer-events-none':
                   currentInputType === 'topic' &&
                   chatContext.subject === 'Math' &&
                   selectedMathsTopic === ''
+              },
+              {
+                'pointer-events-none opacity-50':
+                  (wordProblemValue.trim() || explainConceptValue.trim()) &&
+                  chatContext.subject === 'Math'
               }
             )}
             placeholder={
@@ -411,21 +426,62 @@ function Input({
       </div>
       {chatContext.subject === 'Math' && currentInputType === 'topic' && (
         <div className="w-full absolute bg-[#F9F9FB] h-56 z-10 rounded flex flex-col gap-[2.25rem]">
-          <SecondaryInput label="Word problem" />
-          <SecondaryInput label="Explain a concept" />
+          <SecondaryInput
+            label="Word problem"
+            value={wordProblemValue}
+            onChange={(value) => {
+              setWordProblemValue(value);
+            }}
+            active={
+              chatContext.topic.trim().length === 0 &&
+              explainConceptValue.trim().length === 0
+            }
+          />
+          <SecondaryInput
+            label="Explain a concept"
+            value={explainConceptValue}
+            onChange={(value) => {
+              setExplainConceptValue(value);
+            }}
+            active={
+              chatContext.topic.trim().length === 0 &&
+              wordProblemValue.trim().length === 0
+            }
+          />
         </div>
       )}
     </React.Fragment>
   );
 }
 
-const SecondaryInput = ({ label }: { label: string }) => {
+const SecondaryInput = ({
+  label,
+  value,
+  onChange,
+  active
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  active: boolean;
+}) => {
+  console.log('SecondaryInput', label, active);
   return (
-    <div className="w-full h-[4.8rem] flex flex-col justify-between">
+    <div
+      className={cn(
+        'w-full h-[4.8rem] flex flex-col justify-between transition-opacity',
+        {
+          'opacity-50 pointer-events-none': !active
+        }
+      )}
+    >
       <span className="block uppercase text-[0.87rem] font-semibold text-[#6E7682]">
         {label}
       </span>
       <input
+        disabled={!active}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         type="text"
         className="h-[3.12rem] w-full border-none outline-none text-black rounded-lg pr-3 relative bg-white shadow-md"
       />
