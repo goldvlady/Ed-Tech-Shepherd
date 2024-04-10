@@ -66,6 +66,8 @@ const FlashCardSetupInit = ({
     availableTimeStart: '',
     availableTimeEnd: '',
     totalStudyHours: 0,
+    frequencyPerWeek: 0,
+    sessionDurationMinutes: '30',
     studyEndDate: null
   };
 
@@ -259,6 +261,13 @@ const FlashCardSetupInit = ({
     const response = await ApiService.nylasAuth();
     const data = await response.json();
     window.location.href = data.url;
+  };
+
+  const handleSessionDurationChange = (value) => {
+    setLocalData((prevState) => ({
+      ...prevState,
+      sessionDurationMinutes: value
+    }));
   };
 
   const renderOptional = useCallback(() => {
@@ -557,7 +566,7 @@ const FlashCardSetupInit = ({
               }
             />
           </FormControl>
-          <FormControl mb={8}>
+          {/* <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Total Study Hours
             </FormLabel>
@@ -574,7 +583,41 @@ const FlashCardSetupInit = ({
               }
               _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
             />
+          </FormControl> */}
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Frequency per week
+            </FormLabel>
+            <Input
+              type="number"
+              name="frequencyPerWeek"
+              placeholder="Frequency Per Week"
+              value={localData.frequencyPerWeek}
+              onChange={(e) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  frequencyPerWeek: parseInt(e.target.value)
+                }))
+              }
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            />
           </FormControl>
+
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Session Duration Minutes
+            </FormLabel>
+            <RadioGroup
+              onChange={handleSessionDurationChange}
+              value={localData.sessionDurationMinutes}
+            >
+              <HStack spacing="24px">
+                <Radio value="30">30 minutes</Radio>
+                <Radio value="60">60 minutes</Radio>
+              </HStack>
+            </RadioGroup>
+          </FormControl>
+
           <FormControl mb={8}>
             <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
               Study End Date
