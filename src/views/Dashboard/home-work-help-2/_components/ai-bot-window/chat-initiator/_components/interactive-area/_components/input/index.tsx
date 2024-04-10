@@ -337,7 +337,7 @@ function Input({
                 : currentInputType === 'topic'
                 ? chatContext.subject === 'Math'
                   ? '<- Choose a topic and type here ->'
-                  : 'Topic'
+                  : 'What topic would you like to learn about?'
                 : 'Select Language'
             }
           />
