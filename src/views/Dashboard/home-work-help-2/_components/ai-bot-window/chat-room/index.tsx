@@ -176,8 +176,9 @@ function ChatRoom() {
 
     if (
       chatWindowParams &&
-      connectionQuery.subject === 'Math' &&
-      connectionQuery.topicSecondary.trim().length !== 0
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
     ) {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
@@ -186,8 +187,11 @@ function ChatRoom() {
           studentId: user._id,
           conversationId: id,
           firebaseId: user?.firebaseId,
-          topic: connectionQuery.topicSecondary,
-          ...connectionQuery
+          ...connectionQuery,
+          topic:
+            connectionQuery.subject === 'Math'
+              ? connectionQuery.topicSecondary
+              : connectionQuery.topic
         },
         {
           conversationInitializer: CONVERSATION_INITIALIZER,
@@ -197,8 +201,9 @@ function ChatRoom() {
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     } else if (
       apiKey &&
-      connectionQuery.subject === 'Math' &&
-      connectionQuery.topicSecondary.trim().length !== 0
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
     ) {
       startConversation(
         {
