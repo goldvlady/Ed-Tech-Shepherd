@@ -227,7 +227,7 @@ function Input({
                   chatContext.subject === 'Math'
                 ) {
                   if (value !== null) {
-                    handleTopicChange(`[${value}] `);
+                    handleTopicChange(`${value} `);
                   } else {
                     handleTopicChange('');
                   }
@@ -296,7 +296,7 @@ function Input({
                   chatContext.subject === 'Math' &&
                   selectedMathsTopic !== ''
                 ) {
-                  const prefix = `[${selectedMathsTopic}] `;
+                  const prefix = `${selectedMathsTopic} `;
                   if (!e.target.value.startsWith(prefix)) {
                     console.log('e.target.value', e.target.value);
                     // Remove the prefix if it exists
