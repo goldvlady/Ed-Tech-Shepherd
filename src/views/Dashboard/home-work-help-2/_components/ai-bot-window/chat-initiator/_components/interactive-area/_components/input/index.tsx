@@ -327,6 +327,12 @@ function Input({
                 'pointer-events-none opacity-50':
                   (wordProblemValue.trim() || explainConceptValue.trim()) &&
                   chatContext.subject === 'Math'
+              },
+              {
+                'pointer-events-none capitalize':
+                  currentInputType === 'topic' &&
+                  chatContext.subject === 'Math' &&
+                  chatContext.topic.trim() !== ''
               }
             )}
             placeholder={
@@ -336,7 +342,7 @@ function Input({
                 ? 'Level'
                 : currentInputType === 'topic'
                 ? chatContext.subject === 'Math'
-                  ? '<- Choose a topic and type here ->'
+                  ? '<- Select a topic from drop down'
                   : 'What topic would you like to learn about?'
                 : 'Select Language'
             }
