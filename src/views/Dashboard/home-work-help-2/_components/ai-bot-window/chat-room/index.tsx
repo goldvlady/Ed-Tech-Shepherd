@@ -444,7 +444,7 @@ function ChatRoom() {
               const { connectionQuery } = chatWindowParams;
               if (
                 subject === 'Math' &&
-                connectionQuery.topic.trim().length > 0
+                connectionQuery.topicSecondary.trim().length === 0
               ) {
                 const fetchedMessages: Array<ChatMessageType> =
                   await ApiService.getConversionById({
