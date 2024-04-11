@@ -132,7 +132,7 @@ function AiChatBotWindow() {
       });
       startConversation({
         subject,
-        topic: topicSecondary || topic,
+        topic: subject === 'Math' ? topicSecondary : topic,
         level,
         language,
         name: user?.name?.first,
