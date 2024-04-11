@@ -96,7 +96,7 @@ function AiChatBotWindow() {
     language: (typeof languages)[number];
     topicSecondary?: string;
   }) => {
-    const cq = { subject, topic, level, language };
+    const cq = { subject, topic, level, language, topicSecondary };
     setConnectionQuery(cq);
     // alert(JSON.stringify({ subject, topic }));
     if (subject === 'Math' && topic.trim().length > 0) {
