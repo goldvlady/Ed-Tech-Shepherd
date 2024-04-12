@@ -72,6 +72,7 @@ function Input({
       topic: string;
       level: string;
       language: string;
+      topicSecondary?: string;
     };
   };
 }) {
@@ -205,12 +206,15 @@ function Input({
                 <span
                   className="ml-1 inline-flex text-[#207DF7] gap-1 items-center cursor-pointer"
                   onClick={() => {
-                    setCurrentInputType('level');
+                    setCurrentInputType('topic');
                     setIsSelectingLanguage(false);
                   }}
                 >
-                  {' '}
-                  {chatContext.topic}{' '}
+                  {chatContext.subject === 'Math'
+                    ? chatContext.topic.trim() === ''
+                      ? chatContext.topicSecondary
+                      : chatContext.topic
+                    : chatContext.topic}{' '}
                   {<PencilIcon className="w-4 h-4" onClick={''} />}
                 </span>
               </span>
@@ -326,7 +330,8 @@ function Input({
               {
                 'pointer-events-none opacity-50':
                   (wordProblemValue.trim() || explainConceptValue.trim()) &&
-                  chatContext.subject === 'Math'
+                  chatContext.subject === 'Math' &&
+                  currentInputType === 'topic'
               },
               {
                 'pointer-events-none capitalize':
