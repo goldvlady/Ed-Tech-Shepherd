@@ -20,7 +20,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { Field, Form, Formik } from 'formik';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Link as RouterLink,
   useNavigate,
@@ -57,21 +57,28 @@ const CreatePassword: React.FC = () => {
   const fld: any = params.get('fId');
   const type: any = params.get('type');
   const inviteCode: any = params.get('inviteCode');
+
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const authenticateUser = async () => {
       if (fld && type && inviteCode) {
         try {
-          const response = await ApiService.ValidateSchoolUsers(
+          const response: any = await ApiService.ValidateSchoolUsers(
             fld,
 
             inviteCode
           );
+          const { data } = await response.json();
+
           if (response.status === 200) {
             toast({
               position: 'top-right',
               title: `User Validated Succesfully`,
               status: 'success'
             });
+            console.log(data);
+
+            setUser(data);
             return;
           } else {
             // Failed validation, redirect to login page
@@ -88,6 +95,7 @@ const CreatePassword: React.FC = () => {
 
     authenticateUser();
   }, [fld, type, inviteCode, navigate]);
+  console.log(user);
 
   return (
     <Root>
@@ -224,6 +232,18 @@ const CreatePassword: React.FC = () => {
                 text={`${MinPasswordLength} character minimum`}
                 checked={values.password.length >= MinPasswordLength}
               />
+              {user && (
+                <Box
+                  mt={4}
+                  fontSize={'sm'}
+                  justifyContent="center"
+                  textAlign={'center'}
+                >
+                  <Text fontWeight="bold">
+                    {`${user.school.name} - ${user.user.name.first} ${user.user.name.last}`}
+                  </Text>
+                </Box>
+              )}
               <Box
                 marginTop={'36px'}
                 display={'flex'}

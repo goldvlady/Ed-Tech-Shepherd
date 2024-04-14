@@ -105,7 +105,6 @@ const Clients = () => {
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
   );
-  console.log(allSchoolTutorStudents);
 
   const tabLists = [
     {
@@ -254,10 +253,10 @@ const Clients = () => {
     <>
       {userData.school ? (
         <NotesWrapper>
-          <header className="flex my-4 justify-between">
+          <header className="flex m-4 justify-between">
             <StyledHeader>
               <span className="font-bold"> School Students</span>
-              <span className="count-badge">{allTutorClients?.length}</span>
+              <span className="count-badge">{schoolStudents?.length}</span>
             </StyledHeader>
             <FlexContainer>
               <Menu>

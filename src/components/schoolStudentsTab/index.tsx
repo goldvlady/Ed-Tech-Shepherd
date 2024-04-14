@@ -69,6 +69,7 @@ const AllSchoolStudentsTab = (props) => {
   const [clientsDetails, setClientDetails] = useState('');
   const [clientName, setClientName] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
+  console.log(allSchoolTutorStudents);
 
   const navigate = useNavigate();
 
@@ -359,7 +360,7 @@ const AllSchoolStudentsTab = (props) => {
     <div>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
+          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-12 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {/* {selectedPeople.length > 0 && (

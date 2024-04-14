@@ -87,7 +87,7 @@ const Courses = () => {
 
   useEffect(() => {
     doFetchSchoolCourses();
-  }, [doFetchSchoolCourses, schoolCourses]);
+  }, [doFetchSchoolCourses]);
 
   const [checkedState, setCheckedState] = useState(
     new Array(filteredBy.length).fill(false)
@@ -182,10 +182,10 @@ const Courses = () => {
   return (
     <>
       <NotesWrapper>
-        <header className="flex my-4 justify-between">
+        <header className="flex m-4 justify-between">
           <StyledHeader>
             <span className="font-bold"> School Courses</span>
-            <span className="count-badge">{allTutorClients?.length}</span>
+            <span className="count-badge">{schoolCourses?.length}</span>
           </StyledHeader>
           <FlexContainer>
             <Menu>
@@ -219,28 +219,6 @@ const Courses = () => {
                 boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
               >
                 <MenuItem
-                  color="#212224"
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  onClick={() => sortByStartDate('DESC')}
-                  fontSize="14px"
-                  lineHeight="20px"
-                  fontWeight="400"
-                  p="6px 8px 6px 8px"
-                >
-                  Start Date
-                </MenuItem>
-                <MenuItem
-                  color="#212224"
-                  fontSize="14px"
-                  onClick={() => sortByEndDate('DESC')}
-                  _hover={{ bgColor: '#F2F4F7' }}
-                  lineHeight="20px"
-                  fontWeight="400"
-                  p="6px 8px 6px 8px"
-                >
-                  End Date
-                </MenuItem>
-                <MenuItem
                   _hover={{ bgColor: '#F2F4F7' }}
                   color="#212224"
                   fontSize="14px"
@@ -249,7 +227,7 @@ const Courses = () => {
                   fontWeight="400"
                   p="6px 8px 6px 8px"
                 >
-                  Student name (A-Z)
+                  Course name (A-Z)
                 </MenuItem>
                 <MenuItem
                   _hover={{ bgColor: '#F2F4F7' }}
@@ -260,12 +238,13 @@ const Courses = () => {
                   fontWeight="400"
                   p="6px 8px 6px 8px"
                 >
-                  Student name (Z-A)
+                  Course name (Z-A)
                 </MenuItem>
               </MenuList>
             </Menu>
           </FlexContainer>
         </header>
+
         <AllSchoolCoursesTab allSchoolCourses={schoolCourses} />
       </NotesWrapper>
     </>

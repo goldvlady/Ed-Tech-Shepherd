@@ -36,7 +36,7 @@ export default create<Store>((set) => ({
     try {
       set({ isLoading: true });
       const response = await ApiService.getSchoolTutorStudents(1, 40);
-      const { data } = await response.json();
+      const data = await response.json();
 
       set({ schoolStudents: data });
     } catch (error) {

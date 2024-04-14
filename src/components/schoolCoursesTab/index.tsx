@@ -284,7 +284,7 @@ const AllSchoolCoursesTab = (props) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button> */}
-              {!isTutor && (
+              {!isTutor ? (
                 <button
                   className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
                   // onClick={() => }
@@ -302,28 +302,28 @@ const AllSchoolCoursesTab = (props) => {
                   </div>
                   <ChevronRightIcon className="w-2.5 h-2.5" />
                 </button>
-              )}
-
-              <button
-                onClick={() => {
-                  localStorage.setItem('create_course', name);
-                  navigate(`/dashboard/tutordashboard/create-study-plans`);
-                }}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <GrDocumentPerformance
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
+              ) : (
+                <button
+                  onClick={() => {
+                    localStorage.setItem('create course', name);
+                    navigate(`/dashboard/tutordashboard/create-study-plans`);
+                  }}
+                  className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+                >
+                  <div className=" flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <GrDocumentPerformance
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Create Study Plan
+                    </Text>
                   </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Create Study Plan
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+              )}
             </section>
             <div
               onClick={() => onDeleteNote(true, name)}
@@ -370,7 +370,7 @@ const AllSchoolCoursesTab = (props) => {
     <div>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
+          <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-12 z-10">
             <div className="relative">
               <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
                 {/* {selectedPeople.length > 0 && (
