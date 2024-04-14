@@ -30,7 +30,7 @@ const Proceed: FC<ProceedPageProps> = ({ user }) => {
           justifyContent="space-between"
           px={4}
           rounded="md"
-          py="6"
+          py="3"
           shadow="sm"
           border="2px"
           borderColor="gray.100"

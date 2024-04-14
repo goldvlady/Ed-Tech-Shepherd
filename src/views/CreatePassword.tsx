@@ -11,10 +11,12 @@ import { MinPasswordLength } from '../util';
 import {
   Box,
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Heading,
+  Image,
   Link,
   Text,
   useToast
@@ -57,7 +59,7 @@ const CreatePassword: React.FC = () => {
   const fld: any = params.get('fId');
   const type: any = params.get('type');
   const inviteCode: any = params.get('inviteCode');
-
+  const [submitting, setSubmitting] = useState(false);
   const [user, setUser] = useState(null);
   useEffect(() => {
     const authenticateUser = async () => {
@@ -103,15 +105,47 @@ const CreatePassword: React.FC = () => {
         <Heading mb={'12px'} as={'h3'} textAlign={'center'}>
           Create New Password
         </Heading>
+        {user && (
+          <Box
+            mb={4}
+            border="1px solid #E2E8F0"
+            borderRadius="md"
+            p={2}
+            shadow="md"
+          >
+            <Flex gap={4} alignItems="center">
+              <Image
+                src={
+                  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZK22K6eFm0ynM9TTKPMHw0hECUPHYtgEAgLnFml-0Qg&s'
+                }
+                alt="School Logo"
+                w="70px"
+                h="70px"
+                borderRadius="md"
+              />
+              <Box>
+                <Text fontWeight="bold" fontSize="lg">
+                  {user.school.name}
+                </Text>
+                <Text>
+                  User: {user.user.name.first} {user.user.name.last}
+                </Text>
+              </Box>
+            </Flex>
+          </Box>
+        )}
+
         <Text m={0} className="body2" textAlign={'center'}>
           Create a strong and secure password for signing in to your account
         </Text>
       </Box>
+
       <Box>
         <Formik
           initialValues={{ password: '', passwordConfirmation: '' }}
           validationSchema={ForgotPasswordSchema}
-          onSubmit={async (values, { setSubmitting }) => {
+          onSubmit={async (values) => {
+            setSubmitting(true);
             if (fld && inviteCode) {
               const handleUpdatePassword = async () => {
                 try {
@@ -153,7 +187,6 @@ const CreatePassword: React.FC = () => {
                 navigate('/login');
               } catch (e: any) {
                 let errorMessage = '';
-
                 switch (e.code) {
                   case 'auth/invalid-action-code':
                     errorMessage =
@@ -163,7 +196,6 @@ const CreatePassword: React.FC = () => {
                     errorMessage = 'An unexpected error occurred';
                     break;
                 }
-
                 toast({
                   title: errorMessage,
                   position: 'top-right',
@@ -232,18 +264,7 @@ const CreatePassword: React.FC = () => {
                 text={`${MinPasswordLength} character minimum`}
                 checked={values.password.length >= MinPasswordLength}
               />
-              {user && (
-                <Box
-                  mt={4}
-                  fontSize={'sm'}
-                  justifyContent="center"
-                  textAlign={'center'}
-                >
-                  <Text fontWeight="bold">
-                    {`${user.school.name} - ${user.user.name.first} ${user.user.name.last}`}
-                  </Text>
-                </Box>
-              )}
+
               <Box
                 marginTop={'36px'}
                 display={'flex'}
@@ -256,7 +277,7 @@ const CreatePassword: React.FC = () => {
                   width={'100%'}
                   size="lg"
                   type="submit"
-                  isLoading={isSubmitting}
+                  isLoading={submitting}
                 >
                   Confirm
                 </Button>

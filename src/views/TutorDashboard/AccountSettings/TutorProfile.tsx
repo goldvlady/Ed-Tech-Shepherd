@@ -74,6 +74,8 @@ import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
 import Availability from '../../../components/Availability';
+import FileUpload from '../../Dashboard/FlashCards/components/fileUploadField';
+import uploadFile from '../../../helpers/file.helpers';
 
 interface SubjectLevel {
   subject: string;
@@ -110,6 +112,7 @@ function MyProfile(props) {
 
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
   const [isLoading, setIsLoading] = useState(false);
+  const [icsFile, setIcsFile] = useState(null);
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
 
@@ -355,6 +358,26 @@ function MyProfile(props) {
       const updatedSubjectLevels = [...prevSubjectLevels];
       updatedSubjectLevels.splice(index, 1);
       return updatedSubjectLevels;
+    });
+  };
+  const onHandleFile = (file: File) => {
+    const uploadEmitter = uploadFile(file, {
+      studentID: user?._id as string,
+      documentID: file.name
+    });
+
+    uploadEmitter.on('progress', (progress: number) => {
+      if (progress && progress < 99 && !isLoading) {
+        setIsLoading(true);
+      }
+    });
+
+    uploadEmitter.on('complete', (uploadFile) => {
+      setIcsFile((prev) => ({ ...prev, documentId: uploadFile.fileUrl }));
+      setIsLoading(false);
+    });
+    uploadEmitter.on('error', (error) => {
+      setIsLoading(false);
     });
   };
 
@@ -765,6 +788,21 @@ function MyProfile(props) {
             handleUpdateTimezone={updateTimezone}
             editMode={true}
           />
+          <Center>or</Center>
+          {icsFile}
+          <FormControl my={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Upload Calendar File
+            </FormLabel>
+            <FileUpload
+              accept=".ics"
+              isLoading={isLoading}
+              onFileSelect={onHandleFile}
+            />
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mt={3}>
+              Shepherd supports ICalendar(.ics) document formats
+            </FormLabel>
+          </FormControl>
         </Box>
       </CustomModal>
       <CustomModal
