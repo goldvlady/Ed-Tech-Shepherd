@@ -1,3 +1,4 @@
+import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
@@ -1344,6 +1345,36 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data)
     });
+  };
+  static ValidateSchoolUsers = async (fId, inviteCode) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/validateInviteCode?fId=${fId}&inviteCode=${inviteCode}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+  static updateSchoolUserPassword = async (fId, inviteCode, newPassword) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/updateSchoolUserPassword?fId=${fId}&inviteCode=${inviteCode}`,
+      { method: 'POST', body: JSON.stringify({ newPassword: newPassword }) }
+    );
+  };
+
+  static getSchoolTutorStudents = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getSchoolStudents?page=${page}&limit=${limit}`
+    );
+  };
+  static getSchoolCourses = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getSchoolCourses?page=${page}&limit=${limit}`
+    );
+  };
+  static getStudentPerformance = async (id) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getTutorsStudyPlanReport?studentUserId=${id}`
+    );
   };
 }
 

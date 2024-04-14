@@ -657,7 +657,7 @@ function MyProfile(props) {
                 </Center>
               </Box>
             </Flex>
-            {tutorData.tutor.qualifications.map((q) => (
+            {tutorData.tutor?.qualifications?.map((q) => (
               <>
                 <Flex px={3} gap={0} direction={'row'} my={2}>
                   <Box mb={4}>
@@ -759,7 +759,7 @@ function MyProfile(props) {
           {/* {' '}
           <AvailabilityEditForm updateSchedule={updateSchedule} /> */}
           <Availability
-            schedule={tutorData.tutor.schedule}
+            schedule={tutorData.tutor.schedule || {}}
             timezone={tutorData.tutor.tz}
             handleUpdateSchedule={updateSchedule}
             handleUpdateTimezone={updateTimezone}

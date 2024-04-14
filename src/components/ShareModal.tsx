@@ -9,15 +9,29 @@ import {
   Button,
   Input,
   Text,
-  Box
+  Box,
+  extendTheme,
+  ChakraProvider
 } from '@chakra-ui/react';
 import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import { copyTextToClipboard } from '../helpers/copyTextToClipboard';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { RiShareForwardLine, RiTwitterXLine } from '@remixicon/react';
 import { newId } from '../helpers/id';
+// import {
+//   MultiSelect,
+//   MultiSelectProps,
+//   MultiSelectTheme,
+//   SelectionVisibilityMode,
+//   useMultiSelect
+// } from 'chakra-multiselect';
+import { MultiSelect } from 'react-multi-select-component';
+
 import ApiService from '../services/ApiService';
+import useResourceStore from '../state/resourceStore';
+import clientStore from '../state/clientStore';
+import { Item } from '@radix-ui/react-radio-group';
 
 type ShareModalProps = {
   type:
@@ -27,6 +41,7 @@ type ShareModalProps = {
     | 'docchat'
     | 'aichat'
     | 'tutor'
+    | 'school'
     | 'studyPlan';
   customTriggerComponent?: React.ReactNode;
   prefferredBaseUrl?: string;
@@ -238,84 +253,125 @@ const ModalContentLayout = ({
   presentableLink,
   copyShareLink,
   shareOnX
-}) => (
-  <ModalContent>
-    <ModalHeader>{headerTitle}</ModalHeader>
-    <ModalCloseButton />
-    <ModalBody
-      pt="10px"
-      p="0"
-      px="24px"
-      className="flex !items-start !justify-start flex-col gap-3"
-    >
-      <p>{bodyText}</p>
-      <Box
-        bg="transparent"
-        outline="none"
-        _focus={{ boxShadow: 'none' }}
-        cursor="not-allowed"
-        padding="8px 12px"
-        maxHeight={'40px'}
-        width="100%"
-        boxShadow="inset 0 0 0 1px #E4E6E7" // Updated border color
-        borderRadius="md"
-        className="text-balance overflow-scroll"
-        style={{
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden'
-        }}
+}) => {
+  const [selectedUser, setSelectedUser] = useState([]); // New state to hold selected user
+  const { studyPlanCourses } = useResourceStore();
+  const { fetchSchoolTutorStudents, schoolStudents } = clientStore();
+
+  const studentOptions: any =
+    schoolStudents?.map((item: any, index) => ({
+      id: item.user?.id,
+      value: `${item.user?.name.first} ${item.user?.name.last}`,
+      label: `${item.user?.name.first} ${item.user?.name.last}`
+    })) || [];
+  const handleSelectedUser = (selectedOptions) => {
+    setSelectedUser(selectedOptions);
+    const selectedSubjects = selectedOptions
+      .map((option) => option.value)
+      .join(',');
+  };
+  return (
+    <ModalContent>
+      <ModalHeader>{headerTitle}</ModalHeader>
+      <ModalCloseButton />
+      <ModalBody
+        pt="10px"
+        p="0"
+        px="24px"
+        className="flex !items-start !justify-start flex-col gap-3"
       >
-        <Text
+        <p>{bodyText}</p>
+        <Box
+          bg="transparent"
+          outline="none"
+          _focus={{ boxShadow: 'none' }}
+          cursor="not-allowed"
+          padding="8px 12px"
+          maxHeight={'40px'}
+          width="100%"
+          boxShadow="inset 0 0 0 1px #E4E6E7" // Updated border color
+          borderRadius="md"
+          className="text-balance overflow-scroll"
           style={{
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             overflow: 'hidden'
           }}
-          whiteSpace={'nowrap'}
         >
-          {presentableLink}
-        </Text>
-      </Box>
+          <Text
+            style={{
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden'
+            }}
+            whiteSpace={'nowrap'}
+          >
+            {presentableLink}
+          </Text>
+        </Box>
 
-      <div className="flex gap-2 mt-2">
-        <Button
-          onClick={copyShareLink}
-          bg="#f4f4f5"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          gap="4px"
-          padding="12px 14px"
-          borderRadius="md"
-          border="none"
-          cursor="pointer"
-          color="#000"
-          _hover={{ bg: '#e4e4e5' }}
-          _active={{ bg: '#d4d4d5' }}
+        <div className="flex gap-2 mt-2">
+          <Button
+            onClick={copyShareLink}
+            bg="#f4f4f5"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap="4px"
+            padding="12px 14px"
+            borderRadius="md"
+            border="none"
+            cursor="pointer"
+            color="#000"
+            _hover={{ bg: '#e4e4e5' }}
+            _active={{ bg: '#d4d4d5' }}
+          >
+            <DocumentDuplicateIcon width={16} height={16} />
+            <span> Copy link</span>
+          </Button>
+          <Button
+            onClick={shareOnX}
+            bg="#f4f4f5"
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap="4px"
+            padding="12px 18px"
+            borderRadius="md"
+            border="none"
+            cursor="pointer"
+            color="#000"
+            _hover={{ bg: '#e4e4e5' }}
+            _active={{ bg: '#d4d4d5' }}
+          >
+            <span> Share on </span>
+            <RiTwitterXLine style={{ width: '16px', height: '16px' }} />
+          </Button>
+        </div>
+        <Box
+          w="full"
+          my={10}
+          style={{ minHeight: '120px' }} // Ensure enough height for the multiselect
         >
-          <DocumentDuplicateIcon width={16} height={16} />
-          <span> Copy link</span>
-        </Button>
-        <Button
-          onClick={shareOnX}
-          bg="#f4f4f5"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          gap="4px"
-          padding="12px 18px"
-          borderRadius="md"
-          border="none"
-          cursor="pointer"
-          color="#000"
-          _hover={{ bg: '#e4e4e5' }}
-          _active={{ bg: '#d4d4d5' }}
-        >
-          <span> Share on </span>
-          <RiTwitterXLine style={{ width: '16px', height: '16px' }} />
-        </Button>
-      </div>
-    </ModalBody>
-  </ModalContent>
-);
+          <MultiSelect
+            options={studentOptions}
+            value={selectedUser}
+            onChange={handleSelectedUser}
+            labelledBy="Select"
+            valueRenderer={() => (
+              <span
+                style={{
+                  color: '#8c8c8c',
+                  fontSize: '0.875rem',
+                  width: '100%'
+                }}
+              >
+                Search Students
+              </span>
+            )}
+          />
+        </Box>
+      </ModalBody>
+    </ModalContent>
+  );
+};

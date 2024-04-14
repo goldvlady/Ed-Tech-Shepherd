@@ -79,6 +79,12 @@ const dummyNavigation: NavigationItem[] = [
     current: false
   },
   {
+    name: 'Courses',
+    href: '/dashboard/tutordashboard/courses',
+    icon: BountyIcon,
+    current: false
+  },
+  {
     name: 'Offers',
     href: '/dashboard/tutordashboard/offers',
     icon: OffersIcon,

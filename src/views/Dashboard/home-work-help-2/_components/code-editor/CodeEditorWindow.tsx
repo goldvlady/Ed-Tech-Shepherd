@@ -30,7 +30,7 @@ const CodeEditorWindow = () => {
   return (
     <div
       className={cn(
-        'h-full max-h-screen flex w-[348px] border-r transition-all transform-gpu  mr-[-1px] relative duration-1000 z-20',
+        'h-full max-h-screen flex w-[40%] border-r transition-all transform-gpu  mr-[-1px] relative duration-1000 z-20',
         {
           'w-[0%]': sidebarClosed
         }
@@ -52,7 +52,7 @@ const CodeEditorWindow = () => {
         />
       </Button>
 
-      <Box>
+      <Box w="full">
         <VStack spacing={4} p={2}>
           <Box w="full">
             <LanguageSelector language={language} onSelect={onSelect} />

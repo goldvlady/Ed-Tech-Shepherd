@@ -1,7 +1,11 @@
 import CriteriaCheck from '../components/CriteriaCheck';
 import { useCustomToast } from '../components/CustomComponents/CustomToast/useCustomToast';
 import SecureInput from '../components/SecureInput';
-import { confirmPasswordReset, firebaseAuth } from '../firebase';
+import {
+  confirmPasswordReset,
+  firebaseAuth,
+  updatePassword
+} from '../firebase';
 import { useTitle } from '../hooks';
 import { MinPasswordLength } from '../util';
 import {
@@ -16,7 +20,7 @@ import {
   useToast
 } from '@chakra-ui/react';
 import { Field, Form, Formik } from 'formik';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Link as RouterLink,
   useNavigate,
@@ -24,6 +28,7 @@ import {
 } from 'react-router-dom';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import ApiService from '../services/ApiService';
 
 const Root = styled(Box)``;
 
@@ -49,6 +54,40 @@ const CreatePassword: React.FC = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const oobCode = params.get('oobCode') ?? '';
+  const fld: any = params.get('fId');
+  const type: any = params.get('type');
+  const inviteCode: any = params.get('inviteCode');
+  useEffect(() => {
+    const authenticateUser = async () => {
+      if (fld && type && inviteCode) {
+        try {
+          const response = await ApiService.ValidateSchoolUsers(
+            fld,
+
+            inviteCode
+          );
+          if (response.status === 200) {
+            toast({
+              position: 'top-right',
+              title: `User Validated Succesfully`,
+              status: 'success'
+            });
+            return;
+          } else {
+            // Failed validation, redirect to login page
+            navigate('/login');
+            // return <CreatePassword {...props} />;
+          }
+        } catch (error) {
+          // Handle API call error
+          console.error('Error validating user:', error);
+          navigate('/login');
+        }
+      }
+    };
+
+    authenticateUser();
+  }, [fld, type, inviteCode, navigate]);
 
   return (
     <Root>
@@ -65,40 +104,67 @@ const CreatePassword: React.FC = () => {
           initialValues={{ password: '', passwordConfirmation: '' }}
           validationSchema={ForgotPasswordSchema}
           onSubmit={async (values, { setSubmitting }) => {
-            try {
-              await confirmPasswordReset(
-                firebaseAuth,
-                oobCode,
-                values.password
-              );
-              toast({
-                title: 'Password reset successful',
-                position: 'top-right',
-                status: 'success',
-                isClosable: true
-              });
-              navigate('/login');
-            } catch (e: any) {
-              let errorMessage = '';
+            if (fld && inviteCode) {
+              const handleUpdatePassword = async () => {
+                try {
+                  // Update password with Firebase
+                  const response = await ApiService.updateSchoolUserPassword(
+                    fld,
+                    inviteCode,
+                    values.password
+                  );
+                  if (response.status === 200) {
+                    const jsonResp = await response.json();
+                    toast({
+                      title: 'Password updated successfully',
+                      position: 'top-right',
+                      status: 'success',
+                      isClosable: true
+                    });
+                    navigate('/login');
+                  }
+                } catch (error) {
+                  // setError(error.message);
+                  console.error('Error updating password:', error);
+                }
+              };
+              handleUpdatePassword();
+            } else {
+              try {
+                await confirmPasswordReset(
+                  firebaseAuth,
+                  oobCode,
+                  values.password
+                );
+                toast({
+                  title: 'Password reset successful',
+                  position: 'top-right',
+                  status: 'success',
+                  isClosable: true
+                });
+                navigate('/login');
+              } catch (e: any) {
+                let errorMessage = '';
 
-              switch (e.code) {
-                case 'auth/invalid-action-code':
-                  errorMessage =
-                    'Your password reset link is invalid or expired';
-                  break;
-                default:
-                  errorMessage = 'An unexpected error occurred';
-                  break;
+                switch (e.code) {
+                  case 'auth/invalid-action-code':
+                    errorMessage =
+                      'Your password reset link is invalid or expired';
+                    break;
+                  default:
+                    errorMessage = 'An unexpected error occurred';
+                    break;
+                }
+
+                toast({
+                  title: errorMessage,
+                  position: 'top-right',
+                  status: 'error',
+                  isClosable: true
+                });
               }
-
-              toast({
-                title: errorMessage,
-                position: 'top-right',
-                status: 'error',
-                isClosable: true
-              });
+              setSubmitting(false);
             }
-            setSubmitting(false);
           }}
         >
           {({ errors, isSubmitting, values }) => (

@@ -14,6 +14,7 @@ import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
+import ApiService from '../services/ApiService';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -49,6 +50,10 @@ const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
 const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
 const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
+const Courses = lazy(() => import('../views/TutorDashboard/Courses/index'));
+const Performance = lazy(
+  () => import('../views/TutorDashboard/Clients/performance')
+);
 const Client = lazy(() => import('../views/TutorDashboard/Clients/client'));
 const TutorOffers = lazy(() => import('../views/TutorDashboard/Offers/index'));
 const TutorBounties = lazy(
@@ -143,7 +148,13 @@ const shareableRoutes = [
 const tutorRoutes = [
   { path: 'tutordashboard', element: <TutorDashboard /> },
   { path: 'tutordashboard/clients', element: <Clients /> },
+  {
+    path: 'tutordashboard/clients/performance/:clientId',
+    element: <Performance />
+  },
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
+  { path: 'tutordashboard/courses', element: <Courses /> },
+
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> },
   { path: 'tutordashboard/bounties', element: <TutorBounties /> },
@@ -184,15 +195,22 @@ const RenderLayout = () => {
   }
 };
 
-const AuthAction = (props: any) => {
+const AuthAction = (props) => {
   const [params] = useSearchParams();
   const mode = params.get('mode')?.toLowerCase();
+  const fld: any = params.get('fId')?.toLowerCase();
+  const type: any = params.get('type')?.toLowerCase();
+  const inviteCode: any = params.get('inviteCode')?.toLowerCase();
+  const navigate = useNavigate();
 
   if (mode === 'resetpassword') {
     return <CreatePassword {...props} />;
   }
+  if (fld && type && inviteCode) {
+    return <CreatePassword {...props} />;
+  }
 
-  return <></>;
+  return null;
 };
 
 const userRoutes = {

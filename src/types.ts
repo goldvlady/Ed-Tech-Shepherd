@@ -173,6 +173,7 @@ export interface User extends TimestampedEntity {
   avatar?: string;
   dob: string;
   referralCode?: string;
+  school?: any;
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;

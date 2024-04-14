@@ -835,6 +835,19 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
+
+  useEffect(() => {
+    // Check if the item exists in localStorage
+    const item = localStorage.getItem('create course');
+    console.log(item);
+
+    // If the item exists, set it to state and clear it from localStorage
+    if (item) {
+      setCourse(item);
+      localStorage.removeItem('create course');
+    }
+  }, []); // This effect runs only once after the component mounts
+
   return (
     <Grid
       templateColumns={[

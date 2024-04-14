@@ -49,16 +49,17 @@ type DataSourceItem = {
   id: number;
   name: string;
   subject: string;
-  start_date: string;
-  end_date: string;
-  status: string;
-  amount_earned: string;
-  classes: string;
-  rating: number;
+  email: string;
+  //   start_date: string;
+  //   end_date: string;
+  //   status: string;
+  //   amount_earned: string;
+  //   classes: string;
+  //   rating: number;
 };
 
-const AllClientsTab = (props) => {
-  const { allTutorClients } = props;
+const AllSchoolStudentsTab = (props) => {
+  const { allSchoolTutorStudents } = props;
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -72,24 +73,29 @@ const AllClientsTab = (props) => {
   const navigate = useNavigate();
 
   const dataSource: DataSourceItem[] = Array.from(
-    { length: allTutorClients?.length },
+    { length: allSchoolTutorStudents?.length },
     (_, i) => ({
       key: i,
-      id: allTutorClients[i]?._id,
-      name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
-      subject: allTutorClients[i]?.offer?.course?.label,
-      start_date: moment(allTutorClients[i]?.offer?.contractStartDate).format(
-        'MMMM DD  , YYYY'
-      ),
-      end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
-        'MMMM DD  , YYYY'
-      ),
-      status: allTutorClients[i]?.offer?.expired === true ? 'Ended' : 'Active',
-      amount_earned: `$${
-        allTutorClients[i].offer?.amount ? allTutorClients[i].offer.amount : 0
-      }`,
-      classes: '',
-      rating: 0
+      id: allSchoolTutorStudents[i]?.user.id,
+      name: `${allSchoolTutorStudents[i]?.user.name.first} ${allSchoolTutorStudents[i]?.user.name.last}`,
+      subject: allSchoolTutorStudents[i]?.courses[0]?.label,
+      email: allSchoolTutorStudents[i]?.user?.email
+
+      //   start_date: moment(
+      //     allSchoolTutorStudents[i]?.offer?.contractStartDate
+      //   ).format('MMMM DD  , YYYY'),
+      //   end_date: moment(
+      //     allSchoolTutorStudents[i]?.offer?.contractEndDate
+      //   ).format('MMMM DD  , YYYY'),
+      //   status:
+      //     allSchoolTutorStudents[i]?.offer?.expired === true ? 'Ended' : 'Active',
+      //   amount_earned: `$${
+      //     allSchoolTutorStudents[i].offer?.amount
+      //       ? allSchoolTutorStudents[i].offer.amount
+      //       : 0
+      //   }`,
+      //   classes: '',
+      //   rating: 0
     })
   );
 
@@ -155,70 +161,70 @@ const AllClientsTab = (props) => {
       //   </>
       // )
     },
+    // {
+    //   key: 'subject',
+    //   title: 'Subject',
+    //   dataIndex: 'subject',
+    //   align: 'left',
+    //   id: 1
+    // },
     {
-      key: 'subject',
-      title: 'Subject',
-      dataIndex: 'subject',
-      align: 'left',
-      id: 1
-    },
-    {
-      key: 'start_date',
-      title: 'Start Date',
-      dataIndex: 'start_date',
+      key: 'email',
+      title: 'Email',
+      dataIndex: 'email',
       align: 'left',
       id: 2
     },
-    {
-      key: 'end_date',
-      title: 'End Date',
-      dataIndex: 'end_date',
-      align: 'left',
-      id: 3
-    },
-    {
-      key: 'status',
-      title: 'Status',
-      dataIndex: 'status',
-      align: 'left',
-      id: 4
-    },
-    {
-      key: 'amount_earned',
-      title: 'Amount Earned',
-      dataIndex: 'amount_earned',
-      align: 'left',
-      id: 5
-    },
-    {
-      key: 'classes',
-      title: 'Classes',
-      dataIndex: 'classes',
-      align: 'left',
-      id: 5
-      // render: ({ classes }) => (
-      //   <>
-      //     <Box
-      //       bg="#F4F5F6"
-      //       py={'4px'}
-      //       pr={'1px'}
-      //       textAlign={'center'}
-      //       borderRadius="6px"
-      //     >
-      //       <Text fontWeight="500" fontSize={12} color="text.400">
-      //         {classes}
-      //       </Text>
-      //     </Box>
-      //   </>
-      // )
-    },
-    {
-      key: 'rating',
-      title: 'Rating',
-      dataIndex: 'rating',
-      align: 'center',
-      id: 6
-    },
+    // {
+    //   key: 'end_date',
+    //   title: 'End Date',
+    //   dataIndex: 'end_date',
+    //   align: 'left',
+    //   id: 3
+    // },
+    // {
+    //   key: 'status',
+    //   title: 'Status',
+    //   dataIndex: 'status',
+    //   align: 'left',
+    //   id: 4
+    // },
+    // {
+    //   key: 'amount_earned',
+    //   title: 'Amount Earned',
+    //   dataIndex: 'amount_earned',
+    //   align: 'left',
+    //   id: 5
+    // },
+    // {
+    //   key: 'classes',
+    //   title: 'Classes',
+    //   dataIndex: 'classes',
+    //   align: 'left',
+    //   id: 5
+    //   // render: ({ classes }) => (
+    //   //   <>
+    //   //     <Box
+    //   //       bg="#F4F5F6"
+    //   //       py={'4px'}
+    //   //       pr={'1px'}
+    //   //       textAlign={'center'}
+    //   //       borderRadius="6px"
+    //   //     >
+    //   //       <Text fontWeight="500" fontSize={12} color="text.400">
+    //   //         {classes}
+    //   //       </Text>
+    //   //     </Box>
+    //   //   </>
+    //   // )
+    // },
+    // {
+    //   key: 'rating',
+    //   title: 'Rating',
+    //   dataIndex: 'rating',
+    //   align: 'center',
+    //   id: 6
+    // },
     {
       key: 'actions',
       title: '',
@@ -242,7 +248,7 @@ const AllClientsTab = (props) => {
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
             <section className="space-y-2 border-b pb-2">
-              <button
+              {/* <button
                 onClick={() => navigate(`${id}`)}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
               >
@@ -258,7 +264,7 @@ const AllClientsTab = (props) => {
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
+              </button> */}
               {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
                 <div className="flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
@@ -273,7 +279,7 @@ const AllClientsTab = (props) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button> */}
-              <button
+              {/* <button
                 className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
                 onClick={() => onClientReview(name)}
               >
@@ -289,7 +295,7 @@ const AllClientsTab = (props) => {
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
+              </button> */}
               <button
                 onClick={() => navigate(`performance/${id}`)}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
@@ -503,54 +509,8 @@ const AllClientsTab = (props) => {
           </div>
         </div>
       </div>
-
-      <CustomModal
-        modalTitle=""
-        isModalCloseButton
-        onClose={() => setDeleteNoteModal(false)}
-        isOpen={deleteNoteModal}
-        modalSize="md"
-        style={{ height: '327px', maxWidth: '100%' }}
-      >
-        <DeleteNoteModal
-          title={clientsDetails}
-          // deleteNoteModal={deleteNoteModal}
-          setDeleteNoteModal={setDeleteNoteModal}
-        />
-      </CustomModal>
-      {/* Modal for Client review */}
-      <Modal isOpen={isReviewModalOpen} onClose={closeReviewModal} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader
-            textAlign={'center'}
-            fontSize={14}
-          >{`${clientName} dropped a feedback for you`}</ModalHeader>
-          <Divider />
-          <ModalBody>
-            <VStack>
-              <Text textAlign={'left'}>Rating</Text>
-              <Flex gap={2}>{renderStars(3)}</Flex>
-              <Box p={3} border=" 1px solid #E4E5E7">
-                <Text>
-                  Risus purus sed integer arcu sollicitudin eros tellus
-                  phasellus viverra. Dolor suspendisse quisque proin velit nulla
-                  diam. Vitae in mauris condimentum s
-                </Text>
-              </Box>
-            </VStack>
-
-            {/* ... (content for the client review modal) */}
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeReviewModal} variant="outline">
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </div>
   );
 };
 
-export default AllClientsTab;
+export default AllSchoolStudentsTab;

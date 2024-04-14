@@ -3,7 +3,6 @@ import { DownloadIcon, FlashCardsIcon } from '../icons';
 import { DeleteNoteModal } from '../index';
 import SelectableTable, { TableColumn } from '../table';
 import { useDisclosure } from '@chakra-ui/hooks';
-import { GrDocumentPerformance } from 'react-icons/gr';
 import {
   Modal,
   ModalOverlay,
@@ -49,16 +48,16 @@ type DataSourceItem = {
   id: number;
   name: string;
   subject: string;
-  start_date: string;
-  end_date: string;
+  topic: string;
   status: string;
-  amount_earned: string;
-  classes: string;
-  rating: number;
+  quizScore: number;
+  flashcardScore: number;
+
+  timeSpent: number;
 };
 
-const AllClientsTab = (props) => {
-  const { allTutorClients } = props;
+const StudentPerformanceTab = (props) => {
+  const { performanceReport } = props;
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -72,24 +71,17 @@ const AllClientsTab = (props) => {
   const navigate = useNavigate();
 
   const dataSource: DataSourceItem[] = Array.from(
-    { length: allTutorClients?.length },
+    { length: performanceReport?.length },
     (_, i) => ({
       key: i,
-      id: allTutorClients[i]?._id,
-      name: `${allTutorClients[i]?.student.user.name.first} ${allTutorClients[i]?.student.user.name.last}`,
-      subject: allTutorClients[i]?.offer?.course?.label,
-      start_date: moment(allTutorClients[i]?.offer?.contractStartDate).format(
-        'MMMM DD  , YYYY'
-      ),
-      end_date: moment(allTutorClients[i]?.offer?.contractEndDate).format(
-        'MMMM DD  , YYYY'
-      ),
-      status: allTutorClients[i]?.offer?.expired === true ? 'Ended' : 'Active',
-      amount_earned: `$${
-        allTutorClients[i].offer?.amount ? allTutorClients[i].offer.amount : 0
-      }`,
-      classes: '',
-      rating: 0
+      id: performanceReport[i]?._id,
+      name: `${performanceReport[i]?.studyPlan.title} `,
+      subject: performanceReport[i]?.studyPlan?.course?.label,
+      topic: performanceReport[i]?.topic?.label,
+      status: performanceReport[i]?.status,
+      quizScore: performanceReport[i]?.quizReadinessScore,
+      flashcardScore: performanceReport[i]?.flashcardReadinessScore,
+      timeSpent: 0
     })
   );
 
@@ -139,9 +131,10 @@ const AllClientsTab = (props) => {
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'name',
-      title: 'Student Name',
+      title: 'Plan Name',
       dataIndex: 'name',
-      align: 'left'
+      align: 'left',
+      id: 1
       // render: ({ name }) => (
       //   <>
       //     <Flex alignItems="center" gap={1}>
@@ -160,19 +153,12 @@ const AllClientsTab = (props) => {
       title: 'Subject',
       dataIndex: 'subject',
       align: 'left',
-      id: 1
-    },
-    {
-      key: 'start_date',
-      title: 'Start Date',
-      dataIndex: 'start_date',
-      align: 'left',
       id: 2
     },
     {
-      key: 'end_date',
-      title: 'End Date',
-      dataIndex: 'end_date',
+      key: 'topic',
+      title: 'Topic',
+      dataIndex: 'topic',
       align: 'left',
       id: 3
     },
@@ -184,41 +170,20 @@ const AllClientsTab = (props) => {
       id: 4
     },
     {
-      key: 'amount_earned',
-      title: 'Amount Earned',
-      dataIndex: 'amount_earned',
+      key: 'quizScore',
+      title: 'Quizzes',
+      dataIndex: 'quizScore',
       align: 'left',
       id: 5
     },
     {
-      key: 'classes',
-      title: 'Classes',
-      dataIndex: 'classes',
+      key: 'flashcardScore',
+      title: 'Flashcards',
+      dataIndex: 'flashcardScore',
       align: 'left',
-      id: 5
-      // render: ({ classes }) => (
-      //   <>
-      //     <Box
-      //       bg="#F4F5F6"
-      //       py={'4px'}
-      //       pr={'1px'}
-      //       textAlign={'center'}
-      //       borderRadius="6px"
-      //     >
-      //       <Text fontWeight="500" fontSize={12} color="text.400">
-      //         {classes}
-      //       </Text>
-      //     </Box>
-      //   </>
-      // )
-    },
-    {
-      key: 'rating',
-      title: 'Rating',
-      dataIndex: 'rating',
-      align: 'center',
       id: 6
     },
+
     {
       key: 'actions',
       title: '',
@@ -296,7 +261,7 @@ const AllClientsTab = (props) => {
               >
                 <div className=" flex items-center space-x-1">
                   <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <GrDocumentPerformance
+                    <FlashCardsIcon
                       className="w-4 h-4 text-primaryGray"
                       onClick={undefined}
                     />
@@ -553,4 +518,4 @@ const AllClientsTab = (props) => {
   );
 };
 
-export default AllClientsTab;
+export default StudentPerformanceTab;
