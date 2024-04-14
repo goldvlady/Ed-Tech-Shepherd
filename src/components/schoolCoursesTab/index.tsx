@@ -72,6 +72,9 @@ const AllSchoolCoursesTab = (props) => {
   const [clientName, setClientName] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
 
+  const currentPath = window.location.pathname;
+
+  const isTutor = currentPath.includes('/dashboard/tutordashboard');
   const navigate = useNavigate();
 
   const dataSource: DataSourceItem[] = Array.from(
@@ -281,23 +284,26 @@ const AllSchoolCoursesTab = (props) => {
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />
               </button> */}
-              {/* <button
-                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                onClick={() => onClientReview(name)}
-              >
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <DownloadIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
+              {!isTutor && (
+                <button
+                  className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
+                  // onClick={() => }
+                >
+                  <div className="flex items-center space-x-1">
+                    <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                      <DownloadIcon
+                        className="w-4 h-4 text-primaryGray"
+                        onClick={undefined}
+                      />
+                    </div>
+                    <Text className="text-sm text-secondaryGray font-medium">
+                      Book Session
+                    </Text>
                   </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Client review
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
+                  <ChevronRightIcon className="w-2.5 h-2.5" />
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   localStorage.setItem('create_course', name);

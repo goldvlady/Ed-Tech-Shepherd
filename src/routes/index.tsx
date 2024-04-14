@@ -125,6 +125,8 @@ const studentRoutes = [
   { path: 'flashcards/:id/edit', element: <EditFlashCard /> },
   { path: 'library', element: <Library /> },
   { path: 'create-study-plans', element: <CreateStudyPlans /> },
+  { path: 'school-courses', element: <Courses /> },
+
   { path: 'study-plans', element: <StudyPlans /> },
   { path: 'study-plans/:planId', element: <CoursePlan /> },
   { path: 'library/providers/:providerId', element: <Library /> },
@@ -153,7 +155,7 @@ const tutorRoutes = [
     element: <Performance />
   },
   { path: 'tutordashboard/clients/:clientId', element: <Client /> },
-  { path: 'tutordashboard/courses', element: <Courses /> },
+  { path: 'tutordashboard/school-courses', element: <Courses /> },
 
   { path: 'tutordashboard/offers', element: <TutorOffers /> },
   { path: 'tutordashboard/offer/:offerId', element: <Offer /> },

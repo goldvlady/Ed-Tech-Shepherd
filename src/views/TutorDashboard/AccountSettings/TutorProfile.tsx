@@ -759,7 +759,7 @@ function MyProfile(props) {
           {/* {' '}
           <AvailabilityEditForm updateSchedule={updateSchedule} /> */}
           <Availability
-            schedule={tutorData.tutor.schedule || {}}
+            schedule={tutorData.tutor.schedule}
             timezone={tutorData.tutor.tz}
             handleUpdateSchedule={updateSchedule}
             handleUpdateTimezone={updateTimezone}
