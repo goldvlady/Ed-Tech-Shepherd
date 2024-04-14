@@ -31,7 +31,7 @@ import {
   Center
 } from '@chakra-ui/react';
 import ShareModal from '../../../components/ShareModal';
-
+import useSchoolStudents from './hooks/useSchoolStudents';
 import { MdInfo } from 'react-icons/md';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
@@ -284,6 +284,18 @@ function CoursePlan() {
     fetchData();
   }, []);
 
+  const { data: studentList } = useSchoolStudents();
+
+  const shareList = useMemo(() => {
+    if (studentList) {
+      const shareable = studentList.map((item) => ({
+        id: item.user?._id,
+        name: `${item.user?.name?.first} ${item.user?.name?.last} `
+      }));
+      return shareable;
+    }
+  }, [studentList]);
+
   function checkQuizzesAndFlashcards(data) {
     let countWithBoth = 0;
 
@@ -443,7 +455,14 @@ function CoursePlan() {
       );
     }
     if (state.topics?.creator === user?._id) {
-      return <ShareModal prefferredBaseUrl="/dashboard" type="studyPlan" />;
+      return (
+        <ShareModal
+          permissionBasis="school"
+          shareList={shareList}
+          prefferredBaseUrl="/dashboard"
+          type="studyPlan"
+        />
+      );
     }
     return '';
 

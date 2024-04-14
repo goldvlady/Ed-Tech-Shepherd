@@ -55,7 +55,12 @@ class ApiService {
     });
   };
 
-  static generateShareLink = async (body: { apiKey: string }) => {
+  static generateShareLink = async (body: {
+    apiKey?: string;
+    shareType?: any;
+    forwardList?: { apiKey: string; userId: string; shareLink: string }[];
+    permissionBasis?: any;
+  }) => {
     return doFetch(`${ApiService.baseEndpoint}/generateShareLink`, {
       method: 'POST',
       body: JSON.stringify(body)
@@ -1361,9 +1366,23 @@ class ApiService {
     );
   };
 
-  static getSchoolTutorStudents = async (page: number, limit: number) => {
+  static getSchoolTutorStudents = async (
+    page?: number,
+    limit?: number,
+    filters?: Record<string, any>
+  ) => {
+    const params: Record<string, any> = {};
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+    if (filters) {
+      for (const key in filters) {
+        params[key] = filters[key];
+      }
+    }
+    const queryParams = new URLSearchParams(params).toString();
+
     return doFetch(
-      `${ApiService.baseEndpoint}/getSchoolStudents?page=${page}&limit=${limit}`
+      `${ApiService.baseEndpoint}/getSchoolStudents?${queryParams}`
     );
   };
   static getSchoolCourses = async (page: number, limit: number) => {

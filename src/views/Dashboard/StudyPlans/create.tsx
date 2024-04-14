@@ -839,7 +839,6 @@ function CreateStudyPlans() {
   useEffect(() => {
     // Check if the item exists in localStorage
     const item = localStorage.getItem('create course');
-    console.log(item);
 
     // If the item exists, set it to state and clear it from localStorage
     if (item) {
