@@ -157,7 +157,7 @@ function Input({
         )}
         <div
           className={cn(
-            'flex flex-col md:flex-row md:gap-1 absolute top-[-3.0rem] md:top-[-3.0rem] ml-[1rem]',
+            'flex flex-col md:flex-row md:gap-1 absolute top-[-4.5rem] md:top-[-3.0rem] ml-[1rem]',
             {
               'md:top-[-1.5rem]': chatContext.subject !== 'Math'
             }
