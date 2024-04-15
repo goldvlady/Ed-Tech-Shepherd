@@ -341,6 +341,7 @@ export interface FlashcardData {
   source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
+  StudyDetails: FlashcardStudyDetails[];
 }
 
 export interface LibraryCardData {
@@ -384,6 +385,14 @@ export interface FlashcardQuestion {
   numberOfAttempts: number;
   currentStep: number;
   totalSteps: number;
+}
+
+export interface FlashcardStudyDetails {
+  availableTimeStart?: string;
+  availableTimeEnd?: string;
+  frequencyPerWeek?: number;
+  sessionDurationMinutes?: number;
+  studyEndDate?: string;
 }
 
 export interface Options {
