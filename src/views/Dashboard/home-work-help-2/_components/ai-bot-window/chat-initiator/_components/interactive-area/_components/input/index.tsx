@@ -357,7 +357,14 @@ function Input({
               (currentInputType === 'subject' &&
                 chatContext.subject.trim() === '') ||
               (currentInputType === 'language' &&
-                chatContext.language.length === 0)
+                chatContext.language.length === 0) ||
+              (currentInputType === 'topic' &&
+                chatContext.subject !== 'Math' &&
+                chatContext.topic.trim() === '') ||
+              (currentInputType === 'topic' &&
+                chatContext.subject === 'Math' &&
+                (chatContext.topicSecondary.trim().length === 0 ||
+                  chatContext.topicSecondary.trim().length === 0))
             }
             onClick={() => {
               handleButtonClick();
