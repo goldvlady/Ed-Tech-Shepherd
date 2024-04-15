@@ -64,6 +64,8 @@ function ChatRoom() {
       studentId: string;
     }) => ApiService.createConvoLog(b)
   });
+  const chatWindowParams = getChatWindowParams();
+  const { connectionQuery } = chatWindowParams;
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
@@ -323,7 +325,8 @@ function ChatRoom() {
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
                   messages.length >= 4 &&
-                  (apiKey || handleDisabledForMaths ? false : true)
+                  (apiKey || handleDisabledForMaths ? false : true) &&
+                  connectionQuery.subject !== 'Math'
                 }
                 sendSuggestedPrompt={async (message: string) => {
                   if (subject === 'Math') {
