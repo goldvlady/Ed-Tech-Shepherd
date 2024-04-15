@@ -45,9 +45,14 @@ import { AiOutlineSchedule } from 'react-icons/ai';
 import { useNavigate } from 'react-router';
 import eventsStore from '../state/eventsStore';
 import { Field, Form, Formik } from 'formik';
+import StudySession from '../views/Dashboard/FlashCards/forms/flashcard_setup/manual-occlusion-2/_components/study-session';
+import { useQuery } from '@tanstack/react-query';
+import OccResultsDialog from '../views/Dashboard/FlashCards/forms/flashcard_setup/manual-occlusion-2/_components/study-session/_components/occlusion-result-dialog';
+import { cn } from '../library/utils';
 
 export default function Events({ event }: any) {
   const [loading, setLoading] = useState(false);
+  console.log('Events', event);
 
   const {
     isOpen: isOpenReBook,
@@ -125,18 +130,6 @@ export default function Events({ event }: any) {
     }
   };
 
-  function extractAndConvertTimeFromUTC(
-    utcDateString: string,
-    userTimeZone: string
-  ): string {
-    // Parse the UTC date string
-    const utcDate = moment.utc(utcDateString);
-    // Convert the UTC date to the user's local timezone
-    const localDate = utcDate.clone().tz(userTimeZone);
-    // Extract the time part in the user's local timezone
-    const localTime = localDate.format('hh:mm A');
-    return localTime;
-  }
   const navigate = useNavigate();
 
   const currentPath = window.location.pathname;
@@ -308,6 +301,16 @@ export default function Events({ event }: any) {
     onCloseJoinSession();
   };
 
+  if (event.type === 'study' && event.data.entityType === 'occlusionCard') {
+    return (
+      <li className="flex w-full cursor-pointer">
+        <ImageOcclusionItem
+          id={event.data.entity._id as string}
+          time={event.data.startDate}
+        />
+      </li>
+    );
+  }
   return (
     <li
       className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm ${getColorByEventType(
@@ -717,3 +720,147 @@ export default function Events({ event }: any) {
     </li>
   );
 }
+
+const ImageOcclusionItem = ({ id, time }: { id: string; time: string }) => {
+  const initialState = {
+    open: false,
+    id: '',
+    score: {
+      right: 0,
+      wrong: 0,
+      notRemembered: 0
+    },
+    quizOver: false,
+    showResults: false
+  };
+  const date = new Date(time);
+  let hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+  const isPM = hours >= 12;
+  hours = hours % 12 || 12;
+  const paddedHours = String(hours).padStart(2, '0');
+  const paddedMinutes = String(minutes).padStart(2, '0');
+  const amPm = isPM ? 'PM' : 'AM';
+  const timeString = `${paddedHours}:${paddedMinutes} ${amPm}`;
+  const [state, setState] = useState(initialState);
+  const { data, isLoading } = useQuery({
+    queryKey: ['occlusion-card', id],
+    queryFn: () => ApiService.getOcclusionCard(id).then((res) => res.json()),
+    enabled: Boolean(id),
+    select: (data) => data.card,
+    refetchOnWindowFocus: false
+  });
+
+  const handleOpen = useCallback((id: string) => {
+    setState((pS) => ({
+      ...pS,
+      open: true,
+      id
+    }));
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setState((pS) => ({
+      ...pS,
+      open: false
+    }));
+  }, []);
+
+  const setQuizOver = useCallback((input: boolean) => {
+    setState((pS) => ({
+      ...pS,
+      quizOver: input
+    }));
+  }, []);
+
+  const showResults = useCallback((input: boolean) => {
+    setState((prevState) => ({
+      ...prevState,
+      showResults: input
+    }));
+  }, []);
+
+  const setScore = useCallback((score) => {
+    setState((prevState) => ({
+      ...prevState,
+      score
+    }));
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setState(initialState);
+  }, []);
+
+  function handleCloseResults() {
+    setState((pS) => {
+      return {
+        ...pS,
+        quizOver: false,
+        showResults: false,
+        score: {
+          notRemembered: 0,
+          right: 0,
+          wrong: 0
+        }
+      };
+    });
+  }
+
+  const handleRestart = useCallback(() => {
+    setState((pS) => ({
+      ...pS,
+      open: true,
+      score: {
+        notRemembered: 0,
+        right: 0,
+        wrong: 0
+      },
+      showResults: false,
+      quizOver: false
+    }));
+  }, []);
+
+  if (isLoading) return null;
+
+  return (
+    <>
+      <div
+        role="button"
+        className={cn(
+          'image-occlusion rounded-md bg-blue-100 border-l-2 border-blue-600 flex gap-3 cursor-pointer hover:drop-shadow-sm p-3 w-full flex-col',
+          {
+            'pointer-events-none': isLoading
+          }
+        )}
+        onClick={() => handleOpen(id)}
+      >
+        <p className="text-xs">
+          {isLoading
+            ? 'Loading...'
+            : 'Image Occlusion "' + data.title + '" practice'}
+        </p>
+        <p className="text-xs">{isLoading ? 'Loading...' : timeString}</p>
+      </div>
+      <StudySession
+        id={state.id}
+        open={state.open}
+        close={handleClose}
+        quizOver={state.quizOver}
+        setQuizOver={setQuizOver}
+        score={state.score}
+        setOpenResults={showResults}
+        setScore={setScore}
+        resetForm={handleReset}
+      />
+      <OccResultsDialog
+        id={state.id}
+        open={state.showResults}
+        score={state.score}
+        close={handleCloseResults}
+        restartStudySession={handleRestart}
+        handleEditImage={() => null}
+        editImageDisabled={true}
+      />
+    </>
+  );
+};

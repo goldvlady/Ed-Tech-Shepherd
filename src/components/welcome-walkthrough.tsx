@@ -145,7 +145,7 @@ const defaultItems = [
            <strong>Quick parting notes </strong> 
             <ol>
               <li>
-                    1. We offer a 4 <strong>WEEK TRIAL FOR OUR PREMIUM OFFER </strong>  because we
+                    1. To get the most out of Shepherd, we suggest you <strong> try out our Premium tier </strong> because we
                 really believe you&apos;d love it. It&apos;s easy to cancel if
                 you don&apos;t.
               </li>

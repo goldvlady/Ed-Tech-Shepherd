@@ -72,7 +72,7 @@ const Root = styled(Flex)`
 function ActivityFeeds(props) {
   const { feeds, userType } = props;
 
-  const { loadFlashcard } = flashcardStore();
+  const { loadFlashcard, fetchSingleFlashcard } = flashcardStore();
   const [feedPeriod, setFeedPeriod] = useState<
     'all' | 'today' | 'week' | 'month'
   >('all');
@@ -225,8 +225,6 @@ function ActivityFeeds(props) {
       }
     }
   }, [isTutor, feedPeriod, feeds?.data]);
-
-  const { fetchSingleFlashcard } = flashcardStore();
 
   return (
     <>

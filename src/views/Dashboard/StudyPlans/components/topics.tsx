@@ -38,6 +38,7 @@ import {
   Tooltip
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
+import { useSearchParams } from 'react-router-dom';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
 import QuizIcon from '../../../../assets/quiz-plan.svg';
 import moment from 'moment';
@@ -52,7 +53,12 @@ import resourceStore from '../../../../state/resourceStore';
 import { AiFillThunderbolt, AiOutlineDown, AiOutlineUp } from 'react-icons/ai'; // Import dropdown icons
 import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { parseISO, format, parse } from 'date-fns';
-import { EditIcon, SearchIcon, SmallCloseIcon } from '@chakra-ui/icons';
+import {
+  EditIcon,
+  RepeatIcon,
+  SearchIcon,
+  SmallCloseIcon
+} from '@chakra-ui/icons';
 import DatePicker from '../../../../components/DatePicker';
 import Select, { Option } from '../../../../components/Select';
 import CalendarDateInput from '../../../../components/CalendarDateInput';
@@ -63,6 +69,7 @@ import { FaPlus } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
+import TimePicker from '../../../../components/TimePicker';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -76,8 +83,11 @@ function Topics(props) {
     isLoading: studyPlanStoreLoading
   } = studyPlanStore();
   const { user } = useUserStore();
-  const { fetchSingleFlashcard } = flashcardStore();
+  const { fetchSingleFlashcard, fetchSingleFlashcardForAPIKey, isLoading } =
+    flashcardStore();
   const { loadQuiz } = quizStore();
+
+  const [params] = useSearchParams();
   const {
     courses: courseList,
     levels: levelOptions,
@@ -107,7 +117,7 @@ function Topics(props) {
     recurrenceEndDate: new Date()
   });
 
-  const updateState = (newState) =>
+  const updateState = (newState: Partial<typeof state>) =>
     setState((prevState) => ({ ...prevState, ...newState }));
 
   const toast = useCustomToast();
@@ -118,6 +128,7 @@ function Topics(props) {
     onOpen: onOpenResource,
     onClose: onCloseResource
   } = useDisclosure();
+
   const {
     isOpen: isOpenCadence,
     onOpen: onOpenCadence,
@@ -148,8 +159,6 @@ function Topics(props) {
     grouped.get(testDate).push(topic);
     return grouped;
   }, new Map());
-
-  console.log(groupedTopics);
 
   function getColorForStatus(status) {
     switch (status) {
@@ -197,7 +206,7 @@ function Topics(props) {
   }, [courseList, studyPlanCourses]);
 
   const getTopicStatus = (topicId) => {
-    const selectedTopic = planTopics.progressLog[0].topicProgress.find(
+    const selectedTopic = planTopics.progressLog[0]?.topicProgress?.find(
       (topic) => topic.topic === topicId
     );
 
@@ -221,6 +230,20 @@ function Topics(props) {
       return 'To Do';
     }
   };
+
+  const redirectToLogin = (toastMessage?: string) => {
+    const currentPathWithQuery = window.location.href.split('dashboard')[1];
+    if (toastMessage) {
+      toast({
+        title: 'You need to login to take a quiz',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+    navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+  };
+
   // const getTopicResource = async (topic: string) => {
   //   updateState({ isLoading: true });
   //   try {
@@ -265,10 +288,9 @@ function Topics(props) {
       }
     } catch (error) {
       updateState({ isLoading: false });
-      console.error('Error searching topic:', error);
     }
   };
-  const findQuizzesByTopic = (topic) => {
+  const findQuizzesByTopic = (topic): any[] => {
     // const topicKey = topic.toLowerCase();
 
     if (studyPlanResources[topic] && studyPlanResources[topic].quizzes) {
@@ -299,6 +321,18 @@ function Topics(props) {
     return [];
   };
 
+  const loadFlashcard = async (flashcardId: string) => {
+    if (!user) {
+      return redirectToLogin('You need to login to load a flashcard');
+    }
+    const apiKeyParam = params.get('apiKey');
+    if (apiKeyParam) {
+      fetchSingleFlashcardForAPIKey(flashcardId, apiKeyParam);
+    } else {
+      fetchSingleFlashcard(flashcardId);
+    }
+  };
+
   const handleUpdatePlanCadence = async () => {
     updateState({ isLoading: true });
     const parsedTime = parse(
@@ -325,7 +359,6 @@ function Topics(props) {
         }
       }
     };
-    console.log(payload);
     try {
       const resp = await ApiService.rescheduleStudyEvent(payload);
       if (resp) {
@@ -361,9 +394,9 @@ function Topics(props) {
   };
 
   const frequencyOptions = [
-    { label: 'Once daily', value: 'once' },
-    { label: 'Twice daily', value: 'twice' },
-    // { label: 'Daily', value: 'daily' },
+    // { label: 'Once daily', value: 'once' },
+    // { label: 'Twice daily', value: 'twice' },
+    { label: 'Daily', value: 'daily' },
     { label: 'Weekly', value: 'weekly' },
     { label: 'Monthly', value: 'monthly' },
     { label: "Doesn't Repeat", value: 'none' }
@@ -379,15 +412,17 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
-  console.log(state.topicResource);
+
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
     const [initializing, setInitializing] = useState(false);
+    const [initializingDocChat, setInitializingDocChat] = useState(false);
     const [showNoteModal, setShowNoteModal] = useState(false);
 
     const toggleCollapse = () => {
       setIsCollapsed(!isCollapsed);
     };
+
     const { loading, error } = useStoreConversationIdToStudyPlan(
       selectedPlan,
       topic.topic,
@@ -404,6 +439,19 @@ function Topics(props) {
     //   );
     // };
 
+    const redirectToLogin = (toastMessage?: string) => {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      if (toastMessage) {
+        toast({
+          title: 'You need to login to take a quiz',
+          position: 'top-right',
+          status: 'error',
+          isClosable: true
+        });
+      }
+      navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
+    };
+
     const saveStudyPlanMetaData = useCallback(
       async (conversationId: string) => {
         try {
@@ -416,10 +464,9 @@ function Topics(props) {
           });
           if (response) {
             const data = await response.json();
-            console.log('Metadata saved:', data);
           }
         } catch (error) {
-          console.error('Error saving metadata:', error);
+          // console.error('Error saving metadata:', error);
         }
       },
       [topic]
@@ -429,10 +476,16 @@ function Topics(props) {
       navigateOnInitialized: true,
       onInitialized: saveStudyPlanMetaData
     });
+
     const handleAiTutor = () => {
+      setInitializing(true);
       const convoId = topic.topicMetaData[0]?.conversationId;
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
       if (convoId) {
-        navigate(`/dashboard/ace-homework/${convoId}`);
+        const queryString = window.location.search;
+        navigate(`/dashboard/ace-homework/${convoId}${queryString}`);
       } else {
         initializeAItutor({
           topic: topic.topicDetails?.label,
@@ -445,24 +498,32 @@ function Topics(props) {
       }
       setInitializing(false);
     };
+    console.log(initializingDocChat);
 
     const handleDocAction = async (doc) => {
-      console.log('Ingested doc', doc);
+      setInitializingDocChat(true);
+      if (!user) {
+        return redirectToLogin('You need to login to use AI Tutor');
+      }
+
       try {
+        let docId = doc.ingestId;
         if (!doc.ingestId) {
-          updateState({ isLoading: true });
-          const ingestHandler = new FileProcessingService(doc, true);
+          updateState({ isPageLoading: true });
+
+          const ingestHandler = new FileProcessingService(
+            { ...doc, student: user?._id },
+            true
+          );
           const response = await ingestHandler.process();
           const {
             data: [{ documentId }]
           } = response;
-          navigate(
-            `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${documentId}&language=English`
-          );
+          docId = documentId;
         }
-        navigate(
-          `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
-        );
+        let path = `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${docId}&language=English`;
+        path += window.location.search.replace('?', '&');
+        navigate(path);
       } catch (error) {
         toast({
           title: 'Error opening document',
@@ -471,9 +532,127 @@ function Topics(props) {
           isClosable: true
         });
       } finally {
-        updateState({ isLoading: false });
+        updateState({ isPageLoading: false });
+        setInitializingDocChat(false);
       }
     };
+
+    const navigateToQuizPage = (quizId: string) => {
+      const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+
+      if (!user) {
+        redirectToLogin('You need to login to take a quiz');
+      } else {
+        let quizPathWithQuery = `${baseUrl}/quizzes/take?quiz_id=${quizId}`;
+        quizPathWithQuery += window.location.search.replace('?', '&');
+        navigate(quizPathWithQuery);
+      }
+    };
+
+    const resourceEmtpyState = (entity: 'quizzes' | 'flashcards') => {
+      return (
+        <Box textAlign={'center'} py={4} px={4}>
+          <CircularProgress isIndeterminate color="blue.300" />
+          <Text fontSize={12} mt="4" color="gray.500">
+            Your {entity} are being prepared. Please wait a moment.
+          </Text>
+        </Box>
+      );
+    };
+
+    const renderQuizzes = useCallback(() => {
+      const quizzes = findQuizzesByTopic(topic.topicDetails?.label);
+      if (!quizzes || !quizzes.length) return resourceEmtpyState('quizzes');
+      return findQuizzesByTopic(topic.topicDetails?.label)?.map((quiz) => (
+        <>
+          <MenuItem key={quiz.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}>{quiz.title}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Take">
+                    <Box
+                      onClick={() => {
+                        navigateToQuizPage(quiz.id);
+                      }}
+                    >
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        loadQuiz(quiz?.id);
+                        if (!user) {
+                          redirectToLogin('You need to login to edit a quiz');
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(
+                          `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
+                        );
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
+
+    const renderFlashcards = useCallback(() => {
+      const flashcards = findFlashcardsByTopic(topic.topicDetails?.label);
+      if (!flashcards || !flashcards.length)
+        return resourceEmtpyState('flashcards');
+      return flashcards.map((flashcard) => (
+        <>
+          <MenuItem key={flashcard.id}>
+            <Flex alignItems={'center'} gap={4} w="full">
+              <Text fontSize={12}> {flashcard.deckname}</Text>
+
+              <Spacer />
+              <Flex alignItems="center" gap={2}>
+                {!isTutor && (
+                  <Tooltip label="Study">
+                    <Box onClick={() => loadFlashcard(flashcard.id)}>
+                      <AiFillThunderbolt color="#207df7" size={18} />
+                    </Box>
+                  </Tooltip>
+                )}
+                {planTopics?.creator === user?._id && (
+                  <Tooltip label="Edit">
+                    <Box
+                      onClick={() => {
+                        if (!user) {
+                          redirectToLogin(
+                            'You need to login to edit a flashcard'
+                          );
+                        }
+                        const baseUrl = isTutor
+                          ? '/dashboard/tutordashboard'
+                          : '/dashboard';
+                        navigate(`${baseUrl}/flashcards/${flashcard.id}/edit`);
+                      }}
+                    >
+                      <EditIcon color="#207df7" boxSize={4} />
+                    </Box>
+                  </Tooltip>
+                )}
+              </Flex>
+            </Flex>
+          </MenuItem>
+        </>
+      ));
+    }, [topic.topicDetails?.label]);
 
     // const handleInitializeAiTutor = async () => {
     //   setInitializing(true);
@@ -498,6 +677,8 @@ function Topics(props) {
     //     setInitializing(false);
     //   }
     // };
+    const disableClick = !user || user._id !== planTopics?.user;
+
     return (
       <>
         {' '}
@@ -568,6 +749,8 @@ function Topics(props) {
               p={4}
               justifyContent="space-between"
               textColor={'black'}
+              pointerEvents={disableClick ? 'none' : 'auto'}
+              opacity={disableClick ? 0.5 : 1}
             >
               <Menu isLazy>
                 <MenuButton>
@@ -580,56 +763,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findQuizzesByTopic(topic.topicDetails?.label)?.map(
-                      (quiz) => (
-                        <>
-                          <MenuItem key={quiz.id}>
-                            <Flex alignItems={'center'} gap={4} w="full">
-                              <Text fontSize={12}>{quiz.title}</Text>
-
-                              <Spacer />
-                              <Flex alignItems="center" gap={2}>
-                                {!isTutor && (
-                                  <Tooltip label="Take">
-                                    <Box
-                                      onClick={() => {
-                                        const baseUrl = isTutor
-                                          ? '/dashboard/tutordashboard'
-                                          : '/dashboard';
-                                        navigate(
-                                          `${baseUrl}/quizzes/take?quiz_id=${quiz.id}`
-                                        );
-                                      }}
-                                    >
-                                      <AiFillThunderbolt
-                                        color="#207df7"
-                                        size={18}
-                                      />
-                                    </Box>
-                                  </Tooltip>
-                                )}
-                                <Tooltip label="Edit">
-                                  <Box
-                                    onClick={() => {
-                                      loadQuiz(quiz?.id);
-                                      const baseUrl = isTutor
-                                        ? '/dashboard/tutordashboard'
-                                        : '/dashboard';
-                                      navigate(
-                                        `${baseUrl}/quizzes/create?quiz_id=${quiz.id}`
-                                      );
-                                    }}
-                                  >
-                                    <EditIcon color="#207df7" boxSize={4} />
-                                  </Box>
-                                </Tooltip>
-                              </Flex>
-                            </Flex>
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderQuizzes()}
                 </MenuList>
               </Menu>
               <Menu isLazy>
@@ -643,50 +777,7 @@ function Topics(props) {
                   </VStack>
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
-                  {studyPlanResources &&
-                    findFlashcardsByTopic(topic.topicDetails?.label).map(
-                      (flashcard) => (
-                        <>
-                          <MenuItem key={flashcard.id}>
-                            <Flex alignItems={'center'} gap={4} w="full">
-                              <Text fontSize={12}> {flashcard.deckname}</Text>
-
-                              <Spacer />
-                              <Flex alignItems="center" gap={2}>
-                                {!isTutor && (
-                                  <Tooltip label="Study">
-                                    <Box
-                                      onClick={() =>
-                                        fetchSingleFlashcard(flashcard.id)
-                                      }
-                                    >
-                                      <AiFillThunderbolt
-                                        color="#207df7"
-                                        size={18}
-                                      />
-                                    </Box>
-                                  </Tooltip>
-                                )}
-                                <Tooltip label="Edit">
-                                  <Box
-                                    onClick={() => {
-                                      const baseUrl = isTutor
-                                        ? '/dashboard/tutordashboard'
-                                        : '/dashboard';
-                                      navigate(
-                                        `${baseUrl}/flashcards/${flashcard.id}/edit`
-                                      );
-                                    }}
-                                  >
-                                    <EditIcon color="#207df7" boxSize={4} />
-                                  </Box>
-                                </Tooltip>
-                              </Flex>
-                            </Flex>
-                          </MenuItem>
-                        </>
-                      )
-                    )}
+                  {studyPlanResources && renderFlashcards()}
                 </MenuList>
               </Menu>
               {initializing ? (
@@ -697,7 +788,6 @@ function Topics(props) {
                 <VStack
                   cursor={'pointer'}
                   onClick={() => {
-                    setInitializing(true);
                     handleAiTutor();
                   }}
                 >
@@ -707,81 +797,99 @@ function Topics(props) {
                   </Text>
                 </VStack>
               )}
-
-              <Menu isLazy>
-                <MenuButton>
+              {initializingDocChat ? (
+                <Box textAlign={'center'}>
+                  <Spinner boxSize={'15px'} my={2} />
+                </Box>
+              ) : (
+                <>
                   {' '}
-                  <VStack>
-                    <DocChatIcon />
-                    <Text fontSize={12} fontWeight={500}>
-                      Doc Chat
-                    </Text>
-                  </VStack>
-                </MenuButton>
-                <MenuList
-                  maxH={60}
-                  overflowY="scroll"
-                  bg="white"
-                  border="1px solid #E2E8F0"
-                  borderRadius="md"
-                >
-                  {studyPlanResources && (
-                    <>
-                      {findDocumentsByTopic(topic.topicDetails?.label).map(
-                        (doc, index) => {
-                          return (
-                            <MenuItem
-                              key={index}
-                              _hover={{ bg: 'gray.100' }}
-                              fontSize={12}
-                              onClick={() => {
-                                handleDocAction(doc);
-                                // navigate(
-                                //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
-                                // )
-                              }}
-                            >
-                              {doc.title?.replace(
-                                /%20%26|%20|%2F/g,
-                                (match) => {
-                                  switch (match) {
-                                    case '%20%26':
-                                      return ' ';
-                                    case '%20':
-                                      return ' ';
-                                    case '%2F':
-                                      return ' ';
-                                    default:
-                                      return match;
-                                  }
-                                }
-                              )}
-                            </MenuItem>
-                          );
-                        }
-                      )}
+                  <Menu isLazy>
+                    <MenuButton>
+                      <VStack>
+                        <DocChatIcon />
+                        <Text fontSize={12} fontWeight={500}>
+                          Doc Chat
+                        </Text>
+                      </VStack>
+                    </MenuButton>
+                    <MenuList
+                      maxH={60}
+                      overflowY="scroll"
+                      bg="white"
+                      border="1px solid #E2E8F0"
+                      borderRadius="md"
+                    >
+                      {studyPlanResources && (
+                        <>
+                          {findDocumentsByTopic(topic.topicDetails?.label).map(
+                            (doc, index) => {
+                              return (
+                                <MenuItem
+                                  key={index}
+                                  _hover={{ bg: 'gray.100' }}
+                                  w="full"
+                                  fontSize={12}
+                                  onClick={() => {
+                                    handleDocAction(doc);
+                                    // navigate(
+                                    //   `/dashboard/docchat?documentUrl=${doc.documentUrl}&documentId=${doc.ingestId}&language=English`
+                                    // )
+                                  }}
+                                >
+                                  <Flex alignItems={'center'} gap={2}>
+                                    <Text>
+                                      {doc.title?.replace(
+                                        /%20%26|%20|%2F/g,
+                                        (match) => {
+                                          switch (match) {
+                                            case '%20%26':
+                                              return ' ';
+                                            case '%20':
+                                              return ' ';
+                                            case '%2F':
+                                              return ' ';
+                                            default:
+                                              return match;
+                                          }
+                                        }
+                                      )}
+                                    </Text>
+                                    {initializingDocChat && (
+                                      <Box textAlign={'center'}>
+                                        <Spinner boxSize={'15px'} my={2} />
+                                      </Box>
+                                    )}
+                                  </Flex>
+                                </MenuItem>
+                              );
+                            }
+                          )}
 
-                      <Button
-                        color="gray"
-                        size={'sm'}
-                        variant="ghost"
-                        alignItems="center"
-                        float={'right'}
-                        onClick={() => setShowNoteModal(true)}
-                        fontSize={12}
-                      >
-                        <Icon as={FaPlus} mr={2} />
-                        Add New
-                      </Button>
-                    </>
-                  )}
-                </MenuList>
-              </Menu>
+                          <Button
+                            color="gray"
+                            size={'sm'}
+                            variant="ghost"
+                            alignItems="center"
+                            float={'right'}
+                            onClick={() => setShowNoteModal(true)}
+                            fontSize={12}
+                          >
+                            <Icon as={FaPlus} mr={2} />
+                            Add New
+                          </Button>
+                        </>
+                      )}
+                    </MenuList>
+                  </Menu>
+                </>
+              )}
+
               <VStack
                 cursor={'pointer'}
                 onClick={() => {
                   updateState({
-                    selectedTopic: topic._id
+                    selectedTopic: topic.topicDetails?.label
                   });
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
@@ -803,28 +911,32 @@ function Topics(props) {
                 borderRadius={8}
                 cursor={'grab'}
                 onClick={() => {
-                  updateState({
-                    recurrenceStartDate: new Date(
-                      findStudyEventsByTopic(
+                  if (disableClick) {
+                    return;
+                  } else {
+                    updateState({
+                      recurrenceStartDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.startDate
+                      ),
+                      recurrenceEndDate: new Date(
+                        findStudyEventsByTopic(
+                          topic.topicDetails?.label
+                        )?.recurrence?.endDate
+                      ),
+                      selectedRecurrence: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.startDate
-                    ),
-                    recurrenceEndDate: new Date(
-                      findStudyEventsByTopic(
+                      )?.recurrence?.frequency,
+
+                      selectedTopic: topic._id,
+                      selectedStudyEvent: findStudyEventsByTopic(
                         topic.topicDetails?.label
-                      )?.recurrence?.endDate
-                    ),
-                    selectedRecurrence: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?.recurrence?.frequency,
+                      )?._id
+                    });
 
-                    selectedTopic: topic._id,
-                    selectedStudyEvent: findStudyEventsByTopic(
-                      topic.topicDetails?.label
-                    )?._id
-                  });
-
-                  onOpenCadence();
+                    onOpenCadence();
+                  }
                 }}
               >
                 {studyPlanResources &&
@@ -1022,7 +1134,13 @@ from  ${moment(
                   </SimpleGrid>
                 </Box>
               ) : (
-                'No resource'
+                <VStack>
+                  <Text>No resource, Please try again</Text>
+                  <RepeatIcon
+                    boxSize={6}
+                    onClick={() => getTopicResource(state.selectedTopic)}
+                  />
+                </VStack>
               )
             ) : (
               <Spinner />
@@ -1097,7 +1215,22 @@ from  ${moment(
               </FormControl>
               <FormControl id="time" marginBottom="20px">
                 <FormLabel>Time</FormLabel>
-                <Select
+                <TimePicker
+                  inputGroupProps={{
+                    size: 'lg'
+                  }}
+                  inputProps={{
+                    size: 'md',
+                    placeholder: `01:00 PM`
+                  }}
+                  value={state.selectedRecurrenceTime}
+                  onChange={(v) =>
+                    updateState({
+                      selectedRecurrenceTime: v
+                    })
+                  }
+                />
+                {/* <Select
                   defaultValue={timeOptions.find(
                     (option) => option.value === state.selectedRecurrenceTime
                   )}
@@ -1110,7 +1243,7 @@ from  ${moment(
                       selectedRecurrenceTime: (option as Option).value
                     });
                   }}
-                />
+                /> */}
               </FormControl>
             </Box>
           </ModalBody>

@@ -8,20 +8,25 @@ const ChatMessage = ({
   type,
   userName,
   userImage,
+  streaming,
+  id,
   sendSuggestedPrompt // This function is called when the user clicks on the suggestion prompts
 }: {
   suggestionPromptsVisible?: boolean;
+  streaming?: boolean;
   message: string;
   type: 'user' | 'bot';
   userName?: string;
   userImage?: string;
   sendSuggestedPrompt?: (message: string) => void;
+  id?: string;
 }) => {
   return (
     <div
       className={`flex gap-3 relative ${
         type === 'user' ? 'flex-row-reverse' : 'flex-row'
       }`}
+      id={id}
     >
       <Avatar
         style={{
@@ -46,6 +51,7 @@ const ChatMessage = ({
       >
         <CustomMarkdownView
           source={message}
+          showDot={type === 'bot' && streaming}
           className="text-sm w-full py-2 px-4 font-normal"
         />
         {type === 'bot' && suggestionPromptsVisible && (

@@ -19,9 +19,6 @@ import {
   Button,
   useDisclosure,
   Spacer,
-  List,
-  VStack,
-  IconButton,
   Tabs,
   TabList,
   TabPanels,
@@ -31,28 +28,13 @@ import {
   Alert,
   AlertIcon,
   AlertDescription,
-  Badge,
-  Modal,
-  ModalHeader,
-  ModalCloseButton,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  FormLabel,
-  SimpleGrid,
-  Spinner,
   Center
 } from '@chakra-ui/react';
 import ShareModal from '../../../components/ShareModal';
 
-import SelectComponent, { Option } from '../../../components/Select';
-import { MdInfo, MdOutlineKeyboardArrowDown } from 'react-icons/md';
-import ResourceIcon from '../../../assets/resources-plan.svg';
+import { MdInfo } from 'react-icons/md';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
-import flashcardStore from '../../../state/flashcardStore';
 import { useNavigate, useLocation } from 'react-router';
 import { loadStripe } from '@stripe/stripe-js';
 import ApiService from '../../../services/ApiService';
@@ -61,16 +43,7 @@ import PaymentDialog, {
 } from '../../../components/PaymentDialog';
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import BountyOfferModal from '../components/BountyOfferModal';
-import { async } from '@firebase/util';
-import moment from 'moment';
 import SelectedNoteModal from '../../../components/SelectedNoteModal';
-import CalendarDateInput from '../../../components/CalendarDateInput';
-import Select from '../../../components/Select';
-import { RxDotFilled } from 'react-icons/rx';
-import { numberToDayOfWeekName } from '../../../util';
-import DatePicker from '../../../components/DatePicker';
-import { parseISO, format, parse } from 'date-fns';
-import SciPhiService from '../../../services/SciPhiService'; // SearchRagResponse // SearchRagOptions,
 import StudyPlanSummary from './components/summary';
 import userStore from '../../../state/userStore';
 import ShepherdSpinner from '../components/shepherd-spinner';
@@ -104,7 +77,6 @@ function CoursePlan() {
   } = studyPlanStore();
   const { user } = userStore();
   const plansFromStorage = sessionStorage.getItem('studyPlans');
-  const storedStudyPlans = plansFromStorage ? JSON.parse(plansFromStorage) : [];
 
   // Combine related state variables into a single state object
   const [state, setState] = useState({
@@ -118,6 +90,7 @@ function CoursePlan() {
     planReport: studyPlanReport,
     showSubjects: false,
     page: 1,
+    doneWithExtractionOnLoad: true,
     limit: 100,
     isLoading: false,
     selectedStudyEvent: null,
@@ -132,6 +105,42 @@ function CoursePlan() {
     setState((prevState) => ({ ...prevState, ...newState }));
 
   const toast = useCustomToast();
+
+  const cloneStudyPlan = async (planId: string) => {
+    try {
+      setState((state) => ({ ...state, isPageLoading: true }));
+      const response = await ApiService.cloneStudyPlan(planId);
+      if (!response.ok) {
+        toast({
+          title: 'Error cloning study plan',
+          status: 'error',
+          position: 'top',
+          isClosable: true
+        });
+        return;
+      }
+      toast({
+        title: 'Study plan cloned successfully',
+        status: 'success',
+        position: 'top',
+        isClosable: true
+      });
+      const { data } = await response.json();
+      const { _id } = data;
+      const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
+      navigate(`${baseUrl}/study-plans/planId=${_id}`);
+      await fetchData(true);
+    } catch (error) {
+      toast({
+        title: 'Error cloning study plan',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+    } finally {
+      setState((state) => ({ ...state, isPageLoading: false }));
+    }
+  };
 
   const {
     isOpen: isBountyModalOpen,
@@ -198,14 +207,6 @@ function CoursePlan() {
     }
     /* eslint-disable */
   }, [clientSecret]);
-  const frequencyOptions = [
-    { label: 'Once daily', value: 'once' },
-    { label: 'Twice daily', value: 'twice' },
-    { label: 'Daily', value: 'daily' },
-    { label: 'Weekly', value: 'weekly' },
-    { label: 'Monthly', value: 'monthly' },
-    { label: "Doesn't Repeat", value: 'none' }
-  ];
 
   // const handleUpdateTopicStatus = (status, topicId) => {
   //   // Update the status for the specific topic by topicId
@@ -219,60 +220,112 @@ function CoursePlan() {
   const selectedPlanRef = useRef(null);
   const selectedTopicRef = useRef(null);
 
-  useEffect(() => {
-    // Fetch plans only if session storage is empty
-    if (state.studyPlans.length === 0) {
-      const fetchData = async () => {
-        try {
-          const shareable = params.get('shareable');
-          let id = null;
-          if (shareable) {
-            const { pathname } = location;
-            const planId = pathname.split('planId=')[1];
-            id = planId;
-          }
-          await fetchPlans(
-            state.page,
-            state.limit,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            id
-          );
-          updateState({ studyPlans: storePlans });
+  const removeRefreshParam = () => {
+    const { pathname } = location;
+    if (!pathname.includes('refresh_study_plans')) return;
+    const updatedPathname = pathname.split('?')[0];
+    navigate(updatedPathname, { replace: true });
+  };
 
-          // Update session storage only if storePlans are different from the plans in storage
-          if (JSON.stringify(storePlans) !== plansFromStorage) {
-            sessionStorage.setItem('studyPlans', JSON.stringify(storePlans));
-          }
-        } catch (error) {
-          console.error('Error fetching plans:', error);
-        }
-      };
+  const fetchData = async (fetchWithoutId?: boolean) => {
+    try {
+      const shareable = params.get('shareable');
+      let id = null;
+      if (shareable && !fetchWithoutId) {
+        const { pathname } = location;
+        const planId = pathname.split('planId=')[1];
+        id = planId;
+      }
+      await fetchPlans(
+        state.page,
+        state.limit,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        id
+      );
+      updateState({ studyPlans: storePlans });
 
-      fetchData();
+      if (JSON.stringify(storePlans) !== plansFromStorage) {
+        sessionStorage.setItem('studyPlans', JSON.stringify(storePlans));
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error);
     }
-  }, []);
-  useEffect(() => {
-    const fetchData = async () => {
+  };
+
+  const fetchStudyPlanData = async (silentFetch = false) => {
+    if (!silentFetch) {
       updateState({ isPageLoading: true });
-      try {
-        if (state.selectedPlan) {
-          const [resourcesResponse, reportResponse] = await Promise.all([
-            // fetchPlans(state.page, state.limit),
-            fetchPlanResources(state.selectedPlan),
-            fetchPlanReport(state.selectedPlan)
-          ]);
-          updateState({
-            planResource: studyPlanResources,
-            planReport: studyPlanReport
-          });
-          updateState({ isPageLoading: false });
-        }
-      } catch (error) {}
-    };
+    }
+    try {
+      if (state.selectedPlan) {
+        const [resourcesResponse, reportResponse] = await Promise.all([
+          // fetchPlans(state.page, state.limit),
+          fetchPlanResources(state.selectedPlan),
+          fetchPlanReport(state.selectedPlan)
+        ]);
+        updateState({
+          planResource: studyPlanResources,
+          planReport: studyPlanReport
+        });
+        updateState({ isPageLoading: false });
+      }
+    } catch (error) {
+      toast({
+        status: 'error',
+        title: 'Failed to fetch plan'
+      });
+    }
+  };
+
+  useEffect(() => {
     fetchData();
+  }, []);
+
+  function checkQuizzesAndFlashcards(data) {
+    let countWithBoth = 0;
+
+    Object.keys(data).forEach((key) => {
+      const category = data[key];
+      if (
+        Array.isArray(category.quizzes) &&
+        Array.isArray(category.flashcards)
+      ) {
+        if (category.quizzes.length > 0 && category.flashcards.length > 0) {
+          countWithBoth++;
+        }
+      }
+    });
+
+    return countWithBoth >= Object.keys(data).length / 2;
+  }
+
+  useEffect(() => {
+    if (studyPlanResources) {
+      const isDoneGenerating = checkQuizzesAndFlashcards(studyPlanResources);
+      if (!isDoneGenerating) {
+        if (state.doneWithExtractionOnLoad) {
+          updateState({ doneWithExtractionOnLoad: false });
+        }
+        setTimeout(() => fetchPlanResources(state.selectedPlan, true), 4000);
+      } else {
+        if (!state.doneWithExtractionOnLoad) {
+          updateState({ doneWithExtractionOnLoad: true });
+          toast({
+            status: 'success',
+            title: 'Done extracting plans',
+            position: 'top',
+            isClosable: true
+          });
+        }
+      }
+    }
+  }, [studyPlanResources]);
+
+  useEffect(() => {
+    fetchStudyPlanData();
   }, [state.selectedPlan]);
 
   useEffect(() => {
@@ -308,18 +361,21 @@ function CoursePlan() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (state.selectedPlan && selectedPlanRef.current) {
-      const selectedPlanElement = selectedPlanRef.current;
+    if (state.selectedPlan) {
+      updateState({ doneWithExtractionOnLoad: true });
+      if (selectedPlanRef.current) {
+        const selectedPlanElement = selectedPlanRef.current;
 
-      const { top, bottom } = selectedPlanElement.getBoundingClientRect();
+        const { top, bottom } = selectedPlanElement.getBoundingClientRect();
 
-      // Check if the selected plan is already in view
-      if (top >= 0 && bottom <= window.innerHeight) {
-        return;
+        // Check if the selected plan is already in view
+        if (top >= 0 && bottom <= window.innerHeight) {
+          return;
+        }
+
+        // Scroll to the selected plan
+        selectedPlanElement.scrollIntoView({ behavior: 'smooth' });
       }
-
-      // Scroll to the selected plan
-      selectedPlanElement.scrollIntoView({ behavior: 'smooth' });
     }
   }, [state.selectedPlan]);
   useEffect(() => {
@@ -337,8 +393,6 @@ function CoursePlan() {
       selectedTopicElement.scrollIntoView({ behavior: 'smooth' });
     }
   }, [state.selectedTopic]);
-  console.log(state.topicResource);
-  console.log(state.topics);
 
   const doFetchTopics = useCallback(async () => {
     if (state.selectedPlan) {
@@ -371,6 +425,45 @@ function CoursePlan() {
     navigate(`${baseUrl}/study-plans/planId=${planId}`);
   };
 
+  const handleSavePlan = async () => {
+    if (!user) {
+      const currentPathWithQuery = window.location.href.split('dashboard')[1];
+      toast({
+        title: 'You need to login to save a plan',
+        status: 'info',
+        position: 'top',
+        isClosable: true
+      });
+      navigate(`/login?redirect=${currentPathWithQuery}`);
+      return;
+    }
+    await cloneStudyPlan(state.selectedPlan);
+  };
+
+  const renderStudyPlan = () => {
+    if (!user || user._id !== state.topics?.user) {
+      return (
+        <Button onClick={() => handleSavePlan()} size={'sm'}>
+          Save Study Plan
+        </Button>
+      );
+    }
+    if (state.topics?.creator === user?._id) {
+      return <ShareModal prefferredBaseUrl="/dashboard" type="studyPlan" />;
+    }
+    return '';
+
+    // {user && state.topics?.creator === user._id ? (
+    //   <ShareModal
+    //     prefferredBaseUrl="/dashboard"
+    //     type="studyPlan"
+    //   />
+    // ) : (
+    //   <Button onClick={() => handleSavePlan()} size={'sm'}>
+    //     Save Study Plan
+    //   </Button>
+    // )}
+  };
   return (
     <>
       <Grid
@@ -483,7 +576,7 @@ function CoursePlan() {
                     <Tab>Topics</Tab>
                     <Tab>Analytics</Tab>
                   </Box>
-                  <ShareModal type="studyPlan" />
+                  {renderStudyPlan()}
                 </HStack>
               </TabList>
               <TabPanels>

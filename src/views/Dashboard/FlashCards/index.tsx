@@ -48,6 +48,13 @@ import ShareModalMenu from '../../../components/ShareModalMenu';
 import useUserStore from '../../../state/userStore';
 import moment from 'moment';
 import { useFlashcardWizard } from './context/flashcard';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger
+} from '../../../components/ui/tabs';
+import OcclusionFlashcardTab from './components/occlusion-flashcard-tab';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -72,70 +79,6 @@ type DataSourceItem = {
   currentStudy?: MinimizedStudy;
   tags: string[];
 };
-
-function findNextFlashcard(
-  flashcards: FlashcardData[]
-): FlashcardData | undefined {
-  // Order of preference for studyPeriods
-  const studyPeriodPreference = [
-    'daily',
-    'weekly',
-    'biweekly',
-    'spacedRepetition'
-  ];
-
-  // Sort flashcards based on studyPeriodPreference
-  const sortedFlashcards = flashcards.sort((a, b) => {
-    return (
-      studyPeriodPreference.indexOf(a.studyPeriod) -
-      studyPeriodPreference.indexOf(b.studyPeriod)
-    );
-  });
-
-  // Get today's date
-  const today = new Date();
-
-  // Go through sorted flashcards to find the one that should be loaded
-  for (const card of sortedFlashcards) {
-    // Get date of last attempt
-    const lastAttemptDate =
-      card.scores.length > 0
-        ? new Date(card.scores[card.scores.length - 1].date)
-        : undefined;
-
-    // Check if the flashcard should be attempted today based on its studyPeriod
-    switch (card.studyPeriod) {
-      case 'daily':
-        if (!lastAttemptDate || !isSameDay(lastAttemptDate, today)) {
-          return card;
-        }
-        break;
-      case 'weekly':
-        if (!lastAttemptDate || !isThisWeek(lastAttemptDate)) {
-          return card;
-        }
-        break;
-      case 'biweekly':
-        if (
-          !lastAttemptDate ||
-          !isThisWeek(lastAttemptDate) ||
-          getISOWeek(today) % 2 === 0
-        ) {
-          return card;
-        }
-        break;
-      case 'spacedRepetition':
-        // In case of spaced repetition, load the card only if it's due
-        // Here we need more information on how the spaced repetition should work
-        break;
-      default:
-        break;
-    }
-  }
-
-  // If no card is found, return undefined
-  return undefined;
-}
 
 interface Option {
   label: string;
@@ -877,60 +820,70 @@ const CustomTable: React.FC = () => {
             </Button>
           </Flex>
 
-          <Stack
-            direction={{ base: 'column', md: 'row' }}
-            width="100%"
-            mb={{ base: '20px', md: '40px' }}
-            alignItems="center"
-            justifyContent="space-between"
-            color="#E5E6E6"
-            spacing={4}
-          >
-            <Flex alignItems="center">
-              <InputGroup
-                size="sm"
-                borderRadius="6px"
-                width={{ base: '100%', md: '200px' }}
-                height="32px"
-              >
-                <InputLeftElement marginRight={'10px'} pointerEvents="none">
-                  <BsSearch color="#5E6164" size="14px" />
-                </InputLeftElement>
-                <Input
-                  type="text"
-                  variant="outline"
-                  onChange={(e) => handleSearch(e.target.value)}
-                  size="sm"
-                  placeholder="Search"
-                  borderRadius="6px"
-                />
-              </InputGroup>
-            </Flex>
-            <Flex
-              direction={{ base: 'column', md: 'row' }}
-              alignItems={{ base: 'flex-start', md: 'center' }}
-              width={{ base: '100%', md: 'auto' }}
-            >
-              <MultiSelect
-                options={options}
-                value={multiSelected}
-                onChange={handleSelectionChange}
-                labelledBy="Select"
-                valueRenderer={() => (
-                  <span
-                    style={{
-                      fontWeight: '500',
-                      color: 'rgb(110, 118, 130)',
-                      fontSize: '0.875rem',
-                      whiteSpace: 'nowrap'
-                    }}
+          <Tabs defaultValue="image-occlusion">
+            <TabsList className="grid w-[400px] grid-cols-2">
+              <TabsTrigger value="normal">Normal</TabsTrigger>
+              <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
+            </TabsList>
+            <TabsContent value="normal">
+              <>
+                <Stack
+                  direction={{ base: 'column', md: 'row' }}
+                  width="100%"
+                  mb={{ base: '20px', md: '40px' }}
+                  alignItems="center"
+                  justifyContent="space-between"
+                  color="#E5E6E6"
+                  spacing={4}
+                >
+                  <Flex alignItems="center">
+                    <InputGroup
+                      size="sm"
+                      borderRadius="6px"
+                      width={{ base: '100%', md: '200px' }}
+                      height="32px"
+                    >
+                      <InputLeftElement
+                        marginRight={'10px'}
+                        pointerEvents="none"
+                      >
+                        <BsSearch color="#5E6164" size="14px" />
+                      </InputLeftElement>
+                      <Input
+                        type="text"
+                        variant="outline"
+                        onChange={(e) => handleSearch(e.target.value)}
+                        size="sm"
+                        placeholder="Search"
+                        borderRadius="6px"
+                      />
+                    </InputGroup>
+                  </Flex>
+                  <Flex
+                    direction={{ base: 'column', md: 'row' }}
+                    alignItems={{ base: 'flex-start', md: 'center' }}
+                    width={{ base: '100%', md: 'auto' }}
                   >
-                    Filter By Tags
-                  </span>
-                )}
-              />
+                    <MultiSelect
+                      options={options}
+                      value={multiSelected}
+                      onChange={handleSelectionChange}
+                      labelledBy="Select"
+                      valueRenderer={() => (
+                        <span
+                          style={{
+                            fontWeight: '500',
+                            color: 'rgb(110, 118, 130)',
+                            fontSize: '0.875rem',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          Filter By Tags
+                        </span>
+                      )}
+                    />
 
-              {/* <DropDownFilter
+                    {/* <DropDownFilter
                 selectedItems={selectedTags}
                 multi
                 style={{ marginRight: '20px' }}
@@ -949,197 +902,208 @@ const CustomTable: React.FC = () => {
                 }}
                 items={tags.map((tag) => ({ id: tag, value: tag }))}
               /> */}
-              <Menu>
-                <MenuButton>
-                  <Flex
-                    cursor="pointer"
-                    border="1px solid #E5E6E6"
-                    padding="5px 10px"
-                    borderRadius="6px"
-                    alignItems="center"
-                    mb={{ base: '10px', md: '0' }}
-                    width={{ base: '-webkit-fill-available', md: 'auto' }}
-                  >
-                    <Text
-                      fontWeight="400"
-                      fontSize={{ base: '12px', md: '14px' }}
-                      marginRight="5px"
-                      color="#5E6164"
-                      width={{ base: '100%', md: 'auto' }}
-                    >
-                      Sort By
-                    </Text>
-                    <FaCalendarAlt color="#96999C" size="12px" />
+                    <Menu>
+                      <MenuButton>
+                        <Flex
+                          cursor="pointer"
+                          border="1px solid #E5E6E6"
+                          padding="5px 10px"
+                          borderRadius="6px"
+                          alignItems="center"
+                          mb={{ base: '10px', md: '0' }}
+                          width={{ base: '-webkit-fill-available', md: 'auto' }}
+                        >
+                          <Text
+                            fontWeight="400"
+                            fontSize={{ base: '12px', md: '14px' }}
+                            marginRight="5px"
+                            color="#5E6164"
+                            width={{ base: '100%', md: 'auto' }}
+                          >
+                            Sort By
+                          </Text>
+                          <FaCalendarAlt color="#96999C" size="12px" />
+                        </Flex>
+                      </MenuButton>
+                      <MenuList
+                        fontSize="14px"
+                        minWidth={'185px'}
+                        borderRadius="8px"
+                        backgroundColor="#FFFFFF"
+                        boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                      >
+                        <MenuItem
+                          color="#212224"
+                          _hover={{ bgColor: '#F2F4F7' }}
+                          onClick={() => fetchFlashcards({ sort: 'createdAt' })}
+                          fontSize="14px"
+                          lineHeight="20px"
+                          fontWeight="400"
+                          p="6px 8px 6px 8px"
+                        >
+                          Created At
+                        </MenuItem>
+                        <MenuItem
+                          color="#212224"
+                          fontSize="14px"
+                          onClick={() =>
+                            fetchFlashcards({ sort: 'lastAttempted' })
+                          }
+                          _hover={{ bgColor: '#F2F4F7' }}
+                          lineHeight="20px"
+                          fontWeight="400"
+                          p="6px 8px 6px 8px"
+                        >
+                          Last Attempted
+                        </MenuItem>
+                        <MenuItem
+                          _hover={{ bgColor: '#F2F4F7' }}
+                          color="#212224"
+                          fontSize="14px"
+                          onClick={() => fetchFlashcards({ sort: 'deckname' })}
+                          lineHeight="20px"
+                          fontWeight="400"
+                          p="6px 8px 6px 8px"
+                        >
+                          Deckname
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+
+                    {dailyFlashcards?.length ? (
+                      <Button
+                        variant="solid"
+                        ml={{ base: '0', md: '20px' }}
+                        borderRadius={'10px'}
+                        colorScheme={'primary'}
+                        width={{ base: '100%', md: 'auto' }}
+                        onClick={() => {
+                          setShowStudyList(true);
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="18"
+                          viewBox="0 0 16 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                            fill="white"
+                          />
+                        </svg>
+
+                        <Text ml={'10px'}>Practice today's cards</Text>
+                      </Button>
+                    ) : (
+                      ''
+                    )}
                   </Flex>
-                </MenuButton>
-                <MenuList
-                  fontSize="14px"
-                  minWidth={'185px'}
-                  borderRadius="8px"
-                  backgroundColor="#FFFFFF"
-                  boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-                >
-                  <MenuItem
-                    color="#212224"
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    onClick={() => fetchFlashcards({ sort: 'createdAt' })}
-                    fontSize="14px"
-                    lineHeight="20px"
-                    fontWeight="400"
-                    p="6px 8px 6px 8px"
-                  >
-                    Created At
-                  </MenuItem>
-                  <MenuItem
-                    color="#212224"
-                    fontSize="14px"
-                    onClick={() => fetchFlashcards({ sort: 'lastAttempted' })}
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    lineHeight="20px"
-                    fontWeight="400"
-                    p="6px 8px 6px 8px"
-                  >
-                    Last Attempted
-                  </MenuItem>
-                  <MenuItem
-                    _hover={{ bgColor: '#F2F4F7' }}
-                    color="#212224"
-                    fontSize="14px"
-                    onClick={() => fetchFlashcards({ sort: 'deckname' })}
-                    lineHeight="20px"
-                    fontWeight="400"
-                    p="6px 8px 6px 8px"
-                  >
-                    Deckname
-                  </MenuItem>
-                </MenuList>
-              </Menu>
+                </Stack>
+                <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
+                  {selectedFlashcards.length ? (
+                    <Box>
+                      <Button
+                        variant="solid"
+                        mb="10px"
+                        borderRadius={'10px'}
+                        colorScheme={'#F53535'}
+                        _hover={{ bg: '#F53535' }}
+                        bg="#F53535"
+                        width={{ base: '100%', md: 'auto' }}
+                        onClick={() => {
+                          if (!flashcards) return;
+                          setDeleteItem((prev) => ({
+                            ...prev,
+                            currentDeleteType: 'multiple',
+                            flashcardIds: selectedFlashcards
+                          }));
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="18"
+                          viewBox="0 0 16 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
+                            fill="white"
+                          />
+                        </svg>
+                        <Text ml="5px">Delete Flashcards</Text>
+                      </Button>
 
-              {dailyFlashcards?.length ? (
-                <Button
-                  variant="solid"
-                  ml={{ base: '0', md: '20px' }}
-                  borderRadius={'10px'}
-                  colorScheme={'primary'}
-                  width={{ base: '100%', md: 'auto' }}
-                  onClick={() => {
-                    setShowStudyList(true);
-                  }}
-                >
-                  <svg
-                    width="16"
-                    height="18"
-                    viewBox="0 0 16 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
-                      fill="white"
-                    />
-                  </svg>
+                      <Button
+                        variant="solid"
+                        mb="10px"
+                        borderRadius={'10px'}
+                        marginLeft={'10px'}
+                        colorScheme={'primary'}
+                        width={{ base: '100%', md: 'auto' }}
+                        onClick={() => {
+                          if (!flashcards) return;
+                          setTagEditItem((prev) => ({
+                            ...prev,
+                            flashcardIds: selectedFlashcards
+                          }));
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="18"
+                          viewBox="0 0 16 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            fill="white"
+                            d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 6h.008v.008H6V6z"
+                          />
+                        </svg>
 
-                  <Text ml={'10px'}>Practice today's cards</Text>
-                </Button>
-              ) : (
-                ''
-              )}
-            </Flex>
-          </Stack>
-          <Box overflowX={{ base: 'scroll', md: 'hidden' }}>
-            {selectedFlashcards.length ? (
-              <Box>
-                <Button
-                  variant="solid"
-                  mb="10px"
-                  borderRadius={'10px'}
-                  colorScheme={'#F53535'}
-                  _hover={{ bg: '#F53535' }}
-                  bg="#F53535"
-                  width={{ base: '100%', md: 'auto' }}
-                  onClick={() => {
-                    if (!flashcards) return;
-                    setDeleteItem((prev) => ({
-                      ...prev,
-                      currentDeleteType: 'multiple',
-                      flashcardIds: selectedFlashcards
-                    }));
-                  }}
-                >
-                  <svg
-                    width="16"
-                    height="18"
-                    viewBox="0 0 16 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M3.83317 4.00033V1.50033C3.83317 1.04009 4.20627 0.666992 4.6665 0.666992H14.6665C15.1267 0.666992 15.4998 1.04009 15.4998 1.50033V13.167C15.4998 13.6272 15.1267 14.0003 14.6665 14.0003H12.1665V16.4996C12.1665 16.9602 11.7916 17.3337 11.3275 17.3337H1.33888C0.875492 17.3337 0.5 16.9632 0.5 16.4996L0.502167 4.83438C0.50225 4.37375 0.8772 4.00033 1.34118 4.00033H3.83317ZM5.49983 4.00033H12.1665V12.3337H13.8332V2.33366H5.49983V4.00033ZM3.83317 8.16699V9.83366H8.83317V8.16699H3.83317ZM3.83317 11.5003V13.167H8.83317V11.5003H3.83317Z"
-                      fill="white"
+                        <Text ml="5px">Add Tag</Text>
+                      </Button>
+                    </Box>
+                  ) : (
+                    ''
+                  )}
+                  {flashcards && (
+                    <SelectableTable
+                      pagination
+                      currentPage={pagination.page}
+                      handlePagination={(nextPage) =>
+                        fetchFlashcards({
+                          page: nextPage,
+                          limit: pagination.limit
+                        })
+                      }
+                      pageCount={Math.ceil(pagination.count / pagination.limit)}
+                      onSelect={(selected) => setSelectedFlashcard(selected)}
+                      isSelectable
+                      columns={columns}
+                      dataSource={flashcards.map((card) => ({
+                        ...card,
+                        key: card._id
+                      }))}
                     />
-                  </svg>
-                  <Text ml="5px">Delete Flashcards</Text>
-                </Button>
-
-                <Button
-                  variant="solid"
-                  mb="10px"
-                  borderRadius={'10px'}
-                  marginLeft={'10px'}
-                  colorScheme={'primary'}
-                  width={{ base: '100%', md: 'auto' }}
-                  onClick={() => {
-                    if (!flashcards) return;
-                    setTagEditItem((prev) => ({
-                      ...prev,
-                      flashcardIds: selectedFlashcards
-                    }));
-                  }}
-                >
-                  <svg
-                    width="16"
-                    height="18"
-                    viewBox="0 0 16 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="white"
-                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 6h.008v.008H6V6z"
-                    />
-                  </svg>
-
-                  <Text ml="5px">Add Tag</Text>
-                </Button>
-              </Box>
-            ) : (
-              ''
-            )}
-            {flashcards && (
-              <SelectableTable
-                pagination
-                currentPage={pagination.page}
-                handlePagination={(nextPage) =>
-                  fetchFlashcards({ page: nextPage, limit: pagination.limit })
-                }
-                pageCount={Math.ceil(pagination.count / pagination.limit)}
-                onSelect={(selected) => setSelectedFlashcard(selected)}
-                isSelectable
-                columns={columns}
-                dataSource={flashcards.map((card) => ({
-                  ...card,
-                  key: card._id
-                }))}
-              />
-            )}
-          </Box>
+                  )}
+                </Box>
+              </>
+            </TabsContent>
+            <TabsContent value="image-occlusion">
+              <OcclusionFlashcardTab />
+            </TabsContent>
+          </Tabs>
         </Box>
       )}
     </>

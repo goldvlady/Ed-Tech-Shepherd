@@ -216,28 +216,28 @@ export default create<Store>((set) => ({
     currentStudy?: MinimizedStudy,
     cb = () => null
   ) => {
-    set((state) => {
-      if (isNil(id)) return { quiz: undefined, minimizedStudy: null };
+    if (isNil(id)) return { quiz: undefined, minimizedStudy: null };
+    let quiz = null;
+    // let quiz = state.quizzes?.find((card) => card._id === id);
+    if (isNil(quiz)) {
+      quiz = async () => {
+        const result: any = await ApiService.getQuiz(id as string);
+        const { data }: { data: QuizData } = await result.json();
+        return data;
+      };
+    }
+    quiz = await quiz();
+    console.log(quiz);
 
-      let quiz = state.quizzes?.find((card) => card._id === id);
+    const nextState: any = { quiz };
+    if (currentStudy) {
+      nextState.minimizedStudy = currentStudy;
+    }
+    if (typeof cb === 'function') {
+      cb();
+    }
 
-      if (isNil(quiz) || quiz !== undefined) {
-        (async () => {
-          const result: any = await ApiService.getQuiz(id as string);
-          const { data }: { data: QuizData } = await result.json();
-          quiz = data;
-        })();
-      }
-
-      const nextState: Partial<typeof state> = { quiz };
-      if (currentStudy) {
-        nextState.minimizedStudy = currentStudy;
-      }
-      if (typeof cb === 'function') {
-        cb();
-      }
-      return nextState;
-    });
+    set(nextState);
   },
   deleteQuiz: async (id: string | number) => {
     try {

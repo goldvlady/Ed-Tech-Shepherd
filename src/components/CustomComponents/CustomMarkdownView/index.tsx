@@ -21,6 +21,7 @@ interface CustomComponents {
 
 interface ICustomMarkdownView {
   source: string;
+  showDot?: boolean;
   keywords?: string[];
   handleSendKeyword?: any;
   handleSendMessage?: any;
@@ -30,6 +31,7 @@ interface ICustomMarkdownView {
 const CustomMarkdownView = ({
   source,
   keywords = [],
+  showDot,
   handleSendKeyword,
   className
 }: ICustomMarkdownView) => {
@@ -50,12 +52,12 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word`}
+      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle`}
       remarkPlugins={[remarkGfm, remarkMath]}
       rehypePlugins={[rehypeKatex]}
       components={getComponents(onKeywordClick)}
     >
-      {replaceLatexDelimiters(source)}
+      {replaceLatexDelimiters(source, showDot)}
     </MemoizedReactMarkdown>
   );
 };
@@ -70,12 +72,14 @@ function replaceKeywordsWithButtons(
   }, source);
 }
 
-function replaceLatexDelimiters(source: string): string {
-  return source
+function replaceLatexDelimiters(source: string, showDot = false): string {
+  const latexRemoved = source
     .replaceAll('\\[', '$')
     .replaceAll('\\]', '$')
     .replaceAll('\\(', '$')
     .replaceAll('\\)', '$');
+
+  return showDot ? `${latexRemoved} ⚫` : latexRemoved;
 }
 
 function getComponents(onKeywordClick: any): CustomComponents {
