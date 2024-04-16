@@ -35,7 +35,7 @@ function ChatInfoDropdown({
     title: 'Chat title'
   });
   const { setTitle } = useChatManager('homework-help');
-  useStudentConversations({
+  const { isFetching } = useStudentConversations({
     studentId: studentId,
     select: (data) => {
       const conversation = data.find((item) => item.id === id);
@@ -98,6 +98,7 @@ function ChatInfoDropdown({
         'cursor-not-allowed': renaming || deleting || disabled
       })}
     >
+      {isFetching && <p className="text-xs">Loading name...</p>}
       <DropdownMenu>
         {renameMode.enabled ? (
           <input
