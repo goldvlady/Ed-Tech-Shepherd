@@ -139,7 +139,7 @@ function ChatRoom() {
                       .then(async (d: { data: string }) => {
                         setTitle(d.data);
                         await query.invalidateQueries({
-                          queryKey: ['chatHistory', { studentId }]
+                          queryKey: ['chatHistory']
                         });
                       });
                   }, 700);
