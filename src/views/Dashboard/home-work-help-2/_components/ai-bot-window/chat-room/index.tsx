@@ -138,6 +138,8 @@ function ChatRoom() {
                       .then((resp) => resp.json())
                       .then(async (d: { data: string }) => {
                         setTitle(d.data);
+                      })
+                      .finally(async () => {
                         await query.invalidateQueries({
                           queryKey: ['chatHistory']
                         });
