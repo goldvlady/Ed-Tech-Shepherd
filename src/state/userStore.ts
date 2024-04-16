@@ -20,18 +20,18 @@ type Store = {
   user: User | null;
   userNotifications: Array<UserNotifications>;
   hasActiveSubscription: boolean;
+  activeSubscription: Subscription | MobileSubscription | null;
   onboardCompleted: boolean;
   fileSizeLimitMB: number;
   fileSizeLimitBytes: number;
+  flashcardCountLimit: number;
+  quizCountLimit: number;
   fetchUser: () => Promise<boolean>;
   fetchNotifications: () => Promise<void>;
   fetchUserDocuments: (userId: string) => Promise<void>;
   userDocuments: Array<List> | [];
   setUserData: (data: Partial<User>) => void;
   logoutUser: () => void;
-  getActiveSubscription: (
-    user: User
-  ) => Subscription | MobileSubscription | null;
 };
 
 // Function to save state to local storage
@@ -60,9 +60,12 @@ const loadState = (): Partial<Store> => {
         userNotifications: [],
         userDocuments: [],
         hasActiveSubscription: false,
+        activeSubscription: null,
         onboardCompleted: true,
         fileSizeLimitMB: 0,
-        fileSizeLimitBytes: 0
+        fileSizeLimitBytes: 0,
+        flashcardCountLimit: 0,
+        quizCountLimit: 0
       };
 };
 
@@ -71,9 +74,12 @@ const useUserStore = create<Store>((set, get) => ({
   userNotifications: [],
   userDocuments: [],
   hasActiveSubscription: false,
+  activeSubscription: null,
   onboardCompleted: true,
   fileSizeLimitMB: 0,
   fileSizeLimitBytes: 0,
+  flashcardCountLimit: 0,
+  quizCountLimit: 0,
   ...loadState(),
   fetchUser: async () => {
     const response = await ApiService.getUser();
@@ -88,8 +94,7 @@ const useUserStore = create<Store>((set, get) => ({
 
     const hasActiveMobileSubscription = !!(
       userData.mobileSubscription &&
-      (userData.mobileSubscription.status === 'active' ||
-        userData.mobileSubscription.status === 'trialing')
+      userData.mobileSubscription.status === 'active'
     );
 
     const hasActiveSubscription =
@@ -105,12 +110,23 @@ const useUserStore = create<Store>((set, get) => ({
       activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
+    const flashcardCountLimit = hasActiveSubscription
+      ? activeSubscription?.subscriptionMetadata?.flashcard_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
+      : 40; // Default limit to 40 if on free tier
+
+    const quizCountLimit = hasActiveSubscription
+      ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
+      : 40;
+
     const newState = {
       user: userData,
       hasActiveSubscription,
+      activeSubscription,
       onboardCompleted,
       fileSizeLimitMB,
-      fileSizeLimitBytes
+      fileSizeLimitBytes,
+      flashcardCountLimit,
+      quizCountLimit
     };
 
     set(newState);
@@ -126,25 +142,47 @@ const useUserStore = create<Store>((set, get) => ({
       if (state.user) {
         const newUser = { ...state.user, ...data };
 
-        const hasActiveSubscription = !!(
+        const hasActiveWebSubscription = !!(
           newUser.subscription &&
           (newUser.subscription.status === 'active' ||
-            newUser.subscription.status === 'trialing' ||
-            newUser.subscription.tier === 'Founding Member')
+            newUser.subscription.status === 'trialing')
         );
+
+        const hasActiveMobileSubscription = !!(
+          newUser.mobileSubscription &&
+          newUser.mobileSubscription.status === 'active'
+        );
+
+        const hasActiveSubscription =
+          hasActiveWebSubscription || hasActiveMobileSubscription;
 
         const onboardCompleted = newUser.onboardCompleted;
 
+        const activeSubscription = newUser.isMobileSubscription
+          ? newUser.mobileSubscription
+          : newUser.subscription;
+
         const fileSizeLimitMB =
-          newUser.subscription?.subscriptionMetadata?.file_mb_limit || 5;
+          activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
         const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
+
+        const flashcardCountLimit = hasActiveSubscription
+          ? activeSubscription?.subscriptionMetadata?.flashcard_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
+          : 40; // Default limit to 40 if on free tier
+
+        const quizCountLimit = hasActiveSubscription
+          ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
+          : 40;
 
         const updatedState = {
           user: newUser,
           hasActiveSubscription,
+          activeSubscription,
           onboardCompleted,
           fileSizeLimitMB,
-          fileSizeLimitBytes
+          fileSizeLimitBytes,
+          flashcardCountLimit,
+          quizCountLimit
         };
 
         saveState(updatedState);
@@ -165,15 +203,6 @@ const useUserStore = create<Store>((set, get) => ({
     const userDocuments = await fetchStudentDocuments(userId);
     set({ userDocuments });
     saveState({ userDocuments });
-  },
-  getActiveSubscription: () => {
-    const { user } = get();
-    if (user?.isMobileSubscription) {
-      return user.mobileSubscription;
-    } else if (user?.subscription) {
-      return user.subscription;
-    }
-    return null;
   }
 }));
 

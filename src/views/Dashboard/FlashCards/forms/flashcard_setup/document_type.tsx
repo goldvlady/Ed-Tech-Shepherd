@@ -34,7 +34,7 @@ const FlashcardFromDocumentSetup = ({
   isAutomated?: boolean;
 }) => {
   const toast = useCustomToast();
-  const { user } = userStore();
+  const { user, hasActiveSubscription, flashcardCountLimit } = userStore();
   const {
     flashcardData,
     setFlashcardData,
@@ -134,17 +134,13 @@ const FlashcardFromDocumentSetup = ({
       try {
         // Assuming you have an API endpoint that checks the question count
         // Subscription and flashcard limit check
-        const { hasActiveSubscription } = userStore.getState();
         const flashcardCountResponse = await ApiService.checkFlashcardCount(
           user.student._id
         );
         const userFlashcardCount = await flashcardCountResponse.json();
-
         if (
           (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
-          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
-            userFlashcardCount.count >=
-              user.subscription.subscriptionMetadata.flashcard_limit)
+          userFlashcardCount.count >= flashcardCountLimit
         ) {
           setPlansModalMessage(
             !hasActiveSubscription

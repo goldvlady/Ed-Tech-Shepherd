@@ -14,16 +14,16 @@ const SubscriptionRedirectModal = ({ isOpen, onClose }) => {
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>You've already subscribed!</ModalHeader>
+        <ModalHeader>View in Mobile App</ModalHeader>
 
-        <ModalBody padding={'0 24px'}>
+        <ModalBody padding={'0 24px'} flexDirection={'column'}>
           <p className="text-[16px]">
             {' '}
-            You currently have an active subscription from our mobile app. To
-            make changes to your plan, please go to the app.
+            You've already subscribed from our mobile app! Make changes to your
+            plan from the app.
           </p>
+          <img alt="file" src="/images/coming-soon.svg" />
         </ModalBody>
-        <img alt="file" src="/images/coming-soon.svg" />
         <ModalFooter>
           <Button colorScheme="blue" onClick={onClose}>
             Close

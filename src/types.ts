@@ -169,7 +169,7 @@ export type MobileSubscription = {
   expirationDate?: Date;
   expirationDateMillis?: number;
   willRenew?: boolean;
-  subscriptionMetadata?: Object;
+  subscriptionMetadata?: SubscriptionMetadata;
   productIdentifier?: string;
   lookup_key?: string;
 };

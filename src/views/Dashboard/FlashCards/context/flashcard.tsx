@@ -146,7 +146,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const toast = useToast();
 
-  const { hasActiveSubscription, user } = userStore();
+  const { hasActiveSubscription, user, flashcardCountLimit } = userStore();
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
@@ -178,10 +178,8 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
       user.student._id
     );
     const userFlashcardCount = await flashcardCountResponse.json();
-    const limit = hasActiveSubscription
-      ? user.subscription?.subscriptionMetadata?.flashcard_limit || 50000
-      : 40; // Default limit to 40 if on free tier
-    const remainingQuota = limit - userFlashcardCount.count;
+
+    const remainingQuota = flashcardCountLimit - userFlashcardCount.count;
 
     // Check if the user is completely out of generation space
     if (remainingQuota <= 0) {

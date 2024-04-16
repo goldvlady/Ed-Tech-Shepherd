@@ -221,8 +221,8 @@ const PlansModal = ({
 }: ToggleProps & { message?: string; subMessage?: string }) => {
   const [showSelected, setShowSelected] = useState(false);
   const [currentPlan, setCurrentPlan] = useState('Basic');
-  const { user, fetchUser, getActiveSubscription }: any = userStore();
-  const activeSubscription = getActiveSubscription();
+  const { user, fetchUser, activeSubscription, hasActiveSubscription }: any =
+    userStore();
   const activePlanLookupKey = activeSubscription?.lookup_key || 'free';
   const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -257,10 +257,6 @@ const PlansModal = ({
     setIsModalOpen(false);
     setModalContent('');
   };
-
-  const { hasActiveSubscription } = userStore((state) => ({
-    hasActiveSubscription: state.hasActiveSubscription
-  }));
 
   const planPriorities = {
     basic_monthly: 1,
@@ -341,8 +337,8 @@ const PlansModal = ({
     }
     const session = await ApiService.getStripeCustomerPortalUrl(
       user.stripeCustomerId,
-      user.subscription.stripeSubscriptionId,
-      user.subscription.tier
+      activeSubscription.stripeSubscriptionId,
+      activeSubscription.tier
     );
     const portal = await session.json();
 
