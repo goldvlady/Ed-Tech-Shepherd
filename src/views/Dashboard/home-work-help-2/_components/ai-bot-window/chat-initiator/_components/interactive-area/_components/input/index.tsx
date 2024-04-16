@@ -107,7 +107,7 @@ function Input({
   };
 
   const handleSubmit = () => {
-    if (chatContext.subject.trim() === '') return;
+    if (chatContext.subject?.trim() === '') return;
     setFilterKeyword({
       keyword: '',
       active: false
@@ -163,7 +163,7 @@ function Input({
             }
           )}
         >
-          {chatContext.subject.trim() !== '' &&
+          {chatContext.subject?.trim() !== '' &&
           (currentInputType === 'level' ||
             currentInputType === 'topic' ||
             currentInputType === 'language') ? (
@@ -182,7 +182,7 @@ function Input({
               </span>
             </span>
           ) : null}
-          {chatContext.subject.trim() !== '' && chatContext.level !== '' ? (
+          {chatContext.subject?.trim() !== '' && chatContext.level !== '' ? (
             <span className="text-xs flex ">
               Level -
               <span
@@ -198,8 +198,8 @@ function Input({
               </span>
             </span>
           ) : null}
-          {chatContext.subject.trim() !== '' &&
-            chatContext.level.trim() !== '' &&
+          {chatContext.subject?.trim() !== '' &&
+            chatContext.level?.trim() !== '' &&
             currentInputType === 'language' && (
               <span className="text-xs flex ">
                 Topic -
@@ -211,7 +211,7 @@ function Input({
                   }}
                 >
                   {chatContext.subject === 'Math'
-                    ? chatContext.topic.trim() === ''
+                    ? chatContext.topic?.trim() === ''
                       ? chatContext.topicSecondary
                       : chatContext.topic
                     : chatContext.topic}{' '}
@@ -244,7 +244,7 @@ function Input({
                   'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
                   {
                     'pointer-events-none opacity-50':
-                      wordProblemValue.trim() || explainConceptValue.trim()
+                      wordProblemValue?.trim() || explainConceptValue?.trim()
                   }
                 )}
               >
@@ -324,12 +324,12 @@ function Input({
                   currentInputType === 'topic' &&
                   chatContext.subject === 'Math' &&
                   (selectedMathsTopic === '' ||
-                    wordProblemValue.trim().length > 0 ||
-                    explainConceptValue.trim().length > 0)
+                    wordProblemValue?.trim().length > 0 ||
+                    explainConceptValue?.trim().length > 0)
               },
               {
                 'pointer-events-none opacity-50':
-                  (wordProblemValue.trim() || explainConceptValue.trim()) &&
+                  (wordProblemValue?.trim() || explainConceptValue?.trim()) &&
                   chatContext.subject === 'Math' &&
                   currentInputType === 'topic'
               },
@@ -337,7 +337,7 @@ function Input({
                 'pointer-events-none capitalize':
                   currentInputType === 'topic' &&
                   chatContext.subject === 'Math' &&
-                  chatContext.topic.trim() !== ''
+                  chatContext.topic?.trim() !== ''
               }
             )}
             placeholder={
@@ -355,11 +355,11 @@ function Input({
           <Button
             disabled={
               (currentInputType === 'subject' &&
-                chatContext.subject.trim() === '') ||
+                chatContext.subject?.trim() === '') ||
               (currentInputType === 'language' &&
                 chatContext.language.length === 0) ||
               (currentInputType === 'topic' &&
-                chatContext.topic.trim() === '' &&
+                chatContext.topic?.trim() === '' &&
                 chatContext.topicSecondary?.trim() === '')
             }
             onClick={() => {
@@ -400,7 +400,9 @@ function Input({
               });
             }}
             currentInputType={currentInputType}
-            active={filterKeyword.keyword.trim() !== '' || filterKeyword.active}
+            active={
+              filterKeyword.keyword?.trim() !== '' || filterKeyword.active
+            }
             filterKeyword={filterKeyword}
             onClick={(value) => {
               if (currentInputType === 'subject') handleSubjectChange(value);
@@ -420,7 +422,7 @@ function Input({
             <button
               className={`bg-[#207DF7] text-white rounded-md w-full p-2  ${
                 currentInputType === 'subject' &&
-                chatContext.subject.trim() === ''
+                chatContext.subject?.trim() === ''
                   ? 'cursor-not-allowed grayscale'
                   : 'cursor-pointer'
               }`}
@@ -433,7 +435,7 @@ function Input({
 
       <div
         className={`flex gap-1 md:gap-4 mt-4 flex-wrap ${
-          currentInputType !== 'subject' && chatContext.subject.trim() !== ''
+          currentInputType !== 'subject' && chatContext.subject?.trim() !== ''
             ? ' transition-opacity opacity-0 pointer-events-none'
             : ''
         }`}
@@ -456,8 +458,8 @@ function Input({
               setWordProblemValue(value);
             }}
             active={
-              chatContext.topic.trim().length === 0 &&
-              explainConceptValue.trim().length === 0
+              chatContext.topic?.trim().length === 0 &&
+              explainConceptValue?.trim().length === 0
             }
           />
           <SecondaryInput
@@ -468,8 +470,8 @@ function Input({
               setExplainConceptValue(value);
             }}
             active={
-              chatContext.topic.trim().length === 0 &&
-              wordProblemValue.trim().length === 0
+              chatContext.topic?.trim().length === 0 &&
+              wordProblemValue?.trim().length === 0
             }
           />
         </div>
