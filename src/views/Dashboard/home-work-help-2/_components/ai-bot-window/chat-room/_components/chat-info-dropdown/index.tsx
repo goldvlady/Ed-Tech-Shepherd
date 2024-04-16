@@ -98,7 +98,6 @@ function ChatInfoDropdown({
         'cursor-not-allowed': renaming || deleting || disabled
       })}
     >
-      {isFetching && <p className="text-xs">Loading name...</p>}
       <DropdownMenu>
         {renameMode.enabled ? (
           <input
@@ -146,6 +145,7 @@ function ChatInfoDropdown({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {isFetching && <p className="text-xs text-slate-400">Loading title...</p>}
     </div>
   );
 }
