@@ -79,8 +79,6 @@ export default function DocChat() {
   const { user }: any = userStore();
   const toast = useToast();
 
-  const { hasActiveSubscription } = userStore.getState();
-
   const [isHovering, setIsHovering] = useState(false);
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
@@ -89,21 +87,24 @@ export default function DocChat() {
   const handleLockClick = () => {
     setTogglePlansModal(true);
   };
-
-  useEffect(() => {
-    if (!hasActiveSubscription && user) {
-      // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage(
-        !user.hadSubscription
-          ? 'Start Your Subscription!'
-          : 'Pick a plan to access your AI Study Tools! 🚀'
-      );
-      setPlansModalSubMessage('One-click Cancel at anytime.');
-    } else if (!user) {
-      setPlansModalMessage('Start Your Subscription!');
-      setPlansModalSubMessage('One-click Cancel at anytime.');
-    }
-  }, [user, hasActiveSubscription]);
+  //no longer worried about paywalling this for now, we have a freemmium tier
+  // useEffect(() => {
+  //   console.log("hasActiveSubscription", hasActiveSubscription)
+  //   if (!hasActiveSubscription && user) {
+  //     // Set messages and show the modal if the user has no active subscription
+  //     setPlansModalMessage(
+  //       !user.hadSubscription
+  //         ? 'Start Your Subscription!'
+  //         : 'Pick a plan to access your AI Study Tools! 🚀'
+  //     );
+  //     setPlansModalSubMessage('One-click Cancel at anytime.');
+  //     setTogglePlansModal(true)
+  //   } else if (!user) {
+  //     setPlansModalMessage('Start Your Subscription!');
+  //     setPlansModalSubMessage('One-click Cancel at anytime.');
+  //     setTogglePlansModal(true)
+  //   }
+  // }, [user, hasActiveSubscription]);
 
   const [llmResponse, setLLMResponse] = useState('');
   const [readyToChat, setReadyToChat] = useState(false);
