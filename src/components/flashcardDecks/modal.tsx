@@ -3,7 +3,6 @@ import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import StudySessionLogger from '../../helpers/sessionLogger';
 import { useSearchQuery } from '../../hooks';
 import flashcardStore from '../../state/flashcardStore';
-import useUserStore from '../../state/userStore';
 import {
   FlashcardData,
   Score,
@@ -51,6 +50,7 @@ import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useNavigate } from 'react-router';
+import userStore from '../../state/userStore';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -476,7 +476,7 @@ const StudyBox = () => {
     storeCurrentStudy,
     loadTodaysFlashcards
   } = flashcardStore();
-  const { user } = useUserStore();
+  const { user, hasActiveSubscription }: any = userStore();
   const toast = useCustomToast();
   const navigate = useNavigate();
   const apiKey = window.location.href.includes('apiKey');
@@ -1038,40 +1038,35 @@ const StudyBox = () => {
               >
                 Got it wrong
               </Button>
-              {user &&
-                user.subscription &&
-                user.subscription.status === 'active' &&
-                apiKey && (
-                  <Button
-                    leftIcon={
-                      <Icon as={RiRemoteControlLine} fontSize={'16px'} />
-                    }
-                    display="flex"
-                    padding="16.5px 45.5px 16.5px 47.5px"
-                    justifyContent="center"
-                    isLoading={minorLoader}
-                    alignItems="center"
-                    borderRadius="8px"
-                    fontSize="16px"
-                    marginBottom={{ base: '15px' }}
-                    backgroundColor="#FEECEC"
-                    color="#000"
-                    flex="1"
-                    className="ml-3"
-                    height="54px"
-                    width={{ base: '100%', md: 'auto' }}
-                    onClick={cloneFlashcardHandler}
-                    loadingText="Clone Flashcard"
-                    transition="transform 0.3s"
-                    _hover={{
-                      background: '#FEECEC',
-                      transform: 'scale(1.05)'
-                    }}
-                    disabled={isLoading}
-                  >
-                    Clone Flashcard
-                  </Button>
-                )}
+              {user && hasActiveSubscription && apiKey && (
+                <Button
+                  leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
+                  display="flex"
+                  padding="16.5px 45.5px 16.5px 47.5px"
+                  justifyContent="center"
+                  isLoading={minorLoader}
+                  alignItems="center"
+                  borderRadius="8px"
+                  fontSize="16px"
+                  marginBottom={{ base: '15px' }}
+                  backgroundColor="#FEECEC"
+                  color="#000"
+                  flex="1"
+                  className="ml-3"
+                  height="54px"
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={cloneFlashcardHandler}
+                  loadingText="Clone Flashcard"
+                  transition="transform 0.3s"
+                  _hover={{
+                    background: '#FEECEC',
+                    transform: 'scale(1.05)'
+                  }}
+                  disabled={isLoading}
+                >
+                  Clone Flashcard
+                </Button>
+              )}
             </Box>
           )
         )}
