@@ -181,7 +181,7 @@ function ChatRoom() {
     if (
       chatWindowParams &&
       ((connectionQuery.subject === 'Math' &&
-        connectionQuery.topicSecondary.trim().length !== 0) ||
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
         connectionQuery.subject !== 'Math')
     ) {
       const { isNewWindow, connectionQuery } = chatWindowParams;
@@ -206,7 +206,7 @@ function ChatRoom() {
     } else if (
       apiKey &&
       ((connectionQuery.subject === 'Math' &&
-        connectionQuery.topicSecondary.trim().length !== 0) ||
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
         connectionQuery.subject !== 'Math')
     ) {
       startConversation(
@@ -449,7 +449,7 @@ function ChatRoom() {
               const { connectionQuery } = chatWindowParams;
               if (
                 subject === 'Math' &&
-                connectionQuery.topicSecondary.trim().length === 0
+                connectionQuery.topicSecondary?.trim().length === 0
               ) {
                 const fetchedMessages: Array<ChatMessageType> =
                   await ApiService.getConversionById({
