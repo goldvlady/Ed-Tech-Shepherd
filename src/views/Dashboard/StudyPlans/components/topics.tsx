@@ -71,6 +71,8 @@ import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
 import TimePicker from '../../../../components/TimePicker';
+import { BiPlayCircle } from 'react-icons/bi';
+import { MdEdit } from 'react-icons/md';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -97,6 +99,8 @@ function Topics(props) {
 
   const [convoId, setConvoId] = useState(null);
   const [hasConversationId, setHasConversationId] = useState(false);
+  const [vidOverlay, setVidOverlay] = useState<boolean>(true);
+
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -1069,7 +1073,70 @@ from  ${moment(
             </HStack>
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
+          <ModalBody overflowY={'auto'} maxH="600px" flexDirection="column">
+            <Box
+              w="full"
+              p={4}
+              bg="white"
+              borderRadius={10}
+              borderWidth="1px"
+              borderColor="#EEEFF1"
+              justifyContent="center"
+              alignItems="center"
+              my={4}
+            >
+              <Text
+                color="#6E7682"
+                fontSize="12px"
+                fontWeight="400"
+                wordBreak={'break-word'}
+                textTransform="uppercase"
+              >
+                Lecture
+              </Text>
+
+              <Center position="relative" borderRadius={10} my={2}>
+                <Box
+                  h={{ base: '350px', md: '350px' }}
+                  w={{ base: 'full', md: 'full' }}
+                >
+                  <video
+                    title="tutor-video"
+                    controls
+                    style={{
+                      borderRadius: 10,
+                      width: '100%',
+                      height: '100%'
+                    }}
+                  >
+                    <source
+                      src={
+                        'https://videos.pexels.com/video-files/5342194/5342194-hd_1920_1080_30fps.mp4'
+                      }
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                </Box>{' '}
+                {/* </AspectRatio> */}
+                <Center
+                  color="white"
+                  display={vidOverlay ? 'flex' : 'none'}
+                  position={'absolute'}
+                  bg="#0D1926"
+                  opacity={'75%'}
+                  boxSize="full"
+                >
+                  <VStack>
+                    <BiPlayCircle
+                      onClick={() => setVidOverlay(false)}
+                      size={'50px'}
+                    />
+                    <Text display={'inline'}> play video</Text>
+                  </VStack>
+                </Center>
+              </Center>
+            </Box>
             {!state.isLoading ? (
               state.topicResource ? (
                 <Box w="full">

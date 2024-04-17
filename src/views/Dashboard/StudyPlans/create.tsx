@@ -65,7 +65,9 @@ import {
   FaRocket,
   FaTrashAlt,
   FaFileAlt,
-  FaFileMedical
+  FaFileMedical,
+  FaFileVideo,
+  FaVideo
 } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdCancel, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -652,7 +654,7 @@ function CreateStudyPlans() {
       course: course,
       title: planName,
       tz: timezone,
-      resourceCount: resourceCount,
+      // resourceCount: resourceCount,
       scheduleItems: convertedArr
     };
 
@@ -1429,6 +1431,21 @@ function CreateStudyPlans() {
                                     )}
                                 </Flex>
                                 <HStack color="gray.500" spacing={3}>
+                                  <label htmlFor={`videoInput-${topicIndex}`}>
+                                    <Icon as={FaVideo} boxSize={3} />
+                                  </label>
+                                  <input
+                                    type="file"
+                                    id={`videoInput-${topicIndex}`}
+                                    accept="video/*"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) =>
+                                      handleUploadTopicFile(
+                                        topicIndex,
+                                        e.target.files[0]
+                                      )
+                                    }
+                                  />
                                   <label htmlFor={`fileInput-${topicIndex}`}>
                                     <Icon as={FaFileAlt} boxSize={3} />
                                   </label>
