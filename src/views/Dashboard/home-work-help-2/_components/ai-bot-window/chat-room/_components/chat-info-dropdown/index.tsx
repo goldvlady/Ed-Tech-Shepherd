@@ -145,7 +145,11 @@ function ChatInfoDropdown({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      {isFetching && <p className="text-xs text-slate-400">Loading title...</p>}
+      {isFetching && (
+        <p className="text-xs text-slate-400 w-full text-center">
+          Loading title...
+        </p>
+      )}
     </div>
   );
 }
