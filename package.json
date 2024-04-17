@@ -105,6 +105,7 @@
     "posthog-js": "^1.103.1",
     "react": "^18.2.0",
     "react-ace": "^11.0.1",
+    "react-calendly": "^4.3.0",
     "react-chartjs-2": "^5.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-datepicker": "^4.16.0",

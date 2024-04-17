@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import useUserStore from '../../../../state/userStore';
+import { PopupButton, PopupModal } from 'react-calendly';
 import {
   Badge,
   Box,
@@ -143,6 +144,11 @@ function Topics(props) {
     isOpen: isBountyModalOpen,
     onOpen: openBountyModal,
     onClose: closeBountyModal
+  } = useDisclosure();
+  const {
+    isOpen: isCalendlyOpen,
+    onOpen: openCalendly,
+    onClose: closeCalendly
   } = useDisclosure();
 
   const groupedTopics = planTopics?.schedules.reduce((grouped, topic) => {
@@ -974,15 +980,33 @@ from  ${moment(
               <Spacer />
               {!isTutor &&
                 (user.school ? (
-                  <Button
-                    size={'sm'}
-                    isDisabled={true}
-                    onClick={() => {
-                      openBountyModal();
-                    }}
-                  >
-                    Book Session
-                  </Button>
+                  <>
+                    <Button
+                      size={'sm'}
+                      isDisabled={true}
+                      onClick={() => {
+                        console.log({
+                          selectedTopic: topic.topicDetails?.label
+                        });
+                        openCalendly();
+                      }}
+                    >
+                      Book Session
+                    </Button>
+                    <PopupModal
+                      url="https://calendly.com/kehinde-shepherd/30min"
+                      // pageSettings={this.props.pageSettings}
+                      // utm={this.props.utm}
+                      // prefill={this.props.prefill}
+                      onModalClose={() => closeCalendly()}
+                      open={isCalendlyOpen}
+                      /*
+                       * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
+                       * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
+                       */
+                      rootElement={document.getElementById('root')}
+                    />
+                  </>
                 ) : (
                   <Button
                     size={'sm'}
@@ -1041,7 +1065,7 @@ from  ${moment(
                 >
                   <Box>
                     <Text fontSize="16px" fontWeight="500" color="gray.700">
-                      Test Date:
+                      {`${user.school ? 'Checkpoint' : 'Test Date'}`}
                     </Text>
                     <Text fontSize="14px" color="gray.600">
                       {testTopics[0]}

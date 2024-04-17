@@ -24,7 +24,9 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Icon
+  Icon,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
 import {
   FlexContainer,
@@ -34,6 +36,7 @@ import {
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
 import React, {
+  RefObject,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -48,12 +51,26 @@ import { useNavigate } from 'react-router-dom';
 import { Select } from 'chakra-react-select';
 import studyPlanStore from '../../state/studyPlanStore';
 import clientStore from '../../state/clientStore';
+import userStore from '../../state/userStore';
 import ShareModal from '../ShareModal';
 import useSchoolStudents from '../../views/Dashboard/StudyPlans/hooks/useSchoolStudents';
 import { RiUserAddLine } from 'react-icons/ri';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../services/ApiService';
+import { RiUploadCloud2Fill } from '@remixicon/react';
+import { AttachmentIcon } from '@chakra-ui/icons';
+import uploadFile from '../../helpers/file.helpers';
+import styled from 'styled-components';
+const FileName = styled.span`
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #585f68;
+`;
 
+const PDFTextContainer = styled.div`
+  text-align: center;
+  margin-bottom: 1.5rem;
+`;
 interface Client {
   id: number;
   name: string;
@@ -87,7 +104,12 @@ const AllSchoolStudentsTab = (props) => {
   //   const { allSchoolTutorStudents, setAllSchoolTutorStudents }: any = props;
 
   const { fetchPlans, studyPlans, pagination } = studyPlanStore();
-  const { fetchSchoolTutorStudents, schoolStudents } = clientStore();
+  const { user } = userStore();
+  const {
+    fetchSchoolTutorStudents,
+    schoolStudents,
+    isLoading: studentListLoading
+  } = clientStore();
   const [allSchoolTutorStudents, setAllSchoolTutorStudents] =
     useState<any>(schoolStudents);
   console.log(schoolStudents);
@@ -118,29 +140,48 @@ const AllSchoolStudentsTab = (props) => {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [csvFile, setCsvFile] = useState(null);
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const toast = useCustomToast();
 
   const handleSubmitInvite = async (e) => {
     e.preventDefault();
-    try {
-      const payload = {
-        email: email,
-        firstName: firstName,
-        lastName: lastName
-      };
-      const response = await ApiService.inviteSchoolStudents(payload);
+    if (!csvFile) {
+      try {
+        const payload = [
+          {
+            email: email,
+            firstName: firstName,
+            lastName: lastName
+          }
+        ];
+        const response = await ApiService.inviteSchoolStudents(payload);
 
-      if (response.ok) {
+        if (response.ok) {
+          toast({
+            title: 'Student invited successfully!',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+            position: 'top-right'
+          });
+        } else {
+          toast({
+            title: 'Error inviting student.',
+            description: 'Please try again later.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+            position: 'top-right'
+          });
+        }
+
+        onCloseInvite();
+      } catch (error) {
+        console.error('Error inviting student:', error);
         toast({
-          title: 'Student invited successfully!',
-          status: 'success',
-          duration: 5000,
-          isClosable: true,
-          position: 'top-right'
-        });
-      } else {
-        toast({
-          title: 'Error inviting student.',
+          title: 'An error occurred.',
           description: 'Please try again later.',
           status: 'error',
           duration: 5000,
@@ -148,18 +189,44 @@ const AllSchoolStudentsTab = (props) => {
           position: 'top-right'
         });
       }
+    } else {
+      try {
+        const payload = {
+          studentCSV: csvFile
+        };
+        const response = await ApiService.inviteSchoolStudentsWithCSV(payload);
 
-      onCloseInvite();
-    } catch (error) {
-      console.error('Error inviting student:', error);
-      toast({
-        title: 'An error occurred.',
-        description: 'Please try again later.',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-        position: 'top-right'
-      });
+        if (response.ok) {
+          toast({
+            title: 'Students invited successfully!',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+            position: 'top-right'
+          });
+        } else {
+          toast({
+            title: 'Error inviting students.',
+            description: 'Please try again later.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+            position: 'top-right'
+          });
+        }
+
+        onCloseInvite();
+      } catch (error) {
+        console.error('Error inviting students:', error);
+        toast({
+          title: 'An error occurred.',
+          description: 'Please try again later.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right'
+        });
+      }
     }
   };
 
@@ -191,7 +258,11 @@ const AllSchoolStudentsTab = (props) => {
       setSelectedPlan(planOptions[0]);
     }
   }, [studyPlans]);
-
+  useEffect(() => {
+    if (selectedPlan) {
+      fetchSchoolTutorStudents(page, limit, selectedPlan.id);
+    }
+  }, [selectedPlan]);
   useLayoutEffect(() => {
     const isIndeterminate =
       selectedPeople.length > 0 && selectedPeople.length < clients.length;
@@ -326,6 +397,70 @@ const AllSchoolStudentsTab = (props) => {
       return shareable;
     }
   }, [studentList]);
+
+  const [docLoading, setDocLoading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+  const inputRef = useRef(null) as RefObject<HTMLInputElement>;
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files[0];
+    handleUploadInput(files);
+  };
+
+  const handleUploadInput = (file: File | null) => {
+    if (!file) return;
+    if (file?.size > 10000000) {
+      toast({
+        title: 'Please upload a file under 10MB',
+        status: 'error',
+        position: 'top',
+        isClosable: true
+      });
+      return;
+    } else {
+      setDocLoading(true);
+      const readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+      const uploadEmitter = uploadFile(file, {
+        studentID: user._id, // Assuming user._id is always defined
+        documentID: readableFileName // Assuming readableFileName is the file's name
+      });
+
+      uploadEmitter.on('progress', (progress: number) => {
+        // Update the progress. Assuming progress is a percentage (0 to 100)
+
+        setDocLoading(true);
+      });
+
+      uploadEmitter.on('complete', async (uploadFile) => {
+        // Assuming uploadFile contains the fileUrl and other necessary details.
+        const documentURL = uploadFile.fileUrl;
+        setDocLoading(false);
+        setFileName(readableFileName);
+        setCsvFile(documentURL);
+      });
+      uploadEmitter.on('error', (error) => {
+        setDocLoading(false);
+        // setCvUploadPercent(0);
+        toast({ title: error.message + error.cause, status: 'error' });
+      });
+    }
+  };
+
   return (
     <div>
       <header className="flex m-4 justify-between">
@@ -443,6 +578,78 @@ const AllSchoolStudentsTab = (props) => {
                         onChange={(e) => setLastName(e.target.value)}
                       />
                     </FormControl>
+                    <Center flexDirection={'column'}>
+                      <Text>or</Text>
+                      <Text fontWeight={'semibold'}>
+                        Invite Multiple students by uploading a csv file
+                      </Text>
+                    </Center>
+
+                    <FormControl id="lastName" mt={4} isRequired>
+                      <Center
+                        w="full"
+                        minH="65px"
+                        my={3}
+                        p={2}
+                        border="2px"
+                        borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                        borderStyle="dashed"
+                        rounded="lg"
+                        cursor="pointer"
+                        bg={isDragOver ? 'gray.600' : 'gray.50'}
+                        color={isDragOver ? 'white' : 'inherit'}
+                        onDragOver={(e) => handleDragEnter(e)}
+                        onDragEnter={(e) => handleDragEnter(e)}
+                        onDragLeave={(e) => handleDragLeave(e)}
+                        onDrop={(e) => handleDrop(e)}
+                        // onClick={clickInput}
+                      >
+                        <label htmlFor="file-upload">
+                          <Center flexDirection="column">
+                            {docLoading ? (
+                              <Spinner />
+                            ) : fileName ? (
+                              <Flex>
+                                <AttachmentIcon />{' '}
+                                <FileName>{fileName}</FileName>
+                              </Flex>
+                            ) : (
+                              <Flex direction={'column'} alignItems={'center'}>
+                                <RiUploadCloud2Fill
+                                  className="h-8 w-8"
+                                  color="gray.500"
+                                />
+                                <Text
+                                  mb="2"
+                                  fontSize="sm"
+                                  color={isDragOver ? 'white' : 'gray.500'}
+                                  fontWeight="semibold"
+                                >
+                                  Click to upload or drag and drop
+                                </Text>
+                                <PDFTextContainer>
+                                  <Text
+                                    fontSize="xs"
+                                    color={isDragOver ? 'white' : 'gray.500'}
+                                  >
+                                    CSV only (MAX: {fileSizeLimitMB}MB)
+                                  </Text>
+                                </PDFTextContainer>
+                              </Flex>
+                            )}
+                          </Center>
+                        </label>
+                        <input
+                          type="file"
+                          accept=".doc, .txt, .pdf"
+                          // accept="application/pdf"
+                          className="hidden"
+                          id="file-upload"
+                          ref={inputRef}
+                          onChange={(e) => handleUploadInput(e.target.files[0])}
+                        />
+                      </Center>
+                    </FormControl>
                   </form>
                 </ModalBody>
                 <ModalFooter>
@@ -464,14 +671,24 @@ const AllSchoolStudentsTab = (props) => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-12 z-10">
             <div className="relative">
-              {planOptions.length > 0 ? (
-                <SelectableTable
-                  columns={clientColumn}
-                  dataSource={dataSource}
-                  isSelectable
-                  fileImage
-                  onSelect={(e) => setSelectedPeople(e)}
-                />
+              {planOptions?.length > 0 ? (
+                studentListLoading ? (
+                  <>
+                    <Center my="auto">
+                      <Spinner></Spinner>
+                    </Center>
+                  </>
+                ) : allSchoolTutorStudents?.length > 0 ? (
+                  <SelectableTable
+                    columns={clientColumn}
+                    dataSource={dataSource}
+                    isSelectable
+                    fileImage
+                    onSelect={(e) => setSelectedPeople(e)}
+                  />
+                ) : (
+                  <Text>You have no students enlisted in this plan</Text>
+                )
               ) : (
                 <Text>You are yet to create a plan</Text>
               )}
