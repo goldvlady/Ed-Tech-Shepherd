@@ -33,7 +33,7 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   const [preferredLanguage, setPreferredLanguage] = useState<
     (typeof languages)[number]
   >(languages[0]);
-  const { user } = userStore();
+  const { user, hasActiveSubscription, quizCountLimit } = userStore();
   const [isLoading, setIsLoading] = useState(false);
   const dummyData = {
     subject: '',
@@ -65,15 +65,12 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
   const handleGenerateQuestions = async () => {
     try {
       setIsLoading(true);
-      const { hasActiveSubscription } = userStore.getState();
       const quizCountResponse = await ApiService.checkQuizCount(user._id);
       const userQuizCount = await quizCountResponse.json();
 
       if (
         (!hasActiveSubscription && userQuizCount.count >= 40) ||
-        (user.subscription?.subscriptionMetadata?.quiz_limit &&
-          userQuizCount.count >=
-            user.subscription.subscriptionMetadata.quiz_limit)
+        userQuizCount.count >= quizCountLimit
       ) {
         setPlansModalMessage(
           !hasActiveSubscription
