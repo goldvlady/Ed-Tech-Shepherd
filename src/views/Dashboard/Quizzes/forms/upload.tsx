@@ -95,8 +95,7 @@ const UploadQuizForm = ({
   const toast = useCustomToast();
   const { handleIsLoadingQuizzes } = quizStore();
 
-  const { hasActiveSubscription, user, activeSubscription, quizCountLimit } =
-    userStore();
+  const { hasActiveSubscription, user } = userStore();
 
   const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
@@ -120,7 +119,7 @@ const UploadQuizForm = ({
       const result = await ApiService.generateQuizQuestionFromDocs({
         ...d,
         count: toNumber(d?.count),
-        subscriptionTier: activeSubscription?.tier,
+        subscriptionTier: user.subscription?.tier,
         lang
       });
 
@@ -224,7 +223,10 @@ const UploadQuizForm = ({
       const userQuizCount = await quizCountResponse.json();
 
       // Assume userQuizCount contains the total number of quizzes the user can generate and has generated
-      const quizzesRemaining = quizCountLimit - userQuizCount.count;
+      const limit = hasActiveSubscription
+        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
+        : 40; // Default limit to 40 if on free tier
+      const quizzesRemaining = limit - userQuizCount.count;
 
       if (quizzesRemaining <= 0) {
         // User has reached or exceeded their limit

@@ -866,7 +866,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [aiChatMenu, setAiChatMenu] = useState(false);
   const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
-  const { user, hasActiveSubscription }: any = userStore();
+  const { user }: any = userStore();
+  const hasActiveSubscription = user?.subscription?.status === 'active';
   const [togglePlansModal, setTogglePlansModal] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');

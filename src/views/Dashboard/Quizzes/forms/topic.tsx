@@ -42,7 +42,7 @@ const TopicQuizForm = ({
   uploadingState
 }) => {
   const toast = useCustomToast();
-  const { hasActiveSubscription, user, quizCountLimit } = userStore();
+  const { hasActiveSubscription, user } = userStore();
   const dummyData = {
     subject: '',
     topic: '',
@@ -100,7 +100,10 @@ const TopicQuizForm = ({
       const quizCountResponse = await ApiService.checkQuizCount(user._id);
       const userQuizCount = await quizCountResponse.json();
 
-      const quizzesRemaining = quizCountLimit - userQuizCount.count;
+      const limit = hasActiveSubscription
+        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
+        : 40; // Default limit to 40 if on free tier
+      const quizzesRemaining = limit - userQuizCount.count;
 
       if (quizzesRemaining <= 0) {
         // User has reached or exceeded their limit

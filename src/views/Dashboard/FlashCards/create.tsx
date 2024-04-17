@@ -126,7 +126,8 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
 const CreateFlashPage = () => {
   const toast = useCustomToast();
-  const { user, hasActiveSubscription, activeSubscription }: any = userStore();
+  const { user }: any = userStore();
+  const { hasActiveSubscription } = userStore.getState();
   const location = useLocation();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -159,20 +160,18 @@ const CreateFlashPage = () => {
     setTogglePlansModal(true);
   };
 
-  //no longer worried about paywalling this for now, we have a freemmium tier
-  // useEffect(() => {
-  //   if (!hasActiveSubscription) {
-  //     // Set messages and show the modal if the user has no active subscription
-  //     setPlansModalMessage(
-  //       !user.hadSubscription
-  //         ? 'Subscribe to unlock your AI Study Tools! 🚀'
-  //         : 'Pick a plan to access your AI Study Tools! 🚀'
-  //     );
-  //     setPlansModalSubMessage('One-click Cancel at anytime.');
-  //     setTogglePlansModal(true);
-  //   }
-  // }, [user.subscription]);
-
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Subscribe to unlock your AI Study Tools! 🚀'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription]);
   // const [settings, setSettings] = useState<SettingsType>({
   //   type: TypeEnum.INIT,
   //   source: SourceEnum.SUBJECT
@@ -512,8 +511,8 @@ const CreateFlashPage = () => {
                     <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
                       <Text color="#585F68">Manual</Text>
                     </Radio>
-                    {hasActiveSubscription &&
-                      activeSubscription.tier === 'Premium' && (
+                    {user.subscription &&
+                      user.subscription.tier === 'Premium' && (
                         <Radio value={SourceEnum.ANKI} isDisabled={isCompleted}>
                           <Text color="#585F68">Anki</Text>
                         </Radio>

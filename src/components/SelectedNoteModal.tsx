@@ -79,18 +79,14 @@ const SelectedModal = ({
   studyPlanId,
   topicId
 }: ShowProps) => {
-  const {
-    user,
-    fetchUserDocuments,
-    hasActiveSubscription,
-    fileSizeLimitMB,
-    fileSizeLimitBytes
-  } = userStore();
+  const { user, fetchUserDocuments } = userStore();
   const [preferredLanguage, setPreferredLanguage] = useState<
     (typeof languages)[number]
   >(languages[0]);
   const { fetchStudentDocuments, studentDocuments: userDocuments } =
     documentStore();
+  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore.getState();
   const navigate = useNavigate();
   const toast = useCustomToast();
   const [fileName, setFileName] = useState('');

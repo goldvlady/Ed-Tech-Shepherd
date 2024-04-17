@@ -251,7 +251,7 @@ const NewNote = () => {
   const navigate = useNavigate();
 
   const [loadingDoc, setLoadingDoc] = useState(false);
-  const { userDocuments, user, hasActiveSubscription } = userStore();
+  const { userDocuments, user } = userStore();
   const [studentDocuments, setStudentDocuments] = useState<Array<any>>([]);
   const [pinned, setPinned] = useState<boolean>(false);
   const [cloneInProgress, setCloneInProgress] = useState(false);
@@ -1232,25 +1232,28 @@ const NewNote = () => {
             </div>
           </FirstSection>
           <SecondSection>
-            {user && hasActiveSubscription && apiKey && (
-              <Button
-                leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                borderRadius="8px"
-                fontSize="16px"
-                bg="#f4f4f5"
-                color="#000"
-                w={'180px'}
-                h={'40px'}
-                onClick={cloneNoteHandler}
-                _hover={{ bg: '#e4e4e5' }}
-                _active={{ bg: '#d4d4d5' }}
-              >
-                Clone Notes
-              </Button>
-            )}
+            {user &&
+              user.subscription &&
+              user.subscription.status === 'active' &&
+              apiKey && (
+                <Button
+                  leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  borderRadius="8px"
+                  fontSize="16px"
+                  bg="#f4f4f5"
+                  color="#000"
+                  w={'180px'}
+                  h={'40px'}
+                  onClick={cloneNoteHandler}
+                  _hover={{ bg: '#e4e4e5' }}
+                  _active={{ bg: '#d4d4d5' }}
+                >
+                  Clone Notes
+                </Button>
+              )}
             {user && <ShareModal type="note" />}
 
             <CustomButton
