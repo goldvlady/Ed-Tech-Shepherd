@@ -251,7 +251,7 @@ function Input({
                 <SelectValue placeholder="Topic" className="mr-2" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                <SelectItem value={null}>None</SelectItem>
+                {/* <SelectItem value={null}>None</SelectItem> */}
                 {mathTopics.map((topic) => {
                   return (
                     <SelectItem key={topic.id} value={topic.id}>
@@ -456,11 +456,10 @@ function Input({
             onChange={(value) => {
               handleTopicSecondaryChange(value);
               setWordProblemValue(value);
+              handleTopicChange('');
+              setSelectedMathsTopic('');
             }}
-            active={
-              chatContext.topic?.trim().length === 0 &&
-              explainConceptValue?.trim().length === 0
-            }
+            active={explainConceptValue?.trim().length === 0}
           />
           <SecondaryInput
             label="Explain a concept"
@@ -468,11 +467,10 @@ function Input({
             onChange={(value) => {
               handleTopicSecondaryChange(value);
               setExplainConceptValue(value);
+              handleTopicChange('');
+              setSelectedMathsTopic('');
             }}
-            active={
-              chatContext.topic?.trim().length === 0 &&
-              wordProblemValue?.trim().length === 0
-            }
+            active={wordProblemValue?.trim().length === 0}
           />
         </div>
       )}
