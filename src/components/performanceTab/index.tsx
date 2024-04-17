@@ -13,6 +13,7 @@ import {
   Menu,
   MenuList,
   MenuButton,
+  Badge,
   Button,
   Box,
   Text,
@@ -49,11 +50,11 @@ type DataSourceItem = {
   name: string;
   subject: string;
   topic: string;
-  status: string;
-  quizScore: number;
-  flashcardScore: number;
+  status: any;
+  quizScore: string;
+  flashcardScore: string;
 
-  timeSpent: number;
+  timeSpent: string;
 };
 
 const StudentPerformanceTab = (props) => {
@@ -69,22 +70,57 @@ const StudentPerformanceTab = (props) => {
   const [openTags, setOpenTags] = useState<boolean>(false);
 
   const navigate = useNavigate();
+  console.log(performanceReport);
 
   const dataSource: DataSourceItem[] = Array.from(
-    { length: performanceReport?.length },
-    (_, i) => ({
-      key: i,
-      id: performanceReport[i]?._id,
-      name: `${performanceReport[i]?.studyPlan.title} `,
-      subject: performanceReport[i]?.studyPlan?.course?.label,
-      topic: performanceReport[i]?.topic?.label,
-      status: performanceReport[i]?.status,
-      quizScore: performanceReport[i]?.quizReadinessScore,
-      flashcardScore: performanceReport[i]?.flashcardReadinessScore,
-      timeSpent: 0
-    })
-  );
+    { length: performanceReport?.data?.length },
+    (_, i) => {
+      // Define variables for background color and text color
+      let bgColor = '';
+      let textColor = '';
+      let text = '';
 
+      // Set background color and text color based on status
+      switch (performanceReport.data[i]?.status) {
+        case 'notStarted':
+          bgColor = '#FEF0F0';
+          textColor = '#F53535';
+          text = 'NOT STARTED';
+          break;
+        case 'inProgress':
+          bgColor = '#FFF2EB';
+          textColor = '#FB8441';
+          text = 'IN PROGRESS';
+
+          break;
+        default:
+          bgColor = '#F1F9F1';
+          textColor = '#66BD6A';
+          text = 'COMPLETE';
+
+          break;
+      }
+
+      return {
+        key: i,
+        id: performanceReport.data[i]?._id,
+        name: `${performanceReport.data[i]?.studyPlan.title} `,
+        subject: performanceReport.data[i]?.studyPlan?.course?.label,
+        topic: performanceReport.data[i]?.topic?.label,
+        status: (
+          <Badge bg={bgColor} color={textColor} p={1} fontWeight="500">
+            {text}
+          </Badge>
+        ),
+        quizScore: `${performanceReport.data[i]?.quizReadinessScore}%`,
+        flashcardScore: `${performanceReport.data[i]?.flashcardReadinessScore}%`,
+        timeSpent: `${performanceReport.data[i]?.aggregateStudyTime.replace(
+          'Minutes',
+          'min'
+        )}`
+      };
+    }
+  );
   useLayoutEffect(() => {
     const isIndeterminate =
       selectedPeople.length > 0 && selectedPeople.length < clients.length;
@@ -173,134 +209,22 @@ const StudentPerformanceTab = (props) => {
       key: 'quizScore',
       title: 'Quizzes',
       dataIndex: 'quizScore',
-      align: 'left',
+      align: 'center',
       id: 5
     },
     {
       key: 'flashcardScore',
       title: 'Flashcards',
       dataIndex: 'flashcardScore',
-      align: 'left',
+      align: 'center',
       id: 6
     },
-
     {
-      key: 'actions',
-      title: '',
-      render: ({ name, id }) => (
-        <Menu>
-          <MenuButton
-            as={Button}
-            variant="unstyled"
-            borderRadius="full"
-            p={0}
-            minW="auto"
-            height="auto"
-          >
-            <FaEllipsisH fontSize={'12px'} />
-          </MenuButton>
-          <MenuList
-            fontSize="14px"
-            minWidth={'185px'}
-            borderRadius="8px"
-            backgroundColor="#FFFFFF"
-            boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
-          >
-            <section className="space-y-2 border-b pb-2">
-              <button
-                onClick={() => navigate(`${id}`)}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Contract
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsSolidIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Monthly report
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
-              <button
-                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                onClick={() => onClientReview(name)}
-              >
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <DownloadIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Client review
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-              <button
-                onClick={() => navigate(`performance/${id}`)}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    View Performance
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button>
-            </section>
-            <div
-              onClick={() => onDeleteNote(true, name)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '15px'
-              }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3.08317 2.50033V0.750326C3.08317 0.428162 3.34434 0.166992 3.6665 0.166992H8.33317C8.65535 0.166992 8.9165 0.428162 8.9165 0.750326V2.50033H11.8332V3.66699H10.6665V11.2503C10.6665 11.5725 10.4053 11.8337 10.0832 11.8337H1.9165C1.59434 11.8337 1.33317 11.5725 1.33317 11.2503V3.66699H0.166504V2.50033H3.08317ZM4.24984 1.33366V2.50033H7.74984V1.33366H4.24984Z"
-                  fill="#F53535"
-                />
-              </svg>
-              <Text fontSize="14px" lineHeight="20px" fontWeight="400">
-                Delete
-              </Text>
-            </div>
-          </MenuList>
-        </Menu>
-      )
+      key: 'timeSpent',
+      title: 'Time Spent',
+      dataIndex: 'timeSpent',
+      align: 'center',
+      id: 7
     }
   ];
 
@@ -320,143 +244,6 @@ const StudentPerformanceTab = (props) => {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-8 z-10">
             <div className="relative">
-              <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {/* {selectedPeople.length > 0 && (
-                  <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
-                    <p className="text-gray-600">
-                      {selectedPeople.length} items selected
-                    </p>
-
-                    <div className="flex items-center space-x-4">
-                      <button className="text-gray-600" onClick={toggleAll}>
-                        Select all
-                      </button>
-                      <Menu>
-                        <StyledMenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                          background="#F4F5F5"
-                          display="flex"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenTags((prevState) => !prevState)}
-                        >
-                          <FlashCardsSolidIcon
-                            className="w-5"
-                            onClick={undefined}
-                          />
-                          Add tag
-                        </StyledMenuButton>
-                      </Menu>
-
-                      {openTags && (
-                        <Menu>
-                          <StyledMenuSection>
-                            <form
-                              className="relative flex flex-1 py-2"
-                              action="#"
-                              method="GET"
-                            >
-                              <label htmlFor="search-field" className="sr-only">
-                                Search
-                              </label>
-                              <MagnifyingGlassIcon
-                                className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                                aria-hidden="true"
-                              />
-                              <input
-                                id="search-field"
-                                className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                placeholder="Search Clients..."
-                                type="search"
-                                name="search"
-                              />
-                            </form>
-                            <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Chemistry
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Person
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Favorites
-                                </label>
-                              </div>
-                            </div>
-                          </StyledMenuSection>
-                        </Menu>
-                      )}
-
-                      <button
-                        onClick={() => setDeleteAllNotesModal(true)}
-                        type="button"
-                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                      >
-                        <TrashIcon className="w-5" onClick={undefined} />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                    >
-                      Done
-                    </button>
-                  </div>
-                )} */}
-              </div>
               <SelectableTable
                 columns={clientColumn}
                 dataSource={dataSource}
@@ -469,7 +256,7 @@ const StudentPerformanceTab = (props) => {
         </div>
       </div>
 
-      <CustomModal
+      {/* <CustomModal
         modalTitle=""
         isModalCloseButton
         onClose={() => setDeleteNoteModal(false)}
@@ -482,38 +269,7 @@ const StudentPerformanceTab = (props) => {
           // deleteNoteModal={deleteNoteModal}
           setDeleteNoteModal={setDeleteNoteModal}
         />
-      </CustomModal>
-      {/* Modal for Client review */}
-      <Modal isOpen={isReviewModalOpen} onClose={closeReviewModal} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader
-            textAlign={'center'}
-            fontSize={14}
-          >{`${clientName} dropped a feedback for you`}</ModalHeader>
-          <Divider />
-          <ModalBody>
-            <VStack>
-              <Text textAlign={'left'}>Rating</Text>
-              <Flex gap={2}>{renderStars(3)}</Flex>
-              <Box p={3} border=" 1px solid #E4E5E7">
-                <Text>
-                  Risus purus sed integer arcu sollicitudin eros tellus
-                  phasellus viverra. Dolor suspendisse quisque proin velit nulla
-                  diam. Vitae in mauris condimentum s
-                </Text>
-              </Box>
-            </VStack>
-
-            {/* ... (content for the client review modal) */}
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeReviewModal} variant="outline">
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      </CustomModal> */}
     </div>
   );
 };

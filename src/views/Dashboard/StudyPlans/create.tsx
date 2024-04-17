@@ -47,7 +47,12 @@ import {
   Link,
   HStack,
   Spinner,
-  FormLabel
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import { format, isBefore } from 'date-fns';
@@ -130,6 +135,7 @@ function CreateStudyPlans() {
   const [gradeLevel, setGradeLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [timezone, setTimezone] = useState('');
+  const [resourceCount, setResourceCount] = useState<any>(10);
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -176,6 +182,7 @@ function CreateStudyPlans() {
 
     getTimeZoneOptions();
   }, []);
+  const [docLoading, setDocLoading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState('');
   const handleDragEnter = (e) => {
@@ -249,44 +256,85 @@ function CreateStudyPlans() {
   //   }
   // };
 
+  // const handleUploadInput = (file: File | null) => {
+  //   if (!file) return;
+
+  //   // Check if the file size exceeds the limit
+  //   if (file.size > fileSizeLimitBytes) {
+  //     toast({
+  //       title: 'Please upload a file under 10MB',
+  //       status: 'error',
+  //       position: 'top',
+  //       isClosable: true
+  //     });
+  //   } else {
+  //     setLoading(true);
+
+  //     const storageRef = ref(storage, `files/${file.name}`);
+  //     const uploadTask = uploadBytesResumable(storageRef, file);
+
+  //     // setIsLoading(true);
+  //     uploadTask.on(
+  //       'state_changed',
+  //       (snapshot) => {
+  //         const progress = Math.round(
+  //           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+  //         );
+  //       },
+  //       (error) => {
+  //         setIsLoading(false);
+
+  //         toast({ title: error.message + error.cause, status: 'error' });
+  //       },
+  //       () => {
+  //         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+  //           setIsLoading(false);
+  //           setSyllabusUrl(downloadURL);
+  //           setFileName(snip(file.name));
+  //         });
+  //       }
+  //     );
+  //   }
+  // };
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-
-    // Check if the file size exceeds the limit
-    if (file.size > fileSizeLimitBytes) {
+    if (file?.size > 10000000) {
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
         position: 'top',
         isClosable: true
       });
+      return;
     } else {
-      setLoading(true);
+      setDocLoading(true);
+      const readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+      const uploadEmitter = uploadFile(file, {
+        studentID: user._id, // Assuming user._id is always defined
+        documentID: readableFileName // Assuming readableFileName is the file's name
+      });
 
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadEmitter.on('progress', (progress: number) => {
+        // Update the progress. Assuming progress is a percentage (0 to 100)
 
-      // setIsLoading(true);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-        },
-        (error) => {
-          setIsLoading(false);
+        setDocLoading(true);
+      });
 
-          toast({ title: error.message + error.cause, status: 'error' });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setIsLoading(false);
-            setSyllabusUrl(downloadURL);
-            setFileName(snip(file.name));
-          });
-        }
-      );
+      uploadEmitter.on('complete', async (uploadFile) => {
+        // Assuming uploadFile contains the fileUrl and other necessary details.
+        const documentURL = uploadFile.fileUrl;
+        setDocLoading(false);
+        setFileName(readableFileName);
+        setSyllabusUrl(documentURL);
+      });
+      uploadEmitter.on('error', (error) => {
+        setDocLoading(false);
+        // setCvUploadPercent(0);
+        toast({ title: error.message + error.cause, status: 'error' });
+      });
     }
   };
 
@@ -608,6 +656,7 @@ function CreateStudyPlans() {
       course: course,
       title: planName,
       tz: timezone,
+      resourceCount: resourceCount,
       scheduleItems: convertedArr
     };
 
@@ -841,15 +890,13 @@ function CreateStudyPlans() {
   };
 
   useEffect(() => {
-    // Check if the item exists in localStorage
     const item = localStorage.getItem('create course');
 
-    // If the item exists, set it to state and clear it from localStorage
     if (item) {
       setCourse(item);
       localStorage.removeItem('create course');
     }
-  }, []); // This effect runs only once after the component mounts
+  }, []);
 
   return (
     <Grid
@@ -888,9 +935,11 @@ function CreateStudyPlans() {
             </Box>
           </Flex>
           <Text fontSize="13px" my={2}>
-            Let's get you ready for test day. Just provide a subject or
+            {user.school
+              ? `Let's get you ready for your learning journey. Just provide a subject or syllabus, and we'll create a tailored study schedule with resources and reminders to make your learning efficient and effective. provide checkpoint dates so we can use that to structure your schedule.`
+              : ` Let's get you ready for test day. Just provide a subject or
             syllabus, and we'll create a tailored study schedule with resources
-            and reminders to make your learning efficient and effective.{' '}
+            and reminders to make your learning efficient and effective.`}
           </Text>
         </Box>
         {activeTab === 0 ? (
@@ -965,11 +1014,11 @@ function CreateStudyPlans() {
                 mb={2}
               />
             </Box>
-            <Center my={2}>or</Center>
+            {/* <Center my={2}>or</Center> */}
             <Center
               w="full"
               minH="65px"
-              mb={3}
+              my={3}
               p={2}
               border="2px"
               borderColor={isDragOver ? 'gray.600' : 'gray.300'}
@@ -1072,7 +1121,7 @@ function CreateStudyPlans() {
               display="block"
               fontWeight={'semibold'}
             >
-              Enter your test dates
+              {user.school ? 'Enter Checkpoint dates' : 'Enter your test dates'}
             </Text>
             <Flex direction={'column'} gap={2}>
               {testDate &&
@@ -1086,7 +1135,7 @@ function CreateStudyPlans() {
                       fontWeight={'semibold'}
                       color="#207df7"
                     >
-                      Test {index + 1}
+                      {`${user.school ? 'Checkpoint' : 'Test'}  ${index + 1}`}
                     </Text>
                     <Flex align={'center'} gap={2}>
                       {/* <DatePicker
@@ -1102,7 +1151,10 @@ function CreateStudyPlans() {
                       <CalendarDateInput
                         // disabledDate={{ before: today }}
                         inputProps={{
-                          placeholder: 'Select Test Date'
+                          placeholder: `Select ${
+                            user.school ? 'Checkpoint' : 'Test Date'
+                          } 
+                         `
                         }}
                         value={date}
                         onChange={(value) => {
@@ -1156,6 +1208,19 @@ function CreateStudyPlans() {
               className="my-4"
               // styles={customStyles}
             />
+            <FormLabel>Number of resources to generate per topic</FormLabel>
+            <NumberInput
+              defaultValue={resourceCount}
+              min={10}
+              max={20}
+              onChange={(e) => setResourceCount(e)}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
             <Button
               colorScheme="blue"
               variant="solid"

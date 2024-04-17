@@ -7,7 +7,7 @@ type Store = {
   schoolCourses: [] | null;
   isLoading: boolean;
   fetchClients: () => Promise<void>;
-  fetchSchoolTutorStudents: () => Promise<void>;
+  fetchSchoolTutorStudents: (page?, limit?, planId?) => Promise<void>;
   fetchSchoolCourses: () => Promise<void>;
 };
 
@@ -16,6 +16,7 @@ export default create<Store>((set) => ({
   schoolStudents: null,
   schoolCourses: null,
   isLoading: false,
+  pagination: { limit: 20, page: 1, count: 0 },
 
   fetchClients: async () => {
     set({ isLoading: true });
@@ -31,20 +32,32 @@ export default create<Store>((set) => ({
     }
   },
 
-  fetchSchoolTutorStudents: async () => {
+  fetchSchoolTutorStudents: async (
+    page: number,
+    limit: number,
+    planId: string
+  ) => {
     set({ isLoading: true });
+
     try {
-      set({ isLoading: true });
-      const response = await ApiService.getSchoolTutorStudents(1, 40);
-      const data = await response.json();
+      const queryParams = planId ? { studyPlanId: planId } : {};
+      console.log(planId);
+
+      const response = await ApiService.getSchoolTutorStudents(
+        page,
+        limit,
+        queryParams
+      );
+      const { data } = await response.json();
 
       set({ schoolStudents: data });
     } catch (error) {
-      // console.log(error)
+      // Handle error
     } finally {
       set({ isLoading: false });
     }
   },
+
   fetchSchoolCourses: async () => {
     set({ isLoading: true });
     try {

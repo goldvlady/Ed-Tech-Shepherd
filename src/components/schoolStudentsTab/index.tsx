@@ -15,19 +15,44 @@ import {
   MenuList,
   MenuButton,
   Button,
+  MenuItem,
   Box,
   Text,
   Flex,
   Divider,
-  VStack
+  VStack,
+  FormControl,
+  FormLabel,
+  Input,
+  Icon
 } from '@chakra-ui/react';
+import {
+  FlexContainer,
+  NotesWrapper,
+  StyledHeader
+} from '../../views/Dashboard/Notes/styles';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
 import moment from 'moment';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { IconContext } from 'react-icons';
 import { AiFillStar } from 'react-icons/ai';
-import { FaEllipsisH } from 'react-icons/fa';
+import { FaCalendarAlt, FaEllipsisH } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { Select } from 'chakra-react-select';
+import studyPlanStore from '../../state/studyPlanStore';
+import clientStore from '../../state/clientStore';
+import ShareModal from '../ShareModal';
+import useSchoolStudents from '../../views/Dashboard/StudyPlans/hooks/useSchoolStudents';
+import { RiUserAddLine } from 'react-icons/ri';
+import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
+import ApiService from '../../services/ApiService';
 
 interface Client {
   id: number;
@@ -59,7 +84,19 @@ type DataSourceItem = {
 };
 
 const AllSchoolStudentsTab = (props) => {
-  const { allSchoolTutorStudents } = props;
+  //   const { allSchoolTutorStudents, setAllSchoolTutorStudents }: any = props;
+
+  const { fetchPlans, studyPlans, pagination } = studyPlanStore();
+  const { fetchSchoolTutorStudents, schoolStudents } = clientStore();
+  const [allSchoolTutorStudents, setAllSchoolTutorStudents] =
+    useState<any>(schoolStudents);
+  console.log(schoolStudents);
+  const planOptions: any =
+    studyPlans?.map((item, index) => ({
+      value: item._id,
+      label: item.title,
+      id: item._id
+    })) || [];
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const [, setDeleteAllNotesModal] = useState(false);
   const checkbox = useRef<HTMLInputElement>(null);
@@ -69,6 +106,63 @@ const AllSchoolStudentsTab = (props) => {
   const [clientsDetails, setClientDetails] = useState('');
   const [clientName, setClientName] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedPlan, setSelectedPlan] = useState<any>(planOptions[0]);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(40);
+  const {
+    isOpen: isOpenInvite,
+    onOpen: onOpenInvite,
+    onClose: onCloseInvite
+  } = useDisclosure();
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const toast = useCustomToast();
+
+  const handleSubmitInvite = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        email: email,
+        firstName: firstName,
+        lastName: lastName
+      };
+      const response = await ApiService.inviteSchoolStudents(payload);
+
+      if (response.ok) {
+        toast({
+          title: 'Student invited successfully!',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right'
+        });
+      } else {
+        toast({
+          title: 'Error inviting student.',
+          description: 'Please try again later.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right'
+        });
+      }
+
+      onCloseInvite();
+    } catch (error) {
+      console.error('Error inviting student:', error);
+      toast({
+        title: 'An error occurred.',
+        description: 'Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right'
+      });
+    }
+  };
+
   console.log(allSchoolTutorStudents);
 
   const navigate = useNavigate();
@@ -81,24 +175,22 @@ const AllSchoolStudentsTab = (props) => {
       name: `${allSchoolTutorStudents[i]?.user.name.first} ${allSchoolTutorStudents[i]?.user.name.last}`,
       subject: allSchoolTutorStudents[i]?.courses[0]?.label,
       email: allSchoolTutorStudents[i]?.user?.email
-
-      //   start_date: moment(
-      //     allSchoolTutorStudents[i]?.offer?.contractStartDate
-      //   ).format('MMMM DD  , YYYY'),
-      //   end_date: moment(
-      //     allSchoolTutorStudents[i]?.offer?.contractEndDate
-      //   ).format('MMMM DD  , YYYY'),
-      //   status:
-      //     allSchoolTutorStudents[i]?.offer?.expired === true ? 'Ended' : 'Active',
-      //   amount_earned: `$${
-      //     allSchoolTutorStudents[i].offer?.amount
-      //       ? allSchoolTutorStudents[i].offer.amount
-      //       : 0
-      //   }`,
-      //   classes: '',
-      //   rating: 0
     })
   );
+  useEffect(() => {
+    setAllSchoolTutorStudents(schoolStudents);
+  }, [schoolStudents]);
+  useEffect(() => {
+    // Fetch plans when component mounts
+    fetchPlans(page, limit);
+  }, []);
+
+  useEffect(() => {
+    if (studyPlans && studyPlans.length > 0) {
+      fetchSchoolTutorStudents(page, limit, planOptions[0]?.id);
+      setSelectedPlan(planOptions[0]);
+    }
+  }, [studyPlans]);
 
   useLayoutEffect(() => {
     const isIndeterminate =
@@ -121,54 +213,28 @@ const AllSchoolStudentsTab = (props) => {
     setClientDetails(noteDetails);
   };
 
-  //function to render stars based on the rating value
+  const sortByStudentName = (direction) => {
+    const sortedClients = [...allSchoolTutorStudents].sort((a: any, b: any) => {
+      const nameA = a.user?.name?.first.toLowerCase();
+      const nameB = b.user?.name?.first.toLowerCase();
 
-  const renderStars = (rating: number) => {
-    const stars: JSX.Element[] = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <IconContext.Provider
-          key={i}
-          value={{ color: i <= rating ? 'gold' : 'gray', size: '2em' }}
-        >
-          <AiFillStar />
-        </IconContext.Provider>
-      );
-    }
-    return stars;
+      if (direction === 'DESC') {
+        return nameB?.localeCompare(nameA);
+      } else {
+        return nameA?.localeCompare(nameB);
+      }
+    });
+
+    setAllSchoolTutorStudents(sortedClients);
   };
-
-  const onClientReview = (name) => {
-    setClientName(name);
-    openReviewModal();
-  };
-
   const clientColumn: TableColumn<DataSourceItem>[] = [
     {
       key: 'name',
       title: 'Student Name',
       dataIndex: 'name',
       align: 'left'
-      // render: ({ name }) => (
-      //   <>
-      //     <Flex alignItems="center" gap={1}>
-      //       <img
-      //         src="/svgs/text-document.svg"
-      //         className="text-gray-400 "
-      //         alt=""
-      //       />
-      //       <Text fontWeight="500">{name}</Text>
-      //     </Flex>
-      //   </>
-      // )
     },
-    // {
-    //   key: 'subject',
-    //   title: 'Subject',
-    //   dataIndex: 'subject',
-    //   align: 'left',
-    //   id: 1
-    // },
+
     {
       key: 'email',
       title: 'Email',
@@ -176,56 +242,7 @@ const AllSchoolStudentsTab = (props) => {
       align: 'left',
       id: 2
     },
-    // {
-    //   key: 'end_date',
-    //   title: 'End Date',
-    //   dataIndex: 'end_date',
-    //   align: 'left',
-    //   id: 3
-    // },
-    // {
-    //   key: 'status',
-    //   title: 'Status',
-    //   dataIndex: 'status',
-    //   align: 'left',
-    //   id: 4
-    // },
-    // {
-    //   key: 'amount_earned',
-    //   title: 'Amount Earned',
-    //   dataIndex: 'amount_earned',
-    //   align: 'left',
-    //   id: 5
-    // },
-    // {
-    //   key: 'classes',
-    //   title: 'Classes',
-    //   dataIndex: 'classes',
-    //   align: 'left',
-    //   id: 5
-    //   // render: ({ classes }) => (
-    //   //   <>
-    //   //     <Box
-    //   //       bg="#F4F5F6"
-    //   //       py={'4px'}
-    //   //       pr={'1px'}
-    //   //       textAlign={'center'}
-    //   //       borderRadius="6px"
-    //   //     >
-    //   //       <Text fontWeight="500" fontSize={12} color="text.400">
-    //   //         {classes}
-    //   //       </Text>
-    //   //     </Box>
-    //   //   </>
-    //   // )
-    // },
-    // {
-    //   key: 'rating',
-    //   title: 'Rating',
-    //   dataIndex: 'rating',
-    //   align: 'center',
-    //   id: 6
-    // },
+
     {
       key: 'actions',
       title: '',
@@ -249,54 +266,6 @@ const AllSchoolStudentsTab = (props) => {
             boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
           >
             <section className="space-y-2 border-b pb-2">
-              {/* <button
-                onClick={() => navigate(`${id}`)}
-                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
-              >
-                <div className=" flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Contract
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
-              {/* <button className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2">
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <FlashCardsSolidIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Monthly report
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
-              {/* <button
-                className="w-full hover:bg-gray-100 rounded-md flex items-center justify-between p-2"
-                onClick={() => onClientReview(name)}
-              >
-                <div className="flex items-center space-x-1">
-                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
-                    <DownloadIcon
-                      className="w-4 h-4 text-primaryGray"
-                      onClick={undefined}
-                    />
-                  </div>
-                  <Text className="text-sm text-secondaryGray font-medium">
-                    Client review
-                  </Text>
-                </div>
-                <ChevronRightIcon className="w-2.5 h-2.5" />
-              </button> */}
               <button
                 onClick={() => navigate(`performance/${id}`)}
                 className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
@@ -345,167 +314,167 @@ const AllSchoolStudentsTab = (props) => {
       )
     }
   ];
+  console.log(planOptions, studyPlans);
+  const { data: studentList } = useSchoolStudents();
 
-  const {
-    isOpen: isReviewModalOpen,
-    onOpen: openReviewModal,
-    onClose: closeReviewModal
-  } = useDisclosure();
-
-  // // Handler to open the modal when the "Client review" button is clicked
-  // const openReviewModal = () => {
-  //   onOpen();
-  // };
+  const shareList = useMemo(() => {
+    if (studentList) {
+      const shareable = studentList.map((item) => ({
+        id: item.user?._id,
+        name: `${item.user?.name?.first} ${item.user?.name?.last} `
+      }));
+      return shareable;
+    }
+  }, [studentList]);
   return (
     <div>
+      <header className="flex m-4 justify-between">
+        <StyledHeader>
+          <span className="font-bold"> School Students</span>
+          <span className="count-badge">{allSchoolTutorStudents?.length}</span>
+        </StyledHeader>
+        {planOptions.length > 0 && (
+          <FlexContainer>
+            <Menu>
+              <MenuButton>
+                <Flex
+                  cursor="pointer"
+                  border="1px solid #E5E6E6"
+                  padding="5px 10px"
+                  borderRadius="6px"
+                  alignItems="center"
+                  mb={{ base: '10px', md: '0' }}
+                  width={{ base: '-webkit-fill-available', md: 'auto' }}
+                >
+                  <Text
+                    fontWeight="400"
+                    fontSize={{ base: '12px', md: '14px' }}
+                    marginRight="5px"
+                    color="#5E6164"
+                    width={{ base: '100%', md: 'auto' }}
+                  >
+                    Sort By
+                  </Text>
+                  <FaCalendarAlt color="#96999C" size="12px" />
+                </Flex>
+              </MenuButton>
+              <MenuList
+                fontSize="14px"
+                minWidth={'185px'}
+                borderRadius="8px"
+                backgroundColor="#FFFFFF"
+                boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+              >
+                <MenuItem
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  color="#212224"
+                  fontSize="14px"
+                  onClick={() => sortByStudentName('ASC')}
+                  lineHeight="20px"
+                  fontWeight="400"
+                  p="6px 8px 6px 8px"
+                >
+                  Student name (A-Z)
+                </MenuItem>
+                <MenuItem
+                  _hover={{ bgColor: '#F2F4F7' }}
+                  color="#212224"
+                  fontSize="14px"
+                  onClick={() => sortByStudentName('DESC')}
+                  lineHeight="20px"
+                  fontWeight="400"
+                  p="6px 8px 6px 8px"
+                >
+                  Student name (Z-A)
+                </MenuItem>
+              </MenuList>
+            </Menu>
+            <Select
+              className="basic-single"
+              placeholder="search by plan"
+              defaultValue={planOptions[0]}
+              // value={selectedPlan}
+              onChange={(option) => setSelectedPlan(option)}
+              // isDisabled={isDisabled}
+              // isLoading={isLoading}
+              isClearable={false}
+              isSearchable={true}
+              name="color"
+              options={planOptions}
+              size="sm"
+            />
+
+            <Button
+              size="sm"
+              leftIcon={<Icon as={RiUserAddLine} />}
+              onClick={onOpenInvite}
+              {...props}
+            >
+              Invite Student
+            </Button>
+
+            <Modal isOpen={isOpenInvite} onClose={onCloseInvite}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Invite Student</ModalHeader>
+                <ModalBody>
+                  <form onSubmit={handleSubmitInvite} className="w-[100%]">
+                    <FormControl id="email" isRequired>
+                      <FormLabel>Email</FormLabel>
+                      <Input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormControl id="firstName" mt={4} isRequired>
+                      <FormLabel>First Name</FormLabel>
+                      <Input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormControl id="lastName" mt={4} isRequired>
+                      <FormLabel>Last Name</FormLabel>
+                      <Input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </FormControl>
+                  </form>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    colorScheme="blue"
+                    mr={3}
+                    onClick={handleSubmitInvite}
+                  >
+                    Invite
+                  </Button>
+                  <Button onClick={onCloseInvite}>Cancel</Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </FlexContainer>
+        )}
+      </header>
       <div className="mt-8 flow-root">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle h-screen sm:px-6 lg:px-12 z-10">
             <div className="relative">
-              <div className="table-columns  fixed bottom-[80px] right-[36%] left-[36%]">
-                {/* {selectedPeople.length > 0 && (
-                  <div className="top-0 border px-4 py-8 text-sm rounded-md flex h-12 items-center justify-between space-x-3 w-[600px] bg-white sm:left-12">
-                    <p className="text-gray-600">
-                      {selectedPeople.length} items selected
-                    </p>
-
-                    <div className="flex items-center space-x-4">
-                      <button className="text-gray-600" onClick={toggleAll}>
-                        Select all
-                      </button>
-                      <Menu>
-                        <StyledMenuButton
-                          as={Button}
-                          variant="unstyled"
-                          borderRadius="full"
-                          p={0}
-                          minW="auto"
-                          height="auto"
-                          background="#F4F5F5"
-                          display="flex"
-                          className="flex items-center gap-2"
-                          onClick={() => setOpenTags((prevState) => !prevState)}
-                        >
-                          <FlashCardsSolidIcon
-                            className="w-5"
-                            onClick={undefined}
-                          />
-                          Add tag
-                        </StyledMenuButton>
-                      </Menu>
-
-                      {openTags && (
-                        <Menu>
-                          <StyledMenuSection>
-                            <form
-                              className="relative flex flex-1 py-2"
-                              action="#"
-                              method="GET"
-                            >
-                              <label htmlFor="search-field" className="sr-only">
-                                Search
-                              </label>
-                              <MagnifyingGlassIcon
-                                className="pl-2 pointer-events-none absolute inset-y-0 left-0 h-full w-7 text-gray-400"
-                                aria-hidden="true"
-                              />
-                              <input
-                                id="search-field"
-                                className="block rounded-lg border-gray-400 w-full h-10 border py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                placeholder="Search Clients..."
-                                type="search"
-                                name="search"
-                              />
-                            </form>
-                            <div className="relative cursor-pointer bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Chemistry
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Person
-                                </label>
-                              </div>
-                            </div>
-
-                            <div className="relative cursor-pointer hover:bg-lightGray px-2 py-1 rounded-lg flex items-start">
-                              <div className="flex h-6 items-center">
-                                <input
-                                  id="comments"
-                                  aria-describedby="comments-description"
-                                  name="comments"
-                                  type="checkbox"
-                                  className="h-4 w-4 rounded border-gray-300 text-primaryBlue ring-0 border-0"
-                                />
-                              </div>
-                              <div className="ml-3 text-sm leading-6">
-                                <label
-                                  htmlFor="comments"
-                                  className="font-normal text-dark"
-                                >
-                                  #Favorites
-                                </label>
-                              </div>
-                            </div>
-                          </StyledMenuSection>
-                        </Menu>
-                      )}
-
-                      <button
-                        onClick={() => setDeleteAllNotesModal(true)}
-                        type="button"
-                        className="inline-flex items-center space-x-2 text-sm text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                      >
-                        <TrashIcon className="w-5" onClick={undefined} />
-                        <span>Delete</span>
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="inline-flex items-center rounded-lg bg-white px-6 py-2 text-sm text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white"
-                    >
-                      Done
-                    </button>
-                  </div>
-                )} */}
-              </div>
-              <SelectableTable
-                columns={clientColumn}
-                dataSource={dataSource}
-                isSelectable
-                fileImage
-                onSelect={(e) => setSelectedPeople(e)}
-              />
+              {planOptions.length > 0 ? (
+                <SelectableTable
+                  columns={clientColumn}
+                  dataSource={dataSource}
+                  isSelectable
+                  fileImage
+                  onSelect={(e) => setSelectedPeople(e)}
+                />
+              ) : (
+                <Text>You are yet to create a plan</Text>
+              )}
             </div>
           </div>
         </div>

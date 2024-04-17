@@ -255,14 +255,18 @@ const Performance = () => {
         <header className="flex my-4 justify-between">
           <Box>
             <StyledHeader>
-              <p className="font-bold"> Student A Performance</p>
+              <p className="font-bold">
+                {' '}
+                {`${performanceReport?.student?.user?.name?.first} ${performanceReport?.student?.user?.name?.last}'s `}
+                Performance
+              </p>
             </StyledHeader>
             <Text fontSize="sm">
-              Keep up with your student's learning progress
+              {` Keep up with ${performanceReport?.student?.user?.name?.first}'s learning progress`}
             </Text>
           </Box>
           <FlexContainer>
-            <Menu>
+            {/* <Menu>
               <MenuButton>
                 <Flex
                   cursor="pointer"
@@ -337,7 +341,7 @@ const Performance = () => {
                   Student name (Z-A)
                 </MenuItem>
               </MenuList>
-            </Menu>
+            </Menu> */}
           </FlexContainer>
         </header>
         {/* <CustomTabs tablists={tabLists} tabPanel={tabPanel} /> */}

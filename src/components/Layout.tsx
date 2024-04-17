@@ -65,52 +65,8 @@ interface NavigationItem {
   current: boolean;
 }
 
-const dummyNavigation: NavigationItem[] = [
-  {
-    name: 'Dashboard',
-    href: '/dashboard/tutordashboard',
-    icon: DashboardIcon,
-    current: true
-  },
-  {
-    name: 'Students',
-    href: '/dashboard/tutordashboard/clients',
-    icon: UserGroupIcon,
-    current: false
-  },
-  {
-    name: 'Courses',
-    href: '/dashboard/tutordashboard/school-courses',
-    icon: BountyIcon,
-    current: false
-  },
-  {
-    name: 'Offers',
-    href: '/dashboard/tutordashboard/offers',
-    icon: OffersIcon,
-    current: false
-  },
-  {
-    name: 'Bounties',
-    href: '/dashboard/tutordashboard/bounties',
-    icon: BountyIcon,
-    current: false
-  },
-  {
-    name: 'Messages',
-    href: '/dashboard/tutordashboard/messages',
-    icon: MessagesIcon,
-    current: false
-  },
-  {
-    name: 'Study Plans',
-    href: '/dashboard/tutordashboard/study-plans',
-    icon: PiClipboardTextLight,
-    current: false
-  }
-];
-
 export default function Layout({ children, className }) {
+  const { user, fetchUser } = userStore();
   const [helpModal, setHelpModal] = useState(false);
   const [toggleHelpModal, setToggleHelpModal] = useState(false);
 
@@ -118,12 +74,49 @@ export default function Layout({ children, className }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toggleProfileSwitchModal, setToggleProfileSwitchModal] =
     useState(false);
-
+  const dummyNavigation: NavigationItem[] = [
+    {
+      name: 'Dashboard',
+      href: '/dashboard/tutordashboard',
+      icon: DashboardIcon,
+      current: true
+    },
+    {
+      name: 'Students',
+      href: '/dashboard/tutordashboard/clients',
+      icon: UserGroupIcon,
+      current: false
+    },
+    !user.school && {
+      name: 'Offers',
+      href: '/dashboard/tutordashboard/offers',
+      icon: OffersIcon,
+      current: false
+    },
+    !user.school && {
+      name: 'Bounties',
+      href: '/dashboard/tutordashboard/bounties',
+      icon: BountyIcon,
+      current: false
+    },
+    {
+      name: 'Messages',
+      href: '/dashboard/tutordashboard/messages',
+      icon: MessagesIcon,
+      current: false
+    },
+    {
+      name: 'Study Plans',
+      href: '/dashboard/tutordashboard/study-plans',
+      icon: PiClipboardTextLight,
+      current: false
+    }
+  ].filter(Boolean);
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, fetchUser } = userStore();
+
   const userId = user?._id || '';
   const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);

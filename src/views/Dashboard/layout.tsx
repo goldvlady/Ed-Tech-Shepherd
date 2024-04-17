@@ -110,12 +110,6 @@ const LinkItems: Array<LinkItemProps> = [
     icon: LuFileQuestion,
     path: '/dashboard/quizzes',
     requiresSubscription: true
-  },
-  {
-    name: 'Courses',
-    icon: BsBook,
-    path: '/dashboard/school-courses',
-    requiresSubscription: true
   }
 ];
 interface SidebarProps extends BoxProps {

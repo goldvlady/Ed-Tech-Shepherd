@@ -545,7 +545,7 @@ function CoursePlan() {
                   </Text>
                   <Spacer />
                   <Text color="gray.700" fontSize="base" ml={2}>
-                    {`${plan.readinessScore}%`}
+                    {`${Math.ceil(plan.readinessScore)}%`}
                   </Text>
                 </Flex>{' '}
                 <Box

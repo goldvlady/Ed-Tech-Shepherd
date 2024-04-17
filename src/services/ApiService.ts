@@ -1374,6 +1374,7 @@ class ApiService {
     const params: Record<string, any> = {};
     if (page) params.page = page;
     if (limit) params.limit = limit;
+
     if (filters) {
       for (const key in filters) {
         params[key] = filters[key];
@@ -1394,6 +1395,12 @@ class ApiService {
     return doFetch(
       `${ApiService.baseEndpoint}/getTutorsStudyPlanReport?studentUserId=${id}`
     );
+  };
+  static inviteSchoolStudents = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/inviteSchoolStudent`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
   };
 }
 

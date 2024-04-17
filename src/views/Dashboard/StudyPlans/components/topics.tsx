@@ -968,20 +968,31 @@ from  ${moment(
               </Badge>
 
               <Spacer />
-              {!isTutor && (
-                <Button
-                  size={'sm'}
-                  onClick={() => {
-                    updateState({
-                      selectedTopic: topic.topicDetails?.label
-                    });
+              {!isTutor &&
+                (user.school ? (
+                  <Button
+                    size={'sm'}
+                    isDisabled={true}
+                    onClick={() => {
+                      openBountyModal();
+                    }}
+                  >
+                    Book Session
+                  </Button>
+                ) : (
+                  <Button
+                    size={'sm'}
+                    onClick={() => {
+                      updateState({
+                        selectedTopic: topic.topicDetails?.label
+                      });
 
-                    openBountyModal();
-                  }}
-                >
-                  Find a tutor
-                </Button>
-              )}
+                      openBountyModal();
+                    }}
+                  >
+                    Find a tutor
+                  </Button>
+                ))}
             </Flex>
           </Box>
         </Box>
