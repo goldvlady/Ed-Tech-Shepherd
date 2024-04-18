@@ -489,11 +489,17 @@ const ManualQuizForm = ({
           )}
           {currentQuestion.type === OPEN_ENDED && (
             <Textarea
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               name="answer"
               placeholder="Select answer"
               value={currentQuestion.answer}
               onChange={handleSetOptionAnswer}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
           )}
         </FormControl>
