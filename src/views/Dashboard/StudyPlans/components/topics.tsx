@@ -1158,27 +1158,29 @@ from  ${moment(
                   Lecture
                 </Text>
                 <Spacer />{' '}
-                <Box
-                  display={'flex'}
-                  alignItems={'center'}
-                  gap={1}
-                  _hover={{ cursor: 'pointer' }}
-                  cursor="pointer"
-                >
-                  <label htmlFor={`videoInput`}>
-                    <Icon as={FaVideo} boxSize={3} mx={2} />
-                    Update Video
-                  </label>
-                  <input
-                    type="file"
-                    id={`videoInput`}
-                    accept="video/*"
-                    style={{ display: 'none' }}
-                    // onChange={(e) =>
-                    //   handleUploadTopicFile(topicIndex, e.target.files[0])
-                    // }
-                  />
-                </Box>{' '}
+                {isTutor && (
+                  <Box
+                    display={'flex'}
+                    alignItems={'center'}
+                    gap={1}
+                    _hover={{ cursor: 'pointer' }}
+                    cursor="pointer"
+                  >
+                    <label htmlFor={`videoInput`}>
+                      <Icon as={FaVideo} boxSize={3} mx={2} />
+                      Update Video
+                    </label>
+                    <input
+                      type="file"
+                      id={`videoInput`}
+                      accept="video/*"
+                      style={{ display: 'none' }}
+                      // onChange={(e) =>
+                      //   handleUploadTopicFile(topicIndex, e.target.files[0])
+                      // }
+                    />
+                  </Box>
+                )}
               </Flex>
 
               <Center position="relative" borderRadius={10} my={2}>
