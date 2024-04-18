@@ -635,10 +635,15 @@ const CreateQuizPage = () => {
                   flex="1"
                   justifyContent={'flex-start'}
                   pl={0}
+                  textColor={'#6E7682'}
                 >
                   <span className="text-base font-medium">Upload</span>
                 </Tab>
-                <Tab _selected={{ color: '#207DF7' }} flex="1">
+                <Tab
+                  _selected={{ color: '#207DF7' }}
+                  flex="1"
+                  textColor={'#6E7682'}
+                >
                   <span className="text-base font-medium">Topic</span>
                 </Tab>
                 <Tab
@@ -646,6 +651,7 @@ const CreateQuizPage = () => {
                   flex="1"
                   justifyContent={'flex-end'}
                   pr={0}
+                  textColor={'#6E7682'}
                 >
                   <span className="text-base font-medium">Manual</span>
                 </Tab>
