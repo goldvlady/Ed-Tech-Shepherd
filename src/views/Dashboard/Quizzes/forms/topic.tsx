@@ -215,12 +215,12 @@ const TopicQuizForm = ({
             rightIcon={<FiChevronDown />}
             borderRadius="8px"
             width="100%"
-            height="42px"
-            fontSize="0.875rem"
             fontFamily="Inter"
-            color=" #212224"
-            fontWeight="400"
             textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
           >
             {preferredLanguage || 'Select a language...'}
           </MenuButton>
@@ -242,7 +242,8 @@ const TopicQuizForm = ({
             <div
               style={{
                 maxHeight: '200px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                marginTop: '10px'
               }}
             >
               {languages

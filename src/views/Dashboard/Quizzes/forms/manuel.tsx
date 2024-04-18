@@ -214,12 +214,12 @@ const ManualQuizForm = ({
             rightIcon={<FiChevronDown />}
             borderRadius="8px"
             width="100%"
-            height="42px"
-            fontSize="0.875rem"
             fontFamily="Inter"
-            color=" #212224"
-            fontWeight="400"
             textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
           >
             {preferredLang || 'Select a language...'}
           </MenuButton>
@@ -241,7 +241,8 @@ const ManualQuizForm = ({
             <div
               style={{
                 maxHeight: '200px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                marginTop: '10px'
               }}
             >
               {languages
