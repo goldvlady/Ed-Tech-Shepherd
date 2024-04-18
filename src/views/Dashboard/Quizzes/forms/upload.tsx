@@ -386,7 +386,11 @@ const UploadQuizForm = ({
   return (
     <Box width={'100%'} mt="2rem">
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Preferred Language
+          </span>
+        </FormLabel>
         <Menu>
           <MenuButton
             as={Button}
@@ -437,7 +441,11 @@ const UploadQuizForm = ({
         </Menu>
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a title
+          </span>
+        </FormLabel>
         <Input
           value={title}
           type="text"
@@ -452,7 +460,11 @@ const UploadQuizForm = ({
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Upload a document</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Upload a document
+          </span>
+        </FormLabel>
 
         <FileUpload
           show={openModal}
@@ -486,7 +498,11 @@ const UploadQuizForm = ({
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Question type:
+          </span>
+        </FormLabel>
 
         <SelectComponent
           name="type"
@@ -510,7 +526,9 @@ const UploadQuizForm = ({
 
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>
-          Number of questions
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Number of questions
+          </span>
           <Tooltip
             hasArrow
             label="Quick tip! For docs under 40 pages, request a max 50 quizzes. For longer ones, double it up to 100 quizzes! Let's ace those tests!
@@ -535,7 +553,11 @@ const UploadQuizForm = ({
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Level (optional):
+          </span>
+        </FormLabel>
         <SelectComponent
           name="difficulty"
           placeholder="Select Level"
@@ -557,7 +579,11 @@ const UploadQuizForm = ({
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Start Page (Optional)</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Start Page (Optional)
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="start_page"
@@ -567,7 +593,11 @@ const UploadQuizForm = ({
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>End Page (Optional)</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            End Page (Optional)
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="end_page"

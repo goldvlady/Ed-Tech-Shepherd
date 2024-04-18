@@ -273,7 +273,11 @@ const TopicQuizForm = ({
         />
       </FormControl>
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Subject: </FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Subject:
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="subject"
@@ -284,7 +288,11 @@ const TopicQuizForm = ({
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Enter a topic</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a topic
+          </span>
+        </FormLabel>
         <Input
           type="text"
           _placeholder={{
@@ -298,7 +306,11 @@ const TopicQuizForm = ({
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Question type:
+          </span>
+        </FormLabel>
 
         <SelectComponent
           name="type"
@@ -322,7 +334,9 @@ const TopicQuizForm = ({
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Grade (optional):
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Grade (optional):
+          </span>
         </FormLabel>
         <SelectComponent
           name="grade"
@@ -346,7 +360,11 @@ const TopicQuizForm = ({
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Level (optional):
+          </span>
+        </FormLabel>
         <SelectComponent
           name="difficulty"
           placeholder="Select Level"
@@ -369,7 +387,9 @@ const TopicQuizForm = ({
 
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>
-          Number of questions
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Number of questions
+          </span>
           <Tooltip
             hasArrow
             label="Number of questions to create"

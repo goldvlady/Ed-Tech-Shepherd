@@ -202,7 +202,11 @@ const ManualQuizForm = ({
         </HStack>
       )}
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Preferred Language
+          </span>
+        </FormLabel>
         <Menu>
           <MenuButton
             as={Button}
@@ -253,7 +257,11 @@ const ManualQuizForm = ({
         </Menu>
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a title
+          </span>
+        </FormLabel>
         <Input
           value={title}
           type="text"
@@ -267,7 +275,11 @@ const ManualQuizForm = ({
         />
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Select question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Select question type:
+          </span>
+        </FormLabel>
 
         <SelectComponent
           name="type"
@@ -287,7 +299,11 @@ const ManualQuizForm = ({
       </FormControl>
 
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter your question:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter your question:
+          </span>
+        </FormLabel>
         <Textarea
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           name="question"
