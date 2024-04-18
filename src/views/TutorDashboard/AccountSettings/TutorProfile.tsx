@@ -116,10 +116,9 @@ function MyProfile(props) {
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
 
-  // const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [fields, setFields] = useState({
+    calendlyLink: tutorData.tutor.calendlyLink
+  });
   const {
     isOpen: isUpdateHourlyRateModalOpen,
     onOpen: openUpdateHourlyRateModal,
@@ -381,6 +380,12 @@ function MyProfile(props) {
     });
   };
 
+  const disallowAvailabilityUpdate = useMemo(() => {
+    if (user.school) {
+      return Boolean((fields.calendlyLink?.length || 0) === 0);
+    }
+    return !isScheduleValid || !schedule || isUpdating;
+  }, [fields.calendlyLink, isScheduleValid, schedule, isUpdating, user.school]);
   return (
     <Box>
       {tutorData && (
@@ -497,19 +502,6 @@ function MyProfile(props) {
                   </Box>
                 </Flex>
                 <Center position="relative" borderRadius={10} my={2}>
-                  {/* <AspectRatio
-                h={{ base: '170px', md: '170px' }}
-                w={{ base: 'full', md: 'full' }}
-                ratio={1}
-                objectFit={'cover'}
-              > */}
-                  {/* <iframe
-                  title="naruto"
-                  // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
-                  src={tutorData.tutor.introVideo}
-                  allowFullScreen
-                  style={{ borderRadius: 10 }}
-                /> */}
                   <Box
                     h={{ base: '170px', md: '170px' }}
                     w={{ base: 'full', md: 'full' }}
@@ -783,7 +775,10 @@ function MyProfile(props) {
               <>
                 {/* <FormLabel>Calendly Url</FormLabel>{' '} */}
                 <Input
-                  defaultValue={'https://calendly.com/kehinde-shepherd/30min'}
+                  onChange={(e) => {
+                    setFields({ calendlyLink: e.target.value });
+                  }}
+                  defaultValue={tutorData.tutor.calendlyLink}
                 />
               </>
             )}
@@ -803,8 +798,10 @@ function MyProfile(props) {
           <div style={{ display: 'flex', gap: '8px' }}>
             {user.school ? (
               <Button
-                isDisabled={!isScheduleValid || !schedule || isUpdating}
-                onClick={() => handleUpdateTutor('schedule', schedule)}
+                isDisabled={disallowAvailabilityUpdate}
+                onClick={() =>
+                  handleUpdateTutor('calendlyLink', fields.calendlyLink)
+                }
               >
                 {isUpdating ? 'Updating...' : 'Update'}
               </Button>
@@ -822,7 +819,7 @@ function MyProfile(props) {
       >
         <Box overflowY={'scroll'} px={6} w={'100%'}>
           {user.school ? (
-            <Editable defaultValue="https://calendly.com/kehinde-shepherd/30min">
+            <Editable defaultValue={tutorData.tutor.calendlyLink}>
               <EditablePreview />
               <EditableInput />
             </Editable>

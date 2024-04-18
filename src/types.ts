@@ -215,6 +215,7 @@ export interface Tutor extends TimestampedEntity {
   active?: boolean;
   description?: string;
   avatar?: string;
+  calendlyLink?: string;
   cv: string;
   tz: string;
   identityDocument?: string;

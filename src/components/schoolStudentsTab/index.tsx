@@ -91,13 +91,9 @@ type DataSourceItem = {
   id: number;
   name: string;
   subject: string;
+  title: string;
+  readinessScore: number;
   email: string;
-  //   start_date: string;
-  //   end_date: string;
-  //   status: string;
-  //   amount_earned: string;
-  //   classes: string;
-  //   rating: number;
 };
 
 const AllSchoolStudentsTab = (props) => {
@@ -238,6 +234,8 @@ const AllSchoolStudentsTab = (props) => {
     { length: allSchoolTutorStudents?.length },
     (_, i) => ({
       key: i,
+      readinessScore: allSchoolTutorStudents[i]?.studyPlan?.readinessScore,
+      title: allSchoolTutorStudents[i]?.studyPlan?.title,
       id: allSchoolTutorStudents[i]?.user.id,
       name: `${allSchoolTutorStudents[i]?.user.name.first} ${allSchoolTutorStudents[i]?.user.name.last}`,
       subject: allSchoolTutorStudents[i]?.courses[0]?.label,
@@ -305,7 +303,11 @@ const AllSchoolStudentsTab = (props) => {
       dataIndex: 'name',
       align: 'left'
     },
-
+    {
+      key: 'Plan Title',
+      title: 'title',
+      dataIndex: 'title'
+    },
     {
       key: 'email',
       title: 'Email',
@@ -314,6 +316,11 @@ const AllSchoolStudentsTab = (props) => {
       id: 2
     },
 
+    {
+      key: 'Readiness Score',
+      title: 'Readiness Score',
+      dataIndex: 'readinessScore'
+    },
     {
       key: 'actions',
       title: '',
@@ -578,7 +585,7 @@ const AllSchoolStudentsTab = (props) => {
                         onChange={(e) => setLastName(e.target.value)}
                       />
                     </FormControl>
-                    <Center flexDirection={'column'}>
+                    <Center mt={4} flexDirection={'column'}>
                       <Text>or</Text>
                       <Text fontWeight={'semibold'}>
                         Invite Multiple students by uploading a csv file
@@ -605,7 +612,7 @@ const AllSchoolStudentsTab = (props) => {
                         // onClick={clickInput}
                       >
                         <label htmlFor="file-upload">
-                          <Center flexDirection="column">
+                          <Center mt={'10px'} flexDirection="column">
                             {docLoading ? (
                               <Spinner />
                             ) : fileName ? (
@@ -641,7 +648,7 @@ const AllSchoolStudentsTab = (props) => {
                         </label>
                         <input
                           type="file"
-                          accept=".doc, .txt, .pdf"
+                          accept=".csv"
                           // accept="application/pdf"
                           className="hidden"
                           id="file-upload"

@@ -332,6 +332,15 @@ function Topics(props) {
     return [];
   };
 
+  const findTopicVideoDocument = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      return studyPlanResources[topic].documents.find(
+        (doc) => doc.type === 'video'
+      );
+    }
+    return null;
+  };
+
   const loadFlashcard = async (flashcardId: string) => {
     if (!user) {
       return redirectToLogin('You need to login to load a flashcard');
@@ -994,7 +1003,7 @@ from  ${moment(
                       Book Session
                     </Button>
                     <PopupModal
-                      url="https://calendly.com/kehinde-shepherd/30min"
+                      url={user.tutor?.calendlyLink}
                       // pageSettings={this.props.pageSettings}
                       // utm={this.props.utm}
                       // prefill={this.props.prefill}
@@ -1141,7 +1150,7 @@ from  ${moment(
                     />
                     Your browser does not support the video tag.
                   </video>
-                </Box>{' '}
+                </Box>
                 {/* </AspectRatio> */}
                 <Center
                   color="white"
