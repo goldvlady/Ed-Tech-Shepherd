@@ -410,7 +410,8 @@ export enum SessionType {
   FLASHCARD = 'flashcard',
   NOTES = 'notes',
   DOCCHAT = 'docchat',
-  HOMEWORK = 'homework'
+  HOMEWORK = 'homework',
+  LECTURES = 'lectures'
 }
 
 export interface SchedulePayload {

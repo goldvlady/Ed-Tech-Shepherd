@@ -74,6 +74,8 @@ import quizStore from '../../../../state/quizStore';
 import TimePicker from '../../../../components/TimePicker';
 import { BiPlayCircle } from 'react-icons/bi';
 import { MdEdit } from 'react-icons/md';
+import StudySessionLogger from '../../../../helpers/sessionLogger';
+import { SessionType } from '../../../../types';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -99,9 +101,10 @@ function Topics(props) {
   } = resourceStore();
 
   const [convoId, setConvoId] = useState(null);
-  const [hasConversationId, setHasConversationId] = useState(false);
+  const [topicId, setTopicId] = useState(false);
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
-
+  const [isLectureStarted, setIsLectureStarted] = useState(false);
+  const [isLectureFinished, setIsLectureFinished] = useState(false);
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -128,6 +131,8 @@ function Topics(props) {
 
   const toast = useCustomToast();
   const navigate = useNavigate();
+
+  let studySessionLogger: StudySessionLogger | undefined = undefined;
 
   const {
     isOpen: isOpenResource,
@@ -255,27 +260,6 @@ function Topics(props) {
     navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
   };
 
-  // const getTopicResource = async (topic: string) => {
-  //   updateState({ isLoading: true });
-  //   try {
-  //     // Instantiate SciPhiService
-  //     const sciPhiService = new SciPhiService();
-
-  //     // Define search options
-  //     const searchOptions = {
-  //       query: topic
-  //     };
-
-  //     // Call searchRag method
-  //     const response = await sciPhiService.searchRag(searchOptions);
-  //     if (response) {
-  //       updateState({ isLoading: false, topicResource: response });
-  //     }
-  //   } catch (error) {
-  //     updateState({ isLoading: false });
-  //     console.error('Error searching topic:', error);
-  //   }
-  // };
   const getTopicResource = async (topic: string) => {
     updateState({ isLoading: true });
     try {
@@ -455,7 +439,23 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
-
+  const startLecture = (id) => {
+    setIsLectureStarted(!isLectureStarted);
+    studySessionLogger = new StudySessionLogger(SessionType.LECTURES, id);
+    studySessionLogger.start();
+  };
+  const stopLecture = (id) => {
+    setIsLectureStarted(!isLectureStarted);
+    studySessionLogger = new StudySessionLogger(SessionType.LECTURES, id);
+    studySessionLogger.start();
+  };
+  useEffect(() => {
+    return () => {
+      if (studySessionLogger && studySessionLogger.currentState !== 'ENDED') {
+        studySessionLogger.end();
+      }
+    };
+  }, []);
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
     const [initializing, setInitializing] = useState(false);
@@ -948,6 +948,7 @@ function Topics(props) {
                   updateState({
                     selectedTopic: topic.topicDetails?.label
                   });
+                  setTopicId(topic._id);
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
                 }}
@@ -1016,8 +1017,8 @@ from  ${moment(
                   <>
                     <Button
                       size={'sm'}
-                      // isDisabled={!findBookingStatus(topic.topicDetails?.label)}
-                      isDisabled={false}
+                      isDisabled={!findBookingStatus(topic.topicDetails?.label)}
+                      // isDisabled={false}
                       onClick={() => {
                         openCalendly();
                       }}
@@ -1158,6 +1159,7 @@ from  ${moment(
                   <video
                     title="tutor-video"
                     controls
+                    onEnded={() => stopLecture(topicId)}
                     style={{
                       borderRadius: 10,
                       width: '100%',
@@ -1183,7 +1185,7 @@ from  ${moment(
                   opacity={'75%'}
                   boxSize="full"
                 >
-                  <VStack>
+                  <VStack onClick={() => startLecture(topicId)}>
                     <BiPlayCircle
                       onClick={() => setVidOverlay(false)}
                       size={'50px'}
