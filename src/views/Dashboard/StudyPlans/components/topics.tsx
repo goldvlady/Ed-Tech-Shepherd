@@ -312,7 +312,20 @@ function Topics(props) {
 
   const findDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
-      return studyPlanResources[topic].documents;
+      const documents = studyPlanResources[topic].documents;
+      const videoExtensions = [
+        '.mp4',
+        '.mov',
+        '.avi',
+        '.mkv',
+        '.wmv',
+        '.flv',
+        '.webm'
+      ];
+      return documents.filter((document) => {
+        const url = document.documentUrl.toLowerCase();
+        return !videoExtensions.some((extension) => url.endsWith(extension));
+      });
     }
     return [];
   };
@@ -813,7 +826,7 @@ function Topics(props) {
                 <MenuList maxH={60} overflowY="scroll">
                   {studyPlanResources && renderQuizzes()}
 
-                  <Button
+                  {/* <Button
                     color="gray"
                     size={'sm'}
                     variant="ghost"
@@ -825,7 +838,7 @@ function Topics(props) {
                   >
                     <Icon as={FaPlus} mr={2} />
                     Generate More
-                  </Button>
+                  </Button> */}
                 </MenuList>
               </Menu>
               <Menu isLazy>
