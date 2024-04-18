@@ -624,44 +624,35 @@ const CreateQuizPage = () => {
           <>
             <Text
               fontFamily="Inter"
-              fontWeight="500"
-              fontSize="18px"
-              lineHeight="23px"
-              color="#212224"
-              py={8}
+              className="font-medium text-lg text-[#212224] py-[2rem] pb-[1rem]"
             >
               Create Quiz
             </Text>
             <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
-              <TabList display="flex">
+              <TabList display="flex" paddingBottom="1.25rem">
                 <Tab
                   _selected={{ color: '#207DF7' }}
                   flex="1"
                   justifyContent={'flex-start'}
                   pl={0}
                 >
-                  Upload
+                  <span className="text-base font-medium">Upload</span>
                 </Tab>
                 <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Topic
+                  <span className="text-base font-medium">Topic</span>
                 </Tab>
-                {false && (
-                  <Tab _selected={{ color: '#207DF7' }} flex="1">
-                    Topic
-                  </Tab>
-                )}
                 <Tab
                   _selected={{ color: '#207DF7' }}
                   flex="1"
                   justifyContent={'flex-end'}
                   pr={0}
                 >
-                  Manual
+                  <span className="text-base font-medium">Manual</span>
                 </Tab>
               </TabList>
 
               <TabIndicator
-                mt="-1.5px"
+                mt="-2px"
                 height="2px"
                 bg="#207DF7"
                 borderRadius="1px"

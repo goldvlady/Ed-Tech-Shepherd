@@ -205,7 +205,7 @@ const TopicQuizForm = ({
   );
 
   return (
-    <Box width={'100%'} mt="20px">
+    <Box width={'100%'} mt="2rem">
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
         <Menu>

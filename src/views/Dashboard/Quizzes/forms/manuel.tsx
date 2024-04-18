@@ -183,7 +183,7 @@ const ManualQuizForm = ({
   ];
 
   return (
-    <Box width={'100%'} mt="20px">
+    <Box width={'100%'} mt="2rem">
       {!isEmpty(tags) && (
         <HStack
           flexWrap={'wrap'}
