@@ -504,7 +504,9 @@ const UploadQuizForm = ({
         />
 
         <FormHelperText textColor={'text.300'}>
-          Shepherd supports .pdf, .tiff, .png & .jpg document formats
+          <span className="text-[##585F68] text-[0.87rem] font-normal">
+            Shepherd supports .pdf, .tiff, .png & .jpg document formats
+          </span>
         </FormHelperText>
       </FormControl>
 
