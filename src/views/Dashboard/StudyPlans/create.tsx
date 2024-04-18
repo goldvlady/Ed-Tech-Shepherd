@@ -649,9 +649,9 @@ function CreateStudyPlans() {
       if (!file) continue;
 
       // Check if the file size exceeds the limit
-      if (file.size > 50) {
+      if (file.size > fileSizeLimitBytes) {
         toast({
-          title: 'Please upload a file under 50MB',
+          title: 'Please upload a file under 10MB',
           status: 'error',
           position: 'top',
           isClosable: true
