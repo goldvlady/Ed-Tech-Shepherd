@@ -439,6 +439,7 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
+  console.log(isLectureStarted);
   const startLecture = (id) => {
     setIsLectureStarted(!isLectureStarted);
     studySessionLogger = new StudySessionLogger(SessionType.LECTURES, id);
@@ -447,7 +448,7 @@ function Topics(props) {
   const stopLecture = (id) => {
     setIsLectureStarted(!isLectureStarted);
     studySessionLogger = new StudySessionLogger(SessionType.LECTURES, id);
-    studySessionLogger.start();
+    studySessionLogger.end();
   };
   useEffect(() => {
     return () => {
@@ -1159,7 +1160,11 @@ from  ${moment(
                   <video
                     title="tutor-video"
                     controls
-                    onEnded={() => stopLecture(topicId)}
+                    onPlay={() => startLecture(topicId)}
+                    onEnded={() => {
+                      console.log('ended');
+                      stopLecture(topicId);
+                    }}
                     style={{
                       borderRadius: 10,
                       width: '100%',
@@ -1185,7 +1190,7 @@ from  ${moment(
                   opacity={'75%'}
                   boxSize="full"
                 >
-                  <VStack onClick={() => startLecture(topicId)}>
+                  <VStack>
                     <BiPlayCircle
                       onClick={() => setVidOverlay(false)}
                       size={'50px'}

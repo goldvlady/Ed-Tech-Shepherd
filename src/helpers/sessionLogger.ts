@@ -15,14 +15,17 @@ class StudySessionLogger {
     this.currentState = 'STARTED';
   }
   end() {
-    if (this.currentState !== 'STARTED') {
-      // eslint-disable-next-line
-      console.error('NO SESSION STARTED');
-      return;
-    }
+    // if (this.currentState !== 'STARTED') {
+    //   // eslint-disable-next-line
+    //   console.error('NO SESSION STARTED');
+    //   return;
+    // }
+    console.log(this.currentState);
+
     // Store the end time
     this.endTime = new Date();
     this.currentState = 'ENDED';
+
     // Send final session data to the server
     ApiService.logStudySession({
       sessionType: this.sessionType,

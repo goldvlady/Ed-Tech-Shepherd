@@ -411,7 +411,7 @@ export enum SessionType {
   NOTES = 'notes',
   DOCCHAT = 'docchat',
   HOMEWORK = 'homework',
-  LECTURES = 'lectures'
+  LECTURES = 'lecture'
 }
 
 export interface SchedulePayload {
