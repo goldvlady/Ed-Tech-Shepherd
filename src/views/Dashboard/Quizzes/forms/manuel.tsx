@@ -446,23 +446,46 @@ const ManualQuizForm = ({
               </MenuList>
             </Menu>
           )}
-
           {currentQuestion.type === TRUE_FALSE && (
-            <SelectComponent
-              name="answer"
-              placeholder="Select answer"
-              options={trueFalseOptions}
-              size={'md'}
-              onChange={(option) => {
-                const event = {
-                  target: {
-                    name: 'answer',
-                    value: (option as Option).value
-                  }
-                } as ChangeEvent<HTMLSelectElement>;
-                handleSetOptionAnswer(event);
-              }}
-            />
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                borderRadius="8px"
+                width="100%"
+                fontFamily="Inter"
+                textAlign="left"
+                fontWeight="400"
+                fontSize="0.875rem"
+                height="3rem"
+                textColor={'#9A9DA2'}
+              >
+                {values(currentQuestion.options).find(
+                  (option) => option.isCorrect
+                )?.content || 'Select answer'}
+              </MenuButton>
+              <MenuList zIndex={3}>
+                {trueFalseOptions.map((type) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={type.label}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      const event = {
+                        target: {
+                          name: 'answer',
+                          value: type.value
+                        }
+                      } as ChangeEvent<any>;
+                      handleSetOptionAnswer(event);
+                    }}
+                  >
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
           )}
           {currentQuestion.type === OPEN_ENDED && (
             <Textarea
