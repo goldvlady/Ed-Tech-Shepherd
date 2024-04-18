@@ -331,6 +331,12 @@ function Topics(props) {
     }
     return [];
   };
+  const findBookingStatus = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic]?.meta) {
+      return studyPlanResources[topic]?.meta?.canBook;
+    }
+    return [];
+  };
 
   const findVideoDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
@@ -572,6 +578,7 @@ function Topics(props) {
         setInitializingDocChat(false);
       }
     };
+    console.log(user);
 
     const navigateToQuizPage = (quizId: string) => {
       const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
@@ -1009,11 +1016,9 @@ from  ${moment(
                   <>
                     <Button
                       size={'sm'}
-                      isDisabled={true}
+                      // isDisabled={!findBookingStatus(topic.topicDetails?.label)}
+                      isDisabled={false}
                       onClick={() => {
-                        console.log({
-                          selectedTopic: topic.topicDetails?.label
-                        });
                         openCalendly();
                       }}
                     >

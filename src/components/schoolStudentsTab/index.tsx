@@ -26,7 +26,8 @@ import {
   Input,
   Icon,
   Spinner,
-  Center
+  Center,
+  Badge
 } from '@chakra-ui/react';
 import {
   FlexContainer,
@@ -92,7 +93,7 @@ type DataSourceItem = {
   name: string;
   subject: string;
   title: string;
-  readinessScore: number;
+  readinessScore: any;
   email: string;
 };
 
@@ -208,19 +209,90 @@ const AllSchoolStudentsTab = (props) => {
   console.log(allSchoolTutorStudents);
 
   const navigate = useNavigate();
+  //   const dataSource: DataSourceItem[] = Array.from(
+  //     { length: performanceReport?.data?.length },
+  //     (_, i) => {
+  //       // Define variables for background color and text color
+  //       let bgColor = '';
+  //       let textColor = '';
+  //       let text = '';
 
-  const dataSource: DataSourceItem[] = Array.from(
-    { length: allSchoolTutorStudents?.length },
-    (_, i) => ({
-      key: i,
-      readinessScore: allSchoolTutorStudents[i]?.studyPlan?.readinessScore,
-      title: allSchoolTutorStudents[i]?.studyPlan?.title,
-      id: allSchoolTutorStudents[i]?.user.id,
-      name: `${allSchoolTutorStudents[i]?.user.name.first} ${allSchoolTutorStudents[i]?.user.name.last}`,
-      subject: allSchoolTutorStudents[i]?.courses[0]?.label,
-      email: allSchoolTutorStudents[i]?.user?.email
-    })
-  );
+  //       // Set background color and text color based on status
+  //       switch (performanceReport.data[i]?.status) {
+  //         case 'notStarted':
+  //           bgColor = '#FEF0F0';
+  //           textColor = '#F53535';
+  //           text = 'NOT STARTED';
+  //           break;
+  //         case 'inProgress':
+  //           bgColor = '#FFF2EB';
+  //           textColor = '#FB8441';
+  //           text = 'IN PROGRESS';
+
+  //           break;
+  //         default:
+  //           bgColor = '#F1F9F1';
+  //           textColor = '#66BD6A';
+  //           text = 'COMPLETE';
+
+  //           break;
+  //       }
+
+  //       return {
+  //         key: i,
+  //         id: performanceReport.data[i]?._id,
+  //         name: `${performanceReport.data[i]?.studyPlan.title} `,
+  //         subject: performanceReport.data[i]?.studyPlan?.course?.label,
+  //         topic: performanceReport.data[i]?.topic?.label,
+  //         status: (
+  //           <Badge bg={bgColor} color={textColor} p={1} fontWeight="500">
+  //             {text}
+  //           </Badge>
+  //         ),
+  //         quizScore: `${performanceReport.data[i]?.quizReadinessScore}%`,
+  //         flashcardScore: `${performanceReport.data[i]?.flashcardReadinessScore}%`,
+  //         timeSpent: `${performanceReport.data[i]?.aggregateStudyTime.replace(
+  //           'Minutes',
+  //           'min'
+  //         )}`
+  //       };
+  //     }
+  //   );
+  const dataSource: DataSourceItem[] =
+    allSchoolTutorStudents?.map((student, i) => {
+      let textColor = '';
+
+      switch (true) {
+        case student.studyPlan?.readinessScore < 50:
+          textColor = '#F53535';
+          break;
+        case student.studyPlan?.readinessScore > 50 &&
+          student.studyPlan?.readinessScore < 85:
+          textColor = '#FB8441';
+          break;
+        case student.studyPlan?.readinessScore > 85:
+          textColor = '#66BD6A';
+          break;
+        default:
+          textColor = 'grey';
+          break;
+      }
+
+      return {
+        key: i,
+        readinessScore: (
+          <Text color={textColor} p={1} fontWeight="500">
+            {` ${student.studyPlan?.readinessScore}%`}
+          </Text>
+        ),
+        title: student.studyPlan?.title,
+        id: student.user.id,
+        name: `${student.user.name.first} ${student.user.name.last}`,
+        subject: student.courses[0]?.label,
+        email: student.user?.email
+      };
+    }) || [];
+
   useEffect(() => {
     setAllSchoolTutorStudents(schoolStudents);
   }, [schoolStudents]);
@@ -298,7 +370,8 @@ const AllSchoolStudentsTab = (props) => {
     {
       key: 'Readiness Score',
       title: 'Readiness Score',
-      dataIndex: 'readinessScore'
+      dataIndex: 'readinessScore',
+      align: 'center'
     },
     {
       key: 'actions',
@@ -451,7 +524,7 @@ const AllSchoolStudentsTab = (props) => {
     <div>
       <header className="flex m-4 justify-between">
         <StyledHeader>
-          <span className="font-bold"> School Students</span>
+          <span className="font-bold"> Students</span>
           <span className="count-badge">{allSchoolTutorStudents?.length}</span>
         </StyledHeader>
         {planOptions.length > 0 && (
