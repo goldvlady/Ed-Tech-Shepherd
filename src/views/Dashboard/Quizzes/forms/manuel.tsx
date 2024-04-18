@@ -234,7 +234,6 @@ const ManualQuizForm = ({
                 color: '#9A9DA2',
                 fontSize: '14px'
               }}
-              textColor={'#9A9DA2'}
               fontSize={'0.87rem'}
               fontWeight={400}
             />
@@ -281,7 +280,6 @@ const ManualQuizForm = ({
             color: '#9A9DA2',
             fontSize: '14px'
           }}
-          textColor={'#9A9DA2'}
           fontSize={'0.87rem'}
           fontWeight={400}
         />
@@ -378,7 +376,6 @@ const ManualQuizForm = ({
                   color: '#9A9DA2',
                   fontSize: '14px'
                 }}
-                textColor={'#9A9DA2'}
                 fontSize={'0.87rem'}
                 fontWeight={400}
               />
