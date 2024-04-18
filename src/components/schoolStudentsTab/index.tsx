@@ -124,7 +124,7 @@ const AllSchoolStudentsTab = (props) => {
   const [clientsDetails, setClientDetails] = useState('');
   const [clientName, setClientName] = useState('');
   const [openTags, setOpenTags] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(planOptions[0]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(40);
@@ -143,79 +143,42 @@ const AllSchoolStudentsTab = (props) => {
 
   const handleSubmitInvite = async (e) => {
     e.preventDefault();
-    if (!csvFile) {
-      try {
-        const payload = [
+    setIsLoading(true);
+    try {
+      let payload, successMessage, errorMessage;
+      if (!csvFile) {
+        payload = [
           {
-            email: email,
-            firstName: firstName,
-            lastName: lastName
+            email,
+            firstName,
+            lastName
           }
         ];
-        const response = await ApiService.inviteSchoolStudents(payload);
-
-        if (response.ok) {
-          toast({
-            title: 'Student invited successfully!',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-            position: 'top-right'
-          });
-        } else {
-          toast({
-            title: 'Error inviting student.',
-            description: 'Please try again later.',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-            position: 'top-right'
-          });
-        }
-
-        onCloseInvite();
-      } catch (error) {
-        console.error('Error inviting student:', error);
-        toast({
-          title: 'An error occurred.',
-          description: 'Please try again later.',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-          position: 'top-right'
-        });
-      }
-    } else {
-      try {
-        const payload = {
+        successMessage = 'Student';
+        errorMessage = 'Error inviting student.';
+      } else {
+        payload = {
           studentCSV: csvFile
         };
-        const response = await ApiService.inviteSchoolStudentsWithCSV(payload);
+        successMessage = 'Students';
+        errorMessage = 'Error inviting students.';
+      }
 
-        if (response.ok) {
-          toast({
-            title: 'Students invited successfully!',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-            position: 'top-right'
-          });
-        } else {
-          toast({
-            title: 'Error inviting students.',
-            description: 'Please try again later.',
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-            position: 'top-right'
-          });
-        }
+      const response = await (csvFile
+        ? ApiService.inviteSchoolStudentsWithCSV(payload)
+        : ApiService.inviteSchoolStudents(payload));
 
-        onCloseInvite();
-      } catch (error) {
-        console.error('Error inviting students:', error);
+      if (response.ok) {
         toast({
-          title: 'An error occurred.',
+          title: `${successMessage} invited successfully!`,
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+          position: 'top-right'
+        });
+      } else {
+        toast({
+          title: errorMessage,
           description: 'Please try again later.',
           status: 'error',
           duration: 5000,
@@ -223,6 +186,22 @@ const AllSchoolStudentsTab = (props) => {
           position: 'top-right'
         });
       }
+    } catch (error) {
+      console.error(
+        `Error inviting ${csvFile ? 'students' : 'student'}:`,
+        error
+      );
+      toast({
+        title: 'An error occurred.',
+        description: 'Please try again later.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top-right'
+      });
+    } finally {
+      setIsLoading(false);
+      //   onCloseInvite();
     }
   };
 
@@ -664,6 +643,7 @@ const AllSchoolStudentsTab = (props) => {
                     colorScheme="blue"
                     mr={3}
                     onClick={handleSubmitInvite}
+                    isLoading={isLoading}
                   >
                     Invite
                   </Button>

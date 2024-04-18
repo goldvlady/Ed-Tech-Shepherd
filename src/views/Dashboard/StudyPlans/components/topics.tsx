@@ -332,14 +332,31 @@ function Topics(props) {
     return [];
   };
 
-  const findTopicVideoDocument = (topic) => {
+  const findVideoDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
-      return studyPlanResources[topic].documents.find(
-        (doc) => doc.type === 'video'
-      );
+      const documents = studyPlanResources[topic].documents;
+      return documents.filter((document) => {
+        // Assuming documentUrl contains the URL of the document
+        const url = document.documentUrl.toLowerCase();
+        // List of video file extensions to check against
+        const videoExtensions = [
+          '.mp4',
+          '.mov',
+          '.avi',
+          '.mkv',
+          '.wmv',
+          '.flv',
+          '.webm'
+        ];
+        // Check if the URL ends with any of the video file extensions
+        return videoExtensions.some((extension) => url.endsWith(extension));
+      });
     }
-    return null;
+    return [];
   };
+
+  console.log(findVideoDocumentsByTopic(state.selectedTopic));
+  console.log(state.selectedTopic);
 
   const loadFlashcard = async (flashcardId: string) => {
     if (!user) {
@@ -1144,7 +1161,8 @@ from  ${moment(
                   >
                     <source
                       src={
-                        'https://videos.pexels.com/video-files/5342194/5342194-hd_1920_1080_30fps.mp4'
+                        findVideoDocumentsByTopic(state.selectedTopic)[0]
+                          ?.documentUrl
                       }
                       type="video/mp4"
                     />
