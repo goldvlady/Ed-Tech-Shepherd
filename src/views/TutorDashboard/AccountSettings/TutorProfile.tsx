@@ -819,10 +819,12 @@ function MyProfile(props) {
       >
         <Box overflowY={'scroll'} px={6} w={'100%'}>
           {user.school ? (
-            <Editable defaultValue={tutorData.tutor.calendlyLink}>
-              <EditablePreview />
-              <EditableInput />
-            </Editable>
+            <Input
+              onChange={(e) => {
+                setFields({ calendlyLink: e.target.value });
+              }}
+              defaultValue={tutorData.tutor.calendlyLink}
+            />
           ) : (
             <Availability
               schedule={tutorData.tutor.schedule}

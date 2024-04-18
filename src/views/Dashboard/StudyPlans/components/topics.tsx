@@ -67,7 +67,7 @@ import CalendarDateInput from '../../../../components/CalendarDateInput';
 import ApiService from '../../../../services/ApiService';
 import SelectedNoteModal from '../../../../components/SelectedNoteModal';
 import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaVideo } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
@@ -76,6 +76,7 @@ import { BiPlayCircle } from 'react-icons/bi';
 import { MdEdit } from 'react-icons/md';
 import StudySessionLogger from '../../../../helpers/sessionLogger';
 import { SessionType } from '../../../../types';
+import { RiUploadCloudLine } from 'react-icons/ri';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -1145,15 +1146,40 @@ from  ${moment(
               alignItems="center"
               my={4}
             >
-              <Text
-                color="#6E7682"
-                fontSize="12px"
-                fontWeight="400"
-                wordBreak={'break-word'}
-                textTransform="uppercase"
-              >
-                Lecture
-              </Text>
+              <Flex>
+                {' '}
+                <Text
+                  color="#6E7682"
+                  fontSize="12px"
+                  fontWeight="400"
+                  wordBreak={'break-word'}
+                  textTransform="uppercase"
+                >
+                  Lecture
+                </Text>
+                <Spacer />{' '}
+                <Box
+                  display={'flex'}
+                  alignItems={'center'}
+                  gap={1}
+                  _hover={{ cursor: 'pointer' }}
+                  cursor="pointer"
+                >
+                  <label htmlFor={`videoInput`}>
+                    <Icon as={FaVideo} boxSize={3} mx={2} />
+                    Update Video
+                  </label>
+                  <input
+                    type="file"
+                    id={`videoInput`}
+                    accept="video/*"
+                    style={{ display: 'none' }}
+                    // onChange={(e) =>
+                    //   handleUploadTopicFile(topicIndex, e.target.files[0])
+                    // }
+                  />
+                </Box>{' '}
+              </Flex>
 
               <Center position="relative" borderRadius={10} my={2}>
                 <Box

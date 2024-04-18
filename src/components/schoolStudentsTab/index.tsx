@@ -129,6 +129,8 @@ const AllSchoolStudentsTab = (props) => {
   const [selectedPlan, setSelectedPlan] = useState<any>(planOptions[0]);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(40);
+  const [tzOptions, setTzOptions] = useState([]);
+
   const {
     isOpen: isOpenInvite,
     onOpen: onOpenInvite,
@@ -137,6 +139,8 @@ const AllSchoolStudentsTab = (props) => {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [timezone, setTimezone] = useState('');
+
   const [csvFile, setCsvFile] = useState(null);
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
     userStore.getState();
@@ -152,7 +156,8 @@ const AllSchoolStudentsTab = (props) => {
           {
             email,
             firstName,
-            lastName
+            lastName,
+            tz: timezone
           }
         ];
         successMessage = 'Student';
@@ -168,6 +173,7 @@ const AllSchoolStudentsTab = (props) => {
       const response = await (csvFile
         ? ApiService.inviteSchoolStudentsWithCSV(payload)
         : ApiService.inviteSchoolStudents(payload));
+      const resp = await response.json();
 
       if (response.ok) {
         toast({
@@ -179,7 +185,7 @@ const AllSchoolStudentsTab = (props) => {
         });
       } else {
         toast({
-          title: errorMessage,
+          title: resp.message,
           description: 'Please try again later.',
           status: 'error',
           duration: 5000,
@@ -258,6 +264,7 @@ const AllSchoolStudentsTab = (props) => {
   //       };
   //     }
   //   );
+
   const dataSource: DataSourceItem[] =
     allSchoolTutorStudents?.map((student, i) => {
       let textColor = '';
@@ -293,6 +300,18 @@ const AllSchoolStudentsTab = (props) => {
       };
     }) || [];
 
+  useEffect(() => {
+    const getTimeZoneOptions = () => {
+      const timezones = moment.tz.names();
+      const formattedOptions = timezones.map((timezone) => ({
+        value: timezone,
+        label: timezone
+      }));
+      setTzOptions(formattedOptions);
+    };
+
+    getTimeZoneOptions();
+  }, []);
   useEffect(() => {
     setAllSchoolTutorStudents(schoolStudents);
   }, [schoolStudents]);
@@ -635,6 +654,23 @@ const AllSchoolStudentsTab = (props) => {
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormControl id="lastName" mt={4} isRequired>
+                      <FormLabel>Timezone</FormLabel>
+                      <Select
+                        value={tzOptions.find(
+                          (option) => option.value === timezone
+                        )}
+                        onChange={(selectedOption) =>
+                          setTimezone(selectedOption.value)
+                        }
+                        options={tzOptions}
+                        placeholder={'Select Timezone'}
+                        getOptionLabel={(option) => option.label}
+                        getOptionValue={(option) => option.value}
+                        className="my-4"
+                        // styles={customStyles}
                       />
                     </FormControl>
                     <Center mt={4} flexDirection={'column'}>
