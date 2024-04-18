@@ -229,6 +229,14 @@ const ManualQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
@@ -265,13 +273,16 @@ const ManualQuizForm = ({
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={4}>
@@ -305,11 +316,17 @@ const ManualQuizForm = ({
           </span>
         </FormLabel>
         <Textarea
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           name="question"
           placeholder="Enter your question here"
           value={currentQuestion.question}
           onChange={handleChangeQuestionType}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <>
@@ -317,13 +334,14 @@ const ManualQuizForm = ({
           currentQuestion.type === MULTIPLE_CHOICE_SINGLE &&
           Array.from({ length: 4 }).map((_, index) => (
             <FormControl key={index} mb={4}>
-              <FormLabel>{`Option ${String.fromCharCode(
-                65 + index
-              )}:`}</FormLabel>
+              <FormLabel>
+                <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+                  {`Option ${String.fromCharCode(65 + index)}:`}
+                </span>
+              </FormLabel>
               <Input
                 type="text"
                 name={`option${String.fromCharCode(65 + index)}`}
-                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                 placeholder={`Option ${String.fromCharCode(65 + index)}`}
                 value={
                   currentQuestion.options &&
@@ -332,6 +350,14 @@ const ManualQuizForm = ({
                   ]?.content
                 }
                 onChange={handleChangeOption}
+                height={'3rem'}
+                _placeholder={{
+                  color: '#9A9DA2',
+                  fontSize: '14px'
+                }}
+                textColor={'#9A9DA2'}
+                fontSize={'0.87rem'}
+                fontWeight={400}
               />
             </FormControl>
           ))}

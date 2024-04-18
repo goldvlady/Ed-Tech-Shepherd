@@ -230,6 +230,14 @@ const TopicQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
@@ -262,14 +270,17 @@ const TopicQuizForm = ({
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
           defaultValue={title}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={8}>
@@ -284,7 +295,14 @@ const TopicQuizForm = ({
           placeholder="e.g. Chemistry"
           value={localData.subject}
           onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
@@ -295,13 +313,17 @@ const TopicQuizForm = ({
         </FormLabel>
         <Input
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
           name="topic"
           value={localData?.topic}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 
@@ -399,13 +421,18 @@ const TopicQuizForm = ({
           </Tooltip>
         </FormLabel>
         <Input
-          textColor={'text.700'}
-          height={'48px'}
           name="count"
           onChange={handleChange}
           type="text"
-          color={'text.200'}
           value={localData.count}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 

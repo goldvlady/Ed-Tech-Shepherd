@@ -413,6 +413,14 @@ const UploadQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
@@ -449,14 +457,17 @@ const UploadQuizForm = ({
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
           defaultValue={title}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
@@ -539,8 +550,6 @@ const UploadQuizForm = ({
           </Tooltip>
         </FormLabel>
         <Input
-          textColor={'text.700'}
-          height={'48px'}
           className={isError && '!border-red-600 !border-spacing-2'}
           name="count"
           onChange={handleChange}
@@ -549,6 +558,14 @@ const UploadQuizForm = ({
           color={'text.200'}
           min="1"
           max={localData.end_page && localData.end_page <= 40 ? 50 : 100}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 
@@ -590,6 +607,14 @@ const UploadQuizForm = ({
           placeholder="Start Page Number"
           value={localData.start_page}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
@@ -604,6 +629,14 @@ const UploadQuizForm = ({
           placeholder="End Page Number"
           value={localData.end_page}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 
