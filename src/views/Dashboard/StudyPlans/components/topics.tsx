@@ -344,9 +344,12 @@ function Topics(props) {
     }
     return [];
   };
-
-  console.log(findVideoDocumentsByTopic(state.selectedTopic));
-  console.log(state.selectedTopic);
+  const findTutorCalendlyByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].meta) {
+      return studyPlanResources[topic].meta?.tutor?.calendlyLink;
+    }
+    return;
+  };
 
   const loadFlashcard = async (flashcardId: string) => {
     if (!user) {
@@ -1027,7 +1030,7 @@ from  ${moment(
                       Book Session
                     </Button>
                     <PopupModal
-                      url={user.tutor?.calendlyLink}
+                      url={findTutorCalendlyByTopic(topic.topicDetails?.label)}
                       // pageSettings={this.props.pageSettings}
                       // utm={this.props.utm}
                       // prefill={this.props.prefill}
