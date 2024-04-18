@@ -665,7 +665,7 @@ const CreateQuizPage = () => {
               />
 
               <TabPanels>
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <UploadQuizForm
                     handleSetTitle={handleSetTitle}
                     title={title}
@@ -677,7 +677,7 @@ const CreateQuizPage = () => {
                   />
                 </TabPanel>
 
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <TopicQuizForm
                     handleSetTitle={handleSetTitle}
                     title={title}
@@ -688,7 +688,7 @@ const CreateQuizPage = () => {
                     uploadingState={uploadingState}
                   />
                 </TabPanel>
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <ManualQuizForm
                     openTags={handleOpenTagsModal}
                     tags={tags}
