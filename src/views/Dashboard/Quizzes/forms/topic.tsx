@@ -335,7 +335,7 @@ const TopicQuizForm = ({
           </span>
         </FormLabel>
 
-        <SelectComponent
+        {/* <SelectComponent
           name="type"
           defaultValue={typeOptions.find(
             (option) => option.value === localData.type
@@ -352,7 +352,45 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {typeOptions.find((option) => option.value === localData.type)
+              ?.label || 'Select Type'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {typeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'type',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={8}>
@@ -361,7 +399,7 @@ const TopicQuizForm = ({
             Grade (optional):
           </span>
         </FormLabel>
-        <SelectComponent
+        {/* <SelectComponent
           name="grade"
           placeholder="Select grade"
           defaultValue={gradeOptions.find(
@@ -379,7 +417,45 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {gradeOptions.find((option) => option.value === localData.grade)
+              ?.label || 'Select Grade'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {gradeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'grade',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={8}>
@@ -388,7 +464,7 @@ const TopicQuizForm = ({
             Level (optional):
           </span>
         </FormLabel>
-        <SelectComponent
+        {/* <SelectComponent
           name="difficulty"
           placeholder="Select Level"
           defaultValue={levelOptions.find(
@@ -405,7 +481,46 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {levelOptions.find(
+              (option) => option.value === localData.difficulty
+            )?.label || 'Select Level'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {levelOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'difficulty',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={7}>
