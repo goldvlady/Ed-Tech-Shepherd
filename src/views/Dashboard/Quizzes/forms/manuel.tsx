@@ -293,21 +293,43 @@ const ManualQuizForm = ({
           </span>
         </FormLabel>
 
-        <SelectComponent
-          name="type"
-          placeholder="Select Type"
-          options={typeOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'type',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChangeQuestionType(event);
-          }}
-        />
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {typeOptions.find((type) => type.value === currentQuestion.type)
+              ?.label || 'Select Type'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {typeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  handleChangeQuestionType({
+                    target: {
+                      name: 'type',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={4}>
@@ -366,7 +388,7 @@ const ManualQuizForm = ({
       {!isEmpty(currentQuestion.question) && currentQuestion.type && (
         <FormControl mb={4}>
           <FormLabel textColor={'text.600'}>Answer:</FormLabel>
-          {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
+          {/* {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
             <SelectComponent
               name="answer"
               placeholder="Select answer"
@@ -382,6 +404,47 @@ const ManualQuizForm = ({
                 handleSetOptionAnswer(event);
               }}
             />
+          )} */}
+          {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                borderRadius="8px"
+                width="100%"
+                fontFamily="Inter"
+                textAlign="left"
+                fontWeight="400"
+                fontSize="0.875rem"
+                height="3rem"
+                textColor={'#9A9DA2'}
+              >
+                {multipleChoiceSingleOptions.find(
+                  (type) => type.value === currentQuestion.answer
+                )?.label || 'Select answer'}
+              </MenuButton>
+              <MenuList zIndex={3}>
+                {multipleChoiceSingleOptions.map((type) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={type.value}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      const event = {
+                        target: {
+                          name: 'answer',
+                          value: type.value
+                        }
+                      } as ChangeEvent<HTMLSelectElement>;
+                      handleSetOptionAnswer(event);
+                    }}
+                  >
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
           )}
 
           {currentQuestion.type === TRUE_FALSE && (
