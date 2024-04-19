@@ -601,7 +601,6 @@ const CreateQuizPage = () => {
       >
         <Box
           className="create-quiz-wrapper"
-          px={'30px'}
           width={['100%', '100%', '100%', '50%', '30%']}
           bg="white"
           overflowY={'auto'}
@@ -622,14 +621,23 @@ const CreateQuizPage = () => {
           {isLoading && <LoaderOverlay />}
 
           <>
-            <Text
-              fontFamily="Inter"
-              className="font-medium text-lg text-[#212224] py-[2rem] pb-[1rem]"
+            <div className="w-full shadow-md px-6 py-4">
+              <Text
+                fontFamily="Inter"
+                className="font-medium text-lg text-[#212224]"
+              >
+                Create a new quiz
+              </Text>
+            </div>
+
+            <Tabs
+              defaultIndex={2}
+              isLazy
+              isFitted
+              position={'relative'}
+              padding="1.5rem"
             >
-              Create Quiz
-            </Text>
-            <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
-              <TabList display="flex" paddingBottom="1.25rem">
+              <TabList display="flex">
                 <Tab
                   _selected={{ color: '#207DF7' }}
                   flex="1"
