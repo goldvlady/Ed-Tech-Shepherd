@@ -172,7 +172,7 @@ function ChatRoom() {
     const { connectionQuery } = chatWindowParams;
     const searchIncludesInitialMessages =
       window.location.search.includes('initial_messages');
-
+    const id = window.location.pathname.split('/').at(-1);
     if (chatWindowParams && connectionQuery.subject !== 'Math') {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
