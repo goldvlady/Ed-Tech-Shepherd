@@ -1,3 +1,4 @@
+import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
@@ -54,7 +55,12 @@ class ApiService {
     });
   };
 
-  static generateShareLink = async (body: { apiKey: string }) => {
+  static generateShareLink = async (body: {
+    apiKey?: string;
+    shareType?: any;
+    forwardList?: { apiKey: string; userId: string; shareLink: string }[];
+    permissionBasis?: any;
+  }) => {
     return doFetch(`${ApiService.baseEndpoint}/generateShareLink`, {
       method: 'POST',
       body: JSON.stringify(body)
@@ -1341,6 +1347,63 @@ class ApiService {
     data: StudyPlanTopicDocumentPayload
   ) => {
     return doFetch(`${ApiService.baseEndpoint}/storeStudyPlanTopicDocument`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static ValidateSchoolUsers = async (fId, inviteCode) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/validateInviteCode?fId=${fId}&inviteCode=${inviteCode}`,
+      {
+        method: 'POST'
+      }
+    );
+  };
+  static updateSchoolUserPassword = async (fId, inviteCode, newPassword) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/updateSchoolUserPassword?fId=${fId}&inviteCode=${inviteCode}`,
+      { method: 'POST', body: JSON.stringify({ newPassword: newPassword }) }
+    );
+  };
+
+  static getSchoolTutorStudents = async (
+    page?: number,
+    limit?: number,
+    filters?: Record<string, any>
+  ) => {
+    const params: Record<string, any> = {};
+    if (page) params.page = page;
+    if (limit) params.limit = limit;
+
+    if (filters) {
+      for (const key in filters) {
+        params[key] = filters[key];
+      }
+    }
+    const queryParams = new URLSearchParams(params).toString();
+
+    return doFetch(
+      `${ApiService.baseEndpoint}/getSchoolStudents?${queryParams}`
+    );
+  };
+  static getSchoolCourses = async (page: number, limit: number) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getSchoolCourses?page=${page}&limit=${limit}`
+    );
+  };
+  static getStudentPerformance = async (id) => {
+    return doFetch(
+      `${ApiService.baseEndpoint}/getTutorsStudyPlanReport?studentUserId=${id}`
+    );
+  };
+  static inviteSchoolStudents = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/inviteSchoolStudent`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  };
+  static inviteSchoolStudentsWithCSV = async (data: any) => {
+    return doFetch(`${ApiService.baseEndpoint}/inviteSchoolStudentWithCSV`, {
       method: 'POST',
       body: JSON.stringify(data)
     });

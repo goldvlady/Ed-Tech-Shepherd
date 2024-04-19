@@ -200,19 +200,18 @@ const CreateQuizPage = () => {
     });
   };
 
-  //no longer worried about paywalling this for now, we have a freemmium tier
-  // useEffect(() => {
-  //   if (!hasActiveSubscription) {
-  //     // Set messages and show the modal if the user has no active subscription
-  //     setPlansModalMessage(
-  //       !user.hadSubscription
-  //         ? 'Subscribe to unlock your AI Study Tools! 🚀'
-  //         : 'Pick a plan to access your AI Study Tools! 🚀'
-  //     );
-  //     setPlansModalSubMessage('One-click Cancel at anytime.');
-  //     setTogglePlansModal(true);
-  //   }
-  // }, [user.subscription, hasActiveSubscription]);
+  useEffect(() => {
+    if (!hasActiveSubscription) {
+      // Set messages and show the modal if the user has no active subscription
+      setPlansModalMessage(
+        !user.hadSubscription
+          ? 'Subscribe to unlock your AI Study Tools! 🚀'
+          : 'Pick a plan to access your AI Study Tools! 🚀'
+      );
+      setPlansModalSubMessage('One-click Cancel at anytime.');
+      setTogglePlansModal(true);
+    }
+  }, [user.subscription, hasActiveSubscription]);
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');

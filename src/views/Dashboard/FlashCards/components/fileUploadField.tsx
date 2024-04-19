@@ -18,7 +18,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
 }) => {
   const defaultAccept = '*/*';
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
-    userStore();
+    userStore.getState();
 
   const inputFile = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
