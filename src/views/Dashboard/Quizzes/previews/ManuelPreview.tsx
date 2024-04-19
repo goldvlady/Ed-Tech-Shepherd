@@ -17,7 +17,6 @@ import {
 import { CheckIcon, CloseIcon, AddIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Button,
   HStack,
   Text,
   VStack,
@@ -48,6 +47,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { IoArrowBackOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../../../../components/ui/button';
 
 // import { useOnClickOutside } from 'usehooks-ts';
 
@@ -221,7 +221,10 @@ const PreviewQuizCard = ({
   // useOnClickOutside(ref, handleSetClearState);
 
   return (
-    <Box ref={ref} borderRadius={'8px'} mt={10} bg="white" w="100%">
+    <div
+      ref={ref}
+      className="bg-white border border-gray-200 rounded-xl w-full"
+    >
       <VStack
         alignItems={'flex-start'}
         justifyContent={'flex-start'}
@@ -629,7 +632,7 @@ const PreviewQuizCard = ({
           </HStack>
         </HStack>
       </Box>
-    </Box>
+    </div>
   );
 };
 
@@ -670,140 +673,79 @@ const QuizPreviewer = ({
 }) => {
   const navigate = useNavigate();
   return (
-    <Box
-      as="section"
-      pt={'40px'}
-      display={'flex'}
-      flexDirection={'column'}
-      alignItems={'center'}
-      h={'100%'}
-      maxH={'100%'}
-      overflowY={{ md: 'auto' }}
-    >
-      <Box
-        w={{ md: '70%', base: '100%', sm: '100%' }}
-        maxW={{ md: '700px' }}
-        mb={10}
-        position={'relative'}
-      >
+    <div className="flex flex-col items-center h-full max-h-full overflow-y-auto md:overflow-y-auto">
+      <div className="w-full mb-10 relative">
         {!isEmpty(questions) && (
-          <Box
-            display={{ base: 'block', md: 'flex' }}
-            alignItems={{ base: 'flex-start', md: 'center' }}
-            justifyContent={{ base: 'center', md: 'space-between' }}
-            w={'100%'}
-          >
-            <HStack justifyContent={'flex-start'} alignItems={'center'}>
-              {/* <Box position={'absolute'} left={'-140px'}>
-                <Button
-                  width={'140px'}
-                  borderRadius="8px"
-                  fontSize="14px"
-                  lineHeight="20px"
-                  mx={0}
-                  bg={'transparent'}
-                  _hover={{ bg: 'whiteAlpha.900' }}
-                  textColor={'gray.500'}
-                  onClick={() => navigate('/dashboard/quizzes')}
-                >
-                  <HStack>
-                    <IoArrowBackOutline />
-                    <Box
-                      fontFamily={'Inter'}
-                      fontSize={'14px'}
-                      lineHeight={'21px'}
-                      textColor={'text.500'}
-                    >
-                      <Text>Go Back</Text>
-                    </Box>
-                  </HStack>
-                </Button>
-              </Box> */}
-              <Box>
-                <Text
-                  fontFamily="Inter"
-                  fontWeight="500"
-                  fontSize="18px"
-                  lineHeight="23px"
-                  color="text.200"
-                >
-                  Review Your Quiz
-                </Text>
-              </Box>
-            </HStack>
-            <HStack
-              justifyContent={'flex-end'}
-              alignItems={'center'}
-              marginTop={{ base: '20px' }}
-            >
+          <div className="flex items-center justify-between w-full shadow-md px-6 py-2.5 relative z-10 pointer-events-none">
+            <div className="pointer-events-auto">
+              <h4 className="font-medium text-lg text-slate-500">
+                Review Your Quiz
+              </h4>
+            </div>
+            <div className="hidden md:flex items-center justify-center pointer-events-auto">
+              <InputGroup width="290px">
+                <InputLeftElement
+                  pointerEvents="none"
+                  children={<BsSearch color="#969CA6" />}
+                  ml={2}
+                />
+                <Input
+                  placeholder="Search"
+                  pl="48px"
+                  _focus={{
+                    boxShadow: '0 0 0 2px #3182ce'
+                  }}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </InputGroup>
+            </div>
+            <div className="flex justify-end items-center gap-2 pointer-events-auto">
               {!isNil(quizId) && !isEmpty(quizId) && (
-                <Button
-                  width={'140px'}
-                  borderRadius="8px"
-                  fontSize="14px"
-                  lineHeight="20px"
-                  variant="solid"
-                  colorScheme="primary"
-                  onClick={onOpen}
-                  ml={{ md: 5 }}
-                  display={'flex'}
-                  flexDirection={'row'}
-                  justifyContent={'center'}
-                >
+                <Button size="sm" onClick={onOpen}>
                   <LightningBoltIcon
-                    className={'h-[20px] w-[20px] mx-2'}
-                    onClick={() => ''}
+                    className={'h-[15px] w-[15px] mr-1 pointer-events-none'}
+                    onClick={() => null}
                   />
                   Study
                 </Button>
               )}
-
               {!isEmpty(questions) && (
                 <Button
-                  width={'140px'}
-                  borderRadius="8px"
-                  fontSize="14px"
-                  lineHeight="20px"
-                  variant="solid"
-                  colorScheme="primary"
+                  size="sm"
                   onClick={() => {
                     if (!isNil(quizId) && !isEmpty(quizId)) {
                       updateQuiz(quizId);
                     }
                   }}
-                  ml={5}
-                  display={'flex'}
-                  flexDirection={'row'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                  isLoading={isLoadingButton}
                 >
-                  <CheckIcon mx={2} />
+                  <CheckIcon mr={2} ml={0.5} />
                   Update
                 </Button>
               )}
-            </HStack>
-          </Box>
+            </div>
+          </div>
         )}
 
         {!isEmpty(questions) && (
-          <Flex w={'100%'} justifyContent={'flex-end'} my={5}>
-            <InputGroup width="290px">
-              <InputLeftElement
-                pointerEvents="none"
-                children={<BsSearch color="#969CA6" />}
-                ml={2}
-              />
-              <Input
-                placeholder="Search"
-                pl="48px"
-                _focus={{
-                  boxShadow: '0 0 0 2px #3182ce'
-                }}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </InputGroup>
-          </Flex>
+          <div className="md:hidden">
+            <Flex w={'100%'} justifyContent={'flex-end'} my={5}>
+              <InputGroup width="290px">
+                <InputLeftElement
+                  pointerEvents="none"
+                  children={<BsSearch color="#969CA6" />}
+                  ml={2}
+                />
+                <Input
+                  placeholder="Search"
+                  pl="48px"
+                  _focus={{
+                    boxShadow: '0 0 0 2px #3182ce'
+                  }}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </InputGroup>
+            </Flex>
+          </div>
         )}
 
         <Box
@@ -823,7 +765,7 @@ const QuizPreviewer = ({
             }
           }}
         >
-          <Box w={'100%'}>
+          <div className="w-full p-4 pt-10 gap-4 flex flex-col">
             {/* Render questions preview */}
             {questions?.length > 0 &&
               questions?.map((question, index) => (
@@ -837,10 +779,10 @@ const QuizPreviewer = ({
                 />
               ))}
             <Box p="32px" />
-          </Box>
+          </div>
         </Box>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 };
 

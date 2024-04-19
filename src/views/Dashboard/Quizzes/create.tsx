@@ -729,11 +729,16 @@ const CreateQuizPage = () => {
                 </Flex>
               )}
             </Tabs>
-            <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+            <Drawer
+              isOpen={isOpen}
+              placement="right"
+              onClose={onClose}
+              size="full"
+            >
               <DrawerOverlay />
               <DrawerContent>
                 <DrawerCloseButton />
-                <DrawerBody>
+                <DrawerBody className="no-scrollbar">
                   {!isEmpty(searchQuestions) || !isEmpty(questions) ? (
                     <QuizPreviewer
                       handleClearQuiz={handleClearQuiz}
