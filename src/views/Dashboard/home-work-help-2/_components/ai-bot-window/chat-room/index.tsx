@@ -203,6 +203,7 @@ function ChatRoom() {
       rest.refreshManager();
       rest.hydrateChat(id);
       fetchHistory(30, 0, id);
+      setConversationId(id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 
