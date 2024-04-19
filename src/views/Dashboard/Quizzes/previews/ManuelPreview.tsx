@@ -237,7 +237,9 @@ const PreviewQuizCard = ({
           flexWrap={'nowrap'}
         >
           <Text fontSize="md" fontWeight="semibold">
-            {index + 1}.
+            <span className="text-lg font-semibold text-gray-700">
+              {index + 1}.
+            </span>
           </Text>
           {isEditable ? (
             <Textarea
@@ -249,7 +251,9 @@ const PreviewQuizCard = ({
             />
           ) : (
             <Text fontSize="md" fontWeight="semibold">
-              {!isEmpty(quizQuestion) ? quizQuestion : question.question}
+              <span className="text-lg font-semibold text-gray-700">
+                {!isEmpty(quizQuestion) ? quizQuestion : question.question}
+              </span>
             </Text>
           )}
         </HStack>
@@ -301,7 +305,7 @@ const PreviewQuizCard = ({
                       w={'100%'}
                     >
                       <label
-                        className="w-[20px] font-[Inter] text-dark font-[400] text-[14px] leading-[20px] flex justify-start items-start cursor-pointer"
+                        className="w-[20px] font-[Inter] font-[400] text-[14px] leading-[20px] flex justify-start items-start cursor-pointer"
                         htmlFor={`option${optionIndex}`}
                       >
                         <Radio
@@ -567,7 +571,7 @@ const PreviewQuizCard = ({
         )}
       </VStack>
 
-      <hr className="w-full border border-gray-400" />
+      <hr className="w-full border border-gray-200" />
       <Box minH={'24px'} p="16px">
         <HStack justifyContent={'space-between'}>
           {!isEmpty(optionAnswer) ||
