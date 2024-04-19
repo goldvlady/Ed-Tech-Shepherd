@@ -465,7 +465,8 @@ const useChatManager = (
     resetLimitReached,
     disconnectSocket,
     setTitle,
-    setConversationId
+    setConversationId,
+    refreshManager
   };
 };
 
