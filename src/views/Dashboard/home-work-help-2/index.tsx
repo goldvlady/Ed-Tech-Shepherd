@@ -10,9 +10,10 @@ const Component = () => {
   return (
     <div className="w-full h-full flex gap-[1px] overflow-x-hidden">
       <ChatHistory />
-      <div className="h-full flex-[1] flex flex-col">
+      <div className="h-full flex-[1] flex-col">
         <AiChatBotWindow />
       </div>
+
       <CodeEditorWindow />
     </div>
   );
