@@ -634,43 +634,87 @@ const CreateQuizPage = () => {
               defaultIndex={2}
               isLazy
               isFitted
+              variant="unstyled"
               position={'relative'}
               padding="1.5rem"
             >
-              <TabList display="flex">
+              <TabList display="flex" justifyContent="space-between">
                 <Tab
-                  _selected={{ color: '#207DF7' }}
-                  flex="1"
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                   justifyContent={'flex-start'}
                   pl={0}
+                  pb={0}
                   textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                 >
-                  <span className="text-base font-medium">Upload</span>
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Upload
+                  </span>
                 </Tab>
                 <Tab
-                  _selected={{ color: '#207DF7' }}
-                  flex="1"
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
+                  pb={0}
                   textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                 >
-                  <span className="text-base font-medium">Topic</span>
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Topic
+                  </span>
                 </Tab>
                 <Tab
-                  _selected={{ color: '#207DF7' }}
-                  flex="1"
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                   justifyContent={'flex-end'}
                   pr={0}
+                  pb={0}
                   textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                 >
-                  <span className="text-base font-medium">Manual</span>
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Manual
+                  </span>
                 </Tab>
               </TabList>
 
-              <TabIndicator
+              {/* <TabIndicator
                 mt="-2px"
                 height="2px"
                 bg="#207DF7"
                 borderRadius="1px"
-              />
+                width={10}
+              /> */}
 
               <TabPanels>
                 <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
