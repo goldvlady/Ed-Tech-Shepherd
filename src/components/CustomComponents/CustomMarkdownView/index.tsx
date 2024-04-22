@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { BlockMath, InlineMath } from 'react-katex';
 import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+
+import remarkMath from 'remark-math';
+import rehypeMathjax from 'rehype-mathjax';
+import rehypePrism from 'rehype-prism';
+import rehypeRaw from 'rehype-raw';
 import './index.css';
 import 'katex/dist/katex.min.css';
 import { MemoizedReactMarkdown } from './memoized-react-markdown';
@@ -53,8 +57,8 @@ const CustomMarkdownView = ({
   return (
     <MemoizedReactMarkdown
       className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle`}
-      remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
+      remarkPlugins={[remarkMath, remarkGfm]}
+      rehypePlugins={[rehypeRaw, rehypePrism, rehypeMathjax, rehypeKatex]}
       components={getComponents(onKeywordClick)}
     >
       {replaceLatexDelimiters(source, showDot)}
