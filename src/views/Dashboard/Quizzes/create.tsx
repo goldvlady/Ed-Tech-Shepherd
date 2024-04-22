@@ -638,7 +638,11 @@ const CreateQuizPage = () => {
               position={'relative'}
               padding="1.5rem"
             >
-              <TabList display="flex" justifyContent="space-between">
+              <TabList
+                display="flex"
+                justifyContent="space-between"
+                borderBottom="1px solid #D8D8D8"
+              >
                 <Tab
                   _selected={{
                     color: '#207DF7',
