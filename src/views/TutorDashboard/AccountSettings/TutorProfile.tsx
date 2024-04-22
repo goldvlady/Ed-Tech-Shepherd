@@ -56,7 +56,8 @@ import {
   IconButton,
   Textarea,
   InputLeftElement,
-  HStack
+  HStack,
+  Link
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
@@ -386,6 +387,7 @@ function MyProfile(props) {
     }
     return !isScheduleValid || !schedule || isUpdating;
   }, [fields.calendlyLink, isScheduleValid, schedule, isUpdating, user.school]);
+  const calendlyUrl = 'https://calendly.com/';
   return (
     <Box>
       {tutorData && (
@@ -774,12 +776,23 @@ function MyProfile(props) {
             ) : (
               <>
                 {/* <FormLabel>Calendly Url</FormLabel>{' '} */}
-                <Input
+                {/* <Input
                   onChange={(e) => {
                     setFields({ calendlyLink: e.target.value });
                   }}
-                  defaultValue={tutorData.tutor.calendlyLink}
-                />
+                  defaultValue={}
+                /> */}
+
+                <Link
+                  href={tutorData.tutor.calendlyLink}
+                  color="#207df7"
+                  textDecoration="none"
+                  _hover={{ color: 'blue.600' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tutorData.tutor.calendlyLink}
+                </Link>
               </>
             )}
           </Box>
@@ -819,12 +832,20 @@ function MyProfile(props) {
       >
         <Box overflowY={'scroll'} px={6} w={'100%'}>
           {user.school ? (
-            <Input
-              onChange={(e) => {
-                setFields({ calendlyLink: e.target.value });
-              }}
-              defaultValue={tutorData.tutor.calendlyLink}
-            />
+            <>
+              <FormLabel>calendly.com/</FormLabel>
+              <Input
+                onChange={(e) => {
+                  setFields({
+                    calendlyLink: `${calendlyUrl}${e.target.value}`
+                  });
+                }}
+                defaultValue={tutorData.tutor.calendlyLink.replace(
+                  `${calendlyUrl}`,
+                  ''
+                )}
+              />
+            </>
           ) : (
             <Availability
               schedule={tutorData.tutor.schedule}
