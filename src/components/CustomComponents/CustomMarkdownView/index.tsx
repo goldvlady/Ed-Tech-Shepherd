@@ -140,7 +140,7 @@ const OrderedListComponent = ({ children }) => (
 );
 
 const ParagraphComponent = ({ children }) => (
-  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap overflow-wrap: break-word ">
+  <p className="leading-7 [&:not(:first-child)]:mt-6 whitespace-pre-wrap overflow-wrap: break-word [&_svg]:inline-block">
     {children}
   </p>
 );
