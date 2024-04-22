@@ -130,11 +130,13 @@ const CodeBlockComponent = ({
 };
 
 const ListComponent = ({ children }) => (
-  <ul className="list-disc my-6 ml-6 [&>li]:mt-2 list-outside">{children}</ul>
+  <ul className="list-disc my-6 ml-6 [&>li]:mt-2 list-outside [&_svg]:inline-block">
+    {children}
+  </ul>
 );
 
 const OrderedListComponent = ({ children }) => (
-  <ol className="list-decimal my-6 ml-6 [&>li]:mt-2 list-outside">
+  <ol className="list-decimal my-6 ml-6 [&>li]:mt-2 list-outside [&_svg]:inline-block">
     {children}
   </ol>
 );
