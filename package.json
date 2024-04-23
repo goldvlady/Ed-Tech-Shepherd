@@ -93,6 +93,7 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "lottie-react": "^2.4.0",
+    "lucide-react": "^0.372.0",
     "luxon": "^3.4.3",
     "marked": "^7.0.0",
     "moment": "^2.29.4",
