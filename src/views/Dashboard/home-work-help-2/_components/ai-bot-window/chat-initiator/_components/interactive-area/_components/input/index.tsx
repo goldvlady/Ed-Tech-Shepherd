@@ -11,7 +11,15 @@ import {
   SelectValue,
   Select as ShadSelect
 } from '../../../../../../../../../../components/ui/select';
+import { Button as ShadCnButton } from '../../../../../../../../../../components/ui/button';
 import { cn } from '../../../../../../../../../../library/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '../../../../../../../../../../components/ui/popover';
+import { Input as ShadCnInput } from '../../../../../../../../../../components/ui/input';
+import { ChevronDown } from 'lucide-react';
 
 const mathTopics = [
   { id: 'algebra', label: 'Algebra' },
@@ -206,47 +214,17 @@ function Input({
               </span>
             )}
         </div>
-
         <>
           {currentInputType === 'topic' && chatContext.subject === 'Math' && (
-            <ShadSelect
-              value={selectedMathsTopic}
-              onValueChange={(value) => {
-                if (
-                  currentInputType === 'topic' &&
-                  chatContext.subject === 'Math'
-                ) {
-                  if (value !== null) {
-                    handleTopicChange(`${value} `);
-                  } else {
-                    handleTopicChange('');
-                  }
-                }
-                setSelectedMathsTopic(value);
-              }}
-            >
-              <SelectTrigger
-                className={cn(
-                  'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
-                  {
-                    'pointer-events-none opacity-50':
-                      wordProblemValue?.trim() || explainConceptValue?.trim()
-                  }
-                )}
-              >
-                <SelectValue placeholder="Topic" className="mr-2" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {/* <SelectItem value={null}>None</SelectItem> */}
-                {mathTopics.map((topic) => {
-                  return (
-                    <SelectItem key={topic.id} value={topic.id}>
-                      {topic.label}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </ShadSelect>
+            <AutoCompleteDropdown
+              chatContext={chatContext}
+              currentInputType={currentInputType}
+              handleTopicChange={handleTopicChange}
+              selectedMathsTopic={selectedMathsTopic}
+              setSelectedMathsTopic={setSelectedMathsTopic}
+              wordProblemValue={wordProblemValue}
+              explainConceptValue={explainConceptValue}
+            />
           )}
           <input
             value={(() => {
@@ -602,4 +580,118 @@ const AutocompleteItem = ({
     </div>
   );
 };
+
+const AutoCompleteDropdown = ({
+  selectedMathsTopic,
+  setSelectedMathsTopic,
+  handleTopicChange,
+  currentInputType,
+  chatContext,
+  wordProblemValue,
+  explainConceptValue
+}) => {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
+
+  const getMathTopicLabel = (topicId, mathTopics) => {
+    const topic = mathTopics.find((t) => {
+      const stringId = String(t.id).trim();
+      const stringTopicId = String(topicId).trim();
+      return stringId === stringTopicId;
+    });
+    return topic ? topic.label : '';
+  };
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <ShadCnButton
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',"
+        >
+          {chatContext.topic
+            ? getMathTopicLabel(chatContext.topic, mathTopics)
+            : 'Topic'}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </ShadCnButton>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0 bg-white">
+        <div className="w-full h-full p-1 flex flex-col gap-1">
+          <ShadCnInput
+            placeholder="Search topics"
+            className="active:ring-0"
+            defaultValue={value}
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+            }}
+          />
+          <div className="w-full mt-1 max-h-60 overflow-scroll">
+            {mathTopics
+              .filter((topic) =>
+                topic.label.toLowerCase().includes(value.toLowerCase())
+              )
+              .map((topic) => {
+                return (
+                  <div
+                    role="button"
+                    key={topic.id}
+                    className="px-2 py-1 hover:bg-gray-200 flex justify-start items-center cursor-pointer rounded"
+                    onClick={() => {
+                      setSelectedMathsTopic(topic.id);
+                      handleTopicChange(`${topic.id} `);
+                      setOpen(false);
+                      setValue('');
+                    }}
+                  >
+                    <span className="text-xs ">{topic.label}</span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+
+  // return (
+  //   <ShadSelect
+  //     value={selectedMathsTopic}
+  //     onValueChange={(value) => {
+  //       if (currentInputType === 'topic' && chatContext.subject === 'Math') {
+  //         if (value !== null) {
+  //           handleTopicChange(`${value} `);
+  //         } else {
+  //           handleTopicChange('');
+  //         }
+  //       }
+  //       setSelectedMathsTopic(value);
+  //     }}
+  //   >
+  //     <SelectTrigger
+  //       className={cn(
+  //         'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
+  //         {
+  //           'pointer-events-none opacity-50':
+  //             wordProblemValue?.trim() || explainConceptValue?.trim()
+  //         }
+  //       )}
+  //     >
+  //       <SelectValue placeholder="Topic" className="mr-2" />
+  //     </SelectTrigger>
+  //     <SelectContent className="bg-white">
+  //       {/* <SelectItem value={null}>None</SelectItem> */}
+  //       {mathTopics.map((topic) => {
+  //         return (
+  //           <SelectItem key={topic.id} value={topic.id}>
+  //             {topic.label}
+  //           </SelectItem>
+  //         );
+  //       })}
+  //     </SelectContent>
+  //   </ShadSelect>
+  // );
+};
+
 export default Input;
