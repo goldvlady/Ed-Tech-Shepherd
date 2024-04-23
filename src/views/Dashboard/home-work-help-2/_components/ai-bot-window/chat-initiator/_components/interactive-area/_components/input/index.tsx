@@ -15,34 +15,25 @@ import {
 import { cn } from '../../../../../../../../../../library/utils';
 
 const mathTopics = [
-  {
-    id: 'algebra',
-    label: 'Algebra'
-  },
-  {
-    id: 'geometry',
-    label: 'Geometry'
-  },
-  {
-    id: 'trigonometry',
-    label: 'Trigonometry'
-  },
-  {
-    id: 'calculus',
-    label: 'Calculus'
-  },
-  {
-    id: 'statistics',
-    label: 'Statistics'
-  },
-  {
-    id: 'probability',
-    label: 'Probability'
-  },
-  {
-    id: 'discrete-math',
-    label: 'Discrete Math'
-  }
+  { id: 'algebra', label: 'Algebra' },
+  { id: 'arithmetic', label: 'Arithmetic' },
+  { id: 'calculus', label: 'Calculus' },
+  { id: 'complex_numbers', label: 'Complex Numbers' },
+  { id: 'derivatives', label: 'Derivatives' },
+  { id: 'differential_equations', label: 'Differential Equations' },
+  { id: 'fourier_transforms', label: 'Fourier Transforms' },
+  { id: 'function_optimization', label: 'Function Optimization' },
+  { id: 'integrals', label: 'Integrals' },
+  { id: 'laplace_transforms', label: 'Laplace Transforms' },
+  { id: 'limits', label: 'Limits' },
+  { id: 'linear_algebra', label: 'Linear Algebra' },
+  { id: 'matrices', label: 'Matrices' },
+  { id: 'number_theory', label: 'Number Theory' },
+  { id: 'partial_fractions', label: 'Partial Fractions' },
+  { id: 'series', label: 'Series' },
+  { id: 'statistics', label: 'Statistics' },
+  { id: 'trigonometry', label: 'Trigonometry' },
+  { id: 'vector_calculus', label: 'Vector Calculus' }
 ];
 
 type Language = (typeof languages)[number];
