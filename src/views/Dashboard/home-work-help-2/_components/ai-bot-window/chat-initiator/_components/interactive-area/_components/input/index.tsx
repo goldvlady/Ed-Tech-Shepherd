@@ -657,7 +657,6 @@ const AutoCompleteDropdown = ({
       </PopoverContent>
     </Popover>
   );
-
   // return (
   //   <ShadSelect
   //     value={selectedMathsTopic}
