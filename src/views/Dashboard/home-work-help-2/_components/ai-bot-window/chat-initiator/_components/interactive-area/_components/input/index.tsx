@@ -350,6 +350,11 @@ function Input({
                   !courseList.some(
                     (list) => list.label === chatContext.subject?.trim()
                   ))) ||
+              (currentInputType === 'level' &&
+                (chatContext.level?.trim() === '' ||
+                  !levels.some(
+                    (list) => list.label === chatContext.level?.trim()
+                  ))) ||
               (currentInputType === 'language' &&
                 chatContext.language.length === 0) ||
               (currentInputType === 'topic' &&
