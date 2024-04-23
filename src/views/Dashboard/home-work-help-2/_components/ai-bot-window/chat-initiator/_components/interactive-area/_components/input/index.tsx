@@ -603,7 +603,10 @@ const AutoCompleteDropdown = ({
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger
+        asChild
+        disabled={wordProblemValue?.trim() || explainConceptValue?.trim()}
+      >
         <ShadCnButton
           variant="outline"
           role="combobox"
