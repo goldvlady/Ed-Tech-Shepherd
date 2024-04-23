@@ -378,8 +378,10 @@ function Input({
             }
             filterKeyword={filterKeyword}
             onClick={(value) => {
-              if (currentInputType === 'subject') handleSubjectChange(value);
-              else if (currentInputType === 'level') handleLevelChange(value);
+              if (currentInputType === 'subject') {
+                handleSubjectChange(value);
+                handleTopicChange('');
+              } else if (currentInputType === 'level') handleLevelChange(value);
               else if (currentInputType === 'topic') handleTopicChange(value);
               else if (currentInputType === 'language')
                 handleLanguageChange(value);
