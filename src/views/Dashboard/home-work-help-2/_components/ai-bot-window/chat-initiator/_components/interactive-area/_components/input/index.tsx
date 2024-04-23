@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Chip from '../chip';
 import Button from './_components/button';
 import { PencilIcon } from '../../../../../../../../../../components/icons';
@@ -36,6 +35,8 @@ const mathTopics = [
   { id: 'vector_calculus', label: 'Vector Calculus' }
 ];
 
+const inputTypes = ['subject', 'topic', 'level', 'language'] as const;
+type InputType = (typeof inputTypes)[number];
 type Language = (typeof languages)[number];
 
 function Input({
@@ -79,31 +80,25 @@ function Input({
   const [selectedMathsTopic, setSelectedMathsTopic] = useState('');
   const [wordProblemValue, setWordProblemValue] = useState('');
   const [explainConceptValue, setExplainConceptValue] = useState('');
-  const handleInputTypeChange = (
-    type: 'subject' | 'topic' | 'level' | 'language'
-  ) => {
-    if (type === 'level' || type === 'language') {
-      setFilterKeyword({
-        keyword: '',
-        active: true
-      });
-    } else {
+
+  const isSubjectMath = chatContext.subject === 'Math';
+
+  function handleInputTypeChange(type: InputType) {
+    setFilterKeyword({
+      keyword: '',
+      active: type === 'level' || type === 'language'
+    });
+    setCurrentInputType(type);
+  }
+
+  const handleSubmit = () => {
+    if (chatContext.subject?.trim()) {
       setFilterKeyword({
         keyword: '',
         active: false
       });
+      onSubmit();
     }
-
-    setCurrentInputType(type);
-  };
-
-  const handleSubmit = () => {
-    if (chatContext.subject?.trim() === '') return;
-    setFilterKeyword({
-      keyword: '',
-      active: false
-    });
-    onSubmit();
   };
 
   const handleButtonClick = () => {
@@ -440,7 +435,7 @@ function Input({
             : ''
         }`}
       >
-        {['Math', 'Physics', 'Chemistry', 'Programming'].map((subject) => (
+        {['Math', 'Physics', 'Chemistry', 'Computer Science'].map((subject) => (
           <Chip
             key={subject}
             title={subject}
