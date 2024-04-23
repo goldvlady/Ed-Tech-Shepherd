@@ -346,7 +346,10 @@ function Input({
           <Button
             disabled={
               (currentInputType === 'subject' &&
-                chatContext.subject?.trim() === '') ||
+                (chatContext.subject?.trim() === '' ||
+                  !courseList.some(
+                    (list) => list.label === chatContext.subject?.trim()
+                  ))) ||
               (currentInputType === 'language' &&
                 chatContext.language.length === 0) ||
               (currentInputType === 'topic' &&
@@ -383,6 +386,7 @@ function Input({
                 : 'Submit'
             }
           />
+          {/* {console.log('courseList', courseList)} */}
           <AutocompleteWindow
             setActive={() => {
               setFilterKeyword({
