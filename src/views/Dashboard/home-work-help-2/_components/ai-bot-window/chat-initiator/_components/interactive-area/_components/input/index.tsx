@@ -530,23 +530,28 @@ const AutocompleteWindow = ({
 
   return (
     <div className="w-full p-2 absolute top-[90%] bg-white rounded-lg rounded-t-none shadow-md z-10 max-h-[20rem] overflow-y-scroll py-2 no-scrollbar">
-      {currentInputType === 'subject'
-        ? courseList
-            ?.filter((item) =>
+      {currentInputType === 'subject' &&
+        courseList
+          ?.filter(
+            (item, index, self) =>
+              self.findIndex(
+                (t) => t.label.toLowerCase() === item.label.toLowerCase()
+              ) === index &&
               item.label
                 .toLowerCase()
                 .includes(filterKeyword.keyword.toLowerCase())
-            )
-            .map((item) => (
-              <AutocompleteItem
-                title={item.label}
-                onClick={() => {
-                  onClick(item.label);
-                  setActive(false);
-                }}
-              />
-            ))
-        : null}
+          )
+          .map((item) => (
+            <AutocompleteItem
+              key={item.label} // Assuming item.label is unique, otherwise provide a unique key
+              title={item.label}
+              onClick={() => {
+                onClick(item.label);
+                setActive(false);
+              }}
+            />
+          ))}
+
       {currentInputType === 'level'
         ? levels
             ?.filter((item) =>
