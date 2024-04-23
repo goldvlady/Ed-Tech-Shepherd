@@ -58,7 +58,7 @@ const CustomMarkdownView = ({
     <MemoizedReactMarkdown
       className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle`}
       remarkPlugins={[remarkMath, remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeKatex]}
+      rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
     >
       {replaceLatexDelimiters(source, showDot)}
