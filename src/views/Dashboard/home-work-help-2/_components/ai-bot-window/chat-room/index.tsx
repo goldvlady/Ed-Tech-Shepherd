@@ -64,6 +64,8 @@ function ChatRoom() {
       studentId: string;
     }) => ApiService.createConvoLog(b)
   });
+  const chatWindowParams = getChatWindowParams();
+  const { connectionQuery } = chatWindowParams;
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
@@ -136,8 +138,10 @@ function ChatRoom() {
                       .then((resp) => resp.json())
                       .then(async (d: { data: string }) => {
                         setTitle(d.data);
+                      })
+                      .finally(async () => {
                         await query.invalidateQueries({
-                          queryKey: ['chatHistory', { studentId }]
+                          queryKey: ['chatHistory']
                         });
                       });
                   }, 700);
@@ -172,8 +176,16 @@ function ChatRoom() {
     const { connectionQuery } = chatWindowParams;
     const searchIncludesInitialMessages =
       window.location.search.includes('initial_messages');
+
+    console.log('chatWindowParams', chatWindowParams);
     const id = window.location.pathname.split('/').at(-1);
-    if (chatWindowParams && connectionQuery.subject !== 'Math') {
+    if (
+      chatWindowParams &&
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
+    ) {
+
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -181,7 +193,11 @@ function ChatRoom() {
           studentId: user._id,
           conversationId: id,
           firebaseId: user?.firebaseId,
-          ...connectionQuery
+          ...connectionQuery,
+          topic:
+            connectionQuery.subject === 'Math'
+              ? connectionQuery.topicSecondary
+              : connectionQuery.topic
         },
         {
           conversationInitializer: CONVERSATION_INITIALIZER,
@@ -189,7 +205,12 @@ function ChatRoom() {
         }
       );
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
-    } else if (apiKey && connectionQuery.subject !== 'Math') {
+    } else if (
+      apiKey &&
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
+    ) {
       startConversation(
         {
           conversationId: id
@@ -310,7 +331,8 @@ function ChatRoom() {
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
                   messages.length >= 4 &&
-                  (apiKey || handleDisabledForMaths ? false : true)
+                  (apiKey || handleDisabledForMaths ? false : true) &&
+                  connectionQuery.subject !== 'Math'
                 }
                 sendSuggestedPrompt={async (message: string) => {
                   if (subject === 'Math') {
@@ -427,9 +449,12 @@ function ChatRoom() {
             disabled={apiKey || handleDisabledForMaths ? true : false}
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
-              if (subject === 'Math') {
-                const chatWindowParams = getChatWindowParams();
-                const { connectionQuery } = chatWindowParams;
+              const chatWindowParams = getChatWindowParams();
+              const { connectionQuery } = chatWindowParams;
+              if (
+                subject === 'Math' &&
+                connectionQuery.topicSecondary?.trim().length === 0
+              ) {
                 const fetchedMessages: Array<ChatMessageType> =
                   await ApiService.getConversionById({
                     conversationId: id

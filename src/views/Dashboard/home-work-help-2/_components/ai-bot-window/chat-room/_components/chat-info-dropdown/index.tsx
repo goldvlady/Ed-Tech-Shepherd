@@ -35,7 +35,7 @@ function ChatInfoDropdown({
     title: 'Chat title'
   });
   const { setTitle } = useChatManager('homework-help');
-  useStudentConversations({
+  const { isFetching } = useStudentConversations({
     studentId: studentId,
     select: (data) => {
       const conversation = data.find((item) => item.id === id);
@@ -145,6 +145,11 @@ function ChatInfoDropdown({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {isFetching && (
+        <p className="text-xs text-slate-400 w-full text-center">
+          Loading title...
+        </p>
+      )}
     </div>
   );
 }
