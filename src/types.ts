@@ -190,6 +190,7 @@ export interface User extends TimestampedEntity {
   avatar?: string;
   dob: string;
   referralCode?: string;
+  school?: any;
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
@@ -233,6 +234,7 @@ export interface Tutor extends TimestampedEntity {
   active?: boolean;
   description?: string;
   avatar?: string;
+  calendlyLink?: string;
   cv: string;
   tz: string;
   identityDocument?: string;
@@ -427,7 +429,8 @@ export enum SessionType {
   FLASHCARD = 'flashcard',
   NOTES = 'notes',
   DOCCHAT = 'docchat',
-  HOMEWORK = 'homework'
+  HOMEWORK = 'homework',
+  LECTURES = 'lecture'
 }
 
 export interface SchedulePayload {

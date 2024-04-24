@@ -175,14 +175,16 @@ function ChatRoom() {
     const { connectionQuery } = chatWindowParams;
     const searchIncludesInitialMessages =
       window.location.search.includes('initial_messages');
-    console.log('chatWindowParams', chatWindowParams);
 
+    console.log('chatWindowParams', chatWindowParams);
+    const id = window.location.pathname.split('/').at(-1);
     if (
       chatWindowParams &&
       ((connectionQuery.subject === 'Math' &&
         connectionQuery.topicSecondary?.trim().length !== 0) ||
         connectionQuery.subject !== 'Math')
     ) {
+
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -218,8 +220,10 @@ function ChatRoom() {
         }
       );
     } else if (!searchIncludesInitialMessages) {
+      rest.refreshManager();
       rest.hydrateChat(id);
       fetchHistory(30, 0, id);
+      setConversationId(id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 

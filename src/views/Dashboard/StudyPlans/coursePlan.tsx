@@ -31,7 +31,7 @@ import {
   Center
 } from '@chakra-ui/react';
 import ShareModal from '../../../components/ShareModal';
-
+import useSchoolStudents from './hooks/useSchoolStudents';
 import { MdInfo } from 'react-icons/md';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
@@ -284,6 +284,18 @@ function CoursePlan() {
     fetchData();
   }, []);
 
+  const { data: studentList } = useSchoolStudents();
+
+  const shareList = useMemo(() => {
+    if (studentList) {
+      const shareable = studentList.map((item) => ({
+        id: item.user?._id,
+        name: `${item.user?.name?.first} ${item.user?.name?.last} `
+      }));
+      return shareable;
+    }
+  }, [studentList]);
+
   function checkQuizzesAndFlashcards(data) {
     let countWithBoth = 0;
 
@@ -303,7 +315,7 @@ function CoursePlan() {
   }
 
   useEffect(() => {
-    if (studyPlanResources) {
+    if (studyPlanResources && studyPlanResources.length > 0) {
       const isDoneGenerating = checkQuizzesAndFlashcards(studyPlanResources);
       if (!isDoneGenerating) {
         if (state.doneWithExtractionOnLoad) {
@@ -414,12 +426,6 @@ function CoursePlan() {
     events();
   }, []);
 
-  const clearIdFromURL = () => {
-    const { pathname } = location;
-    const updatedPathname = pathname.split('planId=')[0];
-
-    navigate(updatedPathname, { replace: true });
-  };
   const handlePlanSelection = (planId) => {
     const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
     navigate(`${baseUrl}/study-plans/planId=${planId}`);
@@ -449,7 +455,14 @@ function CoursePlan() {
       );
     }
     if (state.topics?.creator === user?._id) {
-      return <ShareModal prefferredBaseUrl="/dashboard" type="studyPlan" />;
+      return (
+        <ShareModal
+          permissionBasis="school"
+          shareList={shareList}
+          prefferredBaseUrl="/dashboard"
+          type="studyPlan"
+        />
+      );
     }
     return '';
 
@@ -464,6 +477,13 @@ function CoursePlan() {
     //   </Button>
     // )}
   };
+  const handleEventClick = (entityId, selectedTopic) => {
+    updateState({
+      selectedTopic: selectedTopic,
+      selectedPlan: entityId
+    });
+  };
+
   return (
     <>
       <Grid
@@ -488,7 +508,7 @@ function CoursePlan() {
           <Box borderRadius={8} bg="#F7F7F7" p={18} mb={3}>
             <Box>
               <Text fontWeight="500" fontSize={'16px'}>
-                Schedule study session
+                Study Plan Details
               </Text>
               <Text fontSize="sm" color="gray.600">
                 Choose a study plan for more details
@@ -525,7 +545,7 @@ function CoursePlan() {
                   </Text>
                   <Spacer />
                   <Text color="gray.700" fontSize="base" ml={2}>
-                    {`${plan.readinessScore}%`}
+                    {`${Math.ceil(plan.readinessScore)}%`}
                   </Text>
                 </Flex>{' '}
                 <Box
@@ -596,7 +616,8 @@ function CoursePlan() {
 
         <StudyPlanSummary
           data={studyPlanUpcomingEvent}
-          updateState={updateState}
+          // updateState={updateState}
+          onEventClick={handleEventClick}
         />
       </Grid>
       <PaymentDialog

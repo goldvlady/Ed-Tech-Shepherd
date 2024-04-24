@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Chip from '../chip';
 import Button from './_components/button';
 import { PencilIcon } from '../../../../../../../../../../components/icons';
@@ -12,39 +11,40 @@ import {
   SelectValue,
   Select as ShadSelect
 } from '../../../../../../../../../../components/ui/select';
+import { Button as ShadCnButton } from '../../../../../../../../../../components/ui/button';
 import { cn } from '../../../../../../../../../../library/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '../../../../../../../../../../components/ui/popover';
+import { Input as ShadCnInput } from '../../../../../../../../../../components/ui/input';
+import { ChevronDown } from 'lucide-react';
 
 const mathTopics = [
-  {
-    id: 'algebra',
-    label: 'Algebra'
-  },
-  {
-    id: 'geometry',
-    label: 'Geometry'
-  },
-  {
-    id: 'trigonometry',
-    label: 'Trigonometry'
-  },
-  {
-    id: 'calculus',
-    label: 'Calculus'
-  },
-  {
-    id: 'statistics',
-    label: 'Statistics'
-  },
-  {
-    id: 'probability',
-    label: 'Probability'
-  },
-  {
-    id: 'discrete-math',
-    label: 'Discrete Math'
-  }
+  { id: 'algebra', label: 'Algebra' },
+  { id: 'arithmetic', label: 'Arithmetic' },
+  { id: 'calculus', label: 'Calculus' },
+  { id: 'complex_numbers', label: 'Complex Numbers' },
+  { id: 'derivatives', label: 'Derivatives' },
+  { id: 'differential_equations', label: 'Differential Equations' },
+  { id: 'fourier_transforms', label: 'Fourier Transforms' },
+  { id: 'function_optimization', label: 'Function Optimization' },
+  { id: 'integrals', label: 'Integrals' },
+  { id: 'laplace_transforms', label: 'Laplace Transforms' },
+  { id: 'limits', label: 'Limits' },
+  { id: 'linear_algebra', label: 'Linear Algebra' },
+  { id: 'matrices', label: 'Matrices' },
+  { id: 'number_theory', label: 'Number Theory' },
+  { id: 'partial_fractions', label: 'Partial Fractions' },
+  { id: 'series', label: 'Series' },
+  { id: 'statistics', label: 'Statistics' },
+  { id: 'trigonometry', label: 'Trigonometry' },
+  { id: 'vector_calculus', label: 'Vector Calculus' }
 ];
 
+const inputTypes = ['subject', 'topic', 'level', 'language'] as const;
+type InputType = (typeof inputTypes)[number];
 type Language = (typeof languages)[number];
 
 function Input({
@@ -88,31 +88,25 @@ function Input({
   const [selectedMathsTopic, setSelectedMathsTopic] = useState('');
   const [wordProblemValue, setWordProblemValue] = useState('');
   const [explainConceptValue, setExplainConceptValue] = useState('');
-  const handleInputTypeChange = (
-    type: 'subject' | 'topic' | 'level' | 'language'
-  ) => {
-    if (type === 'level' || type === 'language') {
-      setFilterKeyword({
-        keyword: '',
-        active: true
-      });
-    } else {
+
+  const isSubjectMath = chatContext.subject === 'Math';
+
+  function handleInputTypeChange(type: InputType) {
+    setFilterKeyword({
+      keyword: '',
+      active: type === 'level' || type === 'language'
+    });
+    setCurrentInputType(type);
+  }
+
+  const handleSubmit = () => {
+    if (chatContext.subject?.trim()) {
       setFilterKeyword({
         keyword: '',
         active: false
       });
+      onSubmit();
     }
-
-    setCurrentInputType(type);
-  };
-
-  const handleSubmit = () => {
-    if (chatContext.subject?.trim() === '') return;
-    setFilterKeyword({
-      keyword: '',
-      active: false
-    });
-    onSubmit();
   };
 
   const handleButtonClick = () => {
@@ -220,47 +214,17 @@ function Input({
               </span>
             )}
         </div>
-
         <>
           {currentInputType === 'topic' && chatContext.subject === 'Math' && (
-            <ShadSelect
-              value={selectedMathsTopic}
-              onValueChange={(value) => {
-                if (
-                  currentInputType === 'topic' &&
-                  chatContext.subject === 'Math'
-                ) {
-                  if (value !== null) {
-                    handleTopicChange(`${value} `);
-                  } else {
-                    handleTopicChange('');
-                  }
-                }
-                setSelectedMathsTopic(value);
-              }}
-            >
-              <SelectTrigger
-                className={cn(
-                  'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
-                  {
-                    'pointer-events-none opacity-50':
-                      wordProblemValue?.trim() || explainConceptValue?.trim()
-                  }
-                )}
-              >
-                <SelectValue placeholder="Topic" className="mr-2" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {/* <SelectItem value={null}>None</SelectItem> */}
-                {mathTopics.map((topic) => {
-                  return (
-                    <SelectItem key={topic.id} value={topic.id}>
-                      {topic.label}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </ShadSelect>
+            <AutoCompleteDropdown
+              chatContext={chatContext}
+              currentInputType={currentInputType}
+              handleTopicChange={handleTopicChange}
+              selectedMathsTopic={selectedMathsTopic}
+              setSelectedMathsTopic={setSelectedMathsTopic}
+              wordProblemValue={wordProblemValue}
+              explainConceptValue={explainConceptValue}
+            />
           )}
           <input
             value={(() => {
@@ -355,7 +319,15 @@ function Input({
           <Button
             disabled={
               (currentInputType === 'subject' &&
-                chatContext.subject?.trim() === '') ||
+                (chatContext.subject?.trim() === '' ||
+                  !courseList.some(
+                    (list) => list.label === chatContext.subject?.trim()
+                  ))) ||
+              (currentInputType === 'level' &&
+                (chatContext.level?.trim() === '' ||
+                  !levels.some(
+                    (list) => list.label === chatContext.level?.trim()
+                  ))) ||
               (currentInputType === 'language' &&
                 chatContext.language.length === 0) ||
               (currentInputType === 'topic' &&
@@ -392,6 +364,7 @@ function Input({
                 : 'Submit'
             }
           />
+          {/* {console.log('courseList', courseList)} */}
           <AutocompleteWindow
             setActive={() => {
               setFilterKeyword({
@@ -405,8 +378,10 @@ function Input({
             }
             filterKeyword={filterKeyword}
             onClick={(value) => {
-              if (currentInputType === 'subject') handleSubjectChange(value);
-              else if (currentInputType === 'level') handleLevelChange(value);
+              if (currentInputType === 'subject') {
+                handleSubjectChange(value);
+                handleTopicChange('');
+              } else if (currentInputType === 'level') handleLevelChange(value);
               else if (currentInputType === 'topic') handleTopicChange(value);
               else if (currentInputType === 'language')
                 handleLanguageChange(value);
@@ -440,7 +415,7 @@ function Input({
             : ''
         }`}
       >
-        {['Math', 'Physics', 'Chemistry', 'Programming'].map((subject) => (
+        {['Math', 'Physics', 'Chemistry', 'Computer Science'].map((subject) => (
           <Chip
             key={subject}
             title={subject}
@@ -530,23 +505,28 @@ const AutocompleteWindow = ({
 
   return (
     <div className="w-full p-2 absolute top-[90%] bg-white rounded-lg rounded-t-none shadow-md z-10 max-h-[20rem] overflow-y-scroll py-2 no-scrollbar">
-      {currentInputType === 'subject'
-        ? courseList
-            ?.filter((item) =>
+      {currentInputType === 'subject' &&
+        courseList
+          ?.filter(
+            (item, index, self) =>
+              self.findIndex(
+                (t) => t.label.toLowerCase() === item.label.toLowerCase()
+              ) === index &&
               item.label
                 .toLowerCase()
                 .includes(filterKeyword.keyword.toLowerCase())
-            )
-            .map((item) => (
-              <AutocompleteItem
-                title={item.label}
-                onClick={() => {
-                  onClick(item.label);
-                  setActive(false);
-                }}
-              />
-            ))
-        : null}
+          )
+          .map((item) => (
+            <AutocompleteItem
+              key={item.label} // Assuming item.label is unique, otherwise provide a unique key
+              title={item.label}
+              onClick={() => {
+                onClick(item.label);
+                setActive(false);
+              }}
+            />
+          ))}
+
       {currentInputType === 'level'
         ? levels
             ?.filter((item) =>
@@ -602,4 +582,120 @@ const AutocompleteItem = ({
     </div>
   );
 };
+
+const AutoCompleteDropdown = ({
+  selectedMathsTopic,
+  setSelectedMathsTopic,
+  handleTopicChange,
+  currentInputType,
+  chatContext,
+  wordProblemValue,
+  explainConceptValue
+}) => {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
+
+  const getMathTopicLabel = (topicId, mathTopics) => {
+    const topic = mathTopics.find((t) => {
+      const stringId = String(t.id).trim();
+      const stringTopicId = String(topicId).trim();
+      return stringId === stringTopicId;
+    });
+    return topic ? topic.label : '';
+  };
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        asChild
+        disabled={wordProblemValue?.trim() || explainConceptValue?.trim()}
+      >
+        <ShadCnButton
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',"
+        >
+          {chatContext.topic
+            ? getMathTopicLabel(chatContext.topic, mathTopics)
+            : 'Topic'}
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </ShadCnButton>
+      </PopoverTrigger>
+      <PopoverContent className="w-[200px] p-0 bg-white">
+        <div className="w-full h-full p-1 flex flex-col gap-1">
+          <ShadCnInput
+            placeholder="Search topics"
+            className="active:ring-0"
+            defaultValue={value}
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+            }}
+          />
+          <div className="w-full mt-1 max-h-60 overflow-scroll">
+            {mathTopics
+              .filter((topic) =>
+                topic.label.toLowerCase().includes(value.toLowerCase())
+              )
+              .map((topic) => {
+                return (
+                  <div
+                    role="button"
+                    key={topic.id}
+                    className="px-2 py-1 hover:bg-gray-200 flex justify-start items-center cursor-pointer rounded"
+                    onClick={() => {
+                      setSelectedMathsTopic(topic.id);
+                      handleTopicChange(`${topic.id} `);
+                      setOpen(false);
+                      setValue('');
+                    }}
+                  >
+                    <span className="text-xs ">{topic.label}</span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+  // return (
+  //   <ShadSelect
+  //     value={selectedMathsTopic}
+  //     onValueChange={(value) => {
+  //       if (currentInputType === 'topic' && chatContext.subject === 'Math') {
+  //         if (value !== null) {
+  //           handleTopicChange(`${value} `);
+  //         } else {
+  //           handleTopicChange('');
+  //         }
+  //       }
+  //       setSelectedMathsTopic(value);
+  //     }}
+  //   >
+  //     <SelectTrigger
+  //       className={cn(
+  //         'w-fit h-full max-w-[8rem] md:max-w-none bg-[#F9F9F9] text-[0.87rem] text-[#6E7682] px-[1.25rem] [&_svg]:ml-2 rounded-tr-none rounded-br-none transition-opacity',
+  //         {
+  //           'pointer-events-none opacity-50':
+  //             wordProblemValue?.trim() || explainConceptValue?.trim()
+  //         }
+  //       )}
+  //     >
+  //       <SelectValue placeholder="Topic" className="mr-2" />
+  //     </SelectTrigger>
+  //     <SelectContent className="bg-white">
+  //       {/* <SelectItem value={null}>None</SelectItem> */}
+  //       {mathTopics.map((topic) => {
+  //         return (
+  //           <SelectItem key={topic.id} value={topic.id}>
+  //             {topic.label}
+  //           </SelectItem>
+  //         );
+  //       })}
+  //     </SelectContent>
+  //   </ShadSelect>
+  // );
+};
+
 export default Input;

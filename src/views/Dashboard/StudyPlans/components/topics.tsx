@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import FileProcessingService from '../../../../helpers/files.helpers/fileProcessing';
 import useUserStore from '../../../../state/userStore';
+import { PopupButton, PopupModal } from 'react-calendly';
 import {
   Badge,
   Box,
@@ -35,7 +36,8 @@ import {
   Popover,
   CircularProgress,
   Icon,
-  Tooltip
+  Tooltip,
+  Center
 } from '@chakra-ui/react';
 import useInitializeAIChat from '../hooks/useInitializeAITutor';
 import { useSearchParams } from 'react-router-dom';
@@ -65,11 +67,17 @@ import CalendarDateInput from '../../../../components/CalendarDateInput';
 import ApiService from '../../../../services/ApiService';
 import SelectedNoteModal from '../../../../components/SelectedNoteModal';
 import useStoreConversationIdToStudyPlan from '../hooks/useStoreConversationIdToStudyPlan';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaVideo } from 'react-icons/fa';
 import R2RClient from '../../../../services/R2R';
 import { IoCreateOutline } from 'react-icons/io5';
 import quizStore from '../../../../state/quizStore';
 import TimePicker from '../../../../components/TimePicker';
+import { BiPlayCircle } from 'react-icons/bi';
+import { MdEdit } from 'react-icons/md';
+import StudySessionLogger from '../../../../helpers/sessionLogger';
+import { SessionType } from '../../../../types';
+import { RiUploadCloudLine } from 'react-icons/ri';
+import ResourceModal from './resources';
 
 function Topics(props) {
   const { planTopics, selectedPlan } = props;
@@ -95,7 +103,10 @@ function Topics(props) {
   } = resourceStore();
 
   const [convoId, setConvoId] = useState(null);
-  const [hasConversationId, setHasConversationId] = useState(false);
+  const [topicId, setTopicId] = useState(false);
+  const [vidOverlay, setVidOverlay] = useState<boolean>(true);
+  const [isLectureStarted, setIsLectureStarted] = useState(false);
+  const [isLectureFinished, setIsLectureFinished] = useState(false);
   const [state, setState] = useState({
     // studyPlans: storePlans,
     isPageLoading: false,
@@ -138,6 +149,11 @@ function Topics(props) {
     isOpen: isBountyModalOpen,
     onOpen: openBountyModal,
     onClose: closeBountyModal
+  } = useDisclosure();
+  const {
+    isOpen: isCalendlyOpen,
+    onOpen: openCalendly,
+    onClose: closeCalendly
   } = useDisclosure();
 
   const groupedTopics = planTopics?.schedules.reduce((grouped, topic) => {
@@ -244,27 +260,6 @@ function Topics(props) {
     navigate(`/login?redirect=/dashboard${currentPathWithQuery}`);
   };
 
-  // const getTopicResource = async (topic: string) => {
-  //   updateState({ isLoading: true });
-  //   try {
-  //     // Instantiate SciPhiService
-  //     const sciPhiService = new SciPhiService();
-
-  //     // Define search options
-  //     const searchOptions = {
-  //       query: topic
-  //     };
-
-  //     // Call searchRag method
-  //     const response = await sciPhiService.searchRag(searchOptions);
-  //     if (response) {
-  //       updateState({ isLoading: false, topicResource: response });
-  //     }
-  //   } catch (error) {
-  //     updateState({ isLoading: false });
-  //     console.error('Error searching topic:', error);
-  //   }
-  // };
   const getTopicResource = async (topic: string) => {
     updateState({ isLoading: true });
     try {
@@ -316,9 +311,57 @@ function Topics(props) {
 
   const findDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
-      return studyPlanResources[topic].documents;
+      const documents = studyPlanResources[topic].documents;
+      const videoExtensions = [
+        '.mp4',
+        '.mov',
+        '.avi',
+        '.mkv',
+        '.wmv',
+        '.flv',
+        '.webm'
+      ];
+      return documents.filter((document) => {
+        const url = document.documentUrl.toLowerCase();
+        return !videoExtensions.some((extension) => url.endsWith(extension));
+      });
     }
     return [];
+  };
+  const findBookingStatus = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic]?.meta) {
+      return studyPlanResources[topic]?.meta?.canBook;
+    }
+    return [];
+  };
+
+  const findVideoDocumentsByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      const documents = studyPlanResources[topic].documents;
+      return documents.filter((document) => {
+        // Assuming documentUrl contains the URL of the document
+        const url = document.documentUrl.toLowerCase();
+        // List of video file extensions to check against
+        const videoExtensions = [
+          '.mp4',
+          '.mov',
+          '.avi',
+          '.mkv',
+          '.wmv',
+          '.flv',
+          '.webm'
+        ];
+        // Check if the URL ends with any of the video file extensions
+        return videoExtensions.some((extension) => url.endsWith(extension));
+      });
+    }
+    return [];
+  };
+  const findTutorCalendlyByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].meta) {
+      return studyPlanResources[topic].meta?.tutor?.calendlyLink;
+    }
+    return;
   };
 
   const loadFlashcard = async (flashcardId: string) => {
@@ -412,6 +455,7 @@ function Topics(props) {
 
     return { label: time, value: time };
   });
+  console.log(isLectureStarted);
 
   const TopicCard = ({ topic }) => {
     const [isCollapsed, setIsCollapsed] = useState(true); // Initialize isCollapsed state for each topic card
@@ -498,7 +542,6 @@ function Topics(props) {
       }
       setInitializing(false);
     };
-    console.log(initializingDocChat);
 
     const handleDocAction = async (doc) => {
       setInitializingDocChat(true);
@@ -536,6 +579,7 @@ function Topics(props) {
         setInitializingDocChat(false);
       }
     };
+    console.log(user);
 
     const navigateToQuizPage = (quizId: string) => {
       const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
@@ -764,6 +808,20 @@ function Topics(props) {
                 </MenuButton>
                 <MenuList maxH={60} overflowY="scroll">
                   {studyPlanResources && renderQuizzes()}
+
+                  {/* <Button
+                    color="gray"
+                    size={'sm'}
+                    variant="ghost"
+                    alignItems="center"
+                    float={'right'}
+                    mt={2}
+                    // onClick={() => setShowNoteModal(true)}
+                    fontSize={12}
+                  >
+                    <Icon as={FaPlus} mr={2} />
+                    Generate More
+                  </Button> */}
                 </MenuList>
               </Menu>
               <Menu isLazy>
@@ -891,6 +949,7 @@ function Topics(props) {
                   updateState({
                     selectedTopic: topic.topicDetails?.label
                   });
+                  setTopicId(topic._id);
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
                 }}
@@ -954,20 +1013,47 @@ from  ${moment(
               </Badge>
 
               <Spacer />
-              {!isTutor && (
-                <Button
-                  size={'sm'}
-                  onClick={() => {
-                    updateState({
-                      selectedTopic: topic.topicDetails?.label
-                    });
+              {!isTutor &&
+                (user.school ? (
+                  <>
+                    <Button
+                      size={'sm'}
+                      isDisabled={!findBookingStatus(topic.topicDetails?.label)}
+                      // isDisabled={false}
+                      onClick={() => {
+                        openCalendly();
+                      }}
+                    >
+                      Book Session
+                    </Button>
+                    <PopupModal
+                      url={findTutorCalendlyByTopic(topic.topicDetails?.label)}
+                      // pageSettings={this.props.pageSettings}
+                      // utm={this.props.utm}
+                      // prefill={this.props.prefill}
+                      onModalClose={() => closeCalendly()}
+                      open={isCalendlyOpen}
+                      /*
+                       * react-calendly uses React's Portal feature (https://reactjs.org/docs/portals.html) to render the popup modal. As a result, you'll need to
+                       * specify the rootElement property to ensure that the modal is inserted into the correct domNode.
+                       */
+                      rootElement={document.getElementById('root')}
+                    />
+                  </>
+                ) : (
+                  <Button
+                    size={'sm'}
+                    onClick={() => {
+                      updateState({
+                        selectedTopic: topic.topicDetails?.label
+                      });
 
-                    openBountyModal();
-                  }}
-                >
-                  Find a tutor
-                </Button>
-              )}
+                      openBountyModal();
+                    }}
+                  >
+                    Find a tutor
+                  </Button>
+                ))}
             </Flex>
           </Box>
         </Box>
@@ -1012,7 +1098,7 @@ from  ${moment(
                 >
                   <Box>
                     <Text fontSize="16px" fontWeight="500" color="gray.700">
-                      Test Date:
+                      {`${user.school ? 'Checkpoint' : 'Test Date'}`}
                     </Text>
                     <Text fontSize="14px" color="gray.600">
                       {testTopics[0]}
@@ -1025,129 +1111,17 @@ from  ${moment(
             ))}
         </Box>
       </Box>
-      <Modal
+      <ResourceModal
         isOpen={isOpenResource}
         onClose={() => {
           updateState({ topicResource: null });
           onCloseResource();
         }}
-        size="3xl"
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            <HStack>
-              <ResourceIcon />
-              <Text fontSize="16px" fontWeight="500">
-                Extra Resources
-              </Text>
-            </HStack>
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody overflowY={'auto'} maxH="500px" flexDirection="column">
-            {!state.isLoading ? (
-              state.topicResource ? (
-                <Box w="full">
-                  <Flex alignItems={'center'} my={2}>
-                    <Text
-                      fontSize={'17px'}
-                      fontWeight="500"
-                      px={1}
-                      color="#000"
-                    >
-                      Summary
-                    </Text>
-                  </Flex>
-
-                  <Box
-                    p={4}
-                    maxH="350px"
-                    overflowY="auto"
-                    // borderWidth="1px"
-                    // borderRadius="md"
-                    // borderColor="gray.200"
-                    // boxShadow="md"
-                    className="custom-scroll"
-                  >
-                    <Text lineHeight="6">
-                      {state.topicResource?.completion.choices[0].message.content.replace(
-                        /\[.*?\]/g,
-                        ''
-                      )}
-                    </Text>
-                  </Box>
-                  <Text
-                    fontSize={'17px'}
-                    fontWeight="500"
-                    px={1}
-                    color="#000"
-                    my={4}
-                  >
-                    Sources
-                  </Text>
-                  <SimpleGrid minChildWidth="150px" spacing="10px">
-                    {state.topicResource?.search_results
-                      .filter((item) => item.title)
-                      .map((source, index) => (
-                        <a
-                          key={index}
-                          href={`${source.link}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Box
-                            bg="#F3F5F6"
-                            p={4}
-                            borderRadius="md"
-                            boxShadow="md"
-                            borderWidth="1px"
-                            borderColor="gray.200"
-                            cursor="pointer"
-                            transition="transform 0.3s"
-                            _hover={{ transform: 'scale(1.05)' }}
-                          >
-                            <Flex direction="column" textAlign="left" gap={2}>
-                              <Text fontWeight={600} fontSize="sm">
-                                {source.title?.length > 15
-                                  ? source.title?.substring(0, 15) + '...'
-                                  : source.title}
-                              </Text>
-                              <Flex alignItems="center">
-                                <Text color="gray.500" fontSize="xs">
-                                  {source.link?.length > 19
-                                    ? source.link?.substring(0, 19) + '...'
-                                    : source.link}
-                                </Text>
-                                <Spacer />
-                                <img
-                                  className="h-3 w-3"
-                                  alt={source.link}
-                                  src={`https://www.google.com/s2/favicons?domain=${
-                                    source.link
-                                  }&sz=${16}`}
-                                />
-                              </Flex>
-                            </Flex>
-                          </Box>
-                        </a>
-                      ))}
-                  </SimpleGrid>
-                </Box>
-              ) : (
-                <VStack>
-                  <Text>No resource, Please try again</Text>
-                  <RepeatIcon
-                    boxSize={6}
-                    onClick={() => getTopicResource(state.selectedTopic)}
-                  />
-                </VStack>
-              )
-            ) : (
-              <Spinner />
-            )}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+        state={state}
+        updateState={updateState}
+        findVideoDocumentsByTopic={findVideoDocumentsByTopic}
+        getTopicResource={getTopicResource}
+      />
       <Modal isOpen={isOpenCadence} onClose={onCloseCadence} size="lg">
         <ModalOverlay />
         <ModalContent>
