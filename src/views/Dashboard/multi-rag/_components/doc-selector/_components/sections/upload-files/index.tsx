@@ -3,29 +3,29 @@ import { Button } from '../../../../../../../../components/ui/button';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 import { cn } from '../../../../../../../../library/utils';
+import ApiService from '../../../../../../../../services/ApiService';
 
 function UploadFiles() {
-  const handleSubmit = () => {
-    const files = acceptedFiles;
+  const handleSubmit = (inputFiles) => {
+    const files = inputFiles;
+    console.log('inputFiles', files);
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append('files', files[i]);
     }
     // Setting up the endpoint with sid
     const sid = '64906166763aa2579e58c97d';
-    const url = `http://localhost:8000/multirag/file-uploads/?sid=${sid}`;
     // Use fetch to POST data
-    fetch(url, {
-      method: 'POST',
-      body: formData
+    ApiService.uploadMultiDocFiles({
+      studentId: sid,
+      formData
     })
       .then((response) => response.json())
       .then((data) => console.log(data))
       .catch((error) => console.error('Error:', error));
   };
   const onDrop = useCallback((acceptedFiles) => {
-    const file = acceptedFiles[0];
-    handleSubmit();
+    handleSubmit(acceptedFiles);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive, acceptedFiles } =

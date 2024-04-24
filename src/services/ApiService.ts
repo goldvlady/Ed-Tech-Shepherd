@@ -1027,6 +1027,20 @@ class ApiService {
     );
   };
 
+  static uploadMultiDocFiles = async (queryParams: {
+    studentId: string;
+    formData: FormData;
+  }) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      {
+        method: 'POST',
+        body: queryParams.formData
+      }
+    );
+  };
+
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {
     const response = await fetch(url, options);
