@@ -84,7 +84,6 @@ function replaceLatexDelimiters(source: string, showDot = false): string {
     .replaceAll('\\)', '$');
 
   return showDot ? `${latexRemoved} ⚫` : latexRemoved;
-  // return showDot ? `${source} ⚫` : source;
 }
 
 function getComponents(onKeywordClick: any): CustomComponents {

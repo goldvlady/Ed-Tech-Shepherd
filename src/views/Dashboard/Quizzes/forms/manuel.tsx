@@ -183,7 +183,7 @@ const ManualQuizForm = ({
   ];
 
   return (
-    <Box width={'100%'} mt="20px">
+    <Box width={'100%'} mt="2rem">
       {!isEmpty(tags) && (
         <HStack
           flexWrap={'wrap'}
@@ -202,7 +202,11 @@ const ManualQuizForm = ({
         </HStack>
       )}
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Preferred Language
+          </span>
+        </FormLabel>
         <Menu>
           <MenuButton
             as={Button}
@@ -210,12 +214,12 @@ const ManualQuizForm = ({
             rightIcon={<FiChevronDown />}
             borderRadius="8px"
             width="100%"
-            height="42px"
-            fontSize="0.875rem"
             fontFamily="Inter"
-            color=" #212224"
-            fontWeight="400"
             textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
           >
             {preferredLang || 'Select a language...'}
           </MenuButton>
@@ -225,11 +229,19 @@ const ManualQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
                 maxHeight: '200px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                marginTop: '10px'
               }}
             >
               {languages
@@ -253,47 +265,89 @@ const ManualQuizForm = ({
         </Menu>
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a title
+          </span>
+        </FormLabel>
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
-        />
-      </FormControl>
-      <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Select question type:</FormLabel>
-
-        <SelectComponent
-          name="type"
-          placeholder="Select Type"
-          options={typeOptions}
-          size={'md'}
-          onChange={(option) => {
-            const event = {
-              target: {
-                name: 'type',
-                value: (option as Option).value
-              }
-            } as ChangeEvent<HTMLSelectElement>;
-            handleChangeQuestionType(event);
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
           }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
+      </FormControl>
+      <FormControl mb={4}>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Select question type:
+          </span>
+        </FormLabel>
+
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {typeOptions.find((type) => type.value === currentQuestion.type)
+              ?.label || 'Select Type'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {typeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  handleChangeQuestionType({
+                    target: {
+                      name: 'type',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter your question:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter your question:
+          </span>
+        </FormLabel>
         <Textarea
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
           name="question"
           placeholder="Enter your question here"
           value={currentQuestion.question}
           onChange={handleChangeQuestionType}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          textColor={'#9A9DA2'}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <>
@@ -301,13 +355,14 @@ const ManualQuizForm = ({
           currentQuestion.type === MULTIPLE_CHOICE_SINGLE &&
           Array.from({ length: 4 }).map((_, index) => (
             <FormControl key={index} mb={4}>
-              <FormLabel>{`Option ${String.fromCharCode(
-                65 + index
-              )}:`}</FormLabel>
+              <FormLabel>
+                <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+                  {`Option ${String.fromCharCode(65 + index)}:`}
+                </span>
+              </FormLabel>
               <Input
                 type="text"
                 name={`option${String.fromCharCode(65 + index)}`}
-                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
                 placeholder={`Option ${String.fromCharCode(65 + index)}`}
                 value={
                   currentQuestion.options &&
@@ -316,6 +371,13 @@ const ManualQuizForm = ({
                   ]?.content
                 }
                 onChange={handleChangeOption}
+                height={'3rem'}
+                _placeholder={{
+                  color: '#9A9DA2',
+                  fontSize: '14px'
+                }}
+                fontSize={'0.87rem'}
+                fontWeight={400}
               />
             </FormControl>
           ))}
@@ -323,7 +385,7 @@ const ManualQuizForm = ({
       {!isEmpty(currentQuestion.question) && currentQuestion.type && (
         <FormControl mb={4}>
           <FormLabel textColor={'text.600'}>Answer:</FormLabel>
-          {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
+          {/* {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
             <SelectComponent
               name="answer"
               placeholder="Select answer"
@@ -339,32 +401,102 @@ const ManualQuizForm = ({
                 handleSetOptionAnswer(event);
               }}
             />
+          )} */}
+          {currentQuestion.type === MULTIPLE_CHOICE_SINGLE && (
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                borderRadius="8px"
+                width="100%"
+                fontFamily="Inter"
+                textAlign="left"
+                fontWeight="400"
+                fontSize="0.875rem"
+                height="3rem"
+                textColor={'#9A9DA2'}
+              >
+                {multipleChoiceSingleOptions.find(
+                  (type) => type.value === currentQuestion.answer
+                )?.label || 'Select answer'}
+              </MenuButton>
+              <MenuList zIndex={3}>
+                {multipleChoiceSingleOptions.map((type) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={type.value}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      const event = {
+                        target: {
+                          name: 'answer',
+                          value: type.value
+                        }
+                      } as ChangeEvent<HTMLSelectElement>;
+                      handleSetOptionAnswer(event);
+                    }}
+                  >
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
           )}
-
           {currentQuestion.type === TRUE_FALSE && (
-            <SelectComponent
-              name="answer"
-              placeholder="Select answer"
-              options={trueFalseOptions}
-              size={'md'}
-              onChange={(option) => {
-                const event = {
-                  target: {
-                    name: 'answer',
-                    value: (option as Option).value
-                  }
-                } as ChangeEvent<HTMLSelectElement>;
-                handleSetOptionAnswer(event);
-              }}
-            />
+            <Menu>
+              <MenuButton
+                as={Button}
+                variant="outline"
+                rightIcon={<FiChevronDown />}
+                borderRadius="8px"
+                width="100%"
+                fontFamily="Inter"
+                textAlign="left"
+                fontWeight="400"
+                fontSize="0.875rem"
+                height="3rem"
+                textColor={'#9A9DA2'}
+              >
+                {values(currentQuestion.options).find(
+                  (option) => option.isCorrect
+                )?.content || 'Select answer'}
+              </MenuButton>
+              <MenuList zIndex={3}>
+                {trueFalseOptions.map((type) => (
+                  <MenuItem
+                    fontSize="0.875rem"
+                    key={type.label}
+                    _hover={{ bgColor: '#F2F4F7' }}
+                    onClick={() => {
+                      const event = {
+                        target: {
+                          name: 'answer',
+                          value: type.value
+                        }
+                      } as ChangeEvent<any>;
+                      handleSetOptionAnswer(event);
+                    }}
+                  >
+                    {type.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
           )}
           {currentQuestion.type === OPEN_ENDED && (
             <Textarea
-              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               name="answer"
               placeholder="Select answer"
               value={currentQuestion.answer}
               onChange={handleSetOptionAnswer}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
           )}
         </FormControl>

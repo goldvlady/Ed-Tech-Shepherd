@@ -13,7 +13,6 @@ import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
