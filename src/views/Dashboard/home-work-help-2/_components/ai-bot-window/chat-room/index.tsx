@@ -13,11 +13,11 @@ import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
-
+const KEYWORD =
+  'We can tell that this query is complex and we suggest using a human tutor for better understanding of the subject matter.';
 function ChatRoom() {
   const { id } = useParams();
   const location = useLocation();
@@ -55,6 +55,7 @@ function ChatRoom() {
   const [streamEnded, setStreamEnded] = useState(true);
   const isFirstRun = useRef(true);
   const [subject, setSubject] = useState<'Math' | 'any'>('any');
+  const [handleDisabledForMaths, setHandleDisabledForMaths] = useState(false);
   const createMathConvoLogMutation = useMutation({
     mutationFn: (b: {
       query: string;
@@ -62,6 +63,8 @@ function ChatRoom() {
       studentId: string;
     }) => ApiService.createConvoLog(b)
   });
+  const chatWindowParams = getChatWindowParams();
+  const { connectionQuery } = chatWindowParams;
   useEffect(() => {
     if (isFirstRun.current) {
       isFirstRun.current = false;
@@ -134,8 +137,10 @@ function ChatRoom() {
                       .then((resp) => resp.json())
                       .then(async (d: { data: string }) => {
                         setTitle(d.data);
+                      })
+                      .finally(async () => {
                         await query.invalidateQueries({
-                          queryKey: ['chatHistory', { studentId }]
+                          queryKey: ['chatHistory']
                         });
                       });
                   }, 700);
@@ -171,7 +176,14 @@ function ChatRoom() {
     const searchIncludesInitialMessages =
       window.location.search.includes('initial_messages');
 
-    if (chatWindowParams && connectionQuery.subject !== 'Math') {
+    console.log('chatWindowParams', chatWindowParams);
+    const id = window.location.pathname.split('/').at(-1);
+    if (
+      chatWindowParams &&
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
+    ) {
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(
@@ -179,7 +191,11 @@ function ChatRoom() {
           studentId: user._id,
           conversationId: id,
           firebaseId: user?.firebaseId,
-          ...connectionQuery
+          ...connectionQuery,
+          topic:
+            connectionQuery.subject === 'Math'
+              ? connectionQuery.topicSecondary
+              : connectionQuery.topic
         },
         {
           conversationInitializer: CONVERSATION_INITIALIZER,
@@ -187,7 +203,12 @@ function ChatRoom() {
         }
       );
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
-    } else if (apiKey && connectionQuery.subject !== 'Math') {
+    } else if (
+      apiKey &&
+      ((connectionQuery.subject === 'Math' &&
+        connectionQuery.topicSecondary?.trim().length !== 0) ||
+        connectionQuery.subject !== 'Math')
+    ) {
       startConversation(
         {
           conversationId: id
@@ -198,8 +219,10 @@ function ChatRoom() {
         }
       );
     } else if (!searchIncludesInitialMessages) {
+      rest.refreshManager();
       rest.hydrateChat(id);
       fetchHistory(30, 0, id);
+      setConversationId(id);
       setSubject(connectionQuery.subject === 'Math' ? 'Math' : 'any');
     }
 
@@ -207,6 +230,17 @@ function ChatRoom() {
       queryKey: ['chatHistory', { studentId }]
     });
   }, [id]);
+
+  useEffect(() => {
+    if (
+      messages.length > 0 &&
+      messages.some(
+        (el) => el.log.content.includes(KEYWORD) || el.log.content === KEYWORD
+      )
+    ) {
+      setHandleDisabledForMaths(true);
+    }
+  }, [messages]);
 
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
@@ -232,6 +266,15 @@ function ChatRoom() {
     setAutoScroll(true);
   };
   const handleSSE = async (buffer: string) => {
+    if (buffer.includes(KEYWORD) || buffer === KEYWORD) {
+      setHandleDisabledForMaths(true);
+      return;
+    }
+    if (buffer.includes('run out of credits')) {
+      setOpenPricingModel(true);
+      setHandleDisabledForMaths(true);
+      return;
+    }
     if (buffer.includes('done with stream')) {
       sendMessage(buffer.split('done with stream')[0], 'math', 'assistant');
       setStreamEnded(true);
@@ -261,7 +304,7 @@ function ChatRoom() {
           <ChatInfoDropdown
             title={title}
             id={id}
-            disabled={apiKey ? true : false}
+            disabled={apiKey || handleDisabledForMaths ? true : false}
           />
           <button className="absolute right-0 top-0 flex items-center justify-center mr-4 sm:mr-8 p-2 rounded-lg bg-white shadow-md">
             <ShareModal type="aichat" customTriggerComponent={<ShareIcon />} />
@@ -286,7 +329,8 @@ function ChatRoom() {
                 suggestionPromptsVisible={
                   message.id === messages[messages.length - 1].id &&
                   messages.length >= 4 &&
-                  (apiKey ? false : true)
+                  (apiKey || handleDisabledForMaths ? false : true) &&
+                  connectionQuery.subject !== 'Math'
                 }
                 sendSuggestedPrompt={async (message: string) => {
                   if (subject === 'Math') {
@@ -400,12 +444,15 @@ function ChatRoom() {
             setTogglePlansModal={() => setOpenPricingModel(false)}
           />
           <PromptInput
-            disabled={apiKey ? true : false}
+            disabled={apiKey || handleDisabledForMaths ? true : false}
             streaming={!streamEnded}
             onSubmit={async (message: string) => {
-              if (subject === 'Math') {
-                const chatWindowParams = getChatWindowParams();
-                const { connectionQuery } = chatWindowParams;
+              const chatWindowParams = getChatWindowParams();
+              const { connectionQuery } = chatWindowParams;
+              if (
+                subject === 'Math' &&
+                connectionQuery.topicSecondary?.trim().length === 0
+              ) {
                 const fetchedMessages: Array<ChatMessageType> =
                   await ApiService.getConversionById({
                     conversationId: id

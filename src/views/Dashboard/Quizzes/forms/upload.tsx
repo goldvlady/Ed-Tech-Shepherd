@@ -95,7 +95,8 @@ const UploadQuizForm = ({
   const toast = useCustomToast();
   const { handleIsLoadingQuizzes } = quizStore();
 
-  const { hasActiveSubscription, user } = userStore();
+  const { hasActiveSubscription, user, activeSubscription, quizCountLimit } =
+    userStore();
 
   const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
 
@@ -119,7 +120,7 @@ const UploadQuizForm = ({
       const result = await ApiService.generateQuizQuestionFromDocs({
         ...d,
         count: toNumber(d?.count),
-        subscriptionTier: user.subscription?.tier,
+        subscriptionTier: activeSubscription?.tier,
         lang
       });
 
@@ -223,10 +224,7 @@ const UploadQuizForm = ({
       const userQuizCount = await quizCountResponse.json();
 
       // Assume userQuizCount contains the total number of quizzes the user can generate and has generated
-      const limit = hasActiveSubscription
-        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
-        : 40; // Default limit to 40 if on free tier
-      const quizzesRemaining = limit - userQuizCount.count;
+      const quizzesRemaining = quizCountLimit - userQuizCount.count;
 
       if (quizzesRemaining <= 0) {
         // User has reached or exceeded their limit
@@ -386,9 +384,13 @@ const UploadQuizForm = ({
   const disabledByTitle = isEmpty(title) ? true : isNil(title) ? true : false;
 
   return (
-    <Box width={'100%'} mt="20px">
+    <Box width={'100%'} mt="2rem">
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Preferred Language
+          </span>
+        </FormLabel>
         <Menu>
           <MenuButton
             as={Button}
@@ -396,12 +398,12 @@ const UploadQuizForm = ({
             rightIcon={<FiChevronDown />}
             borderRadius="8px"
             width="100%"
-            height="42px"
-            fontSize="0.875rem"
             fontFamily="Inter"
-            color=" #212224"
-            fontWeight="400"
             textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
           >
             {preferredLanguage || 'Select a language...'}
           </MenuButton>
@@ -411,11 +413,20 @@ const UploadQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              textColor={'#9A9DA2'}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
                 maxHeight: '200px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                marginTop: '10px'
               }}
             >
               {languages
@@ -439,22 +450,32 @@ const UploadQuizForm = ({
         </Menu>
       </FormControl>
       <FormControl mb={4}>
-        <FormLabel textColor={'text.600'}>Enter a title</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a title
+          </span>
+        </FormLabel>
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
           defaultValue={title}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Upload a document</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Upload a document
+          </span>
+        </FormLabel>
 
         <FileUpload
           show={openModal}
@@ -483,14 +504,20 @@ const UploadQuizForm = ({
         />
 
         <FormHelperText textColor={'text.300'}>
-          Shepherd supports .pdf, .tiff, .png & .jpg document formats
+          <span className="text-[##585F68] text-[0.87rem] font-normal">
+            Shepherd supports .pdf, .tiff, .png & .jpg document formats
+          </span>
         </FormHelperText>
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Question type:
+          </span>
+        </FormLabel>
 
-        <SelectComponent
+        {/* <SelectComponent
           name="type"
           defaultValue={typeOptions.find(
             (option) => option.value === localData.type
@@ -507,12 +534,52 @@ const UploadQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {typeOptions.find((option) => option.value === localData.type)
+              ?.label || 'Select Type'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {typeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'type',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>
-          Number of questions
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Number of questions
+          </span>
           <Tooltip
             hasArrow
             label="Quick tip! For docs under 40 pages, request a max 50 quizzes. For longer ones, double it up to 100 quizzes! Let's ace those tests!
@@ -523,8 +590,6 @@ const UploadQuizForm = ({
           </Tooltip>
         </FormLabel>
         <Input
-          textColor={'text.700'}
-          height={'48px'}
           className={isError && '!border-red-600 !border-spacing-2'}
           name="count"
           onChange={handleChange}
@@ -533,12 +598,23 @@ const UploadQuizForm = ({
           color={'text.200'}
           min="1"
           max={localData.end_page && localData.end_page <= 40 ? 50 : 100}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
-        <SelectComponent
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Level (optional):
+          </span>
+        </FormLabel>
+        {/* <SelectComponent
           name="difficulty"
           placeholder="Select Level"
           defaultValue={levelOptions.find(
@@ -555,27 +631,88 @@ const UploadQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {levelOptions.find(
+              (option) => option.value === localData.difficulty
+            )?.label || 'Select Level'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {levelOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'difficulty',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Start Page (Optional)</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Start Page (Optional)
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="start_page"
           placeholder="Start Page Number"
           value={localData.start_page}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>End Page (Optional)</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            End Page (Optional)
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="end_page"
           placeholder="End Page Number"
           value={localData.end_page}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 

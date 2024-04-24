@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createWorker } from 'tesseract.js';
+import ApiService from '../../../../../../../services/ApiService';
 
 // Define the type for the coordinates
 type Coords = [number, number, number, number];
@@ -85,16 +86,7 @@ function useAutomaticImageOcclusion() {
     let data;
     let error = '';
     try {
-      const response = await fetch(
-        'https://deploy-preview-285--api-sheperdtutors.netlify.app/getOcclusionImageText',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ imageUri: resizedImageURI })
-        }
-      );
+      const response = await ApiService.getOcclusionImageText(resizedImageURI);
 
       if (!response.ok) {
         error = 'Something went wrong. Please try again later.';
@@ -105,7 +97,6 @@ function useAutomaticImageOcclusion() {
 
       data = await response.json();
     } catch (error) {
-      error = 'Something went wrong. Please try again later.';
       throw new Error(
         'There was a problem fetching the occlusion coordinates. Please try again later.'
       );

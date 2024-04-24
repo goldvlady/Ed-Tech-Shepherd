@@ -40,6 +40,7 @@ import { useAutoAnimate } from '@formkit/auto-animate/react';
 import SubjectCard from '../../../components/SubjectCard';
 import studyPlanStore from '../../../state/studyPlanStore';
 import resourceStore from '../../../state/resourceStore';
+import userStore from '../../../state/userStore';
 import moment from 'moment';
 import Pagination from '../components/Pagination';
 import ShepherdSpinner from '../components/shepherd-spinner';
@@ -55,6 +56,8 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 function StudyPlans() {
   const { fetchPlans, studyPlans, pagination, isLoading, deleteStudyPlan } =
     studyPlanStore();
+  const { user } = userStore();
+
   const { courses: courseList, studyPlanCourses } = resourceStore();
   const [selectedPlan, setSelectedPlan] = useState<string>(null);
   const [page, setPage] = useState<number>(1);
@@ -288,6 +291,7 @@ function StudyPlans() {
         {studyPlans.length > 0 && (
           <Button
             size={'md'}
+            isDisabled={user.school && user.userRole !== 'tutor'}
             onClick={() => {
               const baseUrl = isTutor
                 ? '/dashboard/tutordashboard'
@@ -356,6 +360,7 @@ function StudyPlans() {
                   : '/dashboard';
                 navigate(`${baseUrl}/create-study-plans`);
               }}
+              isDisabled={user.school && user.userRole !== 'tutor'}
             >
               Create New
             </Button>

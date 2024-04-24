@@ -241,8 +241,8 @@ const OcclusionFlashcardTab = () => {
   };
 
   const renderPaginationItems = () => {
-    let start = pagination.page > 1 ? pagination.page - 1 : 1;
-    let items = [];
+    const start = pagination.page > 1 ? pagination.page - 1 : 1;
+    const items = [];
 
     for (let i = start; i < start + pagination.limit; i++) {
       items.push(

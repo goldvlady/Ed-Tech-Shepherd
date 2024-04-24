@@ -81,7 +81,7 @@ function ImageUploader({
   open: boolean;
   setImage: (image: string) => void;
   deckName: string;
-  handleClose: ({}) => void;
+  handleClose: (any) => void;
   handleOpen: () => void;
   setElements: (elements: any) => void;
 }) {

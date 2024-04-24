@@ -3,6 +3,7 @@ import { DownloadIcon, FlashCardsIcon } from '../icons';
 import { DeleteNoteModal } from '../index';
 import SelectableTable, { TableColumn } from '../table';
 import { useDisclosure } from '@chakra-ui/hooks';
+import { GrDocumentPerformance } from 'react-icons/gr';
 import {
   Modal,
   ModalOverlay,
@@ -285,6 +286,23 @@ const AllClientsTab = (props) => {
                   </div>
                   <Text className="text-sm text-secondaryGray font-medium">
                     Client review
+                  </Text>
+                </div>
+                <ChevronRightIcon className="w-2.5 h-2.5" />
+              </button>
+              <button
+                onClick={() => navigate(`performance/${id}`)}
+                className="w-full bg-gray-100 rounded-md flex items-center justify-between p-2"
+              >
+                <div className=" flex items-center space-x-1">
+                  <div className="bg-white border flex justify-center items-center w-7 h-7 rounded-full">
+                    <GrDocumentPerformance
+                      className="w-4 h-4 text-primaryGray"
+                      onClick={undefined}
+                    />
+                  </div>
+                  <Text className="text-sm text-secondaryGray font-medium">
+                    View Performance
                   </Text>
                 </div>
                 <ChevronRightIcon className="w-2.5 h-2.5" />

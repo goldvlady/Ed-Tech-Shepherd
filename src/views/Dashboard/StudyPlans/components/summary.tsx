@@ -23,7 +23,7 @@ import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
 function StudyPlanSummary(props) {
   const { user } = userStore();
 
-  const { data, updateState } = props;
+  const { data, onEventClick } = props;
   const [eventPeriod, setEventPeriod] = useState('all');
 
   // Define state variables for filtered events
@@ -42,19 +42,9 @@ function StudyPlanSummary(props) {
   const isDayTime = hours > 6 && hours < 20;
 
   //SUMMARY FILTER BY PERIOD
-  // Define the start and end dates for today
-  const todayStart = moment().startOf('day');
-  const todayEnd = moment().endOf('day');
-
-  // Define the start and end dates for the current week
-  const currentWeekStart = moment().startOf('week');
-
-  // Define the start and end dates for next week
-  const nextWeekStart = moment().startOf('week').add(1, 'weeks');
-  const nextWeekEnd = moment().endOf('week').add(1, 'weeks');
 
   // Define the start and end dates for the current month
-  const currentMonthStart = moment().startOf('month');
+
   const currentDate = moment();
   const tomorrowDate = moment().add(1, 'day');
   const endOfWeekDate = moment().endOf('week');
@@ -103,36 +93,72 @@ function StudyPlanSummary(props) {
   }, [data]);
 
   const getEventList = (events) => {
-    return events.map((event) => (
-      <li
-        key={event._id} // Add a unique key
-        className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
-        onClick={() => {
-          updateState({
-            selectedTopic: event.metadata.topicId,
-            selectedPlan: event.entityId
-          });
-        }}
-      >
-        <div
-          className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
-        />
-        <div className="py-2 w-full">
-          <div className="flex gap-x-1">
-            <div className="min-w-0 flex-auto">
-              <Text className="text-xs font-normal leading-6 text-gray-500">
-                {event.topic.label}
-              </Text>
-              <Flex alignItems={'center'}>
-                <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                  <span>{event.startTime}</span>
+    const handleEventClick = (entityId, selectedTopic) => {
+      // Pass entityId and selectedTopic to the parent component
+      onEventClick(entityId, selectedTopic);
+    };
+
+    const getColorForEntityId = (entityId) => {
+      // Convert entityId to a numeric value
+      const numericValue = entityId
+        .split('')
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      // Map the numeric value to a color
+      const colorIndex = numericValue % colorPalette.length;
+      return colorPalette[colorIndex];
+    };
+
+    const colorPalette = [
+      '#FF5733',
+      '#33FF57',
+      '#5733FF',
+      '#FF33A1',
+      '#33B8FF',
+      '#F4FF33',
+      '#337DFF',
+      '#7D33FF',
+      '#FF5D33'
+    ];
+
+    return events.map((event) => {
+      const eventColor = getColorForEntityId(event.entityId);
+      return (
+        <li
+          key={event._id}
+          className={`flex gap-x-3 cursor-pointer hover:drop-shadow-sm bg-gray-50`}
+          // onClick={(e) => {
+          //   e.stopPropagation();
+
+          //   updateState({
+          //     selectedTopic: event.metadata.topicId,
+          //     selectedPlan: event.entityId
+          //   });
+          // }}
+          onClick={() =>
+            handleEventClick(event.entityId, event.metadata.topicId)
+          }
+        >
+          <div
+            className={`min-h-fit w-1 rounded-tr-full rounded-br-full bg-red-500`}
+            style={{ backgroundColor: eventColor }}
+          />
+          <div className="py-2 w-full">
+            <div className="flex gap-x-1">
+              <div className="min-w-0 flex-auto">
+                <Text className="text-xs font-normal leading-6 text-gray-500">
+                  {event.topic.label}
                 </Text>
-              </Flex>
+                <Flex alignItems={'center'}>
+                  <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
+                    <span>{event.startTime}</span>
+                  </Text>
+                </Flex>
+              </div>
             </div>
           </div>
-        </div>
-      </li>
-    ));
+        </li>
+      );
+    });
   };
 
   const SummaryPeriod = ({ data, period }) => {
@@ -197,13 +223,9 @@ function StudyPlanSummary(props) {
           </Text>
         </Box>
         <Box mt={4}>
-          <Flex>
-            {' '}
-            <Text fontSize={12} p={3} fontWeight={500}>
-              Summary
-            </Text>
-            <Spacer />{' '}
-          </Flex>
+          <Text fontSize={14} py={3} fontWeight={500}>
+            Summary
+          </Text>
 
           <ul className="space-y-3">
             {data?.length > 0 ? (
