@@ -9,15 +9,139 @@ import {
   Button,
   Input,
   Text,
-  Box
+  Box,
+  List,
+  ListItem,
+  VStack,
+  Checkbox,
+  extendTheme,
+  ChakraProvider,
+  HStack
 } from '@chakra-ui/react';
 import { DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState, useEffect } from 'react';
 import { copyTextToClipboard } from '../helpers/copyTextToClipboard';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { RiShareForwardLine, RiTwitterXLine } from '@remixicon/react';
 import { newId } from '../helpers/id';
+import { debounce } from 'lodash';
+
+// import {
+//   MultiSelect,
+//   MultiSelectProps,
+//   MultiSelectTheme,
+//   SelectionVisibilityMode,
+//   useMultiSelect
+// } from 'chakra-multiselect';
+import { MultiSelect } from 'react-multi-select-component';
+
 import ApiService from '../services/ApiService';
+import useResourceStore from '../state/resourceStore';
+import clientStore from '../state/clientStore';
+
+interface Item {
+  id: string;
+  name: string;
+}
+
+interface SearchableListProps {
+  items: Item[];
+  checkedIds?: string[];
+  onItemCheck: (id: string) => void;
+  onAllCheck: (checked: boolean) => void;
+}
+
+const SearchableList: React.FC<SearchableListProps> = ({
+  items,
+  checkedIds = [],
+  onItemCheck,
+  onAllCheck
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const allChecked = checkedIds.length === items.length;
+
+  useEffect(() => {
+    const debouncedSearch = debounce(filterItems, 300);
+    debouncedSearch(searchTerm);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [searchTerm]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value.toLowerCase());
+  };
+
+  const handleItemCheck = (id: string) => {
+    onItemCheck(id);
+  };
+
+  const handleAllCheck = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onAllCheck(event.target.checked);
+  };
+
+  const filterItems = (term: string) => {
+    const filtered = items.filter((item) =>
+      item.name.toLowerCase().includes(term)
+    );
+    setFilteredItems(filtered);
+  };
+
+  return (
+    <Box width="100%" overflow="hidden">
+      <VStack spacing={4}>
+        <HStack w="full">
+          <Checkbox
+            isChecked={allChecked}
+            onChange={handleAllCheck}
+            aria-label="Select all items"
+          />
+
+          <Input
+            height={'12px'}
+            _placeholder={{ fontSize: '12px' }}
+            placeholder={`Search students to share with...`}
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </HStack>
+
+        <Box
+          width="100%"
+          maxHeight="200px"
+          overflowY="scroll"
+          css={{
+            '&::-webkit-scrollbar': {
+              width: '4px',
+              background: '#F7FAFC'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: '#CBD5E0',
+              borderRadius: '2px'
+            }
+          }}
+        >
+          <List spacing={2}>
+            {filteredItems.map((item) => (
+              <ListItem key={item.id}>
+                <Checkbox
+                  fontSize={'8px'}
+                  width="full"
+                  borderBottom={'1px solid #E4E6E7'}
+                  isChecked={checkedIds.includes(item.id)}
+                  onChange={() => handleItemCheck(item.id)}
+                >
+                  <Text fontSize={'14px'}> {item.name}</Text>
+                </Checkbox>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </VStack>
+    </Box>
+  );
+};
 
 type ShareModalProps = {
   type:
@@ -27,9 +151,12 @@ type ShareModalProps = {
     | 'docchat'
     | 'aichat'
     | 'tutor'
+    | 'school'
     | 'studyPlan';
   customTriggerComponent?: React.ReactNode;
   prefferredBaseUrl?: string;
+  shareList?: { id: string; name: string }[];
+  permissionBasis?: 'school';
 };
 
 interface ModalContentLayoutProps {
@@ -62,7 +189,9 @@ const appendParamsToUrl = (baseUrl, paramsToAppend) => {
 const ShareModal = ({
   type,
   customTriggerComponent,
-  prefferredBaseUrl
+  prefferredBaseUrl,
+  shareList,
+  permissionBasis
 }: ShareModalProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [shareLink, setShareLink] = useState('');
@@ -85,6 +214,24 @@ const ShareModal = ({
       onOpen();
     }, 500);
   };
+
+  const generateMultipleShareLinks = (
+    userIds: string[]
+  ): { shareLink: string; apiKey: string; userId: string }[] => {
+    return userIds.map((userId) => {
+      const apiKey = newId('shep');
+      const url = prefferredBaseUrl || window.location.href;
+      const shareLink = appendParamsToUrl(
+        window.location.href,
+        new URLSearchParams([
+          ['shareable', 'true'],
+          ['apiKey', apiKey]
+        ])
+      ).replace('/tutordashboard', '');
+      return { shareLink, apiKey, userId };
+    });
+  };
+
   const copyShareLink = useCallback(async () => {
     try {
       await copyTextToClipboard(shareLink);
@@ -104,6 +251,37 @@ const ShareModal = ({
       });
     }
   }, [shareLink, toast]);
+
+  const forwardToUsers = useCallback(async (userIds: string[]) => {
+    try {
+      const forwardList = generateMultipleShareLinks(userIds);
+      const { ok } = await ApiService.generateShareLink({
+        forwardList,
+        permissionBasis,
+        shareType: type
+      });
+      if (ok) {
+        toast({
+          title: 'Share Link Shared with users 🎊',
+          description: 'Successfully shared link',
+          status: 'success',
+          position: 'bottom-right'
+        });
+      } else {
+        toast({
+          title: 'Something went wrong creating your share link',
+          status: 'error',
+          position: 'bottom-right'
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Something went wrong creating your share link',
+        status: 'error',
+        position: 'bottom-right'
+      });
+    }
+  }, []);
 
   const shareOnX = useCallback(async () => {
     let tweetBaseText = '';
@@ -159,14 +337,16 @@ const ShareModal = ({
 
     return (
       <ModalContentLayout
+        shareList={shareList}
         headerTitle={headerTitles[type]}
         bodyText={bodyTexts[type]}
         presentableLink={presentableLink}
         copyShareLink={copyShareLink}
         shareOnX={shareOnX}
+        forwardToUsers={forwardToUsers}
       />
     );
-  }, [type, presentableLink, copyShareLink, shareOnX]);
+  }, [type, presentableLink, copyShareLink, forwardToUsers, shareOnX]);
 
   return (
     <>
@@ -230,92 +410,162 @@ const ShareModal = ({
   );
 };
 
-export default ShareModal;
-
 const ModalContentLayout = ({
   headerTitle,
   bodyText,
   presentableLink,
   copyShareLink,
-  shareOnX
-}) => (
-  <ModalContent>
-    <ModalHeader>{headerTitle}</ModalHeader>
-    <ModalCloseButton />
-    <ModalBody
-      pt="10px"
-      p="0"
-      px="24px"
-      className="flex !items-start !justify-start flex-col gap-3"
-    >
-      <p>{bodyText}</p>
-      <Box
-        bg="transparent"
-        outline="none"
-        _focus={{ boxShadow: 'none' }}
-        cursor="not-allowed"
-        padding="8px 12px"
-        maxHeight={'40px'}
-        width="100%"
-        boxShadow="inset 0 0 0 1px #E4E6E7" // Updated border color
-        borderRadius="md"
-        className="text-balance overflow-scroll"
-        style={{
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden'
-        }}
+  shareOnX,
+  shareList,
+  forwardToUsers
+}) => {
+  const [checkedIds, setCheckedIds] = useState<string[]>([]);
+
+  return (
+    <ModalContent>
+      <ModalHeader>{headerTitle}</ModalHeader>
+      <ModalCloseButton />
+      <ModalBody
+        pt="10px"
+        p="0"
+        px="24px"
+        className="flex !items-start !justify-start flex-col gap-3"
       >
-        <Text
+        <p>{bodyText}</p>
+
+        <Box
+          bg="transparent"
+          outline="none"
+          _focus={{ boxShadow: 'none' }}
+          cursor="not-allowed"
+          padding="8px 12px"
+          maxHeight={'40px'}
+          width="100%"
+          boxShadow="inset 0 0 0 1px #E4E6E7" // Updated border color
+          borderRadius="md"
+          className="text-balance overflow-scroll"
           style={{
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             overflow: 'hidden'
           }}
-          whiteSpace={'nowrap'}
         >
-          {presentableLink}
-        </Text>
-      </Box>
+          <Text
+            style={{
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden'
+            }}
+            whiteSpace={'nowrap'}
+          >
+            {presentableLink}
+          </Text>
+        </Box>
 
-      <div className="flex gap-2 mt-2">
-        <Button
-          onClick={copyShareLink}
-          bg="#f4f4f5"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          gap="4px"
-          padding="12px 14px"
-          borderRadius="md"
-          border="none"
-          cursor="pointer"
-          color="#000"
-          _hover={{ bg: '#e4e4e5' }}
-          _active={{ bg: '#d4d4d5' }}
-        >
-          <DocumentDuplicateIcon width={16} height={16} />
-          <span> Copy link</span>
-        </Button>
-        <Button
-          onClick={shareOnX}
-          bg="#f4f4f5"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          gap="4px"
-          padding="12px 18px"
-          borderRadius="md"
-          border="none"
-          cursor="pointer"
-          color="#000"
-          _hover={{ bg: '#e4e4e5' }}
-          _active={{ bg: '#d4d4d5' }}
-        >
-          <span> Share on </span>
-          <RiTwitterXLine style={{ width: '16px', height: '16px' }} />
-        </Button>
-      </div>
-    </ModalBody>
-  </ModalContent>
-);
+        {shareList ? (
+          <Box my={'10px'} w="full">
+            <SearchableList
+              onItemCheck={(id) => {
+                if (checkedIds.includes(id)) {
+                  setCheckedIds(checkedIds.filter((item) => item !== id));
+                } else {
+                  setCheckedIds([...checkedIds, id]);
+                }
+              }}
+              onAllCheck={(checked) => {
+                if (checked) {
+                  setCheckedIds(shareList.map((item) => item.id));
+                } else {
+                  setCheckedIds([]);
+                }
+              }}
+              checkedIds={checkedIds}
+              items={shareList}
+            />
+          </Box>
+        ) : (
+          ''
+        )}
+
+        {!shareList ? (
+          <div className="flex gap-2 mt-2">
+            <Button
+              onClick={copyShareLink}
+              bg="#f4f4f5"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap="4px"
+              padding="12px 14px"
+              borderRadius="md"
+              border="none"
+              cursor="pointer"
+              color="#000"
+              _hover={{ bg: '#e4e4e5' }}
+              _active={{ bg: '#d4d4d5' }}
+            >
+              <DocumentDuplicateIcon width={16} height={16} />
+              <span> Copy link</span>
+            </Button>
+            <Button
+              onClick={shareOnX}
+              bg="#f4f4f5"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap="4px"
+              padding="12px 18px"
+              borderRadius="md"
+              border="none"
+              cursor="pointer"
+              color="#000"
+              _hover={{ bg: '#e4e4e5' }}
+              _active={{ bg: '#d4d4d5' }}
+            >
+              <span> Share on </span>
+              <RiTwitterXLine style={{ width: '16px', height: '16px' }} />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2 mt-2 justify-end w-full align-baseline">
+            <Button
+              onClick={copyShareLink}
+              bg="#f4f4f5"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap="4px"
+              padding="12px 14px"
+              borderRadius="md"
+              border="none"
+              cursor="pointer"
+              color="#000"
+              _hover={{ bg: '#e4e4e5' }}
+              _active={{ bg: '#d4d4d5' }}
+            >
+              <DocumentDuplicateIcon width={16} height={16} />
+              <span> Copy link</span>
+            </Button>
+            <Button
+              onClick={() => forwardToUsers(checkedIds)}
+              isDisabled={checkedIds.length === 0}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              gap="4px"
+              padding="12px 14px"
+              borderRadius="md"
+              border="none"
+              cursor="pointer"
+            >
+              <DocumentDuplicateIcon width={16} height={16} />
+              <span> Share with students</span>
+            </Button>
+          </div>
+        )}
+      </ModalBody>
+    </ModalContent>
+  );
+};
+
+export default ShareModal;

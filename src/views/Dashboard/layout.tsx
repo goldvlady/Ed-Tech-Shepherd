@@ -639,7 +639,7 @@ const SidebarContent = ({
   return (
     <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
       <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
-        <h4 className='font-bold'>
+        <h4 className="font-bold">
           <Logo />
         </h4>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />

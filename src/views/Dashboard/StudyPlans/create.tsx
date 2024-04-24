@@ -47,7 +47,12 @@ import {
   Link,
   HStack,
   Spinner,
-  FormLabel
+  FormLabel,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper
 } from '@chakra-ui/react';
 import Select from 'react-select';
 import { format, isBefore } from 'date-fns';
@@ -60,7 +65,9 @@ import {
   FaRocket,
   FaTrashAlt,
   FaFileAlt,
-  FaFileMedical
+  FaFileMedical,
+  FaFileVideo,
+  FaVideo
 } from 'react-icons/fa';
 import SelectComponent, { Option } from '../../../components/Select';
 import { MdCancel, MdOutlineKeyboardArrowDown } from 'react-icons/md';
@@ -130,6 +137,7 @@ function CreateStudyPlans() {
   const [gradeLevel, setGradeLevel] = useState('');
   const [grade, setGrade] = useState('');
   const [timezone, setTimezone] = useState('');
+  const [resourceCount, setResourceCount] = useState<any>(10);
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -172,6 +180,7 @@ function CreateStudyPlans() {
 
     getTimeZoneOptions();
   }, []);
+  const [docLoading, setDocLoading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileName, setFileName] = useState('');
   const handleDragEnter = (e) => {
@@ -190,99 +199,47 @@ function CreateStudyPlans() {
     setIsDragOver(false);
     const files = e.dataTransfer.files[0];
     handleUploadInput(files);
-    // Handle dropped files here
-
-    // const fileChecked = doesTitleExist(files?.name);
-
-    // if (fileChecked) {
-    //   setAlreadyExist(true);
-    // } else {
-    //   setAlreadyExist(false);
-    //   setLoading(true);
-    //   try {
-    //     setFileName(snip(files.name));
-    //     await handleInputFreshUpload(files, user, files.name);
-    //   } catch (error) {
-    //     // Handle errors
-    //   }
-    // }
   };
-
-  // const collectFileInput = async (e) => {
-  //   const inputFile = e.target.files[0];
-  //   const fileChecked = doesTitleExist(inputFile?.name);
-  //   setProgress(0);
-  //   setConfirmReady(false);
-
-  //   if (fileChecked) {
-  //     setAlreadyExist(true);
-  //   } else {
-  //     // Check if the file size exceeds the limit
-  //     if (inputFile.size > fileSizeLimitBytes) {
-  //       // Set the modal state and messages
-  //       setPlansModalMessage(
-  //         !hasActiveSubscription
-  //           ? `Let's get you on a plan so you can upload larger files!`
-  //           : `Oops! Your file is too big. Your current plan allows for files up to ${fileSizeLimitMB} MB.`
-  //       );
-  //       setPlansModalSubMessage(
-  //         !hasActiveSubscription
-  //           ? `You're currently limited to files under ${fileSizeLimitMB} MB.`
-  //           : 'Consider upgrading to upload larger files.'
-  //       );
-  //       setTogglePlansModal(true);
-  //       // setShow(false);
-  //     } else {
-  //       setAlreadyExist(false);
-  //       setLoading(true);
-  //       try {
-  //         setFileName(snip(inputFile.name));
-  //         await handleInputFreshUpload(inputFile, user, inputFile.name);
-  //       } catch (error) {
-  //         // Handle errors
-  //       }
-  //     }
-  //   }
-  // };
 
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-
-    // Check if the file size exceeds the limit
-    if (file.size > fileSizeLimitBytes) {
+    if (file?.size > 10000000) {
       toast({
         title: 'Please upload a file under 10MB',
         status: 'error',
         position: 'top',
         isClosable: true
       });
+      return;
     } else {
-      setLoading(true);
+      setDocLoading(true);
+      const readableFileName = file.name
+        .toLowerCase()
+        .replace(/\.pdf$/, '')
+        .replace(/_/g, ' ');
+      const uploadEmitter = uploadFile(file, {
+        studentID: user._id, // Assuming user._id is always defined
+        documentID: readableFileName // Assuming readableFileName is the file's name
+      });
 
-      const storageRef = ref(storage, `files/${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadEmitter.on('progress', (progress: number) => {
+        // Update the progress. Assuming progress is a percentage (0 to 100)
 
-      // setIsLoading(true);
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-        },
-        (error) => {
-          setIsLoading(false);
+        setDocLoading(true);
+      });
 
-          toast({ title: error.message + error.cause, status: 'error' });
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            setIsLoading(false);
-            setSyllabusUrl(downloadURL);
-            setFileName(snip(file.name));
-          });
-        }
-      );
+      uploadEmitter.on('complete', async (uploadFile) => {
+        // Assuming uploadFile contains the fileUrl and other necessary details.
+        const documentURL = uploadFile.fileUrl;
+        setDocLoading(false);
+        setFileName(readableFileName);
+        setSyllabusUrl(documentURL);
+      });
+      uploadEmitter.on('error', (error) => {
+        setDocLoading(false);
+        // setCvUploadPercent(0);
+        toast({ title: error.message + error.cause, status: 'error' });
+      });
     }
   };
 
@@ -588,7 +545,14 @@ function CreateStudyPlans() {
     setStudyPlanData(studyPlan);
     return studyPlan;
   };
-
+  const updateTopicOrder = (weekIndex, newTopicOrder) => {
+    // Create a copy of the studyPlanData array
+    const updatedStudyPlanData = [...studyPlanData];
+    // Update the order of topics within the specified week
+    updatedStudyPlanData[weekIndex].topics = newTopicOrder;
+    // Update the state with the new study plan data
+    setStudyPlanData(updatedStudyPlanData);
+  };
   const saveStudyPlan = async () => {
     setLoading(true);
     const convertedArr = await convertArrays(studyPlanData);
@@ -597,6 +561,7 @@ function CreateStudyPlans() {
       course: course,
       title: planName,
       tz: timezone,
+      // resourceCount: resourceCount,
       scheduleItems: convertedArr
     };
 
@@ -614,7 +579,7 @@ function CreateStudyPlans() {
             isClosable: true
           });
           const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
-          navigate(`${baseUrl}/study-plans`);
+          navigate(`${baseUrl}/study-plans/planId=${response.studyPlan.id}  `);
         } else {
           setLoading(false);
           toast({
@@ -684,7 +649,7 @@ function CreateStudyPlans() {
       if (!file) continue;
 
       // Check if the file size exceeds the limit
-      if (file.size > fileSizeLimitBytes) {
+      if (file.size > fileSizeLimitBytes * 3) {
         toast({
           title: 'Please upload a file under 10MB',
           status: 'error',
@@ -828,6 +793,16 @@ function CreateStudyPlans() {
       setSyllabusData(updatedSyllabusData);
     }
   };
+
+  useEffect(() => {
+    const item = localStorage.getItem('create course');
+
+    if (item) {
+      setCourse(item);
+      localStorage.removeItem('create course');
+    }
+  }, []);
+
   return (
     <Grid
       templateColumns={[
@@ -865,9 +840,11 @@ function CreateStudyPlans() {
             </Box>
           </Flex>
           <Text fontSize="13px" my={2}>
-            Let's get you ready for test day. Just provide a subject or
+            {user.school
+              ? `Let's get you ready for your learning journey. Just provide a subject or syllabus, and we'll create a tailored study schedule with resources and reminders to make your learning efficient and effective. provide checkpoint dates so we can use that to structure your schedule.`
+              : ` Let's get you ready for test day. Just provide a subject or
             syllabus, and we'll create a tailored study schedule with resources
-            and reminders to make your learning efficient and effective.{' '}
+            and reminders to make your learning efficient and effective.`}
           </Text>
         </Box>
         {activeTab === 0 ? (
@@ -942,11 +919,11 @@ function CreateStudyPlans() {
                 mb={2}
               />
             </Box>
-            <Center my={2}>or</Center>
+            {/* <Center my={2}>or</Center> */}
             <Center
               w="full"
               minH="65px"
-              mb={3}
+              my={3}
               p={2}
               border="2px"
               borderColor={isDragOver ? 'gray.600' : 'gray.300'}
@@ -1049,7 +1026,7 @@ function CreateStudyPlans() {
               display="block"
               fontWeight={'semibold'}
             >
-              Enter your test dates
+              {user.school ? 'Enter Checkpoint dates' : 'Enter your test dates'}
             </Text>
             <Flex direction={'column'} gap={2}>
               {testDate &&
@@ -1063,7 +1040,7 @@ function CreateStudyPlans() {
                       fontWeight={'semibold'}
                       color="#207df7"
                     >
-                      Test {index + 1}
+                      {`${user.school ? 'Checkpoint' : 'Test'}  ${index + 1}`}
                     </Text>
                     <Flex align={'center'} gap={2}>
                       {/* <DatePicker
@@ -1079,7 +1056,10 @@ function CreateStudyPlans() {
                       <CalendarDateInput
                         // disabledDate={{ before: today }}
                         inputProps={{
-                          placeholder: 'Select Test Date'
+                          placeholder: `Select ${
+                            user.school ? 'Checkpoint' : 'Test Date'
+                          } 
+                         `
                         }}
                         value={date}
                         onChange={(value) => {
@@ -1133,6 +1113,19 @@ function CreateStudyPlans() {
               className="my-4"
               // styles={customStyles}
             />
+            <FormLabel>Number of resources to generate per topic</FormLabel>
+            <NumberInput
+              defaultValue={resourceCount}
+              min={10}
+              max={20}
+              onChange={(e) => setResourceCount(e)}
+            >
+              <NumberInputField />
+              <NumberInputStepper>
+                <NumberIncrementStepper />
+                <NumberDecrementStepper />
+              </NumberInputStepper>
+            </NumberInput>
             <Button
               colorScheme="blue"
               variant="solid"
@@ -1345,6 +1338,21 @@ function CreateStudyPlans() {
                                     )}
                                 </Flex>
                                 <HStack color="gray.500" spacing={3}>
+                                  <label htmlFor={`videoInput-${topicIndex}`}>
+                                    <Icon as={FaVideo} boxSize={3} />
+                                  </label>
+                                  <input
+                                    type="file"
+                                    id={`videoInput-${topicIndex}`}
+                                    accept="video/*"
+                                    style={{ display: 'none' }}
+                                    onChange={(e) =>
+                                      handleUploadTopicFile(
+                                        topicIndex,
+                                        e.target.files[0]
+                                      )
+                                    }
+                                  />
                                   <label htmlFor={`fileInput-${topicIndex}`}>
                                     <Icon as={FaFileAlt} boxSize={3} />
                                   </label>
@@ -1419,6 +1427,7 @@ function CreateStudyPlans() {
                 <Flex direction="column" gap={2}>
                   {studyPlanData.length > 0 ? (
                     <>
+                      {' '}
                       {studyPlanData.map((topic, weekindex) => (
                         <>
                           <Box bg="white" p={4} rounded="md" shadow="md">
@@ -1430,19 +1439,25 @@ function CreateStudyPlans() {
                             >
                               {topic.weekRange}
                             </Text>
-                            <UnorderedList
-                              listStyleType="circle"
-                              listStylePosition="inside"
-                              color="gray.700"
-                              fontSize={14}
-                              // h={'100px'}
+
+                            <ReactSortable
+                              list={topic.topics}
+                              setList={(newList) =>
+                                updateTopicOrder(weekindex, newList)
+                              }
+                              animation="500"
+                              easing="ease-out"
                             >
+                              {/* <UnorderedList
+                                listStyleType="circle"
+                                listStylePosition="inside"
+                                color="gray.700"
+                                fontSize={14}
+                                // h={'100px'}
+                              > */}
                               {topic.topics.map((item, index) => (
-                                <Flex>
-                                  {' '}
-                                  <ListItem key={index}>
-                                    {item.mainTopic}
-                                  </ListItem>
+                                <Flex key={index} color="#585f68">
+                                  <Text fontSize={14}>{item.mainTopic}</Text>
                                   <Spacer />
                                   <SmallCloseIcon
                                     color={'gray.500'}
@@ -1452,7 +1467,8 @@ function CreateStudyPlans() {
                                   />
                                 </Flex>
                               ))}
-                            </UnorderedList>
+                              {/* </UnorderedList> */}
+                            </ReactSortable>
                             <Divider my={2} />
                             <Flex>
                               <Menu>

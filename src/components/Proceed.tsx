@@ -10,11 +10,15 @@ import {
 } from '@chakra-ui/react';
 import { Dialog, Transition } from '@headlessui/react';
 import React, { Fragment, FC, useRef, memo, useState } from 'react';
+import { useNavigate } from 'react-router';
+interface ProceedPageProps {
+  user: any;
+}
 
-const Proceed: FC = (props: any) => {
-  const { user } = props;
+const Proceed: FC<ProceedPageProps> = ({ user }) => {
+  // const { user } = props;
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
   return (
     <>
@@ -26,7 +30,7 @@ const Proceed: FC = (props: any) => {
           justifyContent="space-between"
           px={4}
           rounded="md"
-          py="6"
+          py="3"
           shadow="sm"
           border="2px"
           borderColor="gray.100"
@@ -84,7 +88,7 @@ const Proceed: FC = (props: any) => {
               >
                 Welcome to shepherd
               </Text>
-              <Text
+              {/* <Text
                 as="span"
                 display="inline-block"
                 fontSize={14}
@@ -92,7 +96,8 @@ const Proceed: FC = (props: any) => {
               >
                 We need a few more details to complete your profile. This helps
                 you stand out from other tutors.
-              </Text>
+              </Text> */}
+              <Text>Update your availability to complete your profile</Text>
             </Text>
           </HStack>
           <HStack mt={[4, 4, 0]} display="flex" alignItems="center" spacing={4}>
@@ -105,7 +110,7 @@ const Proceed: FC = (props: any) => {
               color="#5C5F64"
               shadow="sm"
               _hover={{ bg: 'gray.50' }}
-              onClick={() => setOpen(true)}
+              onClick={() => navigate('account-settings')}
             >
               Proceed
             </Button>
