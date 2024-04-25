@@ -16,6 +16,7 @@ import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
 import MultiRag from '../views/Dashboard/multi-rag';
 import ApiService from '../services/ApiService';
+import MultiRagChat from '../views/Dashboard/multi-rag/multi-rag-chat';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -584,6 +585,14 @@ const AppRoutes: React.FC = () => {
           element={
             <Suspense fallback={<SharedLoading />}>
               <MultiRag />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/dashboard/doc-chat/:docId"
+          element={
+            <Suspense fallback={<SharedLoading />}>
+              <MultiRagChat />
             </Suspense>
           }
         />
