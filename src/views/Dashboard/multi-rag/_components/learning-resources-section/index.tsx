@@ -14,8 +14,8 @@ const Header = () => {
     return (
       <div
         className={cn(
-          'px-[1rem] py-[0.43rem] rounded-[10px] shadow-md bg-[#F1F1F1] text-[#969CA6] flex justify-center items-center',
-          { 'bg-white text-[#212224]': active }
+          'px-[1rem] py-[0.43rem] rounded-[10px] bg-[#F1F1F1] text-[#969CA6] flex justify-center items-center cursor-pointer hover:shadow transition-shadow',
+          { 'bg-white text-[#212224] shadow-md hover:shadow-md': active }
         )}
       >
         <span className="text-[#212224] text-[0.68rem] font-normal">
