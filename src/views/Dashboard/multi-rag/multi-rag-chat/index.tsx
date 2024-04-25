@@ -1,26 +1,17 @@
 import { useParams } from 'react-router-dom';
+import DocsThumbnailList from '../_components/docs-thumbnail-list';
+import ChatArea from '../_components/chat-area';
+import LearningResourcesSection from '../_components/learning-resources-section';
 
 function MultiRagChat() {
   const { docId } = useParams();
   return (
     <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex">
-      <DocsList />
+      <DocsThumbnailList />
       <ChatArea />
-      <UtilsAreas />
+      <LearningResourcesSection />
     </div>
   );
 }
-
-const DocsList = () => {
-  return <div className="w-[16.97rem] h-full border"></div>;
-};
-
-const ChatArea = () => {
-  return <div className="border flex-[1.5] h-full"></div>;
-};
-
-const UtilsAreas = () => {
-  return <div className="border flex-1 h-full"></div>;
-};
 
 export default MultiRagChat;
