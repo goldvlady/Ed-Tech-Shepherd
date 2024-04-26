@@ -73,11 +73,14 @@ function SelectDocuments() {
               document={document}
               onClick={() => {
                 if (selected.some((e) => e === document._id)) {
-                  setSelected((pS) =>
-                    pS.filter((item) => item !== document.id)
+                  setSelected((prevSelected) =>
+                    prevSelected.filter((item) => item !== document._id)
                   );
                 } else {
-                  setSelected((prev) => [...prev, document._id]);
+                  setSelected((prevSelected) => [
+                    ...prevSelected,
+                    document._id
+                  ]);
                 }
               }}
             />
