@@ -3,11 +3,17 @@ import ExternalSources from './external-sources';
 import SelectDocuments from './select-documents';
 import UploadFiles from './upload-files';
 
-function Sections({ active }: { active: number }) {
+function Sections({
+  active,
+  setFilesUploaded
+}: {
+  active: number;
+  setFilesUploaded: any;
+}) {
   return (
     <main className="w-full bg-white min-h-[25rem] rounded-b-[10px] rounded-tr-[10px] relative overflow-hidden">
       <Section active={active === 0}>
-        <UploadFiles />
+        <UploadFiles setFilesUploaded={setFilesUploaded} />
       </Section>
       <Section active={active === 1}>
         <SelectDocuments />

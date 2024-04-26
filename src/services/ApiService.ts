@@ -1040,6 +1040,16 @@ class ApiService {
       }
     );
   };
+  static multiDocBackgroundJobs = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      'https://shepherd-ai-pr-123.onrender.com/jobs',
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }
+    );
+  };
 
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {

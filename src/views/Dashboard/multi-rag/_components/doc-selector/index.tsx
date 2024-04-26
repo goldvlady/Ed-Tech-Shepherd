@@ -6,6 +6,11 @@ import Sections from './_components/sections';
 
 function DocSelector() {
   const [active, setActive] = useState(0);
+  const [filesUploaded, setFilesUploaded] = useState({
+    jobId: '',
+    uploaded: false,
+    tables: []
+  });
   return (
     <div className="w-full h-full bg-[#F9F9FB] flex">
       <div className="h-full flex-1 bg-[#F9F9FB] flex justify-center items-center">
@@ -28,8 +33,8 @@ function DocSelector() {
               onClick={() => setActive(2)}
             />
           </header>
-          <Sections active={active} />
-          <UploadingItems />
+          <Sections active={active} setFilesUploaded={setFilesUploaded} />
+          <UploadingItems filesUploaded={filesUploaded} />
         </div>
       </div>
       <ChatHistory />

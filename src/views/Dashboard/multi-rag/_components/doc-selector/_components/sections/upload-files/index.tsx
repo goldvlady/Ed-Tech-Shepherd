@@ -5,7 +5,7 @@ import { useCallback } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 
-function UploadFiles() {
+function UploadFiles({ setFilesUploaded }) {
   const handleSubmit = (inputFiles) => {
     const files = inputFiles;
     console.log('inputFiles', files);
@@ -21,7 +21,15 @@ function UploadFiles() {
       formData
     })
       .then((response) => response.json())
-      .then((data) => console.log(data))
+      .then((data) => {
+        if (data.status === 'success') {
+          setFilesUploaded({
+            uploaded: true,
+            jobId: data.job_id,
+            tables: data.uploaded_filenames
+          });
+        }
+      })
       .catch((error) => console.error('Error:', error));
   };
   const onDrop = useCallback((acceptedFiles) => {
