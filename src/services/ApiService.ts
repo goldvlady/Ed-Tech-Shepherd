@@ -1041,9 +1041,11 @@ class ApiService {
     );
   };
   static multiDocBackgroundJobs = async (data) => {
+    console.log('multiDocBackgroundJobs api', data);
+    console.log('multiDocBackgroundJobs api json', JSON.stringify(data));
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      'https://shepherd-ai-pr-123.onrender.com/jobs',
+      'https://shepherd-ai-pr-123.onrender.com/jobs/',
       {
         method: 'POST',
         body: JSON.stringify(data)

@@ -10,7 +10,7 @@ function UploadingItems({ filesUploaded }) {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log('multiDocBackgroundJobs bg', data);
+        // console.log('multiDocBackgroundJobs bg', data);
       });
   }, [filesUploaded]);
   return (
