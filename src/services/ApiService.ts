@@ -1049,6 +1049,11 @@ class ApiService {
       {
         method: 'POST',
         body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
       }
     );
   };

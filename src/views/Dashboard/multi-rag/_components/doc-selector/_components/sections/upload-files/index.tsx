@@ -5,8 +5,13 @@ import { useCallback } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 
-function UploadFiles({ setFilesUploaded }) {
+function UploadFiles({ setFilesUploading }) {
   const handleSubmit = (inputFiles) => {
+    setFilesUploading({
+      jobId: '',
+      uploading: true,
+      tables: inputFiles.map((file) => file.name)
+    });
     const files = inputFiles;
     console.log('inputFiles', files);
     const formData = new FormData();
@@ -23,8 +28,8 @@ function UploadFiles({ setFilesUploaded }) {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 'success') {
-          setFilesUploaded({
-            uploaded: true,
+          setFilesUploading({
+            uploding: false,
             jobId: data.job_id,
             tables: data.uploaded_filenames
           });

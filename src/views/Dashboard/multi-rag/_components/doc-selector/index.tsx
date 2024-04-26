@@ -6,9 +6,9 @@ import Sections from './_components/sections';
 
 function DocSelector() {
   const [active, setActive] = useState(0);
-  const [filesUploaded, setFilesUploaded] = useState({
+  const [filesUploading, setFilesUploading] = useState({
     jobId: '',
-    uploaded: false,
+    uploading: false,
     tables: []
   });
   return (
@@ -33,8 +33,8 @@ function DocSelector() {
               onClick={() => setActive(2)}
             />
           </header>
-          <Sections active={active} setFilesUploaded={setFilesUploaded} />
-          <UploadingItems filesUploaded={filesUploaded} />
+          <Sections active={active} setFilesUploading={setFilesUploading} />
+          <UploadingItems filesUploading={filesUploading} />
         </div>
       </div>
       <ChatHistory />
