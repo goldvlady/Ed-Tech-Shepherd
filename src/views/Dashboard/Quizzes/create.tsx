@@ -200,18 +200,19 @@ const CreateQuizPage = () => {
     });
   };
 
-  useEffect(() => {
-    if (!hasActiveSubscription) {
-      // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage(
-        !user.hadSubscription
-          ? 'Subscribe to unlock your AI Study Tools! 🚀'
-          : 'Pick a plan to access your AI Study Tools! 🚀'
-      );
-      setPlansModalSubMessage('One-click Cancel at anytime.');
-      setTogglePlansModal(true);
-    }
-  }, [user.subscription, hasActiveSubscription]);
+  //no longer worried about paywalling this for now, we have a freemmium tier
+  // useEffect(() => {
+  //   if (!hasActiveSubscription) {
+  //     // Set messages and show the modal if the user has no active subscription
+  //     setPlansModalMessage(
+  //       !user.hadSubscription
+  //         ? 'Subscribe to unlock your AI Study Tools! 🚀'
+  //         : 'Pick a plan to access your AI Study Tools! 🚀'
+  //     );
+  //     setPlansModalSubMessage('One-click Cancel at anytime.');
+  //     setTogglePlansModal(true);
+  //   }
+  // }, [user.subscription, hasActiveSubscription]);
 
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
@@ -600,7 +601,6 @@ const CreateQuizPage = () => {
       >
         <Box
           className="create-quiz-wrapper"
-          px={'30px'}
           width={['100%', '100%', '100%', '50%', '30%']}
           bg="white"
           overflowY={'auto'}
@@ -621,53 +621,107 @@ const CreateQuizPage = () => {
           {isLoading && <LoaderOverlay />}
 
           <>
-            <Text
-              fontFamily="Inter"
-              fontWeight="500"
-              fontSize="18px"
-              lineHeight="23px"
-              color="#212224"
-              py={8}
+            <div className="w-full shadow-md px-6 py-4">
+              <Text
+                fontFamily="Inter"
+                className="font-medium text-lg text-[#212224]"
+              >
+                Create a new quiz
+              </Text>
+            </div>
+
+            <Tabs
+              defaultIndex={2}
+              isLazy
+              isFitted
+              variant="unstyled"
+              position={'relative'}
+              padding="1.5rem"
             >
-              Create Quiz
-            </Text>
-            <Tabs defaultIndex={2} isLazy isFitted position={'relative'}>
-              <TabList display="flex">
+              <TabList
+                display="flex"
+                justifyContent="space-between"
+                borderBottom="1px solid #D8D8D8"
+              >
                 <Tab
-                  _selected={{ color: '#207DF7' }}
-                  flex="1"
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                   justifyContent={'flex-start'}
                   pl={0}
+                  pb={0}
+                  textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                 >
-                  Upload
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Upload
+                  </span>
                 </Tab>
-                <Tab _selected={{ color: '#207DF7' }} flex="1">
-                  Topic
-                </Tab>
-                {false && (
-                  <Tab _selected={{ color: '#207DF7' }} flex="1">
-                    Topic
-                  </Tab>
-                )}
                 <Tab
-                  _selected={{ color: '#207DF7' }}
-                  flex="1"
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
+                  pb={0}
+                  textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
+                >
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Topic
+                  </span>
+                </Tab>
+                <Tab
+                  _selected={{
+                    color: '#207DF7',
+                    '& > span': {
+                      borderBottom: '2px solid #207DF7',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                   justifyContent={'flex-end'}
                   pr={0}
+                  pb={0}
+                  textColor={'#6E7682'}
+                  sx={{
+                    '& > span': {
+                      borderBottom: '2px solid transparent',
+                      transition: 'border-bottom-color 0.2s ease-in-out'
+                    }
+                  }}
                 >
-                  Manual
+                  <span className="text-base font-medium pb-[0.5rem]">
+                    Manual
+                  </span>
                 </Tab>
               </TabList>
 
-              <TabIndicator
-                mt="-1.5px"
+              {/* <TabIndicator
+                mt="-2px"
                 height="2px"
                 bg="#207DF7"
                 borderRadius="1px"
-              />
+                width={10}
+              /> */}
 
               <TabPanels>
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <UploadQuizForm
                     handleSetTitle={handleSetTitle}
                     title={title}
@@ -679,7 +733,7 @@ const CreateQuizPage = () => {
                   />
                 </TabPanel>
 
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <TopicQuizForm
                     handleSetTitle={handleSetTitle}
                     title={title}
@@ -690,7 +744,7 @@ const CreateQuizPage = () => {
                     uploadingState={uploadingState}
                   />
                 </TabPanel>
-                <TabPanel p={0}>
+                <TabPanel paddingX={'0.1rem'} paddingY={'0.05rem'}>
                   <ManualQuizForm
                     openTags={handleOpenTagsModal}
                     tags={tags}
@@ -723,11 +777,16 @@ const CreateQuizPage = () => {
                 </Flex>
               )}
             </Tabs>
-            <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
+            <Drawer
+              isOpen={isOpen}
+              placement="right"
+              onClose={onClose}
+              size="full"
+            >
               <DrawerOverlay />
               <DrawerContent>
                 <DrawerCloseButton />
-                <DrawerBody>
+                <DrawerBody className="no-scrollbar">
                   {!isEmpty(searchQuestions) || !isEmpty(questions) ? (
                     <QuizPreviewer
                       handleClearQuiz={handleClearQuiz}
