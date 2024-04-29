@@ -184,7 +184,6 @@ function ChatRoom() {
         connectionQuery.topicSecondary?.trim().length !== 0) ||
         connectionQuery.subject !== 'Math')
     ) {
-
       const { isNewWindow, connectionQuery } = chatWindowParams;
 
       startConversation(

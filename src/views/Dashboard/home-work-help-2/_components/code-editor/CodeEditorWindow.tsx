@@ -51,11 +51,11 @@ const CodeEditorWindow = () => {
           })}
         />
       </Button>
-
-      <Box w="full">
+      {/* {!sidebarClosed && ( */}
+      <Box w="full" overflowY={'hidden'}>
         <VStack spacing={4} p={2}>
           <Box w="full">
-            <LanguageSelector language={language} onSelect={onSelect} />
+            <LanguageSelector language={language} onSelect={onSelect} />{' '}
             <Editor
               options={{
                 minimap: {
@@ -76,6 +76,7 @@ const CodeEditorWindow = () => {
           <Output editorRef={editorRef} language={language} />
         </VStack>
       </Box>
+      {/* )} */}
     </div>
   );
 };
