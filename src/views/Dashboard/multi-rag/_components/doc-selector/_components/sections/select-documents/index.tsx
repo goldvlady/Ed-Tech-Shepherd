@@ -5,13 +5,28 @@ import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
+import { useNavigate } from 'react-router-dom';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [documents, setDocuments] = useState([]);
   const [selected, setSelected] = useState([]);
+  const navigate = useNavigate();
 
   console.log('Selected documents', selected);
+
+  const startConversation = () => {
+    ApiService.multiDocConversationStarter({
+      referenceId: selected.length > 0 ? selected[0] : null,
+      referenceDocIds: selected,
+      language: 'English'
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('multiDocConversationStarter', data);
+        navigate(`/dashboard/doc-chat/${data.data}`, { replace: true });
+      });
+  };
 
   useEffect(() => {
     ApiService.multiDocVectorDocs('64906166763aa2579e58c97d')
@@ -58,7 +73,7 @@ function SelectDocuments() {
             </Button>
           </div>
         </div>
-        <Button>New Chat</Button>
+        <Button onClick={startConversation}>New Chat</Button>
       </header>
       <main
         className={cn(

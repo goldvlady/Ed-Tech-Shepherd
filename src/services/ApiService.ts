@@ -1057,6 +1057,7 @@ class ApiService {
       }
     );
   };
+
   static multiDocVectorDocs = async (sId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
@@ -1064,11 +1065,22 @@ class ApiService {
       {
         method: 'GET'
       }
-      // true,
-      // {
-      //   Accept: 'application/json',
-      //   'Content-Type': 'application/json'
-      // }
+    );
+  };
+
+  static multiDocConversationStarter = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/conversations/documents`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
     );
   };
 
