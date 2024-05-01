@@ -11,12 +11,16 @@ function SelectDocuments() {
   const [documents, setDocuments] = useState([]);
   const [selected, setSelected] = useState([]);
 
+  console.log('Selected documents', selected);
+
   useEffect(() => {
-    ApiService.getStudentDocuments({})
+    ApiService.multiDocVectorDocs('64906166763aa2579e58c97d')
       .then((res) => res.json())
       .then((data) => {
         console.log('upload student documents', data);
-        setDocuments(data.data);
+        if (data.status === 'success') {
+          setDocuments(data.data);
+        }
       });
   }, []);
 
@@ -68,18 +72,18 @@ function SelectDocuments() {
         {documents.map((document) => {
           return (
             <DocItem
-              selected={selected.some((e) => e === document._id)}
+              selected={selected.some((e) => e === document.document_id)}
               layout={layout}
               document={document}
               onClick={() => {
-                if (selected.some((e) => e === document._id)) {
+                if (selected.some((e) => e === document.document_id)) {
                   setSelected((prevSelected) =>
-                    prevSelected.filter((item) => item !== document._id)
+                    prevSelected.filter((item) => item !== document.document_id)
                   );
                 } else {
                   setSelected((prevSelected) => [
                     ...prevSelected,
-                    document._id
+                    document.document_id
                   ]);
                 }
               }}
@@ -123,7 +127,7 @@ const DocItem = ({
     <div
       onClick={onClick}
       role="button"
-      key={document._id}
+      key={document.document_id}
       className={cn(
         'border-2 border-black rounded-[10px] transition-all duration-300 cursor-pointer',
         {
@@ -133,7 +137,7 @@ const DocItem = ({
         }
       )}
     >
-      {document.title}
+      {document.collection_name}
     </div>
   );
 };

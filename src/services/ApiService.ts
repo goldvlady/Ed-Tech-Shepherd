@@ -1057,6 +1057,20 @@ class ApiService {
       }
     );
   };
+  static multiDocVectorDocs = async (sId: string) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/vector_docs/${sId}`,
+      {
+        method: 'GET'
+      }
+      // true,
+      // {
+      //   Accept: 'application/json',
+      //   'Content-Type': 'application/json'
+      // }
+    );
+  };
 
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {
