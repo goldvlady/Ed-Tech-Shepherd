@@ -462,7 +462,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel>First Name</FormLabel>
               <Input
-                size={'lg'}
+                fontSize={'0.875rem'}
                 value={name.first}
                 onChange={(e) =>
                   onboardStudentStore.set.name({
@@ -475,7 +475,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Last Name</FormLabel>
               <Input
-                size={'lg'}
+                fontSize={'0.875rem'}
                 value={name.last}
                 onChange={(e) =>
                   onboardStudentStore.set.name({
@@ -488,7 +488,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Email</FormLabel>
               <Input
-                size={'lg'}
+                fontSize={'0.875rem'}
                 value={email}
                 onChange={(e) => onboardStudentStore.set.email(e.target.value)}
                 type="email"
@@ -497,7 +497,7 @@ const OnboardStudent = () => {
             <FormControl>
               <FormLabel marginTop={4}>Referral Code</FormLabel>
               <Input
-                size={'lg'}
+                fontSize={'0.875rem'}
                 value={referralCode}
                 onChange={(e) => {
                   onboardStudentStore.set.referralCode(e.target.value);
@@ -524,6 +524,7 @@ const OnboardStudent = () => {
               <FormLabel>Password</FormLabel>
               <InputGroup size="lg">
                 <Input
+                  fontSize={'0.875rem'}
                   placeholder="Create password"
                   type={showPassword ? 'text' : 'password'}
                   _placeholder={{ fontSize: '14px' }}
@@ -549,6 +550,7 @@ const OnboardStudent = () => {
               <FormLabel>Confirm Password</FormLabel>
               <InputGroup size="lg">
                 <Input
+                  fontSize={'0.875rem'}
                   placeholder="Confirm password"
                   type={showPassword ? 'text' : 'password'}
                   _placeholder={{ fontSize: '14px' }}

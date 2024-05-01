@@ -821,7 +821,7 @@ const CustomTable: React.FC = () => {
           </Flex>
 
           <Tabs defaultValue="image-occlusion">
-            <TabsList className="grid w-[400px] grid-cols-2">
+            <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
               <TabsTrigger value="normal">Normal</TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
             </TabsList>

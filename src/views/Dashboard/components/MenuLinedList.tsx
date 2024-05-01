@@ -68,6 +68,7 @@ interface NavItemProps extends FlexProps {
   icon?: IconType;
   children: any;
   path?: string;
+  onClose?: () => void;
 }
 const NavItem = ({ icon, path, children, ...rest }: NavItemProps) => {
   return (
@@ -116,23 +117,31 @@ type Props = React.ComponentProps<typeof Root> & {
   items: Array<{ title: string; path: string; onClick?: () => void }>;
 };
 
-const MenuLinedList: React.FC<Props> = ({ items, ...rest }) => {
+const MenuLinedList: React.FC<Props> = ({ items, onClose, ...rest }) => {
   return (
     <Root spacing="0px" {...rest} alignItems="flex-start">
-      {items.map((i, idx) => (
-        <>
-          {i.onClick ? (
-            <Title onClick={() => i.onClick()}>
-              <NavItem key={idx}>{i.title}</NavItem>
+      {items.map((item, idx) => (
+        // Using React.Fragment and adding the key to the Fragment since it's the top level in the map
+        <React.Fragment key={idx}>
+          {item.onClick ? (
+            // Modify the existing onClick to also call onClose if defined
+            <Title
+              onClick={() => {
+                item.onClick();
+                onClose(); // Call onClose when the item is clicked
+              }}
+            >
+              <NavItem>{item.title}</NavItem>
             </Title>
           ) : (
+            // Pass the onClose to NavItem for items without custom onClick
             <Title>
-              <NavItem path={i.path} key={idx}>
-                {i.title}
+              <NavItem path={item.path} onClose={onClose}>
+                {item.title}
               </NavItem>
             </Title>
           )}
-        </>
+        </React.Fragment>
       ))}
     </Root>
   );

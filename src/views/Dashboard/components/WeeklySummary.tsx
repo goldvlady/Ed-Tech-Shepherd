@@ -300,6 +300,7 @@ export default function WeeklySummary(props) {
               // h={"45px"}
               borderBottom="1px solid #eeeff2"
               borderBottomRadius={'10px'}
+              marginTop="60px"
             >
               <Flex h="16px" alignItems={'center'} gap={1} direction="row">
                 <Flash />
