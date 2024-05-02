@@ -1,6 +1,30 @@
+import { useEffect, useState } from 'react';
 import Message from './_components/message';
+import ApiService from '../../../../../services/ApiService';
 
-const ChatArea = () => {
+const ChatArea = ({ conversationID }: { conversationID: string }) => {
+  const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
+
+  useEffect(() => {
+    ApiService.fetchMultiDocBasedOnConversationID(conversationID)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 'success') {
+          console.log('fetchMultiDocBasedOnConversationID', data);
+          ApiService.multiragChat({
+            studentId: '64906166763aa2579e58c97d',
+            query: 'Tell me about this document',
+            language: 'English',
+            conversationId: conversationID,
+            documents: JSON.stringify(data.data)
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log('DOC chat response', data);
+            });
+        }
+      });
+  }, []);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem]">
       <Message

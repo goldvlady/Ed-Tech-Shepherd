@@ -9,7 +9,7 @@ function MultiRagChat() {
   return (
     <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex">
       <DocsThumbnailList conversationID={docId} />
-      <ChatArea />
+      <ChatArea conversationID={docId} />
       <LearningResourcesSection />
     </div>
   );

@@ -1052,9 +1052,17 @@ class ApiService {
     );
   };
 
+  static multiragChat = async (data) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/multirag/chat`,
+      {
+        method: 'GET',
+        body: JSON.stringify(data)
+      }
+    );
+  };
+
   static multiDocBackgroundJobs = async (data) => {
-    console.log('multiDocBackgroundJobs api', data);
-    console.log('multiDocBackgroundJobs api json', JSON.stringify(data));
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       'https://shepherd-ai-pr-123.onrender.com/jobs/',
