@@ -43,13 +43,13 @@ Let's get learning!"
         <Message type="user" content="Explain this to me like I'm five " />
       </div>
       <div className="w-full pb-[3.5rem] relative">
-        <div className="w-full h-[3.75rem] absolute top-[-4.5rem] cursor-pointer space-y-2 flex flex-col">
-          <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center flex items-center justify-center">
+        <div className="w-full h-[3.75rem] absolute top-[-4.5rem] cursor-pointer space-y-2 flex flex-col justify-center items-center">
+          <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center flex items-center justify-center backdrop-blur-sm">
             <span className="text-[0.75rem] text-center text-[#4D8DF9]">
               What do I need to know to understand this document?
             </span>
           </div>
-          <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center cursor-pointer flex justify-center items-center">
+          <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center cursor-pointer flex justify-center items-center backdrop-blur-sm">
             <span className="text-[0.75rem] text-center text-[#4D8DF9]">
               What topics should I explore after this document?
             </span>
