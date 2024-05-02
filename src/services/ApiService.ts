@@ -1040,6 +1040,18 @@ class ApiService {
       }
     );
   };
+
+  static fetchMultiDocBasedOnConversationID = async (
+    conversationID: string
+  ) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/vector_docs/doc_from_conversation/${conversationID}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiDocBackgroundJobs = async (data) => {
     console.log('multiDocBackgroundJobs api', data);
     console.log('multiDocBackgroundJobs api json', JSON.stringify(data));
