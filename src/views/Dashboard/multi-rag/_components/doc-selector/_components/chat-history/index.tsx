@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '../../../../../../../components/ui/select';
+import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 
 function ChatHistory() {
   return (
@@ -23,25 +24,13 @@ function ChatHistory() {
             </InputGroup>
           </div>
           <div>
-            <Select
-              // onValueChange={(value) => {
-              //   if (value === 'all') {
-              //     handleSubjectFilter('');
-              //   } else {
-              //     handleSubjectFilter(value);
-              //   }
-              // }}
-              defaultValue="all"
-            >
+            <Select defaultValue="all">
               <SelectTrigger className="w-20 max-h-[30px] rounded-full">
                 <SelectValue placeholder="All" />
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectGroup>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem key={1} value={'test'}>
-                    Test
-                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -69,7 +58,9 @@ function ChatHistory() {
 const HistoryItem = () => {
   return (
     <div className="w-[10.31rem] h-[10.31rem] rounded-[10px] shadow mx-auto border my-[10px] relative hover:shadow-lg cursor-pointer transition-shadow will-change-auto">
-      <div className='absolute w-8 h-8 rounded-full bg-red-300 top-0 right-0 m-[8px]'></div>
+      <div className="absolute w-[1.8rem] h-[1.8rem] rounded-full bg-[#F9F9FB] top-0 right-0 m-[8px] flex justify-center items-center">
+        <DotsHorizontalIcon />
+      </div>
     </div>
   );
 };
