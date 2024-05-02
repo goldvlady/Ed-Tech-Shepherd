@@ -6,7 +6,7 @@ function BreadCrumb() {
       <span className="text-[0.62rem] flex  whitespace-nowrap w-full text-ellipsis overflow-hidden items-center">
         <span className="text-[#969CA6]">Doc Chat</span>
         <ChevronRightIcon className="text-[#969CA6] h-[10px]" />
-        <span className="text-[#585F68]">Relativity Theory</span>
+        <span className="text-[#585F68]">Chat Name</span>
       </span>
     </div>
   );
