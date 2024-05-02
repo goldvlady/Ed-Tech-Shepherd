@@ -1,50 +1,52 @@
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/react';
 import { Button } from '../../../../../../../../components/ui/button';
 import { SearchIcon } from '@chakra-ui/icons';
-import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
+import { GridIcon, ListBulletIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { CheckIcon } from 'lucide-react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
-  const [documents, setDocuments] = useState([]);
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
+  const { isPending, mutate } = useMutation({
+    mutationFn: (data: any) =>
+      ApiService.multiDocConversationStarter(data).then((res) => res.json())
+  });
+  const { data } = useQuery({
+    queryKey: ['processed-documents'],
+    queryFn: () =>
+      ApiService.multiDocVectorDocs('64906166763aa2579e58c97d').then((res) =>
+        res.json()
+      )
+  });
 
   const startConversation = () => {
-    ApiService.multiDocConversationStarter({
-      referenceId: selected.length > 0 ? selected[0] : null,
-      referenceDocIds: selected,
-      language: 'English'
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('multiDocConversationStarter', data);
-        navigate(`/dashboard/doc-chat/${data.data}`, { replace: true });
-      });
-  };
-
-  useEffect(() => {
-    ApiService.multiDocVectorDocs('64906166763aa2579e58c97d')
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('upload student documents', data);
-        if (data.status === 'success') {
-          setDocuments(data.data);
+    mutate(
+      {
+        referenceId: selected.length > 0 ? selected[0] : null,
+        referenceDocIds: selected,
+        language: 'English'
+      },
+      {
+        onSuccess(data) {
+          navigate(`/dashboard/doc-chat/${data.data}`, { replace: true });
         }
-      });
-  }, []);
+      }
+    );
+  };
 
   return (
     <div className="w-full h-full bg-white px-[2.8rem] py-[1.6rem]">
       <header className="flex w-full items-center">
         <div className="controls flex-1 h-[2rem] grid grid-cols-2 gap-4">
           <div>
-            <InputComp label="324" placeholder="324" />
+            <InputComp />
           </div>
           <div className="h-full flex items-center">
             <Button
@@ -73,7 +75,13 @@ function SelectDocuments() {
             </Button>
           </div>
         </div>
-        <Button onClick={startConversation}>New Chat</Button>
+        <Button
+          onClick={startConversation}
+          disabled={selected.length === 0 || isPending}
+        >
+          {isPending && <ReloadIcon className="animate-spin mr-2" />}
+          Start Chat
+        </Button>
       </header>
       <main
         className={cn(
@@ -84,7 +92,7 @@ function SelectDocuments() {
           }
         )}
       >
-        {documents.map((document) => {
+        {data?.data?.map((document) => {
           return (
             <DocItem
               selected={selected.some((e) => e === document.document_id)}
@@ -114,8 +122,8 @@ const InputComp = ({
   label,
   placeholder
 }: {
-  label: string;
-  placeholder: string;
+  label?: string;
+  placeholder?: string;
 }) => {
   return (
     <InputGroup className="max-h-[30px] overflow-hidden flex items-center w-1/2">

@@ -92,11 +92,11 @@ function UploadFiles({ setFilesUploading }) {
           )}
         </div>
       </div>
-      <div className="w-full h-[4.5rem] pr-[3.1rem] py-[1rem] flex justify-end items-center">
+      {/* <div className="w-full h-[4.5rem] pr-[3.1rem] py-[1rem] flex justify-end items-center">
         <Button className="" disabled>
           New Chat
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }
