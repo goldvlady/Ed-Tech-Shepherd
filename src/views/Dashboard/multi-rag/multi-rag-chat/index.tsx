@@ -9,8 +9,9 @@ function MultiRagChat() {
   return (
     <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex">
       <DocsThumbnailList conversationID={docId} />
+      <div className="flex-1 h-full mt-10">PDF Viewer</div>
       <ChatArea conversationID={docId} />
-      <LearningResourcesSection />
+      <div className="w-[15rem] border h-full"></div>
     </div>
   );
 }
