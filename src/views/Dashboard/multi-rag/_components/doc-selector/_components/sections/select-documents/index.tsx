@@ -7,6 +7,7 @@ import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { CheckIcon } from 'lucide-react';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -150,16 +151,39 @@ const DocItem = ({
       role="button"
       key={document.document_id}
       className={cn(
-        'border rounded-[10px] transition-all duration-300 cursor-pointer p-2 flex flex-col justify-between relative',
+        'border rounded-[10px] transition-all duration-300 cursor-pointer flex relative',
         {
-          'w-full h-[10rem] hover:shadow': layout === 'grid',
-          'w-full h-8 hover:shadow': layout === 'list',
-          'shadow-xl hover:shadow-xl': selected
+          'w-full h-[10rem] hover:shadow p-2 flex-col justify-between':
+            layout === 'grid',
+          'w-full h-8 hover:shadow flex gap-2': layout === 'list',
+          'shadow-xl hover:shadow-xl': selected && layout === 'grid',
+          'shadow-sm hover:shadow-sm border-b-2 border-b-[#207DF7]':
+            selected && layout === 'list'
         }
       )}
     >
-      <div></div>
-      <div className="rounded-md flex items-center justify-center absolute p-[8px] w-[30px] h-[30px] bg-[#EBF4FE]">
+      <div
+        className={cn(
+          'w-[22px] h-[22px] absolute top-[-0.5rem] right-[-0.5rem] rounded-full bg-[#207DF7] pointer-events-none opacity-0 transition-opacity flex justify-center items-center',
+          {
+            'opacity-100': selected && layout === 'grid'
+          }
+        )}
+      >
+        <CheckIcon className="w-[12px] h-[12px] text-white font-bold" />
+      </div>
+      <div
+        className={cn({
+          hidden: layout === 'list'
+        })}
+      ></div>
+      <div
+        className={cn(
+          'rounded-md flex items-center justify-center bg-[#EBF4FE]',
+          { 'p-[8px] w-[30px] h-[30px] absolute': layout === 'grid' },
+          { 'w-[30px] rounded-tr-none rounded-br-none': layout === 'list' }
+        )}
+      >
         <span className="text-[#7AA7FB] text-[10px]">PDF</span>
       </div>
       <div className="w-full">
