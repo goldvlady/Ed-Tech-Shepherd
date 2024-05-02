@@ -6,14 +6,13 @@ import { useEffect, useState } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [documents, setDocuments] = useState([]);
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
-
-  console.log('Selected documents', selected);
 
   const startConversation = () => {
     ApiService.multiDocConversationStarter({
@@ -122,7 +121,7 @@ const InputComp = ({
       <InputLeftElement pointerEvents="none" className="max-h-[30px] ">
         <SearchIcon color="gray.300" />
       </InputLeftElement>
-      <Input type="text" rounded="full" className="max-h-[30px]" />
+      <Input type="text" rounded="full" className="max-h-[30px] bg-[#F8F8F9]" />
     </InputGroup>
   );
 };
@@ -138,21 +137,39 @@ const DocItem = ({
   selected: boolean;
   onClick: () => void;
 }) => {
+  function truncateText(text, maxLength) {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + '...';
+    } else {
+      return text;
+    }
+  }
   return (
     <div
       onClick={onClick}
       role="button"
       key={document.document_id}
       className={cn(
-        'border-2 border-black rounded-[10px] transition-all duration-300 cursor-pointer',
+        'border rounded-[10px] transition-all duration-300 cursor-pointer p-2 flex flex-col justify-between relative',
         {
-          'w-full h-[10rem] hover:shadow-xl': layout === 'grid',
+          'w-full h-[10rem] hover:shadow': layout === 'grid',
           'w-full h-8 hover:shadow': layout === 'list',
-          'border-4 border-blue-500': selected
+          'shadow-xl hover:shadow-xl': selected
         }
       )}
     >
-      {document.collection_name}
+      <div></div>
+      <div className="rounded-md flex items-center justify-center absolute p-[8px] w-[30px] h-[30px] bg-[#EBF4FE]">
+        <span className="text-[#7AA7FB] text-[10px]">PDF</span>
+      </div>
+      <div className="w-full">
+        <p className="text-[10px] text-[#585F68] font-normal">
+          {truncateText(document.collection_name, 55)}
+        </p>
+        <p className="text-[8px] text-[#6E7682] font-normal mt-[2px]">
+          Added {format(new Date(document.createdAt), 'dd/MM/yyyy')}
+        </p>
+      </div>
     </div>
   );
 };
