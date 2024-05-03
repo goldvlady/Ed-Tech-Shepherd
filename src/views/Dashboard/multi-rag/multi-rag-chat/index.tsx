@@ -15,19 +15,9 @@ function MultiRagChat() {
         </span>
       </div>
       <ChatArea conversationID={docId} />
-      <Tools />
+      <LearningResourcesSection conversationID={docId} />
     </div>
   );
 }
-
-const Tools = () => {
-  return (
-    <div className="w-[15rem] h-full flex justify-end p-4">
-      <div className="w-[114px] h-[30px] rounded-md shadow-md bg-white flex justify-center items-center cursor-pointer">
-        <span className="text-xs inline-block">Quick Action</span>
-      </div>
-    </div>
-  );
-};
 
 export default MultiRagChat;

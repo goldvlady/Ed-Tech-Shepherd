@@ -5,12 +5,16 @@ import { ReloadIcon } from '@radix-ui/react-icons';
 import { ArrowRight } from 'lucide-react';
 
 const MessageArea = ({ children }) => (
-  <div className="messages-area flex-1 overflow-scroll pb-32">{children}</div>
+  <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
+    {children}
+  </div>
 );
 
 const SuggestionButton = ({ text }) => (
   <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center flex items-center justify-center backdrop-blur-sm">
-    <span className="text-[0.75rem] text-center text-[#4D8DF9]">{text}</span>
+    <span className="text-[0.75rem] text-center text-[#4D8DF9] whitespace-nowrap">
+      {text}
+    </span>
   </div>
 );
 
@@ -71,7 +75,7 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
       });
   }, []);
   return (
-    <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col">
+    <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar">
       <MessageArea>
         <Message
           type="bot"
