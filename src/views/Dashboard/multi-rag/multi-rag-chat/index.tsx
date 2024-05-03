@@ -9,11 +9,25 @@ function MultiRagChat() {
   return (
     <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex">
       <DocsThumbnailList conversationID={docId} />
-      <div className="flex-1 h-full mt-10">PDF Viewer</div>
+      <div className="flex-1 h-full mt-10 border rounded-md">
+        <span className="text-xs inline-block w-full text-center">
+          PDF Viewer
+        </span>
+      </div>
       <ChatArea conversationID={docId} />
-      <div className="w-[15rem] border h-full"></div>
+      <Tools />
     </div>
   );
 }
+
+const Tools = () => {
+  return (
+    <div className="w-[15rem] h-full flex justify-end p-4">
+      <div className="w-[114px] h-[30px] rounded-md shadow-md bg-white flex justify-center items-center cursor-pointer">
+        <span className="text-xs inline-block">Quick Action</span>
+      </div>
+    </div>
+  );
+};
 
 export default MultiRagChat;
