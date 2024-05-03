@@ -35,7 +35,7 @@ const LearningResourcesSection = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <div>
-      <div className="w-[15rem] flex justify-end p-4 pb-0">
+      <div className="w-[10rem] flex justify-end p-4 pb-0">
         <ActionButton onClick={() => setExpanded(!expanded)}>
           <span className="flex items-center justify-center">
             Quick Action

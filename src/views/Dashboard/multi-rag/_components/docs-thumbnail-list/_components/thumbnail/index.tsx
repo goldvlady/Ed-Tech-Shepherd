@@ -1,6 +1,4 @@
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import { Switch } from '../../../../../../../components/ui/switch';
-import { Checkbox } from '../../../../../../../components/ui/checkbox';
 import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../../../../../../library/utils';
@@ -16,7 +14,6 @@ function truncateText(text, maxLength) {
 
 function Thumbnail({ data }: { data: any }) {
   const [selected, setSelected] = useState(false);
-  // #EBF4FE
   return (
     <div
       className={cn(
