@@ -18,7 +18,8 @@ import {
   MessageIcon,
   RenderHighlightContentProps,
   RenderHighlightTargetProps,
-  RenderHighlightsProps
+  RenderHighlightsProps,
+  Trigger
 } from '@react-pdf-viewer/highlight';
 import '@react-pdf-viewer/highlight/lib/styles/index.css';
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
@@ -49,23 +50,114 @@ import {
   ChevronUpIcon,
   Minus,
   Plus,
+  PlusIcon,
+  SaveIcon,
   SearchIcon
 } from 'lucide-react';
 import { useState } from 'react';
+import { Button } from '../../../../../components/ui/button';
 
 function PDFViewer() {
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [areas, setAreas] = useState([
+    {
+      pageIndex: 1,
+      height: 1.55401,
+      width: 28.1674,
+      left: 27.5399,
+      top: 15.0772
+    },
+    {
+      pageIndex: 1,
+      height: 1.32637,
+      width: 37.477,
+      left: 55.7062,
+      top: 15.2715
+    },
+    {
+      pageIndex: 1,
+      height: 1.55401,
+      width: 28.7437,
+      left: 16.3638,
+      top: 16.6616
+    }
+  ]);
 
   const incrementPage = () => {
     const { jumpToPreviousPage } = pageNavigationPluginInstance;
     jumpToPreviousPage();
   };
+
   const decrementPage = () => {
     const { jumpToNextPage } = pageNavigationPluginInstance;
     jumpToNextPage();
   };
+
+  const renderHighlights = (props: RenderHighlightsProps) => (
+    <div>
+      {areas
+        .filter((area) => area.pageIndex === props.pageIndex)
+        .map((area, idx) => (
+          <div
+            key={idx}
+            className="highlight-area"
+            style={Object.assign(
+              {},
+              {
+                background: 'orange',
+                opacity: 0.4
+              },
+              props.getCssProperties(area, props.rotation)
+            )}
+          />
+        ))}
+    </div>
+  );
+
+  const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
+    <div
+      style={{
+        background: '#eee',
+        display: 'flex',
+        position: 'absolute',
+        left: `${props.selectionRegion.left}%`,
+        top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
+        transform: 'translate(0, 8px)',
+        zIndex: 1,
+        borderRadius: 8
+      }}
+    >
+      <Tooltip
+        position={Position.TopCenter}
+        target={
+          <Button
+            onClick={() => {
+              console.log(
+                'highted text',
+                props.selectedText,
+                props.highlightAreas
+              );
+              return null;
+            }}
+          >
+            <SaveIcon />
+          </Button>
+        }
+        content={() => <div style={{ width: '100px' }}>Save Highlight</div>}
+        offset={{ left: 0, top: -8 }}
+      />
+    </div>
+  );
+
+  const highlightPluginInstance = highlightPlugin({
+    renderHighlightTarget,
+    // renderHighlightContent,
+    renderHighlights
+  });
+  //   const { jumpToHighlightArea } = highlightPluginInstance;
+
   return (
     <div className="flex-[1.5] h-full mt-10 rounded-md">
       <header className="pdf-header p-[0.87rem] w-full bg-white rounded-[10px] flex justify-between items-center">
@@ -109,7 +201,10 @@ function PDFViewer() {
                 fileUrl={dummyPDF}
                 defaultScale={SpecialZoomLevel.PageFit}
                 viewMode={ViewMode.SinglePage}
-                plugins={[pageNavigationPluginInstance]}
+                plugins={[
+                  pageNavigationPluginInstance,
+                  highlightPluginInstance
+                ]}
                 onDocumentLoad={(e) => {
                   console.log('document loaded', e);
                   setTotalPages(e.doc.numPages);
