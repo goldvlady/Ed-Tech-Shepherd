@@ -1098,6 +1098,31 @@ class ApiService {
     );
   };
 
+  static multiDocHighlight = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/misc/create-highlight`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    );
+  };
+
+  static getMultiDocHighlight = async (documentId) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/misc/get-highlight?documentId=${documentId}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiDocConversationStarter = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,

@@ -57,6 +57,8 @@ import {
 import { useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
 import ApiService from '../../../../../services/ApiService';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ReloadIcon } from '@radix-ui/react-icons';
 
 function PDFViewer({
   selectedDocumentID
@@ -66,32 +68,34 @@ function PDFViewer({
     name: string;
   };
 }) {
+  const queryClient = useQueryClient();
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [areas, setAreas] = useState([
-    {
-      pageIndex: 1,
-      height: 1.55401,
-      width: 28.1674,
-      left: 27.5399,
-      top: 15.0772
-    },
-    {
-      pageIndex: 1,
-      height: 1.32637,
-      width: 37.477,
-      left: 55.7062,
-      top: 15.2715
-    },
-    {
-      pageIndex: 1,
-      height: 1.55401,
-      width: 28.7437,
-      left: 16.3638,
-      top: 16.6616
+  const { mutate, isPending: isSavingHighlightText } = useMutation({
+    mutationFn: (data: any) =>
+      ApiService.multiDocHighlight(data).then((res) => res.json())
+  });
+
+  const { data: highlightPositions } = useQuery({
+    queryKey: ['documentHighlight', selectedDocumentID.id],
+    queryFn: () =>
+      ApiService.getMultiDocHighlight(selectedDocumentID.id).then((res) =>
+        res.json()
+      ),
+    select(data) {
+      if (data.status === 'success') {
+        const positions = data.data.flatMap((item) => {
+          return JSON.parse(item.highlight).position;
+        });
+        return [].concat(...positions);
+      } else {
+        return [];
+      }
     }
-  ]);
+  });
+
+  console.log('highlighted text', highlightPositions);
 
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${selectedDocumentID.name}`;
 
@@ -107,8 +111,8 @@ function PDFViewer({
 
   const renderHighlights = (props: RenderHighlightsProps) => (
     <div>
-      {areas
-        .filter((area) => area.pageIndex === props.pageIndex)
+      {highlightPositions
+        ?.filter((area) => area.pageIndex === props.pageIndex)
         .map((area, idx) => (
           <div
             key={idx}
@@ -143,15 +147,31 @@ function PDFViewer({
         position={Position.TopCenter}
         target={
           <Button
+            disabled={isSavingHighlightText}
             onClick={() => {
-              console.log(
-                'highted text',
-                props.selectedText,
-                props.highlightAreas
+              mutate(
+                {
+                  documentId: selectedDocumentID.id,
+                  highlight: {
+                    name: props.selectedText,
+                    position: props.highlightAreas
+                  }
+                },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries({
+                      queryKey: ['documentHighlight', selectedDocumentID.id]
+                    });
+                  }
+                }
               );
               return null;
             }}
           >
+            {isSavingHighlightText && (
+              <ReloadIcon className="animate-spin mr-2" />
+            )}
+
             <SaveIcon />
           </Button>
         }
@@ -216,7 +236,6 @@ function PDFViewer({
                     highlightPluginInstance
                   ]}
                   onDocumentLoad={(e) => {
-                    console.log('document loaded', e);
                     setTotalPages(e.doc.numPages);
                   }}
                   scrollMode={ScrollMode.Page}
