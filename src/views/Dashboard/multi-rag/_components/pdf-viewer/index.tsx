@@ -56,8 +56,16 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
+import ApiService from '../../../../../services/ApiService';
 
-function PDFViewer() {
+function PDFViewer({
+  selectedDocumentID
+}: {
+  selectedDocumentID: {
+    id: string;
+    name: string;
+  };
+}) {
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -84,6 +92,8 @@ function PDFViewer() {
       top: 16.6616
     }
   ]);
+
+  const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${selectedDocumentID.name}`;
 
   const incrementPage = () => {
     const { jumpToPreviousPage } = pageNavigationPluginInstance;
@@ -156,7 +166,6 @@ function PDFViewer() {
     // renderHighlightContent,
     renderHighlights
   });
-  //   const { jumpToHighlightArea } = highlightPluginInstance;
 
   return (
     <div className="flex-[1.5] h-full mt-10 rounded-md">
@@ -197,23 +206,25 @@ function PDFViewer() {
             })}
           >
             <div className="h-full w-full no-scrollbar">
-              <Viewer
-                fileUrl={dummyPDF}
-                defaultScale={SpecialZoomLevel.PageFit}
-                viewMode={ViewMode.SinglePage}
-                plugins={[
-                  pageNavigationPluginInstance,
-                  highlightPluginInstance
-                ]}
-                onDocumentLoad={(e) => {
-                  console.log('document loaded', e);
-                  setTotalPages(e.doc.numPages);
-                }}
-                scrollMode={ScrollMode.Page}
-                onPageChange={(e) => {
-                  setCurrentPage(e.currentPage);
-                }}
-              />
+              {selectedDocumentID.name && (
+                <Viewer
+                  fileUrl={pdfURL}
+                  defaultScale={SpecialZoomLevel.PageFit}
+                  viewMode={ViewMode.SinglePage}
+                  plugins={[
+                    pageNavigationPluginInstance,
+                    highlightPluginInstance
+                  ]}
+                  onDocumentLoad={(e) => {
+                    console.log('document loaded', e);
+                    setTotalPages(e.doc.numPages);
+                  }}
+                  scrollMode={ScrollMode.Page}
+                  onPageChange={(e) => {
+                    setCurrentPage(e.currentPage);
+                  }}
+                />
+              )}
             </div>
           </div>
         </Worker>

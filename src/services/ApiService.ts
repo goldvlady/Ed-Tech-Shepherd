@@ -1088,6 +1088,16 @@ class ApiService {
     );
   };
 
+  static multiDocVectorDoc = async (documentId: string) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/vector_docs/doc/${documentId}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiDocConversationStarter = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,

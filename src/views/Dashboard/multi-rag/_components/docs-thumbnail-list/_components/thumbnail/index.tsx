@@ -12,16 +12,26 @@ function truncateText(text, maxLength) {
   }
 }
 
-function Thumbnail({ data }: { data: any }) {
+function Thumbnail({
+  selectedToPreview,
+  data,
+  onClick
+}: {
+  selectedToPreview: boolean;
+  data: any;
+  onClick: () => void;
+}) {
   const [selected, setSelected] = useState(false);
   return (
     <div
       className={cn(
-        'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-colors',
+        'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer',
         {
-          'bg-[#EBF4FE]': selected
+          'bg-[#EBF4FE]': selected,
+          'shadow-xl': selectedToPreview
         }
       )}
+      onClick={onClick}
     >
       <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer">
         <DotsHorizontalIcon />
