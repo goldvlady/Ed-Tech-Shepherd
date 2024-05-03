@@ -56,6 +56,7 @@ import { useState } from 'react';
 function PDFViewer() {
   const pageNavigationPluginInstance = pageNavigationPlugin();
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   const incrementPage = () => {
     const { jumpToPreviousPage } = pageNavigationPluginInstance;
@@ -76,10 +77,10 @@ function PDFViewer() {
               onClick={incrementPage}
             />
             <div className="w-[1.8rem] h-[0.75rem] rounded-[5px] shadow-inner flex items-center justify-center">
-              <p className="text-[0.5rem] pt-0.5">{currentPage}</p>
+              <p className="text-[0.5rem] pt-0.5">{currentPage + 1}</p>
             </div>
             <p className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5">
-              165
+              {totalPages}
             </p>
             <ChevronDownIcon
               className="cursor-pointer w-[12px]"
@@ -109,6 +110,10 @@ function PDFViewer() {
                 defaultScale={SpecialZoomLevel.PageFit}
                 viewMode={ViewMode.SinglePage}
                 plugins={[pageNavigationPluginInstance]}
+                onDocumentLoad={(e) => {
+                  console.log('document loaded', e);
+                  setTotalPages(e.doc.numPages);
+                }}
                 scrollMode={ScrollMode.Page}
                 onPageChange={(e) => {
                   setCurrentPage(e.currentPage);
