@@ -1,6 +1,8 @@
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../../../../library/utils';
+import { useQuery } from '@tanstack/react-query';
+import ApiService from '../../../../../services/ApiService';
 
 const ActionButton = ({
   children,
@@ -55,7 +57,7 @@ const LearningResourcesSection = ({
           }
         )}
       >
-        <SummarySection />
+        <SummarySection conversationID={conversationID} />
         <HighlightsSection />
         <PinnedSection />
         <GenerateQuizSection />
@@ -65,8 +67,51 @@ const LearningResourcesSection = ({
   );
 };
 
-const SummarySection = () => {
+const SummarySection = ({ conversationID }: { conversationID: string }) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [summaries, setSummaries] = useState([]);
+
+  const { data } = useQuery({
+    queryKey: ['documentsBasedOnConversationID'],
+    queryFn: () =>
+      ApiService.fetchMultiDocBasedOnConversationID(conversationID).then(
+        (res) => res.json()
+      ),
+    select: (data) => {
+      if (data.status === 'success') {
+        const docIDs = data.data.map((item) => item.document_id);
+        // ApiService.multiDocSummary(JSON.stringify(docIDs))
+        //   .then((res) => res.json())
+        //   .then((newData) => {
+        //     console.log('new data', newData);
+        //     if (newData.status === 'success') {
+        //       setSummaries(newData.data);
+        //     }
+        //   });
+        return docIDs;
+      } else {
+        return [];
+      }
+    }
+  });
+
+  const { data: summary } = useQuery({
+    queryKey: ['summary', data],
+    queryFn: () =>
+      ApiService.multiDocSummary(JSON.stringify(data)).then((res) =>
+        res.json()
+      ),
+    select: (data) => {
+      if (data.status === 'success') {
+        return data.data;
+      } else {
+        return [];
+      }
+    }
+  });
+
+  console.log('multiDocSummary', summary);
+
   const toggleExpand = () => {
     setSummaryExpanded(!summaryExpanded);
   };
@@ -84,39 +129,11 @@ const SummarySection = () => {
         )}
       >
         <p className="p-[1.625rem] text-[#585F68] text-[0.75rem]">
-          Albert Einstein's theory of relativity is a groundbreaking concept in
-          physics that fundamentally changed our understanding of space, time,
-          and gravity. It consists of two main parts: special relativity and
-          general relativity.
-          <br />
-          <br />
-          Special relativity, proposed in 1905, revolutionized the way we think
-          about space and time by showing that they are not separate entities
-          but are intertwined in a four-dimensional continuum known as
-          spacetime. According to special relativity, the laws of physics are
-          the same for all observers, regardless of their relative motion. One
-          of the key principles of special relativity is that the speed of light
-          is constant for all observers, regardless of the motion of the light
-          source or the observer.
-          <br />
-          <br />
-          General relativity, proposed in 1915, extends the principles of
-          special relativity to include gravity. According to general
-          relativity, gravity is not a force in the traditional sense but is
-          instead a curvature of spacetime caused by the presence of mass and
-          energy. In other words, massive objects like planets and stars cause
-          spacetime to bend around them, and this bending of spacetime
-          influences the motion of other objects, such as the planets orbiting
-          the sun.
-          <br />
-          <br />
-          Einstein's theory of relativity has had a profound impact on physics
-          and our understanding of the universe. It has led to the development
-          of technologies such as GPS, which relies on the precise timing of
-          signals from satellites, taking into account the effects of both
-          special and general relativity. It has also inspired new avenues of
-          research in theoretical physics, such as the search for a unified
-          theory that combines relativity with quantum mechanics.
+          {summary
+            ? summary.length > 0
+              ? summary[0]
+              : 'No summaries found'
+            : 'Loading summaries...'}
         </p>
       </div>
     </div>

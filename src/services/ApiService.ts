@@ -1123,6 +1123,15 @@ class ApiService {
     );
   };
 
+  static multiDocSummary = async (documentIds) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/misc/summary?documentIds=${documentIds}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiDocConversationStarter = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
