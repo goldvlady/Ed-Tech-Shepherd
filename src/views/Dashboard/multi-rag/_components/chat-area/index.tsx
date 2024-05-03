@@ -75,7 +75,7 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
       });
   }, []);
   return (
-    <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar">
+    <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
         <Message
           type="bot"
