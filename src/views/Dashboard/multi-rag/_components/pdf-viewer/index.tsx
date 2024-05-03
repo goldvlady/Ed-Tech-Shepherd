@@ -54,11 +54,16 @@ import {
 import { useState } from 'react';
 
 function PDFViewer() {
-  const [currentPage, setCurrentPage] = useState(0);
   const pageNavigationPluginInstance = pageNavigationPlugin();
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const handlePageChange = ({ currentPage }) => {
-    setCurrentPage(currentPage);
+  const incrementPage = () => {
+    const { jumpToPreviousPage } = pageNavigationPluginInstance;
+    jumpToPreviousPage();
+  };
+  const decrementPage = () => {
+    const { jumpToNextPage } = pageNavigationPluginInstance;
+    jumpToNextPage();
   };
   return (
     <div className="flex-[1.5] h-full mt-10 rounded-md">
@@ -66,9 +71,12 @@ function PDFViewer() {
         <div className="flex items-center gap-1">
           <SearchIcon className="w-[12px]" />
           <div className="flex items-center">
-            <ChevronUpIcon className="cursor-pointer w-[12px]" />
+            <ChevronUpIcon
+              className="cursor-pointer w-[12px]"
+              onClick={incrementPage}
+            />
             <div className="w-[1.8rem] h-[0.75rem] rounded-[5px] shadow-inner flex items-center justify-center">
-              <p className="text-[0.5rem] pt-0.5">1</p>
+              <p className="text-[0.5rem] pt-0.5">{currentPage}</p>
             </div>
             <p className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5">
               165
@@ -76,10 +84,7 @@ function PDFViewer() {
             <ChevronDownIcon
               className="cursor-pointer w-[12px]"
               onClick={() => {
-                alert(currentPage);
-                handlePageChange({
-                  currentPage: Math.floor(Math.random() * 10)
-                });
+                decrementPage();
               }}
             />
           </div>
@@ -103,10 +108,11 @@ function PDFViewer() {
                 fileUrl={dummyPDF}
                 defaultScale={SpecialZoomLevel.PageFit}
                 viewMode={ViewMode.SinglePage}
-                onPageChange={handlePageChange}
                 plugins={[pageNavigationPluginInstance]}
                 scrollMode={ScrollMode.Page}
-                initialPage={3}
+                onPageChange={(e) => {
+                  setCurrentPage(e.currentPage);
+                }}
               />
             </div>
           </div>
