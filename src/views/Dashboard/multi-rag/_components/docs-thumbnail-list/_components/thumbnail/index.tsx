@@ -41,7 +41,7 @@ function Thumbnail({
       )}
       onClick={onClick}
     >
-      <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer">
+      <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
         <DotsHorizontalIcon />
       </div>
       <PdfFirstPageImage data={data} />
