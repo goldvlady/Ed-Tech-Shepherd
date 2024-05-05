@@ -297,6 +297,7 @@ const RenderHighlightTarget = ({
         <MenuItem
           onClick={() => {
             getTextForSummary(props.selectedText);
+            props.toggle();
           }}
           title="Summarize"
           icon={<FileTextIcon className="w-4 mr-1" />}
@@ -305,6 +306,7 @@ const RenderHighlightTarget = ({
         <MenuItem
           onClick={() => {
             getTextForExplaination(props.selectedText);
+            props.toggle();
           }}
           title="Explain"
           icon={<InfoCircledIcon className="w-4 mr-1 text-lg" />}
@@ -313,6 +315,7 @@ const RenderHighlightTarget = ({
         <MenuItem
           onClick={() => {
             getTextForTranslation(props.selectedText);
+            props.toggle();
           }}
           title="Translate"
           icon={<TextIcon className="w-4 mr-1 text-lg" />}
