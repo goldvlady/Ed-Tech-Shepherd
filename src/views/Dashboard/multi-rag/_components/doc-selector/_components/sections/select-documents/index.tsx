@@ -9,6 +9,13 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { CheckIcon } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { Worker } from '@react-pdf-viewer/core';
+import {
+  Viewer,
+  SpecialZoomLevel,
+  ViewMode,
+  ScrollMode
+} from '@react-pdf-viewer/core';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -153,6 +160,7 @@ const DocItem = ({
       return text;
     }
   }
+  const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${document.collection_name}`;
   return (
     <div
       onClick={onClick}
@@ -170,6 +178,18 @@ const DocItem = ({
         }
       )}
     >
+      <div className="absolute w-full h-full">
+        <div className="pointer-events-none absolute w-full pb-2 pr-2 h-full">
+          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+            <Viewer
+              fileUrl={pdfURL}
+              defaultScale={SpecialZoomLevel.PageFit}
+              viewMode={ViewMode.SinglePage}
+              scrollMode={ScrollMode.Page}
+            />
+          </Worker>
+        </div>
+      </div>
       <div
         className={cn(
           'w-[22px] h-[22px] absolute top-[-0.5rem] right-[-0.5rem] rounded-full bg-[#207DF7] pointer-events-none opacity-0 transition-opacity flex justify-center items-center',
@@ -194,7 +214,7 @@ const DocItem = ({
       >
         <span className="text-[#7AA7FB] text-[10px]">PDF</span>
       </div>
-      <div className="w-full">
+      <div className="w-full z-10 backdrop-blur-lg">
         <p className="text-[10px] text-[#585F68] font-normal">
           {truncateText(document.collection_name, 55)}
         </p>
