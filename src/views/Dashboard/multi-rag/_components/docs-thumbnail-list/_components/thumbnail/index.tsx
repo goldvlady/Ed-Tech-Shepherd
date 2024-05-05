@@ -2,6 +2,13 @@ import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { CheckIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../../../../../../library/utils';
+import { Worker } from '@react-pdf-viewer/core';
+import {
+  Viewer,
+  SpecialZoomLevel,
+  ViewMode,
+  ScrollMode
+} from '@react-pdf-viewer/core';
 
 function truncateText(text, maxLength) {
   if (text.length > maxLength) {
@@ -21,6 +28,7 @@ function Thumbnail({
   data: any;
   onClick: () => void;
 }) {
+  console.log('Thumbnail', data);
   const [selected, setSelected] = useState(false);
   return (
     <div
@@ -36,7 +44,8 @@ function Thumbnail({
       <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer">
         <DotsHorizontalIcon />
       </div>
-      <div className="flex items-center gap-1 justify-between w-full">
+      <PdfFirstPageImage data={data} />
+      <div className="flex items-center gap-1 justify-between w-full z-10">
         <p className="text-[#585F68] text-[10px] whitespace-nowrap">
           {truncateText(data.collection_name, 25)}
         </p>
@@ -58,5 +67,21 @@ function Thumbnail({
     </div>
   );
 }
+
+const PdfFirstPageImage = ({ data }: { data: any }) => {
+  const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${data.collection_name}`;
+  return (
+    <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+        <Viewer
+          fileUrl={pdfURL}
+          defaultScale={SpecialZoomLevel.PageFit}
+          viewMode={ViewMode.SinglePage}
+          scrollMode={ScrollMode.Page}
+        />
+      </Worker>
+    </div>
+  );
+};
 
 export default Thumbnail;
