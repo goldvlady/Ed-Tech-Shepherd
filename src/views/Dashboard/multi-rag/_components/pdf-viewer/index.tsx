@@ -46,6 +46,7 @@ import {
 import dummyPDF from './dummy.pdf';
 import { cn } from '../../../../../library/utils';
 import {
+  BookAIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   Minus,
@@ -54,11 +55,17 @@ import {
   SaveIcon,
   SearchIcon
 } from 'lucide-react';
-import { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
 import ApiService from '../../../../../services/ApiService';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import {
+  FileTextIcon,
+  InfoCircledIcon,
+  Pencil1Icon,
+  ReloadIcon,
+  TextIcon
+} from '@radix-ui/react-icons';
 
 function PDFViewer({
   selectedDocumentID
@@ -131,54 +138,13 @@ function PDFViewer({
   );
 
   const renderHighlightTarget = (props: RenderHighlightTargetProps) => (
-    <div
-      style={{
-        background: '#eee',
-        display: 'flex',
-        position: 'absolute',
-        left: `${props.selectionRegion.left}%`,
-        top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-        transform: 'translate(0, 8px)',
-        zIndex: 1,
-        borderRadius: 8
-      }}
-    >
-      <Tooltip
-        position={Position.TopCenter}
-        target={
-          <Button
-            disabled={isSavingHighlightText}
-            onClick={() => {
-              mutate(
-                {
-                  documentId: selectedDocumentID.id,
-                  highlight: {
-                    name: props.selectedText,
-                    position: props.highlightAreas
-                  }
-                },
-                {
-                  onSuccess: () => {
-                    queryClient.invalidateQueries({
-                      queryKey: ['documentHighlight', selectedDocumentID.id]
-                    });
-                  }
-                }
-              );
-              return null;
-            }}
-          >
-            {isSavingHighlightText && (
-              <ReloadIcon className="animate-spin mr-2" />
-            )}
-
-            <SaveIcon />
-          </Button>
-        }
-        content={() => <div style={{ width: '100px' }}>Save Highlight</div>}
-        offset={{ left: 0, top: -8 }}
-      />
-    </div>
+    <RenderHighlightTarget
+      queryClient={queryClient}
+      mutate={mutate}
+      isSavingHighlightText={isSavingHighlightText}
+      selectedDocumentID={selectedDocumentID}
+      {...props}
+    />
   );
 
   const highlightPluginInstance = highlightPlugin({
@@ -251,5 +217,118 @@ function PDFViewer({
     </div>
   );
 }
+
+const RenderHighlightTarget = ({
+  queryClient,
+  selectedDocumentID,
+  mutate,
+  isSavingHighlightText,
+  ...props
+}) => {
+  const MenuItem = ({
+    title,
+    icon,
+    onClick,
+    disabled
+  }: {
+    title: string;
+    icon: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+  }) => {
+    return (
+      <div
+        onClick={onClick}
+        className={cn(
+          'p-2 flex items-center  gap-1 cursor-pointer hover:bg-slate-100',
+          {
+            'opacity-50 pointer-events-none hover:bg-slate-50': disabled
+          }
+        )}
+        role="menuitem"
+      >
+        {icon}
+        <span className="text-xs">{title}</span>
+      </div>
+    );
+  };
+  return (
+    <div
+      className="bg-white flex absolute z-[1] rounded-xl min-w-36 shadow-xl overflow-hidden"
+      style={{
+        left: `${props.selectionRegion.left}%`,
+        top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
+        transform: 'translate(0, 8px)'
+      }}
+    >
+      <div className="w-full h-full">
+        <MenuItem
+          disabled={isSavingHighlightText}
+          onClick={() => {
+            mutate(
+              {
+                documentId: selectedDocumentID.id,
+                highlight: {
+                  name: props.selectedText,
+                  position: props.highlightAreas
+                }
+              },
+              {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({
+                    queryKey: ['documentHighlight', selectedDocumentID.id]
+                  });
+                }
+              }
+            );
+          }}
+          title="Highlight"
+          icon={<Pencil1Icon className="w-4 mr-1" />}
+        />
+        <hr />
+        <MenuItem
+          title="Summarize"
+          icon={<FileTextIcon className="w-4 mr-1" />}
+        />
+        <hr />
+        <MenuItem
+          title="Explain"
+          icon={<InfoCircledIcon className="w-4 mr-1 text-lg" />}
+        />
+        <hr />
+        <MenuItem
+          title="Translate"
+          icon={<TextIcon className="w-4 mr-1 text-lg" />}
+        />
+      </div>
+      {/* <Button
+        disabled={isSavingHighlightText}
+        onClick={() => {
+          mutate(
+            {
+              documentId: selectedDocumentID.id,
+              highlight: {
+                name: props.selectedText,
+                position: props.highlightAreas
+              }
+            },
+            {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: ['documentHighlight', selectedDocumentID.id]
+                });
+              }
+            }
+          );
+          return null;
+        }}
+      >
+        {isSavingHighlightText && <ReloadIcon className="animate-spin mr-2" />}
+
+        <SaveIcon />
+      </Button> */}
+    </div>
+  );
+};
 
 export default PDFViewer;
