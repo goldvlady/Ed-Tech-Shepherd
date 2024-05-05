@@ -11,6 +11,18 @@ function MultiRagChat() {
     id: '',
     name: ''
   });
+
+  const getTextForSummary = (text: string) => {
+    alert('Summary: ' + text);
+  };
+
+  const getTextForExplaination = (text: string) => {
+    alert('Explain: ' + text);
+  };
+  const getTextForTranslation = (text: string) => {
+    alert('Translate: ' + text);
+  };
+
   return (
     <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex">
       <DocsThumbnailList
@@ -18,7 +30,12 @@ function MultiRagChat() {
         setSelectedDocumentID={setSelectedDocumentID}
         selectedDocumentID={selectedDocumentID}
       />
-      <PDFViewer selectedDocumentID={selectedDocumentID} />
+      <PDFViewer
+        selectedDocumentID={selectedDocumentID}
+        getTextForSummary={getTextForSummary}
+        getTextForExplaination={getTextForExplaination}
+        getTextForTranslation={getTextForTranslation}
+      />
       <ChatArea conversationID={docId} />
       <LearningResourcesSection conversationID={docId} />
     </div>

@@ -43,16 +43,12 @@ import {
   zoomPlugin
 } from '@react-pdf-viewer/zoom';
 
-import dummyPDF from './dummy.pdf';
 import { cn } from '../../../../../library/utils';
 import {
-  BookAIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   Minus,
   Plus,
-  PlusIcon,
-  SaveIcon,
   SearchIcon
 } from 'lucide-react';
 import React, { ReactNode, useState } from 'react';
@@ -68,12 +64,18 @@ import {
 } from '@radix-ui/react-icons';
 
 function PDFViewer({
-  selectedDocumentID
+  selectedDocumentID,
+  getTextForSummary,
+  getTextForExplaination,
+  getTextForTranslation
 }: {
   selectedDocumentID: {
     id: string;
     name: string;
   };
+  getTextForSummary: (text: string) => void;
+  getTextForExplaination: (text: string) => void;
+  getTextForTranslation: (text: string) => void;
 }) {
   const queryClient = useQueryClient();
   const pageNavigationPluginInstance = pageNavigationPlugin();
@@ -143,6 +145,9 @@ function PDFViewer({
       mutate={mutate}
       isSavingHighlightText={isSavingHighlightText}
       selectedDocumentID={selectedDocumentID}
+      getTextForSummary={getTextForSummary}
+      getTextForExplaination={getTextForExplaination}
+      getTextForTranslation={getTextForTranslation}
       {...props}
     />
   );
@@ -223,6 +228,9 @@ const RenderHighlightTarget = ({
   selectedDocumentID,
   mutate,
   isSavingHighlightText,
+  getTextForSummary,
+  getTextForExplaination,
+  getTextForTranslation,
   ...props
 }) => {
   const MenuItem = ({
@@ -287,16 +295,25 @@ const RenderHighlightTarget = ({
         />
         <hr />
         <MenuItem
+          onClick={() => {
+            getTextForSummary(props.selectedText);
+          }}
           title="Summarize"
           icon={<FileTextIcon className="w-4 mr-1" />}
         />
         <hr />
         <MenuItem
+          onClick={() => {
+            getTextForExplaination(props.selectedText);
+          }}
           title="Explain"
           icon={<InfoCircledIcon className="w-4 mr-1 text-lg" />}
         />
         <hr />
         <MenuItem
+          onClick={() => {
+            getTextForTranslation(props.selectedText);
+          }}
           title="Translate"
           icon={<TextIcon className="w-4 mr-1 text-lg" />}
         />
