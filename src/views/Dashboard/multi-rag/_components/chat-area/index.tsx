@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -6,6 +6,11 @@ import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { multiragResponse } from '../../../../../types';
 import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '../../../../../components/ui/popover';
 
 const MessageArea = ({ children }) => (
   <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
@@ -36,26 +41,47 @@ const SourceButton = () => (
   </button>
 );
 
-const InputArea = () => (
-  <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
-    <SourceButton />
-    <input
-      className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
-      placeholder="How can Shepherd help with your homework?"
-    />
-    <div className="flex items-center gap-3 ml-2">
-      <button className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center">
-        <ArrowRight className="text-white w-[17px]" />
-      </button>
-      <button className="w-[2.18rem] h-[1.75rem] rounded-full bg-[#F9F9FB] flex items-center justify-center">
-        <ReloadIcon className="w-[14px]" />
-      </button>
+const InputArea = ({
+  value,
+  setValue,
+  submitHandler
+}: {
+  value: string;
+  setValue: Dispatch<SetStateAction<string>>;
+  submitHandler: VoidFunction;
+}) => {
+  return (
+    <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
+      <SourceButton />
+      <Popover open={value.includes('@')}>
+        <PopoverTrigger>
+          <input
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
+            placeholder="How can Shepherd help with your homework?"
+          />
+          <PopoverContent></PopoverContent>
+        </PopoverTrigger>
+      </Popover>
+      <div className="flex items-center gap-3 ml-2">
+        <button
+          onClick={submitHandler}
+          className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center"
+        >
+          <ArrowRight className="text-white w-[17px]" />
+        </button>
+        <button className="w-[2.18rem] h-[1.75rem] rounded-full bg-[#F9F9FB] flex items-center justify-center">
+          <ReloadIcon className="w-[14px]" />
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ChatArea = ({ conversationID }: { conversationID: string }) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
+  const [userMessage, setUserMessage] = useState('');
   const { data, isLoading, isRefetching, isError } = useQuery({
     queryKey: ['conversationHistory', conversationID],
 
@@ -74,6 +100,9 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
       setMessages(data.data);
     }
   }, [data]);
+  const submitMessageHandler = () => {
+    //
+  };
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       {isLoading && (
@@ -111,7 +140,11 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
       ) : null}
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea />
-        <InputArea />
+        <InputArea
+          submitHandler={submitMessageHandler}
+          value={userMessage}
+          setValue={setUserMessage}
+        />
       </div>
     </div>
   );
