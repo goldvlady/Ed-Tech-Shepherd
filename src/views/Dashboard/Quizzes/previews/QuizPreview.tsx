@@ -58,6 +58,7 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 
 type QuizScoreType = {
   questionIdx: string | number;
+  questionId: string;
   score: string | 'true' | 'false' | boolean | null;
   selectedOptions: string[];
 };
@@ -84,7 +85,8 @@ const QuizCard = forwardRef(
       handleSetScore?: (
         score: string | 'true' | 'false' | boolean | null,
         idx?: number,
-        selectedOptions?: string[]
+        selectedOptions?: string[],
+        questionId?: string
       ) => void;
       handleStoreQuizHistory?: (
         questionId: string,
@@ -127,7 +129,12 @@ const QuizCard = forwardRef(
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-          handleSetScore(score, toNumber(questionIdx), [optionAnswer]);
+          handleSetScore(
+            score,
+            toNumber(questionIdx),
+            [optionAnswer],
+            id as string
+          );
           handleStoreQuizHistory(id as string, toString(isCorrect));
         }
       }
@@ -140,7 +147,12 @@ const QuizCard = forwardRef(
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-          handleSetScore(score, toNumber(questionIdx), [trueFalseAnswer]);
+          handleSetScore(
+            score,
+            toNumber(questionIdx),
+            [trueFalseAnswer],
+            id as string
+          );
           handleStoreQuizHistory(id as string, toString(isCorrect));
         }
       }
@@ -164,7 +176,7 @@ const QuizCard = forwardRef(
           }
         });
         const answer = isEmpty(answers) ? 'false' : 'true';
-        handleSetScore(answer, toNumber(questionIdx), e);
+        handleSetScore(answer, toNumber(questionIdx), e, id as string);
         handleStoreQuizHistory(id as string, answer);
       }
     };
@@ -400,9 +412,12 @@ const QuizCard = forwardRef(
                         !isEmpty(first(quizScores[index]?.selectedOptions))
                       }
                       onChange={(e) => {
-                        handleSetScore('pending', toNumber(index), [
-                          e.target.value
-                        ]);
+                        handleSetScore(
+                          'pending',
+                          toNumber(index),
+                          [e.target.value],
+                          id as string
+                        );
                       }}
                       value={first(quizScores[index]?.selectedOptions)}
                       placeholder="Please enter your answer"
@@ -469,7 +484,8 @@ const QuizCard = forwardRef(
                                   handleSetScore(
                                     'true',
                                     toNumber(index),
-                                    quizScores[index].selectedOptions
+                                    quizScores[index].selectedOptions,
+                                    id as string
                                   );
                                   handleStoreQuizHistory(
                                     id as string,
@@ -507,7 +523,8 @@ const QuizCard = forwardRef(
                                   handleSetScore(
                                     'null',
                                     toNumber(index),
-                                    quizScores[index].selectedOptions
+                                    quizScores[index].selectedOptions,
+                                    id as string
                                   );
                                   handleStoreQuizHistory(
                                     id as string,
@@ -543,7 +560,8 @@ const QuizCard = forwardRef(
                                   handleSetScore(
                                     'false',
                                     toNumber(index),
-                                    quizScores[index].selectedOptions
+                                    quizScores[index].selectedOptions,
+                                    id as string
                                   );
                                   handleStoreQuizHistory(
                                     id as string,
@@ -630,7 +648,8 @@ const QuizPreviewer = ({
     try {
       await ApiService.storeQuizScore({
         quizId,
-        score: size(filter(scores, ['score', 'true']))
+        score: size(filter(scores, ['score', 'true'])),
+        scoreDetails: scores
       });
     } catch (error) {
       // console.log('error ========>> ', error);
@@ -644,7 +663,8 @@ const QuizPreviewer = ({
       const newArray = Array.from(arr, (_, idx) => ({
         questionIdx: idx,
         score: '',
-        selectedOptions: []
+        selectedOptions: [],
+        questionId: ''
       }));
       setScores(newArray);
     }, 1000);
@@ -657,12 +677,18 @@ const QuizPreviewer = ({
 
   const handleSetScore = (
     score: 'true' | 'false' | boolean | null,
-    idx = null,
-    selectedOptions = []
+    idx: number | null,
+    selectedOptions: string[] = [],
+    questionId = ''
   ) => {
-    if (!isNil(idx)) {
+    if (idx !== null) {
       const newScores = [...scores];
-      newScores.splice(idx, 1, { questionIdx: idx, score, selectedOptions });
+      newScores.splice(idx, 1, {
+        questionIdx: idx,
+        score,
+        selectedOptions,
+        questionId
+      });
       setScores(sortBy(newScores, ['questionIdx']));
       return;
     }
@@ -672,14 +698,10 @@ const QuizPreviewer = ({
         unionBy(
           [
             {
-              questionIdx:
-                prevScores?.length === 0
-                  ? 0
-                  : prevScores?.length === 1
-                  ? 1
-                  : prevScores?.length,
+              questionIdx: prevScores.length,
               score,
-              selectedOptions
+              selectedOptions,
+              questionId
             }
           ],
           [...prevScores],
