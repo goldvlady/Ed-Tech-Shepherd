@@ -93,7 +93,7 @@ const ChatArea = ({
 }) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const [userMessage, setUserMessage] = useState('');
-  const [streamEnded, setStreamEnded] = useState(false);
+  const [streamEnded, setStreamEnded] = useState(true);
   const [fullBuffer, setFullBuffer] = useState('');
   const [currentChat, setCurrentChat] = useState('');
   const documents = useVectorsStore((state) => state.chatDocuments);
@@ -127,6 +127,7 @@ const ChatArea = ({
       );
 
       console.log('EXTRACTED CONTENT', extractedContent);
+      // also refetch and reset streamEnded
     }
   }, [streamEnded, fullBuffer]);
   const currentChatRender = useMemo(() => {
@@ -141,6 +142,17 @@ const ChatArea = ({
     return <Message key={Math.random()} content={currentChat} type={'bot'} />;
   }, [currentChat]);
   const submitMessageHandler = () => {
+    messages.push({
+      id: Date.now(), // Simplified ID generation, should be unique in a real application
+      studentId: studentId, // Placeholder, replace with dynamic student ID
+      log: { role: 'user', content: userMessage },
+      liked: false,
+      disliked: false,
+      isPinned: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      conversationId: conversationID //
+    });
     setStreamEnded(false);
     const body = {
       studentId,
@@ -159,7 +171,10 @@ const ChatArea = ({
     });
     ore.fetchSSE((buffer, parts) => {
       setFullBuffer(buffer);
-      if (buffer.includes('done with stream')) {
+      if (
+        buffer.includes('done with stream') ||
+        buffer.includes(firstKeyword)
+      ) {
         setStreamEnded(true);
         return;
       }
