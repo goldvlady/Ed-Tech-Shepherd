@@ -319,6 +319,7 @@ const QuizCard = ({
         questionIdx: string | number;
         score: string | 'true' | 'false' | boolean | null;
         selectedOptions: string[];
+        questionId?: string;
       }[];
   handleViewResult?: () => void;
   // questionId?: string | number;
@@ -338,7 +339,12 @@ const QuizCard = ({
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-          handleSetScore(score, toNumber(questionIdx), [optionAnswer], _id);
+          handleSetScore(
+            score,
+            toNumber(questionIdx),
+            [optionAnswer],
+            _id as string
+          );
           handleStoreQuizHistory(_id as string, toString(isCorrect));
         }
       }
@@ -367,7 +373,7 @@ const QuizCard = ({
           answer,
           toNumber(questionIdx),
           optionCheckboxAnswers,
-          _id
+          _id as string
         );
         handleStoreQuizHistory(_id as string, answer);
       }
@@ -378,7 +384,7 @@ const QuizCard = ({
 
   useEffect(() => {
     if (!isEmpty(enteredAnswer)) {
-      handleSetScore('pending', toNumber(index), [enteredAnswer], _id);
+      handleSetScore('null', toNumber(index), [enteredAnswer], _id as string);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAnswer]);
@@ -679,7 +685,7 @@ const QuizCard = ({
                   'true',
                   toNumber(index),
                   quizScores[index].selectedOptions,
-                  _id
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -704,7 +710,7 @@ const QuizCard = ({
                   'pending',
                   toNumber(index),
                   quizScores[index].selectedOptions,
-                  _id
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -729,7 +735,7 @@ const QuizCard = ({
                   'false',
                   toNumber(index),
                   quizScores[index].selectedOptions,
-                  _id
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -941,21 +947,19 @@ export const QuizModal = ({
   const [viewQuizAnswer, setViewQuizAnswer] = useState(false);
 
   const handleSetScore = (
-    score: 'true' | 'false' | 'pending' | boolean | null,
+    score: StoreQuizScoreType['score'],
     idx = null,
     selectedOptions = [],
     questionId = ''
   ) => {
-    if (!isNil(idx)) {
+    if (idx !== null) {
       const newScores = [...scores];
-
       newScores.splice(idx, 1, {
         questionIdx: idx,
         score,
         selectedOptions,
         questionId
       });
-
       setScores(sortBy(newScores, ['questionIdx']));
       return;
     }
@@ -965,12 +969,7 @@ export const QuizModal = ({
         unionBy(
           [
             {
-              questionIdx:
-                prevScores?.length === 0
-                  ? 0
-                  : prevScores?.length === 1
-                  ? 1
-                  : prevScores?.length,
+              questionIdx: prevScores.length,
               score,
               selectedOptions,
               questionId
