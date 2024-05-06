@@ -1,10 +1,16 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { multiragResponse } from '../../../../../types';
+import { MultiragDocument, multiragResponse } from '../../../../../types';
 import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
 import {
   Popover,
@@ -49,24 +55,56 @@ const SourceButton = () => (
 const InputArea = ({
   value,
   setValue,
-  submitHandler
+  submitHandler,
+  documents
 }: {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   submitHandler: VoidFunction;
+  documents: Array<MultiragDocument>;
 }) => {
+  const [open, setOpen] = useState(false);
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === '@') {
+      console.log('Hey?');
+      setOpen(true);
+    }
+  };
+
+  const addAtHandler = (name: string) => {
+    const v = value + name + ' ';
+    setValue(v);
+    setOpen(false);
+  };
   return (
     <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
       <SourceButton />
-      <Popover open={value.includes('@')}>
+      <Popover open={open}>
         <PopoverTrigger>
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onKeyUp={handleKeyDown}
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
             placeholder="How can Shepherd help with your homework?"
           />
-          <PopoverContent></PopoverContent>
+          <PopoverContent className="z-20 bg-white">
+            {documents
+              ? documents
+                  .filter((el) =>
+                    el.collection_name.includes(value.split('@')[1])
+                  )
+                  .map((doc) => (
+                    <p
+                      className="p-1 cursor-pointer hover:bg-slate-200"
+                      key={doc.document_id}
+                      onClick={() => addAtHandler(doc.collection_name)}
+                    >
+                      {doc.collection_name}
+                    </p>
+                  ))
+              : null}
+          </PopoverContent>
         </PopoverTrigger>
       </Popover>
       <div className="flex items-center gap-3 ml-2">
@@ -192,22 +230,14 @@ const ChatArea = ({
       <MessageArea>
         {isLoading && (
           <>
-            <Message
-              type="bot"
-              loading
-              content="Welcome! I'm here to help you make the most of your time and notes. Ask me questions related to the documents added and I'll find answers that match. Let's get learning!"
-            />
-            <Message type="user" loading content="What is relativity?" />
-            <Message
-              type="bot"
-              loading
-              content="In Physics, it is the dependence of various physical phenomena on relative motion of the observer and the observed objects, especially regarding the nature and behavior of light, space, time, and gravity."
-            />
-            <Message
-              type="user"
-              loading
-              content="Explain this to me like I'm five "
-            />
+            <Message type="bot" loading content="" />
+            <Message type="user" loading content="" />
+            <Message type="bot" loading content="" />
+            <Message type="user" loading content="" />
+            <Message type="bot" loading content="" />
+            <Message type="user" loading content="" />
+            <Message type="bot" loading content="" />
+            <Message type="user" loading content="" />
           </>
         )}{' '}
         {messages && messages.length > 0 ? (
@@ -228,6 +258,7 @@ const ChatArea = ({
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea />
         <InputArea
+          documents={documents}
           submitHandler={submitMessageHandler}
           value={userMessage}
           setValue={setUserMessage}

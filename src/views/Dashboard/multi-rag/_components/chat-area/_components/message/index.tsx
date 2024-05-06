@@ -34,7 +34,8 @@ const Message = ({
             className={cn(
               'text-black bg-white text-[0.87rem] rounded-[10px] px-[1.56rem] py-[0.5rem] shadow-md',
               {
-                'bg-black/10 text-[#072D5F]': type === 'user'
+                'bg-black/10 text-[#072D5F]': type === 'user',
+                'w-32 h-10': loading
               }
             )}
           >
