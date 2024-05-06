@@ -51,7 +51,7 @@ import {
   Plus,
   SearchIcon
 } from 'lucide-react';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
 import ApiService from '../../../../../services/ApiService';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -67,7 +67,8 @@ function PDFViewer({
   selectedDocumentID,
   getTextForSummary,
   getTextForExplaination,
-  getTextForTranslation
+  getTextForTranslation,
+  highlightedDocumentPageIndex
 }: {
   selectedDocumentID: {
     id: string;
@@ -76,6 +77,7 @@ function PDFViewer({
   getTextForSummary: (text: string) => void;
   getTextForExplaination: (text: string) => void;
   getTextForTranslation: (text: string) => void;
+  highlightedDocumentPageIndex?: number;
 }) {
   const queryClient = useQueryClient();
   const pageNavigationPluginInstance = pageNavigationPlugin();
@@ -117,6 +119,12 @@ function PDFViewer({
     const { jumpToNextPage } = pageNavigationPluginInstance;
     jumpToNextPage();
   };
+
+  useEffect(() => {
+    console.log('highlightedDocumentPageIndex', highlightedDocumentPageIndex);
+    const { jumpToPage } = pageNavigationPluginInstance;
+    jumpToPage(highlightedDocumentPageIndex);
+  }, [highlightedDocumentPageIndex]);
 
   const renderHighlights = (props: RenderHighlightsProps) => (
     <div>

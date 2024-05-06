@@ -12,6 +12,9 @@ function MultiRagChat() {
     name: ''
   });
 
+  const [highlightedDocumentPageIndex, setHighlightedDocumentPageIndex] =
+    useState(0);
+
   const getTextForSummary = (text: string) => {
     alert('Summary: ' + text);
   };
@@ -35,9 +38,14 @@ function MultiRagChat() {
         getTextForSummary={getTextForSummary}
         getTextForExplaination={getTextForExplaination}
         getTextForTranslation={getTextForTranslation}
+        highlightedDocumentPageIndex={highlightedDocumentPageIndex}
       />
       <ChatArea conversationID={docId} />
-      <LearningResourcesSection conversationID={docId} />
+      <LearningResourcesSection
+        conversationID={docId}
+        selectedDocumentID={selectedDocumentID.id}
+        setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
+      />
     </div>
   );
 }

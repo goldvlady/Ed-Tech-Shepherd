@@ -30,9 +30,13 @@ const ActionButton = ({
 );
 
 const LearningResourcesSection = ({
-  conversationID
+  conversationID,
+  selectedDocumentID: documentId,
+  setHighlightedDocumentPageIndex
 }: {
   conversationID: string;
+  selectedDocumentID: string;
+  setHighlightedDocumentPageIndex;
 }) => {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -58,7 +62,10 @@ const LearningResourcesSection = ({
         )}
       >
         <SummarySection conversationID={conversationID} />
-        <HighlightsSection />
+        <HighlightsSection
+          documentId={documentId}
+          setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
+        />
         <PinnedSection />
         <GenerateQuizSection />
         <GenerateFlashcardsSection />
@@ -140,8 +147,85 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
   );
 };
 
-const HighlightsSection = () => {
-  return <ActionButton>Highlights</ActionButton>;
+const HighlightsSection = ({
+  documentId,
+  setHighlightedDocumentPageIndex
+}: {
+  setHighlightedDocumentPageIndex;
+  documentId: string;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const { data: highlightPositions } = useQuery({
+    queryKey: ['documentHighlight', documentId],
+    queryFn: () =>
+      ApiService.getMultiDocHighlight(documentId).then((res) => res.json()),
+    select(data) {
+      if (data.status === 'success') {
+        const positions = data.data.flatMap((item) => {
+          return JSON.parse(item.highlight);
+        });
+        return [].concat(...positions);
+      } else {
+        return [];
+      }
+    }
+  });
+
+  console.log('highlightPositions', highlightPositions);
+
+  const HighlightItem = ({
+    title,
+    onClick
+  }: {
+    title: string;
+    onClick: () => void;
+  }) => {
+    return (
+      <div
+        className="p-2 bg-orange-200 rounded-md transition-shadow hover:shadow-md cursor-pointer"
+        role="listitem"
+        onClick={onClick}
+      >
+        <p className="text-xs font-normal">{title}</p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative">
+      <ActionButton
+        active={expanded}
+        onClick={() => {
+          setExpanded(!expanded);
+        }}
+      >
+        Highlights
+      </ActionButton>
+      <div
+        className={cn(
+          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar',
+          {
+            'opacity-100 pointer-events-auto': expanded
+          }
+        )}
+      >
+        <div className="p-2 space-y-2">
+          {highlightPositions?.map((item) => (
+            <HighlightItem
+              title={item.name}
+              onClick={() => {
+                const pageIndex = item.position[0]
+                  ? item.position[0].pageIndex
+                  : 0;
+                setHighlightedDocumentPageIndex(pageIndex);
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const PinnedSection = () => {
