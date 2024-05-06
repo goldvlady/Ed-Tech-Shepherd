@@ -497,7 +497,10 @@ const StudyBox = () => {
     score: 0,
     failed: 0,
     passed: 0,
-    notRemembered: 0
+    notRemembered: 0,
+    questionsPassed: [],
+    questionsFailed: [],
+    questionsNotRemembered: []
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
 
@@ -552,7 +555,10 @@ const StudyBox = () => {
       score: 0,
       failed: 0,
       passed: 0,
-      notRemembered: 0
+      notRemembered: 0,
+      questionsPassed: [],
+      questionsFailed: [],
+      questionsNotRemembered: []
     } as Score);
     setCardStyle('default');
     setActivityState({ isStarted: false, isFinished: false });
@@ -573,6 +579,7 @@ const StudyBox = () => {
             id: index + 1,
             type: studyType,
             questions: question.question,
+            questionId: question._id,
             answers: question.answer,
             currentStep: question.currentStep,
             explanation: question.explanation,
@@ -693,7 +700,11 @@ const StudyBox = () => {
         return {
           ...prevScore,
           score: (prevScore.score || 0) + 1,
-          passed: (prevScore.passed || 0) + 1
+          passed: (prevScore.passed || 0) + 1,
+          questionsPassed: [
+            ...(prevScore.questionsPassed || []),
+            currentStudy.questionId
+          ]
         };
       });
       setCorrectAnswerCount((prev) => prev + 1);
@@ -707,7 +718,11 @@ const StudyBox = () => {
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
-    const scoreKey = notRemembered ? 'failed' : 'notRemembered';
+    const scoreKey = notRemembered ? 'notRemembered' : 'failed';
+    const questionArrayKey = notRemembered
+      ? 'questionsNotRemembered'
+      : 'questionsFailed';
+
     if (flashcard && !apiKey) {
       const grade = notRemembered ? 'did not remember' : 'got it wrong';
       updateQuestionAttempt(
@@ -718,18 +733,25 @@ const StudyBox = () => {
       );
       loadTodaysFlashcards();
     }
+
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
       prev[currentStudyIndex] = curr;
 
-      setSavedScore((prev) => ({
-        ...prev,
-        [scoreKey]: (prev[scoreKey] || 0) + 1
-      }));
-
+      setSavedScore((prevScore) => {
+        return {
+          ...prevScore,
+          [scoreKey]: (prevScore[scoreKey] || 0) + 1,
+          [questionArrayKey]: [
+            ...(prevScore[questionArrayKey] || []),
+            currentStudy.questionId
+          ]
+        };
+      });
       return [...prev];
     });
+
     if (currentStudyIndex === 2 && apiKey) {
       setTogglePlansModal(true);
       return;
