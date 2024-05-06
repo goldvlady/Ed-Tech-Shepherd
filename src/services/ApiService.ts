@@ -1109,6 +1109,7 @@ class ApiService {
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
+    scoreDetails: any;
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',
