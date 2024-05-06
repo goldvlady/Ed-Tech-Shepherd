@@ -67,7 +67,13 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
       return r;
     }
   });
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   console.log('data is', data);
+  useEffect(() => {
+    if (data) {
+      setMessages(data.data);
+    }
+  }, [data]);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       {isLoading && (
@@ -90,9 +96,9 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
           />
         </MessageArea>
       )}{' '}
-      {data ? (
+      {messages && messages.length > 0 ? (
         <MessageArea>
-          {data.data
+          {messages
             .sort((a, b) => a.id - b.id)
             .map((msg) => (
               <Message
