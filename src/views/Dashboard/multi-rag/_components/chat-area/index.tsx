@@ -226,7 +226,8 @@ const ChatArea = ({
       query: userMessage,
       language: 'English',
       conversationId: conversationID,
-      documents: JSON.stringify(documents)
+      documents: JSON.stringify(documents),
+      fetchMetadata: true
     };
 
     const q = encodeQueryParams(body);
