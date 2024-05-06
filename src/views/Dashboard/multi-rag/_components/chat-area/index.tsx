@@ -227,7 +227,7 @@ const ChatArea = ({
       language: 'English',
       conversationId: conversationID,
       documents: JSON.stringify(documents),
-      fetchMetadata: vectorsMetadata.length === 0 ? 'True' : 'False'
+      fetchMetadata: vectorsMetadata.length === 0 ? 'True' : ''
     };
 
     const q = encodeQueryParams(body);
