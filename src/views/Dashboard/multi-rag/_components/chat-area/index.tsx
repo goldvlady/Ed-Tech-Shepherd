@@ -22,7 +22,20 @@ import { encodeQueryParams } from '../../../../../helpers';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
+interface DocumentMetadata {
+  page_label: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+}
 
+interface VectorsMetadata {
+  node_id: string;
+  text: string;
+  score: number;
+  metadata: DocumentMetadata;
+}
 const MessageArea = ({ children }) => (
   <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
     {children}
@@ -129,13 +142,13 @@ const ChatArea = ({
   conversationID: string;
   studentId: string;
 }) => {
-  const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
+  const [vectorsMetadata, setVectorsMetadata] = useState<VectorsMetadata[]>([]);
   const [userMessage, setUserMessage] = useState('');
   const [streamEnded, setStreamEnded] = useState(true);
   const [fullBuffer, setFullBuffer] = useState('');
   const [currentChat, setCurrentChat] = useState('');
   const documents = useVectorsStore((state) => state.chatDocuments);
-  const { data, isLoading, isRefetching, isError } = useQuery({
+  const { data, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ['conversationHistory', conversationID],
 
     queryFn: async () => {
@@ -148,8 +161,10 @@ const ChatArea = ({
   });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   console.log('data is', data);
+  console.log(conversationID);
   useEffect(() => {
     if (data) {
+      setCurrentChat('');
       setMessages(data.data);
     }
   }, [data]);
@@ -165,7 +180,21 @@ const ChatArea = ({
       );
 
       console.log('EXTRACTED CONTENT', extractedContent);
-      // also refetch and reset streamEnded
+      console.log(extractedContent.split('\n').filter((el) => el.length > 0));
+      console.log(
+        extractedContent
+          .split('\n')
+          .filter((el) => el.length > 0)
+          .map((el) => JSON.parse(el))
+      );
+      setVectorsMetadata(
+        extractedContent
+          .split('\n')
+          .filter((el) => el.length > 0)
+          .map((el) => JSON.parse(el))
+      );
+      console.log(fullBuffer);
+      refetch();
     }
   }, [streamEnded, fullBuffer]);
   const currentChatRender = useMemo(() => {

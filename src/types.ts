@@ -668,4 +668,5 @@ export interface MultiragDocument {
 export interface multiragResponse<T> {
   data: T;
   status: string;
+  detail: string;
 }
