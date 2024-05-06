@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
@@ -14,6 +14,8 @@ import {
 import { Ore } from '@glamboyosa/ore';
 import { encodeQueryParams } from '../../../../../helpers';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
+const firstKeyword = 'start of metadata';
+const lastKeyword = 'end of metadata';
 
 const MessageArea = ({ children }) => (
   <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
@@ -92,6 +94,8 @@ const ChatArea = ({
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const [userMessage, setUserMessage] = useState('');
   const [streamEnded, setStreamEnded] = useState(false);
+  const [fullBuffer, setFullBuffer] = useState('');
+  const [currentChat, setCurrentChat] = useState('');
   const documents = useVectorsStore((state) => state.chatDocuments);
   const { data, isLoading, isRefetching, isError } = useQuery({
     queryKey: ['conversationHistory', conversationID],
@@ -111,7 +115,33 @@ const ChatArea = ({
       setMessages(data.data);
     }
   }, [data]);
+  useEffect(() => {
+    if (streamEnded && fullBuffer) {
+      const startIndex = fullBuffer.indexOf(firstKeyword);
+      const endIndex = fullBuffer.indexOf(lastKeyword);
+
+      // Extract the substring between startIndex and endIndex
+      const extractedContent = fullBuffer.substring(
+        startIndex + firstKeyword.length,
+        endIndex
+      );
+
+      console.log('EXTRACTED CONTENT', extractedContent);
+    }
+  }, [streamEnded, fullBuffer]);
+  const currentChatRender = useMemo(() => {
+    // This useCallback will return the ChatMessage component or null based on currentChat's value
+    // It ensures that the component is only re-rendered when currentChat changes
+    console.log('current chat is', currentChat);
+    if (currentChat.length === 0) {
+      console.log(currentChat, 'should be empty');
+      return ''; // Don't render anything if there's no current chat content
+    }
+
+    return <Message key={Math.random()} content={currentChat} type={'bot'} />;
+  }, [currentChat]);
   const submitMessageHandler = () => {
+    setStreamEnded(false);
     const body = {
       studentId,
       query: userMessage,
@@ -128,44 +158,58 @@ const ChatArea = ({
       }
     });
     ore.fetchSSE((buffer, parts) => {
-      //
+      setFullBuffer(buffer);
+      if (buffer.includes('done with stream')) {
+        setStreamEnded(true);
+        return;
+      }
+      if (buffer.includes('run out of credits')) {
+        // here eventually we will implement running out of credits like AI tutor
+        //setOpenPricingModel(true);
+        setStreamEnded(true);
+        return;
+      }
+      setCurrentChat(buffer);
     });
   };
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
-      {isLoading && (
-        <MessageArea>
-          <Message
-            type="bot"
-            loading
-            content="Welcome! I'm here to help you make the most of your time and notes. Ask me questions related to the documents added and I'll find answers that match. Let's get learning!"
-          />
-          <Message type="user" loading content="What is relativity?" />
-          <Message
-            type="bot"
-            loading
-            content="In Physics, it is the dependence of various physical phenomena on relative motion of the observer and the observed objects, especially regarding the nature and behavior of light, space, time, and gravity."
-          />
-          <Message
-            type="user"
-            loading
-            content="Explain this to me like I'm five "
-          />
-        </MessageArea>
-      )}{' '}
-      {messages && messages.length > 0 ? (
-        <MessageArea>
-          {messages
-            .sort((a, b) => a.id - b.id)
-            .map((msg) => (
-              <Message
-                key={msg.id}
-                type={msg.log.role === 'user' ? 'user' : 'bot'}
-                content={msg.log.content}
-              />
-            ))}
-        </MessageArea>
-      ) : null}
+      <MessageArea>
+        {isLoading && (
+          <>
+            <Message
+              type="bot"
+              loading
+              content="Welcome! I'm here to help you make the most of your time and notes. Ask me questions related to the documents added and I'll find answers that match. Let's get learning!"
+            />
+            <Message type="user" loading content="What is relativity?" />
+            <Message
+              type="bot"
+              loading
+              content="In Physics, it is the dependence of various physical phenomena on relative motion of the observer and the observed objects, especially regarding the nature and behavior of light, space, time, and gravity."
+            />
+            <Message
+              type="user"
+              loading
+              content="Explain this to me like I'm five "
+            />
+          </>
+        )}{' '}
+        {messages && messages.length > 0 ? (
+          <>
+            {messages
+              .sort((a, b) => a.id - b.id)
+              .map((msg) => (
+                <Message
+                  key={msg.id}
+                  type={msg.log.role === 'user' ? 'user' : 'bot'}
+                  content={msg.log.content}
+                />
+              ))}
+          </>
+        ) : null}
+        {currentChatRender}
+      </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea />
         <InputArea
