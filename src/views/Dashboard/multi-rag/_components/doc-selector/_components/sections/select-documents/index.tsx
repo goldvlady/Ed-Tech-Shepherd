@@ -16,21 +16,33 @@ import {
   ViewMode,
   ScrollMode
 } from '@react-pdf-viewer/core';
+import useUserStore from '../../../../../../../../state/userStore';
+import {
+  MultiragDocument,
+  multiragResponse
+} from '../../../../../../../../types';
+import { languages } from '../../../../../../../../helpers';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState<Array<string>>([]);
+  const { user } = useUserStore();
+
   const navigate = useNavigate();
   const { isPending, mutate } = useMutation({
-    mutationFn: (data: any) =>
-      ApiService.multiDocConversationStarter(data).then((res) => res.json())
+    mutationFn: (data: {
+      referenceId: string;
+      referenceDocIds: Array<string>;
+      language: (typeof languages)[number];
+    }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
   });
   const { data } = useQuery({
     queryKey: ['processed-documents'],
-    queryFn: () =>
-      ApiService.multiDocVectorDocs('64906166763aa2579e58c97d').then((res) =>
-        res.json()
-      )
+    queryFn: async () => {
+      const r: multiragResponse<Array<MultiragDocument>> =
+        await ApiService.multiDocVectorDocs(user._id).then((res) => res.json());
+      return r;
+    }
   });
 
   const startConversation = () => {

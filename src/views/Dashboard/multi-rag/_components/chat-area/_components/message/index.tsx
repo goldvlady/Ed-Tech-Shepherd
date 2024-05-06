@@ -2,17 +2,20 @@ import { cn } from '../../../../../../../library/utils';
 
 const Message = ({
   type,
-  content
+  content,
+  loading
 }: {
   type: 'bot' | 'user';
   content: string;
+  loading?: boolean;
 }) => {
   return (
     <div
       className={cn(
         'w-full rounded-[10px] p-2 flex items-end gap-[1rem] justify-start',
         {
-          'flex-row-reverse': type === 'user'
+          'flex-row-reverse': type === 'user',
+          'animate-pulse': loading
         }
       )}
     >

@@ -3,6 +3,9 @@ import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { ArrowRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { multiragResponse } from '../../../../../types';
+import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
 
 const MessageArea = ({ children }) => (
   <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
@@ -53,41 +56,53 @@ const InputArea = () => (
 
 const ChatArea = ({ conversationID }: { conversationID: string }) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
+  const { data, isLoading, isRefetching, isError } = useQuery({
+    queryKey: ['conversationHistory', conversationID],
 
-  useEffect(() => {
-    ApiService.fetchMultiDocBasedOnConversationID(conversationID)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 'success') {
-          console.log('fetchMultiDocBasedOnConversationID', data);
-          ApiService.multiragChat({
-            studentId: '64906166763aa2579e58c97d',
-            query: 'Tell me about this document',
-            language: 'English',
-            conversationId: conversationID,
-            documents: JSON.stringify(data.data)
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              console.log('DOC chat response', data);
-            });
-        }
-      });
-  }, []);
+    queryFn: async () => {
+      const r: multiragResponse<Array<ChatMessage>> =
+        await ApiService.fetchMultiragConvoHistory(conversationID).then((res) =>
+          res.json()
+        );
+      return r;
+    }
+  });
+  console.log('data is', data);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
-      <MessageArea>
-        <Message
-          type="bot"
-          content="Welcome! I'm here to help you make the most of your time and notes. Ask me questions related to the documents added and I'll find answers that match. Let's get learning!"
-        />
-        <Message type="user" content="What is relativity?" />
-        <Message
-          type="bot"
-          content="In Physics, it is the dependence of various physical phenomena on relative motion of the observer and the observed objects, especially regarding the nature and behavior of light, space, time, and gravity."
-        />
-        <Message type="user" content="Explain this to me like I'm five " />
-      </MessageArea>
+      {!data ? (
+        <MessageArea>
+          <Message
+            type="bot"
+            loading
+            content="Welcome! I'm here to help you make the most of your time and notes. Ask me questions related to the documents added and I'll find answers that match. Let's get learning!"
+          />
+          <Message type="user" loading content="What is relativity?" />
+          <Message
+            type="bot"
+            loading
+            content="In Physics, it is the dependence of various physical phenomena on relative motion of the observer and the observed objects, especially regarding the nature and behavior of light, space, time, and gravity."
+          />
+          <Message
+            type="user"
+            loading
+            content="Explain this to me like I'm five "
+          />
+        </MessageArea>
+      ) : (
+        <MessageArea>
+          {data &&
+            data.data
+              .sort((a, b) => a.id - b.id)
+              .map((msg) => (
+                <Message
+                  key={msg.id}
+                  type={msg.log.role === 'user' ? 'user' : 'bot'}
+                  content={msg.log.content}
+                />
+              ))}
+        </MessageArea>
+      )}
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea />
         <InputArea />

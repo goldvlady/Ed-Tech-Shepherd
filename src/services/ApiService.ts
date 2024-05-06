@@ -1051,7 +1051,14 @@ class ApiService {
       }
     );
   };
-
+  static fetchMultiragConvoHistory = async (conversationID: string) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/misc/docchat_history/${conversationID}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
   static multiragChat = async (data) => {
     return await doFetch(
       `https://shepherd-ai-pr-123.onrender.com/multirag/chat`,
