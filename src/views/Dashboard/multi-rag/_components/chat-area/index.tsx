@@ -11,6 +11,9 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '../../../../../components/ui/popover';
+import { Ore } from '@glamboyosa/ore';
+import { encodeQueryParams } from '../../../../../helpers';
+import { useVectorsStore } from '../../../../../state/vectorsStore';
 
 const MessageArea = ({ children }) => (
   <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
@@ -79,9 +82,17 @@ const InputArea = ({
   );
 };
 
-const ChatArea = ({ conversationID }: { conversationID: string }) => {
+const ChatArea = ({
+  conversationID,
+  studentId
+}: {
+  conversationID: string;
+  studentId: string;
+}) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const [userMessage, setUserMessage] = useState('');
+  const [streamEnded, setStreamEnded] = useState(false);
+  const documents = useVectorsStore((state) => state.chatDocuments);
   const { data, isLoading, isRefetching, isError } = useQuery({
     queryKey: ['conversationHistory', conversationID],
 
@@ -101,7 +112,24 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
     }
   }, [data]);
   const submitMessageHandler = () => {
-    //
+    const body = {
+      studentId,
+      query: userMessage,
+      language: 'English',
+      conversationId: conversationID,
+      documents: JSON.stringify(documents)
+    };
+
+    const q = encodeQueryParams(body);
+    const ore = new Ore({
+      url: `https://shepherd-ai-pr-123.onrender.com/multirag/chat${q}`,
+      headers: {
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    });
+    ore.fetchSSE((buffer, parts) => {
+      //
+    });
   };
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
