@@ -70,7 +70,7 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
   console.log('data is', data);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
-      {!data ? (
+      {isLoading && (
         <MessageArea>
           <Message
             type="bot"
@@ -89,20 +89,20 @@ const ChatArea = ({ conversationID }: { conversationID: string }) => {
             content="Explain this to me like I'm five "
           />
         </MessageArea>
-      ) : (
+      )}{' '}
+      {data ? (
         <MessageArea>
-          {data &&
-            data.data
-              .sort((a, b) => a.id - b.id)
-              .map((msg) => (
-                <Message
-                  key={msg.id}
-                  type={msg.log.role === 'user' ? 'user' : 'bot'}
-                  content={msg.log.content}
-                />
-              ))}
+          {data.data
+            .sort((a, b) => a.id - b.id)
+            .map((msg) => (
+              <Message
+                key={msg.id}
+                type={msg.log.role === 'user' ? 'user' : 'bot'}
+                content={msg.log.content}
+              />
+            ))}
         </MessageArea>
-      )}
+      ) : null}
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea />
         <InputArea />
