@@ -87,23 +87,17 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
     select: (data) => {
       if (data.status === 'success') {
         const docIDs = data.data.map((item) => item.document_id);
-        // ApiService.multiDocSummary(JSON.stringify(docIDs))
-        //   .then((res) => res.json())
-        //   .then((newData) => {
-        //     console.log('new data', newData);
-        //     if (newData.status === 'success') {
-        //       setSummaries(newData.data);
-        //     }
-        //   });
+
         return docIDs;
       } else {
         return [];
       }
-    }
+    },
+    placeholderData: () => []
   });
-
+  console.log(data);
   const { data: summary } = useQuery({
-    queryKey: ['summary', data],
+    queryKey: ['summary'],
     queryFn: () =>
       ApiService.multiDocSummary(JSON.stringify(data)).then((res) =>
         res.json()
@@ -114,7 +108,8 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
       } else {
         return [];
       }
-    }
+    },
+    enabled: data && data.length > 0
   });
 
   console.log('multiDocSummary', summary);

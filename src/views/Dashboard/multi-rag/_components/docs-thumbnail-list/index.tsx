@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import BreadCrumb from './_components/breadcrumb';
 import ThumbnailList from './_components/thumbnail-list';
 import ApiService from '../../../../../services/ApiService';
+import { useVectorsStore } from '../../../../../state/vectorsStore';
 
 const DocsThumbnailList = ({
   conversationID,
@@ -16,12 +17,13 @@ const DocsThumbnailList = ({
   };
 }) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
-
+  const addDocs = useVectorsStore((state) => state.addChatDocuments);
   useEffect(() => {
     ApiService.fetchMultiDocBasedOnConversationID(conversationID)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'success') {
+          addDocs(data.data);
           setFetchedDocuments(data.data);
           setSelectedDocumentID({
             id: data.data[0].document_id,

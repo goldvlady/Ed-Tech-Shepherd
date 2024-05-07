@@ -654,3 +654,19 @@ export interface StudyPlanTopicDocumentPayload {
   topicId: string;
   documentId: string;
 }
+export interface MultiragDocument {
+  collection_name: string;
+  document_id: string;
+  student_id: string;
+  createdAt: string;
+  reference: string;
+  summary?: string;
+  updatedAt?: string;
+}
+
+// Generic Response type accepting any data type 'T'
+export interface multiragResponse<T> {
+  data: T;
+  status: string;
+  detail: string;
+}

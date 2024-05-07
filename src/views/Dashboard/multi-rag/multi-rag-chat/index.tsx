@@ -4,9 +4,11 @@ import ChatArea from '../_components/chat-area';
 import LearningResourcesSection from '../_components/learning-resources-section';
 import PDFViewer from '../_components/pdf-viewer';
 import { useState } from 'react';
+import useUserStore from '../../../../state/userStore';
 
 function MultiRagChat() {
   const { docId } = useParams();
+  const { user } = useUserStore();
   const [selectedDocumentID, setSelectedDocumentID] = useState({
     id: '',
     name: ''
@@ -40,7 +42,7 @@ function MultiRagChat() {
         getTextForTranslation={getTextForTranslation}
         highlightedDocumentPageIndex={highlightedDocumentPageIndex}
       />
-      <ChatArea conversationID={docId} />
+      <ChatArea conversationID={docId} studentId={user._id} />
       <LearningResourcesSection
         conversationID={docId}
         selectedDocumentID={selectedDocumentID.id}

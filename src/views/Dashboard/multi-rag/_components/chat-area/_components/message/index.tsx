@@ -2,17 +2,20 @@ import { cn } from '../../../../../../../library/utils';
 
 const Message = ({
   type,
-  content
+  content,
+  loading
 }: {
   type: 'bot' | 'user';
   content: string;
+  loading?: boolean;
 }) => {
   return (
     <div
       className={cn(
         'w-full rounded-[10px] p-2 flex items-end gap-[1rem] justify-start',
         {
-          'flex-row-reverse': type === 'user'
+          'flex-row-reverse': type === 'user',
+          'animate-pulse': loading
         }
       )}
     >
@@ -31,7 +34,8 @@ const Message = ({
             className={cn(
               'text-black bg-white text-[0.87rem] rounded-[10px] px-[1.56rem] py-[0.5rem] shadow-md',
               {
-                'bg-black/10 text-[#072D5F]': type === 'user'
+                'bg-black/10 text-[#072D5F]': type === 'user',
+                'w-32 h-10': loading
               }
             )}
           >
