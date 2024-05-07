@@ -4,8 +4,10 @@ import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
+import useUserStore from '../../../../../../../../state/userStore';
 
 function UploadFiles({ setFilesUploading }) {
+  const { user } = useUserStore();
   const handleSubmit = (inputFiles) => {
     setFilesUploading({
       jobId: '',
@@ -19,7 +21,7 @@ function UploadFiles({ setFilesUploading }) {
       formData.append('files', files[i]);
     }
     // Setting up the endpoint with sid
-    const sid = '64906166763aa2579e58c97d';
+    const sid = user._id;
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({
       studentId: sid,
