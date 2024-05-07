@@ -291,7 +291,7 @@ const OnboardTutor = () => {
               <FormControl>
                 <FormLabel>First Name</FormLabel>
                 <Input
-                  size={'lg'}
+                  fontSize={'0.875rem'}
                   value={name.first}
                   onChange={(e) =>
                     setUserFields((prev) => ({
@@ -304,7 +304,7 @@ const OnboardTutor = () => {
               <FormControl mt={4}>
                 <FormLabel>Last Name</FormLabel>
                 <Input
-                  size={'lg'}
+                  fontSize={'0.875rem'}
                   value={name.last}
                   onChange={(e) =>
                     setUserFields((prev) => ({
@@ -317,7 +317,7 @@ const OnboardTutor = () => {
               <FormControl mt={4}>
                 <FormLabel>Email</FormLabel>
                 <Input
-                  size={'lg'}
+                  fontSize={'0.875rem'}
                   value={email}
                   onChange={(e) =>
                     setUserFields((prev) => ({
@@ -358,6 +358,9 @@ const OnboardTutor = () => {
                   onboardTutorStore.set.country?.(e.target.value);
                 }}
                 placeholder="Select a country"
+                style={{
+                  fontSize: '0.875rem'
+                }}
               >
                 <option value="Select a country" disabled>
                   Select a country

@@ -138,18 +138,20 @@ interface NavItemProps extends FlexProps {
   onLockedClick?: any;
   message?: string;
   subMessage?: string;
+  onClose?: () => void;
 }
 
 const NavItem = ({
   icon,
   path,
   children,
-  type = 'internal', // default type to 'internal'
+  type = 'internal',
   isLocked,
   onLockedClick,
   message,
   subMessage,
-  isDisabled = false, // default isDisabled to 'false'
+  isDisabled = false,
+  onClose, // Added the onClose prop here
   ...rest
 }: NavItemProps) => {
   const { pathname } = useLocation();
@@ -166,15 +168,18 @@ const NavItem = ({
       if (isLocked) {
         onLockedClick(message, subMessage);
       }
-      return; // Stop the function if the item is disabled
+      return; // Stop the function if the item is disabled or locked
+    }
+    if (onClose) {
+      // Call onClose if it's provided
+      onClose();
     }
   };
 
-  // Update the styling to reflect a disabled state
   const disabledStyle: any = isDisabled
     ? {
         cursor: 'not-allowed',
-        pointerEvents: 'none' // Prevents click events
+        pointerEvents: 'none'
       }
     : {};
 
@@ -187,19 +192,19 @@ const NavItem = ({
       my="2"
       borderRadius="lg"
       role="group"
-      cursor={isDisabled ? 'not-allowed' : 'pointer'} // Change cursor based on disabled state
+      cursor={isDisabled ? 'not-allowed' : 'pointer'}
       _hover={{
-        bg: isDisabled ? undefined : '#F0F6FE', // No background change when disabled
-        color: isDisabled ? undefined : '#207DF7' // No color change when disabled
+        bg: isDisabled ? undefined : '#F0F6FE',
+        color: isDisabled ? undefined : '#207DF7'
       }}
-      bg={isActive && !isDisabled ? '#F0F6FE' : 'transparent'} // No active state if disabled
+      bg={isActive && !isDisabled ? '#F0F6FE' : 'transparent'}
       color={isActive && !isDisabled ? '#207DF7' : 'text.400'}
       fontSize={14}
       fontWeight={isActive ? '500' : '400'}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       {...rest}
-      {...disabledStyle} // Apply the disabled styling
+      {...disabledStyle}
     >
       {icon && (
         <Icon
@@ -215,15 +220,13 @@ const NavItem = ({
     </Flex>
   );
 
-  // Render an anchor tag for external links to open them in a new tab
   if (type === 'external' && !isDisabled) {
-    // Prevent external links if disabled
     return (
       <a
         href={path}
         target="_blank"
         rel="noopener noreferrer"
-        style={{ textDecoration: 'none', ...disabledStyle }} // Apply the disabled styling
+        style={{ textDecoration: 'none', ...disabledStyle }}
         onClick={onClick}
       >
         {renderLinkContent()}
@@ -231,7 +234,6 @@ const NavItem = ({
     );
   }
 
-  // Render a react-router-dom Link for internal navigation
   return (
     <Link
       to={path}
@@ -242,6 +244,7 @@ const NavItem = ({
     </Link>
   );
 };
+
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
@@ -616,7 +619,7 @@ const SidebarContent = ({
         </h4>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </div>
-      <NavItem icon={FiHome} path={'/dashboard'}>
+      <NavItem icon={FiHome} path={'/dashboard'} onClose={onClose}>
         Home
       </NavItem>
       <Divider />
@@ -677,6 +680,7 @@ const SidebarContent = ({
                 path: '/dashboard/ace-homework'
               }
             ]}
+            onClose={onClose}
           />
         </Box>
       </Box>
@@ -685,6 +689,7 @@ const SidebarContent = ({
           key={link.name}
           icon={link.icon}
           path={link.path}
+          onClose={onClose}
           isLocked={false} //link.requiresSubscription && !hasActiveSubscription
           onLockedClick={
             link.requiresSubscription
@@ -771,11 +776,16 @@ const SidebarContent = ({
                 path: '/dashboard/bounties'
               }
             ]}
+            onClose={onClose}
           />
         </Box>
       </Box>
 
-      <NavItem icon={BsChatLeftDots} path="/dashboard/messaging">
+      <NavItem
+        icon={BsChatLeftDots}
+        path="/dashboard/messaging"
+        onClose={onClose}
+      >
         Shepherd Chat
         {unreadCount > 0 && ( // Display badge if there are unread messages
           <Badge colorScheme="red" ml={2}>
@@ -823,6 +833,7 @@ const SidebarContent = ({
         icon={RiFeedbackLine as unknown as IconType}
         type="external"
         path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+        onClose={onClose}
       >
         Feedback
       </NavItem>
