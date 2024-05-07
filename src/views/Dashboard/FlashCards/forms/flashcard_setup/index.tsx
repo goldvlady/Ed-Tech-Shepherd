@@ -58,7 +58,11 @@ const SetupFlashcardPage = ({
   return (
     <>
       <Box width={'100%'}>
-        <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
+        <Text
+          fontSize={{ md: '24px', base: '1.1rem' }}
+          fontWeight="500"
+          marginBottom="5px"
+        >
           Set up flashcard
         </Text>
         {!isAutomated && (

@@ -5,6 +5,7 @@ import FlashcardFirstPart from './FlashCards';
 import FlashCardStudySession from './FlashCards/FlashCardStudySession';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useMemo } from 'react';
+import styled from 'styled-components';
 
 const transition = {
   duration: 0.3,
@@ -30,13 +31,19 @@ const SetUpFlashCards = ({ isAutomated }: { isAutomated?: boolean }) => {
     [currentStep, formComponents]
   );
 
+  const StyledTitle = styled.p`
+    font-weight: 500;
+    font-size: 1rem; // Default size for base
+
+    // Media query for medium screens and above
+    @media (min-width: 768px) {
+      font-size: 1.125rem; // Larger size for md and above
+    }
+  `;
+
   return (
     <section>
-      {currentStep === 0 && (
-        <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>
-          Set up flashcard
-        </p>
-      )}
+      {currentStep === 0 && <StyledTitle>Set up flashcard</StyledTitle>}
       {currentStep === 1 && (
         <p style={{ fontSize: '1.125rem', fontWeight: '500' }}>
           Review flashcard

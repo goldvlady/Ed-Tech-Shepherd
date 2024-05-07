@@ -819,7 +819,7 @@ const Quizzes = () => {
               <Text marginLeft={'10px'}>Create a Quiz</Text>
             </Button>
           </Flex>
-          <Flex
+          {/* <Flex
             width="100%"
             marginBottom="40px"
             alignItems="center"
@@ -973,7 +973,132 @@ const Quizzes = () => {
                 )}
               </Flex>
             </Flex>
+          </Flex> */}
+          <Flex
+            width="100%"
+            marginBottom={{ base: '20px', md: '40px' }} // Responsive margin bottom
+            alignItems="center"
+            justifyContent="space-between"
+            paddingRight="20px"
+            color="#E5E6E6"
+            direction={{ base: 'column', md: 'row' }}
+          >
+            <Flex alignItems="center">
+              <InputGroup
+                width={{ base: '100%', md: '282px' }}
+                marginBottom={{ base: '15px', md: '0' }}
+              >
+                {' '}
+                // Responsive width
+                <InputLeftElement
+                  pointerEvents="none"
+                  children={<BsSearch color="#969CA6" />}
+                  ml={2}
+                />
+                <Input
+                  placeholder="Search"
+                  pl="48px"
+                  _focus={{
+                    boxShadow: '0 0 0 2px #3182ce'
+                  }}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </InputGroup>
+            </Flex>
+            <Flex alignItems="center">
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                alignItems={{ base: 'flex-start', md: 'center' }}
+                width={{ base: '100%', md: 'auto' }}
+              >
+                <MultiSelect
+                  options={options}
+                  value={multiSelected}
+                  onChange={handleSelectionChange}
+                  labelledBy="Select"
+                  valueRenderer={() => (
+                    <span
+                      style={{
+                        fontWeight: '500',
+                        color: 'rgb(110, 118, 130)',
+                        fontSize: '0.875rem',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      Filter By Tags
+                    </span>
+                  )}
+                />
+
+                <Menu>
+                  <MenuButton>
+                    <Flex
+                      cursor="pointer"
+                      border="1px solid #E5E6E6"
+                      padding="5px 10px"
+                      borderRadius="6px"
+                      alignItems="center"
+                      mb={{ base: '10px', md: '0' }}
+                      width={{ base: '100%', md: 'auto' }}
+                    >
+                      <Text
+                        fontWeight="400"
+                        fontSize={{ base: '12px', md: '14px' }}
+                        marginRight="5px"
+                        color="#5E6164"
+                        width={{ base: '100%', md: 'auto' }}
+                      >
+                        Sort By
+                      </Text>
+                      <FaCalendarAlt color="#96999C" size="12px" />
+                    </Flex>
+                  </MenuButton>
+                  <MenuList
+                    fontSize="14px"
+                    minWidth={'185px'}
+                    borderRadius="8px"
+                    backgroundColor="#FFFFFF"
+                    boxShadow="0px 0px 0px 1px rgba(77, 77, 77, 0.05), 0px 6px 16px 0px rgba(77, 77, 77, 0.08)"
+                  >
+                    <MenuItem
+                      color="#212224"
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      onClick={() => fetchQuizzes({ sort: 'createdAt' })}
+                      fontSize="14px"
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Created At
+                    </MenuItem>
+                    <MenuItem
+                      color="#212224"
+                      fontSize="14px"
+                      onClick={() => fetchQuizzes({ sort: 'lastAttempted' })}
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Last Attempted
+                    </MenuItem>
+                    <MenuItem
+                      _hover={{ bgColor: '#F2F4F7' }}
+                      color="#212224"
+                      fontSize="14px"
+                      onClick={() => fetchQuizzes({ sort: 'quizname' })}
+                      lineHeight="20px"
+                      fontWeight="400"
+                      p="6px 8px 6px 8px"
+                    >
+                      Quiz Name
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Flex>
+            </Flex>
           </Flex>
+
           {!isEmpty(selectedQuizzes) && (
             <Box>
               <Button
