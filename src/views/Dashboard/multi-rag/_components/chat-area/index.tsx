@@ -170,16 +170,13 @@ const ChatArea = ({
   }, [data]);
   useEffect(() => {
     if (streamEnded && fullBuffer) {
-      const startIndex = fullBuffer.indexOf(firstKeyword);
-      const endIndex = fullBuffer.indexOf(lastKeyword);
-
-      // Extract the substring between startIndex and endIndex
-      const extractedContent = fullBuffer.substring(
-        startIndex + firstKeyword.length,
-        endIndex
-      );
+      const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
+      const extractedContent = fullBuffer.match(regex)[1];
 
       console.log('EXTRACTED CONTENT', extractedContent);
+      console.log(
+        extractedContent.split('{"node_id"').map((obj) => '{"node_id"' + obj)
+      );
       console.log(extractedContent.split('\n').filter((el) => el.length > 0));
       console.log(
         extractedContent
@@ -197,10 +194,12 @@ const ChatArea = ({
       refetch();
     }
   }, [streamEnded, fullBuffer]);
+  console.log('FULL BUFFER', fullBuffer);
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
     console.log('current chat is', currentChat);
+
     if (currentChat.length === 0) {
       console.log(currentChat, 'should be empty');
       return ''; // Don't render anything if there's no current chat content
@@ -209,17 +208,19 @@ const ChatArea = ({
     return <Message key={Math.random()} content={currentChat} type={'bot'} />;
   }, [currentChat]);
   const submitMessageHandler = () => {
-    messages.push({
-      id: Date.now(), // Simplified ID generation, should be unique in a real application
-      studentId: studentId, // Placeholder, replace with dynamic student ID
-      log: { role: 'user', content: userMessage },
-      liked: false,
-      disliked: false,
-      isPinned: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      conversationId: conversationID //
-    });
+    setMessages((prev) =>
+      prev.concat({
+        id: Date.now(), // Simplified ID generation, should be unique in a real application
+        studentId: studentId, // Placeholder, replace with dynamic student ID
+        log: { role: 'user', content: userMessage },
+        liked: false,
+        disliked: false,
+        isPinned: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        conversationId: conversationID //
+      })
+    );
     setStreamEnded(false);
     const body = {
       studentId,
@@ -231,6 +232,7 @@ const ChatArea = ({
     };
 
     const q = encodeQueryParams(body);
+    console.log('the query', q);
     const ore = new Ore({
       url: `https://shepherd-ai-pr-123.onrender.com/multirag/chat${q}`,
       headers: {
@@ -238,6 +240,8 @@ const ChatArea = ({
       }
     });
     ore.fetchSSE((buffer, parts) => {
+      console.log(buffer);
+      console.log(parts);
       setFullBuffer(buffer);
       if (
         buffer.includes('done with stream') ||
@@ -255,6 +259,7 @@ const ChatArea = ({
       setCurrentChat(buffer);
     });
   };
+  console.log('JUST A LOG');
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
