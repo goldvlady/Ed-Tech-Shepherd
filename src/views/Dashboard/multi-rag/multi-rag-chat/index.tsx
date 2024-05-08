@@ -14,18 +14,35 @@ function MultiRagChat() {
     name: ''
   });
 
+  const [userSelectedText, setUserSelected] = useState<{
+    purpose: 'summary' | 'explain' | 'translate' | null;
+    text: string;
+  }>({
+    purpose: null,
+    text: ''
+  });
+
   const [highlightedDocumentPageIndex, setHighlightedDocumentPageIndex] =
     useState(0);
 
   const getTextForSummary = (text: string) => {
-    alert('Summary: ' + text);
+    setUserSelected({
+      purpose: 'summary',
+      text
+    });
   };
 
   const getTextForExplaination = (text: string) => {
-    alert('Explain: ' + text);
+    setUserSelected({
+      purpose: 'explain',
+      text
+    });
   };
   const getTextForTranslation = (text: string) => {
-    alert('Translate: ' + text);
+    setUserSelected({
+      purpose: 'translate',
+      text
+    });
   };
 
   return (
@@ -42,7 +59,11 @@ function MultiRagChat() {
         getTextForTranslation={getTextForTranslation}
         highlightedDocumentPageIndex={highlightedDocumentPageIndex}
       />
-      <ChatArea conversationID={docId} studentId={user._id} />
+      <ChatArea
+        conversationID={docId}
+        studentId={user._id}
+        userSelectedText={userSelectedText}
+      />
       <LearningResourcesSection
         conversationID={docId}
         selectedDocumentID={selectedDocumentID.id}

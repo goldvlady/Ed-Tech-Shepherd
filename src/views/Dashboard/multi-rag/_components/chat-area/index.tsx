@@ -29,10 +29,15 @@ interface VectorsMetadata {
 
 const ChatArea = ({
   conversationID,
-  studentId
+  studentId,
+  userSelectedText
 }: {
   conversationID: string;
   studentId: string;
+  userSelectedText: {
+    purpose: 'summary' | 'explain' | 'translate' | null;
+    text: string;
+  };
 }) => {
   const [vectorsMetadata, setVectorsMetadata] = useState<VectorsMetadata[]>([]);
   const [userMessage, setUserMessage] = useState('');
@@ -99,12 +104,37 @@ const ChatArea = ({
 
     return <Message key={Math.random()} content={currentChat} type={'bot'} />;
   }, [currentChat]);
-  const submitMessageHandler = () => {
+
+  useEffect(() => {
+    if (userSelectedText.text && userSelectedText.purpose) {
+      let message = '';
+      switch (userSelectedText.purpose) {
+        case 'explain':
+          message = 'Explain: ' + userSelectedText.text;
+          setUserMessage(message);
+          break;
+        case 'summary':
+          message = 'Summarize: ' + userSelectedText.text;
+          setUserMessage(message);
+          break;
+        case 'translate':
+          message = 'Translate: ' + userSelectedText.text;
+          setUserMessage(message);
+          break;
+      }
+      submitMessageHandler(message);
+    }
+  }, [userSelectedText.text, userSelectedText.purpose]);
+
+  const submitMessageHandler = (selectedText?: string) => {
     setMessages((prev) =>
       prev.concat({
         id: Date.now(), // Simplified ID generation, should be unique in a real application
         studentId: studentId, // Placeholder, replace with dynamic student ID
-        log: { role: 'user', content: userMessage },
+        log: {
+          role: 'user',
+          content: selectedText ? selectedText : userMessage
+        },
         liked: false,
         disliked: false,
         isPinned: false,

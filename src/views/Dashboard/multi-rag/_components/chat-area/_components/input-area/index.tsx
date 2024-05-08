@@ -68,7 +68,9 @@ const InputArea = ({
       </Popover>
       <div className="flex items-center gap-3 ml-2">
         <button
-          onClick={submitHandler}
+          onClick={() => {
+            submitHandler();
+          }}
           className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center"
         >
           <ArrowRight className="text-white w-[17px]" />
