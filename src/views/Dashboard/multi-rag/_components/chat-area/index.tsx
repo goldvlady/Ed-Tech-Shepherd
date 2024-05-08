@@ -123,6 +123,8 @@ const ChatArea = ({
       fetchMetadata: vectorsMetadata.length === 0 ? 'True' : ''
     };
 
+    setUserMessage('');
+
     const q = encodeQueryParams(body);
     console.log('the query', q);
     const ore = new Ore({
@@ -151,6 +153,7 @@ const ChatArea = ({
       setCurrentChat(buffer);
     });
   };
+
   console.log('JUST A LOG');
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">

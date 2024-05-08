@@ -3,14 +3,8 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '../../../../../../../components/ui/popover';
-import { MultiragDocument, multiragResponse } from '../../../../../../../types';
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import { MultiragDocument } from '../../../../../../../types';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import SourceButton from '../source-button';
 import { ReloadIcon } from '@radix-ui/react-icons';
