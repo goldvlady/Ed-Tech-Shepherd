@@ -1,25 +1,15 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
-import { ReloadIcon } from '@radix-ui/react-icons';
-import { ArrowRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { MultiragDocument, multiragResponse } from '../../../../../types';
+import { multiragResponse } from '../../../../../types';
 import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '../../../../../components/ui/popover';
 import { Ore } from '@glamboyosa/ore';
 import { encodeQueryParams } from '../../../../../helpers';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
+import MessageArea from './_components/message-area';
+import SuggestionArea from './_components/suggestion-area';
+import InputArea from './_components/input-area';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -36,106 +26,6 @@ interface VectorsMetadata {
   score: number;
   metadata: DocumentMetadata;
 }
-const MessageArea = ({ children }) => (
-  <div className="messages-area flex-1 overflow-scroll pb-32 no-scrollbar">
-    {children}
-  </div>
-);
-
-const SuggestionButton = ({ text }) => (
-  <div className="px-[1.125rem] py-[0.03rem] rounded-full border h-[1.68rem] border-[#4D8DF9] text-center flex items-center justify-center backdrop-blur-sm">
-    <span className="text-[0.75rem] text-center text-[#4D8DF9] whitespace-nowrap">
-      {text}
-    </span>
-  </div>
-);
-
-const SuggestionArea = () => (
-  <div className="w-full h-[3.75rem] absolute top-[-4.5rem] cursor-pointer space-y-2 flex flex-col justify-center items-center">
-    <SuggestionButton text="What do I need to know to understand this document?" />
-    <SuggestionButton text="What topics should I explore after this document?" />
-  </div>
-);
-
-const SourceButton = () => (
-  <button className="h-[1.3rem] border border-dashed absolute flex items-center justify-center rounded-full p-4 bottom-[-48px]">
-    <span className="whitespace-nowrap text-[#969CA6] font-[0.5rem]">
-      1 source selected
-    </span>
-  </button>
-);
-
-const InputArea = ({
-  value,
-  setValue,
-  submitHandler,
-  documents
-}: {
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
-  submitHandler: VoidFunction;
-  documents: Array<MultiragDocument>;
-}) => {
-  const [open, setOpen] = useState(false);
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === '@') {
-      console.log('Hey?');
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-  };
-
-  const addAtHandler = (name: string) => {
-    const v = value + name + ' ';
-    setValue(v);
-    setOpen(false);
-  };
-  return (
-    <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
-      <SourceButton />
-      <Popover open={open}>
-        <PopoverTrigger className="w-full">
-          <input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyUp={handleKeyDown}
-            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
-            placeholder="How can Shepherd help with your homework?"
-          />
-          <PopoverContent className="z-20 bg-white mr-40">
-            {documents
-              ? documents
-                  .filter((el) =>
-                    el.collection_name.includes(value.split('@')[1])
-                  )
-                  .map((doc) => (
-                    <p
-                      className="p-1 cursor-pointer hover:bg-slate-200 rounded-md"
-                      key={doc.document_id}
-                      onClick={() => addAtHandler(doc.collection_name)}
-                    >
-                      {doc.collection_name}
-                    </p>
-                  ))
-              : null}
-          </PopoverContent>
-        </PopoverTrigger>
-      </Popover>
-      <div className="flex items-center gap-3 ml-2">
-        <button
-          onClick={submitHandler}
-          className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center"
-        >
-          <ArrowRight className="text-white w-[17px]" />
-        </button>
-        <button className="w-[2.18rem] h-[1.75rem] rounded-full bg-[#F9F9FB] flex items-center justify-center">
-          <ReloadIcon className="w-[14px]" />
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const ChatArea = ({
   conversationID,
