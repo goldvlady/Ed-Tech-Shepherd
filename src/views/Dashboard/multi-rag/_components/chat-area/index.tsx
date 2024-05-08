@@ -81,6 +81,8 @@ const InputArea = ({
     if (event.key === '@') {
       console.log('Hey?');
       setOpen(true);
+    } else {
+      setOpen(false);
     }
   };
 
@@ -93,7 +95,7 @@ const InputArea = ({
     <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
       <SourceButton />
       <Popover open={open}>
-        <PopoverTrigger>
+        <PopoverTrigger className="w-full">
           <input
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -101,7 +103,7 @@ const InputArea = ({
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
             placeholder="How can Shepherd help with your homework?"
           />
-          <PopoverContent className="z-20 bg-white">
+          <PopoverContent className="z-20 bg-white mr-40">
             {documents
               ? documents
                   .filter((el) =>
@@ -109,7 +111,7 @@ const InputArea = ({
                   )
                   .map((doc) => (
                     <p
-                      className="p-1 cursor-pointer hover:bg-slate-200"
+                      className="p-1 cursor-pointer hover:bg-slate-200 rounded-md"
                       key={doc.document_id}
                       onClick={() => addAtHandler(doc.collection_name)}
                     >
