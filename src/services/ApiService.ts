@@ -1139,6 +1139,15 @@ class ApiService {
     );
   };
 
+  static multiPreviousConversations = async (refId) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/multirag/previous_conversations?referenceId=${refId}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiDocConversationStarter = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,

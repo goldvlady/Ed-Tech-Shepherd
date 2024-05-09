@@ -9,8 +9,20 @@ import {
   SelectValue
 } from '../../../../../../../components/ui/select';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
+import { useQuery } from '@tanstack/react-query';
+import ApiService from '../../../../../../../services/ApiService';
+import useUserStore from '../../../../../../../state/userStore';
 
 function ChatHistory() {
+  const { user } = useUserStore();
+  const { data } = useQuery({
+    queryKey: ['doc-chat-history'],
+    queryFn: () =>
+      ApiService.multiPreviousConversations(user._id).then((res) => res.json())
+  });
+
+  console.log('Doc chat history', data);
+
   return (
     <div className="bg-white h-full flex flex-col">
       <div className="w-[17.25rem] p-[1rem] pb-0">
