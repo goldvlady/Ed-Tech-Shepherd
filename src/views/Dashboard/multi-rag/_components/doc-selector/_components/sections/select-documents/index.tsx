@@ -22,6 +22,15 @@ import {
   multiragResponse
 } from '../../../../../../../../types';
 import { languages } from '../../../../../../../../helpers';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogTrigger
+} from '../../../../../../../../components/ui/alert-dialog';
+import { Input as ShadcnInput } from '../../../../../../../../components/ui/input';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -29,7 +38,7 @@ function SelectDocuments() {
   const { user } = useUserStore();
 
   const navigate = useNavigate();
-  const { isPending, mutate } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: (data: {
       referenceId: string;
       referenceDocIds: Array<string>;
@@ -45,6 +54,11 @@ function SelectDocuments() {
     }
   });
 
+  const { mutate: mutateChatName, isPending } = useMutation({
+    mutationFn: (data: any) =>
+      ApiService.multiDocCreateTitle(data).then((res) => res.json())
+  });
+
   const startConversation = () => {
     mutate(
       {
@@ -54,7 +68,21 @@ function SelectDocuments() {
       },
       {
         onSuccess(data) {
-          navigate(`/dashboard/doc-chat/${data.data}`, { replace: true });
+          mutateChatName(
+            {
+              docNames: ['new chat name'],
+              conversationId: data.data
+            },
+            {
+              onSuccess: (chatName) => {
+                if (chatName.status === 'success') {
+                  navigate(`/dashboard/doc-chat/${data.data}`, {
+                    replace: true
+                  });
+                }
+              }
+            }
+          );
         }
       }
     );
@@ -94,13 +122,29 @@ function SelectDocuments() {
             </Button>
           </div>
         </div>
-        <Button
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button>Start Chat</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="bg-white">
+            <div className="p-2">
+              <ShadcnInput placeholder="Title e.g" />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <Button onClick={startConversation} disabled={isPending}>
+                Continue
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        {/* <Button
           onClick={startConversation}
           disabled={selected.length === 0 || isPending}
         >
           {isPending && <ReloadIcon className="animate-spin mr-2" />}
           Start Chat
-        </Button>
+        </Button> */}
       </header>
       <main
         className={cn(
