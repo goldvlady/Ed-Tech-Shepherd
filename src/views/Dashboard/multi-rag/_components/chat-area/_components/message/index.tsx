@@ -1,3 +1,4 @@
+import CustomMarkdownView from '../../../../../../../components/CustomComponents/CustomMarkdownView';
 import { cn } from '../../../../../../../library/utils';
 
 const Message = ({
@@ -49,17 +50,17 @@ const Message = ({
           {prefix ? (
             <QuoteMessage type={prefix} content={actualContent} />
           ) : (
-            <p
+            <CustomMarkdownView
+              source={content}
               className={cn(
-                'text-black bg-white text-[0.87rem] rounded-[10px] px-[1.56rem] py-[0.5rem] shadow-md',
+                'text-black bg-white text-[0.87rem] rounded-[10px] shadow-md',
                 {
                   'bg-black/10 text-[#072D5F]': type === 'user',
                   'w-32 h-10': loading
                 }
               )}
-            >
-              {content}
-            </p>
+              paragraphClass="[&_p]:leading-[20px]"
+            />
           )}
         </div>
       </div>
@@ -75,7 +76,10 @@ const QuoteMessage = ({ type, content }) => {
         <div className="border-l border-l-blue-500 p-2 rounded-md bg-black/5">
           <h5 className="font-medium text-[0.75rem] text-blue-500">You</h5>
           <h6 className="text-[0.75rem] text-ellipsis break-words whitespace-pre-wrap leading-[20px] text-[#667781]">
-            {content}
+            <CustomMarkdownView
+              source={content}
+              paragraphClass="[&_p]:leading-[20px] px-0 py-0"
+            />
           </h6>
         </div>
         <div>

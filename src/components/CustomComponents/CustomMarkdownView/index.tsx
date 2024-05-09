@@ -30,6 +30,7 @@ interface ICustomMarkdownView {
   handleSendKeyword?: any;
   handleSendMessage?: any;
   className?: string;
+  paragraphClass?: string;
 }
 
 const CustomMarkdownView = ({
@@ -37,7 +38,8 @@ const CustomMarkdownView = ({
   keywords = [],
   showDot,
   handleSendKeyword,
-  className
+  className,
+  paragraphClass
 }: ICustomMarkdownView) => {
   const [renderedSource, setRenderedSource] = useState<string>('');
 
@@ -56,7 +58,7 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle`}
+      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle ${paragraphClass}`}
       remarkPlugins={[remarkMath, remarkGfm]}
       rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
