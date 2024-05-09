@@ -128,10 +128,6 @@ const HistoryItem = memo(
 );
 
 const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
-  // const documentId =
-  //   data.referenceDocIds[
-  //     Math.floor(Math.random() * data.referenceDocIds.length)
-  //   ];
   const { data: pdfDocument } = useQuery({
     queryKey: ['multiDocVectorDoc', { documentId }],
     queryFn: () =>
