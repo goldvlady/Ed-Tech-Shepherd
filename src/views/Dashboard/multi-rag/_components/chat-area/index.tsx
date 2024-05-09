@@ -219,7 +219,7 @@ const ChatArea = ({
         {currentChatRender}
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
-        <SuggestionArea />
+        <SuggestionArea setUserMessage={setUserMessage} />
         <InputArea
           documents={documents}
           submitHandler={submitMessageHandler}
