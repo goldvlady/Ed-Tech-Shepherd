@@ -48,7 +48,7 @@ function SelectDocuments() {
   const startConversation = () => {
     mutate(
       {
-        referenceId: selected.length > 0 ? selected[0] : null,
+        referenceId: user._id,
         referenceDocIds: selected,
         language: 'English'
       },
