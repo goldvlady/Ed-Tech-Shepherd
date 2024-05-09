@@ -153,7 +153,7 @@ const ChatArea = ({
       fetchMetadata: vectorsMetadata.length === 0 ? 'True' : ''
     };
 
-    setUserMessage('');
+    // setUserMessage('');
 
     const q = encodeQueryParams(body);
     console.log('the query', q);
@@ -204,13 +204,16 @@ const ChatArea = ({
           <>
             {messages
               .sort((a, b) => a.id - b.id)
-              .map((msg) => (
-                <Message
-                  key={msg.id}
-                  type={msg.log.role === 'user' ? 'user' : 'bot'}
-                  content={msg.log.content}
-                />
-              ))}
+              .map((msg) => {
+                console.log('AI Messages', msg);
+                return (
+                  <Message
+                    key={msg.id}
+                    type={msg.log.role === 'user' ? 'user' : 'bot'}
+                    content={msg.log.content}
+                  />
+                );
+              })}
           </>
         ) : null}
         {currentChatRender}
