@@ -36,9 +36,10 @@ function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selected, setSelected] = useState<Array<string>>([]);
   const { user } = useUserStore();
+  const [chatName, setChatName] = useState('');
 
   const navigate = useNavigate();
-  const { mutate } = useMutation({
+  const { mutate, isPending: isGeneratingConvID } = useMutation({
     mutationFn: (data: {
       referenceId: string;
       referenceDocIds: Array<string>;
@@ -70,7 +71,7 @@ function SelectDocuments() {
         onSuccess(data) {
           mutateChatName(
             {
-              docNames: ['new chat name'],
+              docNames: [chatName],
               conversationId: data.data
             },
             {
@@ -124,15 +125,27 @@ function SelectDocuments() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button>Start Chat</Button>
+            <Button disabled={selected.length === 0}>Start Chat</Button>
           </AlertDialogTrigger>
           <AlertDialogContent className="bg-white">
             <div className="p-2">
-              <ShadcnInput placeholder="Title e.g" />
+              <ShadcnInput
+                placeholder="Title e.g"
+                value={chatName}
+                onChange={(e) => setChatName(e.target.value)}
+              />
             </div>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <Button onClick={startConversation} disabled={isPending}>
+              <Button
+                onClick={startConversation}
+                disabled={
+                  selected.length === 0 ||
+                  isPending ||
+                  isGeneratingConvID ||
+                  chatName.trim().length === 0
+                }
+              >
                 Continue
               </Button>
             </AlertDialogFooter>

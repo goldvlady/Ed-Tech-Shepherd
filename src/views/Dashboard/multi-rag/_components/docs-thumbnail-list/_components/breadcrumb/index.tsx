@@ -9,8 +9,6 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
       ApiService.multiDocGetTitle(conversationId).then((res) => res.json())
   });
 
-  console.log('conversation name', data);
-
   return (
     <div className="h-[1.56rem] shadow-md bg-white rounded-[10px] flex justify-start items-center px-[0.87rem] select-none">
       <span className="text-[0.62rem] flex  whitespace-nowrap w-full text-ellipsis overflow-hidden items-center">
