@@ -69,30 +69,34 @@ const ChatArea = ({
     if (streamEnded && fullBuffer) {
       if (vectorsMetadata.length === 0) {
         const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
-        const extractedContent = fullBuffer.match(regex)[1];
+        const match = fullBuffer.match(regex);
+        const index = 1;
+        if (match.length >= 0 && index < match.length) {
+          const extractedContent = fullBuffer.match(regex)[1];
+          console.log(fullBuffer.match);
+          console.log('EXTRACTED CONTENT', extractedContent);
 
-        console.log('EXTRACTED CONTENT', extractedContent);
-        console.log(
-          extractedContent.split('{"node_id"').map((obj) => '{"node_id"' + obj)
-        );
-        console.log(extractedContent.split('\n').filter((el) => el.length > 0));
-        console.log(
-          extractedContent
-            .split('\n')
-            .filter((el) => el.length > 0)
-            .map((el) => JSON.parse(el))
-        );
-        setVectorsMetadata(
-          extractedContent
-            .split('\n')
-            .filter((el) => el.length > 0)
-            .map((el) => JSON.parse(el))
-        );
-        console.log(fullBuffer);
+          console.log(
+            extractedContent.split('\n').filter((el) => el.length > 0)
+          );
+          console.log(
+            extractedContent
+              .split('\n')
+              .filter((el) => el.length > 0)
+              .map((el) => JSON.parse(el))
+          );
+          setVectorsMetadata(
+            extractedContent
+              .split('\n')
+              .filter((el) => el.length > 0)
+              .map((el) => JSON.parse(el))
+          );
+          console.log(fullBuffer);
+        }
       }
       refetch();
     }
-  }, [streamEnded, fullBuffer]);
+  }, [streamEnded, fullBuffer, vectorsMetadata]);
   console.log('FULL BUFFER', fullBuffer);
   console.log('vmd', vectorsMetadata);
   const currentChatRender = useMemo(() => {
