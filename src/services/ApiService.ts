@@ -1137,6 +1137,16 @@ class ApiService {
     );
   };
 
+  static multiDocGetTitle = async (conversationID) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/conversations/title?id=${conversationID}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static getMultiDocHighlight = async (documentId) => {
     return await doFetch(
       `https://shepherd-ai-pr-123.onrender.com/misc/get-highlight?documentId=${documentId}`,
