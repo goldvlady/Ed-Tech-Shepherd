@@ -67,31 +67,34 @@ const ChatArea = ({
   }, [data]);
   useEffect(() => {
     if (streamEnded && fullBuffer) {
-      const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
-      const extractedContent = fullBuffer.match(regex)[1];
+      if (vectorsMetadata.length === 0) {
+        const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
+        const extractedContent = fullBuffer.match(regex)[1];
 
-      console.log('EXTRACTED CONTENT', extractedContent);
-      console.log(
-        extractedContent.split('{"node_id"').map((obj) => '{"node_id"' + obj)
-      );
-      console.log(extractedContent.split('\n').filter((el) => el.length > 0));
-      console.log(
-        extractedContent
-          .split('\n')
-          .filter((el) => el.length > 0)
-          .map((el) => JSON.parse(el))
-      );
-      setVectorsMetadata(
-        extractedContent
-          .split('\n')
-          .filter((el) => el.length > 0)
-          .map((el) => JSON.parse(el))
-      );
-      console.log(fullBuffer);
+        console.log('EXTRACTED CONTENT', extractedContent);
+        console.log(
+          extractedContent.split('{"node_id"').map((obj) => '{"node_id"' + obj)
+        );
+        console.log(extractedContent.split('\n').filter((el) => el.length > 0));
+        console.log(
+          extractedContent
+            .split('\n')
+            .filter((el) => el.length > 0)
+            .map((el) => JSON.parse(el))
+        );
+        setVectorsMetadata(
+          extractedContent
+            .split('\n')
+            .filter((el) => el.length > 0)
+            .map((el) => JSON.parse(el))
+        );
+        console.log(fullBuffer);
+      }
       refetch();
     }
   }, [streamEnded, fullBuffer]);
   console.log('FULL BUFFER', fullBuffer);
+  console.log('vmd', vectorsMetadata);
   const currentChatRender = useMemo(() => {
     // This useCallback will return the ChatMessage component or null based on currentChat's value
     // It ensures that the component is only re-rendered when currentChat changes
