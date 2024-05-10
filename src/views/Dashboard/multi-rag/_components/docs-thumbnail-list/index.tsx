@@ -31,7 +31,7 @@ const DocsThumbnailList = ({
           });
         }
       });
-  }, []);
+  }, [conversationID]);
 
   return (
     <div className="w-[16.97rem] h-full pt-[0.62rem] px-[1.8rem] pr-[4.5rem]">
