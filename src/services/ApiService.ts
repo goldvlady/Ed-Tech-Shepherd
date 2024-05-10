@@ -1043,12 +1043,7 @@ class ApiService {
         method: 'POST',
         body: queryParams.formData
       },
-      true,
-      {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
-      }
+      true
     );
   };
 
