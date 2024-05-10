@@ -41,7 +41,7 @@ export const doFetch = async (
   const headers: HeadersInit = { ...initHeaders };
 
   const token = await firebaseAuth.currentUser?.getIdToken();
-  if (window.location.pathname === '/dashboard/doc-chat') {
+  if (window.location.pathname.includes('/dashboard/doc-chat')) {
     headers['X-Shepherd-Header'] = 'vunderkind23';
   } else {
     headers['x-shepherd-header'] = 'vunderkind23';
