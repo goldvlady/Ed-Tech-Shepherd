@@ -4,31 +4,6 @@ import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
 
-const ActionButton = ({
-  children,
-  onClick,
-  active
-}: {
-  active?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) => (
-  <div
-    className={cn(
-      'h-[30px] rounded-[10px] bg-white flex justify-center items-center cursor-pointer select-none transition-shadow hover:shadow-md px-[0.43rem] py-[0.93rem]',
-      {
-        'bg-[#F2F2F2]': active
-      }
-    )}
-    role="button"
-    onClick={onClick}
-  >
-    <span className="text-xs inline-block text-black whitespace-nowrap">
-      {children}
-    </span>
-  </div>
-);
-
 const LearningResourcesSection = ({
   conversationID,
   selectedDocumentID: documentId,
@@ -61,12 +36,15 @@ const LearningResourcesSection = ({
           }
         )}
       >
-        <SummarySection conversationID={conversationID} />
+        <SummarySection
+          conversationID={conversationID}
+          selectedDoc={documentId}
+        />
         <HighlightsSection
           documentId={documentId}
           setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
         />
-        <PinnedSection />
+        <PinnedSection convId={conversationID} />
         <GenerateQuizSection />
         <GenerateFlashcardsSection />
       </div>
@@ -74,7 +52,13 @@ const LearningResourcesSection = ({
   );
 };
 
-const SummarySection = ({ conversationID }: { conversationID: string }) => {
+const SummarySection = ({
+  conversationID,
+  selectedDoc
+}: {
+  conversationID: string;
+  selectedDoc?: string;
+}) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [summaries, setSummaries] = useState([]);
 
@@ -112,7 +96,7 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
     enabled: data && data.length > 0
   });
 
-  console.log('multiDocSummary', summary);
+  const index = data?.indexOf(selectedDoc);
 
   const toggleExpand = () => {
     setSummaryExpanded(!summaryExpanded);
@@ -124,7 +108,7 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
       </ActionButton>
       <div
         className={cn(
-          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar',
+          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
             'opacity-100 pointer-events-auto': summaryExpanded
           }
@@ -133,7 +117,7 @@ const SummarySection = ({ conversationID }: { conversationID: string }) => {
         <p className="p-[1.625rem] text-[#585F68] text-[0.75rem]">
           {summary
             ? summary.length > 0
-              ? summary[0]
+              ? summary[index]
               : 'No summaries found'
             : 'Loading summaries...'}
         </p>
@@ -199,7 +183,7 @@ const HighlightsSection = ({
       </ActionButton>
       <div
         className={cn(
-          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar',
+          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
             'opacity-100 pointer-events-auto': expanded
           }
@@ -223,8 +207,38 @@ const HighlightsSection = ({
   );
 };
 
-const PinnedSection = () => {
-  return <ActionButton>Pinned</ActionButton>;
+const PinnedSection = ({ convId }: { convId: string }) => {
+  const [expanded, setExpanded] = useState(false);
+  const { data } = useQuery({
+    queryKey: ['pinned-messages'],
+    queryFn: () =>
+      ApiService.getPinnedMessages(convId).then((res) => res.json())
+  });
+
+  console.log('Pinned section', data);
+
+  return (
+    <div className="relative">
+      <ActionButton
+        active={expanded}
+        onClick={() => {
+          setExpanded(!expanded);
+        }}
+      >
+        Pinned
+      </ActionButton>
+      <div
+        className={cn(
+          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          {
+            'opacity-100 pointer-events-auto': expanded
+          }
+        )}
+      >
+        <div className="p-2"></div>
+      </div>
+    </div>
+  );
 };
 
 const GenerateQuizSection = () => {
@@ -235,4 +249,28 @@ const GenerateFlashcardsSection = () => {
   return <ActionButton>Generate Flashcards</ActionButton>;
 };
 
+const ActionButton = ({
+  children,
+  onClick,
+  active
+}: {
+  active?: boolean;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) => (
+  <div
+    className={cn(
+      'h-[30px] rounded-[10px] bg-white flex justify-center items-center cursor-pointer select-none transition-shadow hover:shadow-md px-[0.43rem] py-[0.93rem]',
+      {
+        'bg-[#F2F2F2]': active
+      }
+    )}
+    role="button"
+    onClick={onClick}
+  >
+    <span className="text-xs inline-block text-black whitespace-nowrap">
+      {children}
+    </span>
+  </div>
+);
 export default LearningResourcesSection;

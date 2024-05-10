@@ -1165,6 +1165,15 @@ class ApiService {
     );
   };
 
+  static getPinnedMessages = async (conversationLogId: string) => {
+    return await doFetch(
+      `https://shepherd-ai-pr-123.onrender.com/misc/get-pins?conversationLogId=${conversationLogId}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+
   static multiPreviousConversations = async (refId) => {
     return await doFetch(
       `https://shepherd-ai-pr-123.onrender.com/multirag/previous_conversations?referenceId=${refId}`,
