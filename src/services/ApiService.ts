@@ -1046,8 +1046,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1063,8 +1063,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1077,8 +1077,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1092,8 +1092,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1109,8 +1109,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1125,8 +1125,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1141,8 +1141,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1158,8 +1158,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1175,8 +1175,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1191,8 +1191,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1206,8 +1206,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1221,8 +1221,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1236,8 +1236,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1251,8 +1251,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1268,8 +1268,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1285,8 +1285,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1302,8 +1302,8 @@ class ApiService {
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
