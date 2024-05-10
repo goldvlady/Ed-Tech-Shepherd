@@ -92,8 +92,8 @@ const ChatHistory = () => {
             <SheetTitle>Chat History</SheetTitle>
           </SheetHeader>
           <div className="w-full overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10 h-full">
-            {data.data
-              .filter((item) => item?.title?.length > 0)
+            {data?.data
+              ?.filter((item) => item?.title?.length > 0)
               .map((item) => (
                 <Link
                   to={'/dashboard/doc-chat/' + item.id}

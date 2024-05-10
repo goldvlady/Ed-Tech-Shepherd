@@ -28,6 +28,7 @@ import {
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
   static baseAiEndpoint = AI_API;
+  static isDev = false;
 
   static processDocument = processDocument;
   static createDocchatFlashCards = createDocchatFlashCards;
@@ -1027,16 +1028,24 @@ class ApiService {
     );
   };
 
+  static multiRagMainURL = this.isDev
+    ? 'https://shepherd-ai-pr-123.onrender.com'
+    : process.env.REACT_APP_AI_II;
+
   static uploadMultiDocFiles = async (queryParams: {
     studentId: string;
     formData: FormData;
   }) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       {
         method: 'POST',
-        body: queryParams.formData
+        body: queryParams.formData,
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       }
     );
   };
@@ -1045,7 +1054,7 @@ class ApiService {
     conversationID: string
   ) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/vector_docs/doc_from_conversation/${conversationID}`,
+      `${ApiService.multiRagMainURL}/vector_docs/doc_from_conversation/${conversationID}`,
       {
         method: 'GET'
       }
@@ -1053,29 +1062,30 @@ class ApiService {
   };
   static fetchMultiragConvoHistory = async (conversationID: string) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/misc/docchat_history/${conversationID}`,
+      `${ApiService.multiRagMainURL}/misc/docchat_history/${conversationID}`,
       {
         method: 'GET'
       }
     );
   };
   static multiragChat = async (data) => {
-    return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/multirag/chat`,
-      {
-        method: 'GET',
-        body: JSON.stringify(data)
-      }
-    );
+    return await doFetch(`${ApiService.multiRagMainURL}/multirag/chat`, {
+      method: 'GET',
+      body: JSON.stringify(data)
+    });
   };
 
   static multiDocBackgroundJobs = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      'https://shepherd-ai-pr-123.onrender.com/jobs/',
+      '${ApiService.multiRagMainURL}/jobs/',
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
@@ -1088,7 +1098,7 @@ class ApiService {
   static multiDocVectorDocs = async (sId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/vector_docs/${sId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/${sId}`,
       {
         method: 'GET'
       }
@@ -1098,7 +1108,7 @@ class ApiService {
   static multiDocVectorDoc = async (documentId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/vector_docs/doc/${documentId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/doc/${documentId}`,
       {
         method: 'GET'
       }
@@ -1108,10 +1118,14 @@ class ApiService {
   static multiDocHighlight = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/misc/create-highlight`,
+      `${ApiService.multiRagMainURL}/misc/create-highlight`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
@@ -1124,10 +1138,14 @@ class ApiService {
   static multiDocCreateTitle = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/multirag/create-title`,
+      `${ApiService.multiRagMainURL}/multirag/create-title`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
@@ -1140,7 +1158,7 @@ class ApiService {
   static multiDocGetTitle = async (conversationID) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/conversations/title?id=${conversationID}`,
+      `${ApiService.multiRagMainURL}/conversations/title?id=${conversationID}`,
       {
         method: 'GET'
       }
@@ -1149,7 +1167,7 @@ class ApiService {
 
   static getMultiDocHighlight = async (documentId) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/misc/get-highlight?documentId=${documentId}`,
+      `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
         method: 'GET'
       }
@@ -1158,7 +1176,7 @@ class ApiService {
 
   static multiDocSummary = async (documentIds) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/misc/summary?documentIds=${documentIds}`,
+      `${ApiService.multiRagMainURL}/misc/summary?documentIds=${documentIds}`,
       {
         method: 'GET'
       }
@@ -1167,7 +1185,7 @@ class ApiService {
 
   static getPinnedMessages = async (conversationLogId: string) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/misc/get-pins?conversationLogId=${conversationLogId}`,
+      `${ApiService.multiRagMainURL}/misc/get-pins?conversationLogId=${conversationLogId}`,
       {
         method: 'GET'
       }
@@ -1176,7 +1194,7 @@ class ApiService {
 
   static multiPreviousConversations = async (refId) => {
     return await doFetch(
-      `https://shepherd-ai-pr-123.onrender.com/multirag/previous_conversations?referenceId=${refId}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}`,
       {
         method: 'GET'
       }
@@ -1186,10 +1204,14 @@ class ApiService {
   static multiDocConversationStarter = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/conversations/documents`,
+      `${ApiService.multiRagMainURL}/conversations/documents`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
@@ -1202,10 +1224,14 @@ class ApiService {
   static multiDocMessageTogglePin = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/misc/toggle-pinned`,
+      `${ApiService.multiRagMainURL}/misc/toggle-pinned`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
@@ -1218,10 +1244,14 @@ class ApiService {
   static multiDocMessageToggleLike = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `https://shepherd-ai-pr-123.onrender.com/misc/toggle-like`,
+      `${ApiService.multiRagMainURL}/misc/toggle-like`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        headers: {
+          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
+          'Content-Type': 'application/json'
+        }
       },
       true,
       {
