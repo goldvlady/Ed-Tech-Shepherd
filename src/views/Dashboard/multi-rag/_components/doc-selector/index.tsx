@@ -1,16 +1,84 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import ChatHistory from './_components/chat-history';
 import UploadingItems from './_components/uploading-items';
 import Sections from './_components/sections';
+import { useMutation } from '@tanstack/react-query';
+import ApiService from '../../../../../services/ApiService';
+import { MultiragDocument } from '../../../../../types';
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 function DocSelector() {
   const [active, setActive] = useState(0);
-  const [filesUploading, setFilesUploading] = useState({
+  const [filesUploading, setFilesUploading] = useState<{
+    jobId: string;
+    uploading: boolean;
+    tables: Array<string>;
+  }>({
     jobId: '',
     uploading: false,
     tables: []
   });
+  const toast = useCustomToast();
+  const { mutate } = useMutation({
+    mutationKey: ['long-poll'],
+    mutationFn: async (d: { jobId: string; tables: Array<string> }) => {
+      const data: {
+        vectors?: Array<MultiragDocument>;
+        status: 'error' | 'in_progress' | 'success';
+      } = await ApiService.multiDocBackgroundJobs(d).then((resp) =>
+        resp.json()
+      );
+      return data;
+    },
+    async onSuccess(data) {
+      console.log('success', data);
+      if (data.status === 'in_progress') {
+        const data = Object.keys(filesUploading)
+          .filter((key) => key !== 'uploading')
+          .reduce((acc, key) => {
+            acc[key] = filesUploading[key];
+            return acc;
+          }, {}) as { jobId: string; tables: Array<string> };
+        console.log('Transformed D', data);
+        mutate(data);
+      } else if (data.status === 'success') {
+        toast({
+          position: 'top-right',
+          title: `Documents Uploaded Successfully`,
+          status: 'success'
+        });
+        setFilesUploading({
+          jobId: '',
+          uploading: false,
+          tables: []
+        });
+      } else {
+        toast({
+          position: 'top-right',
+          title: `Documents Upload Failed. Please retry.`,
+          status: 'error'
+        });
+        setFilesUploading({
+          jobId: '',
+          uploading: false,
+          tables: []
+        });
+      }
+    }
+  });
+  useEffect(() => {
+    if (!filesUploading.uploading && filesUploading.tables.length > 0) {
+      const data = Object.keys(filesUploading)
+        .filter((key) => key !== 'uploading')
+        .reduce((acc, key) => {
+          acc[key] = filesUploading[key];
+          return acc;
+        }, {}) as { jobId: string; tables: Array<string> };
+      console.log('Transformed D', data);
+      mutate(data);
+    }
+  }, [filesUploading]);
   return (
     <div className="w-full h-full bg-[#F9F9FB] flex">
       <div className="h-full flex-1 bg-[#F9F9FB] flex justify-center items-center">

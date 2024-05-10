@@ -175,13 +175,12 @@ const ChatArea = ({
     });
     ore.fetchSSE((buffer, parts) => {
       console.log(buffer);
-      console.log(parts);
+
       setFullBuffer(buffer);
-      if (
-        buffer.includes('done with stream') ||
-        buffer.includes(firstKeyword)
-      ) {
+      if (buffer.includes('done with stream')) {
         setStreamEnded(true);
+      }
+      if (buffer.includes(firstKeyword)) {
         return;
       }
       if (buffer.includes('run out of credits')) {

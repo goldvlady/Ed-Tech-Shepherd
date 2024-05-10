@@ -31,7 +31,7 @@ function UploadFiles({ setFilesUploading }) {
       .then((data) => {
         if (data.status === 'success') {
           setFilesUploading({
-            uploding: false,
+            uploading: false,
             jobId: data.job_id,
             tables: data.uploaded_filenames
           });

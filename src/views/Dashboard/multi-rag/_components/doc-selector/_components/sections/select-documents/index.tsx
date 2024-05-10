@@ -42,7 +42,8 @@ function SelectDocuments() {
       const r: multiragResponse<Array<MultiragDocument>> =
         await ApiService.multiDocVectorDocs(user._id).then((res) => res.json());
       return r;
-    }
+    },
+    refetchInterval: 1500
   });
 
   const { mutate: mutateChatName, isPending } = useMutation({
