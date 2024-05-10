@@ -137,10 +137,10 @@ const FlashCardSetupInit = ({
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
     { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const gradeOptions = [

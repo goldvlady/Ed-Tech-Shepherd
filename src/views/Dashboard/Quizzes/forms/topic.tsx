@@ -45,7 +45,7 @@ const TopicQuizForm = ({
   const dummyData = {
     subject: '',
     topic: '',
-    difficulty: 'kindergarten',
+    difficulty: 'Medium',
     count: 1,
     type: MIXED,
     grade: ''
