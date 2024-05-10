@@ -4,19 +4,22 @@ import { cn } from '../../../../../../../library/utils';
 import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import { useState } from 'react';
+import { ThumbsUpIcon } from 'lucide-react';
 
 const Message = ({
   id,
   type,
   content,
   loading,
-  isPinned
+  isPinned,
+  isLiked
 }: {
   id?: number;
   type: 'bot' | 'user';
   content: string;
   loading?: boolean;
   isPinned?: boolean;
+  isLiked?: boolean;
 }) => {
   const prefixes = ['Explain: ', 'Summarize: ', 'Translate: '];
   let prefix = '';
@@ -70,9 +73,11 @@ const Message = ({
               paragraphClass="[&_p]:leading-[20px]"
             />
           )}
-          {type === 'bot' && (
-            <div className="absolute bottom-[-1.5rem] w-full flex justify-end">
-              <div className="left-section"></div>
+          {type === 'bot' && id && (
+            <div className="absolute bottom-[-1.5rem] w-full flex justify-between">
+              <div className="left-section">
+                <LikeMessageButton id={id} isLiked={isLiked} />
+              </div>
               <div className="right-section pr-4">
                 <PinMessageButton id={id} isPinned={isPinned} />
               </div>
@@ -123,6 +128,49 @@ const PinMessageButton = ({
       )}
     >
       <DrawingPinIcon />
+    </div>
+  );
+};
+
+const LikeMessageButton = ({
+  id,
+  isLiked
+}: {
+  id?: number;
+  isLiked: boolean;
+}) => {
+  const [localIsLiked, setLocalIsLiked] = useState(isLiked);
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      ApiService.multiDocMessageToggleLike({
+        conversationLogId: String(id),
+        disliked: localIsLiked,
+        liked: !localIsLiked
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            setLocalIsLiked(data.data.liked);
+          }
+        })
+  });
+
+  const handlePin = () => {
+    mutate();
+  };
+
+  return (
+    <div
+      onClick={handlePin}
+      className={cn(
+        'w-5 h-5 rounded-full border flex items-center justify-center p-0.5 cursor-pointer',
+        { 'bg-black text-white': localIsLiked },
+        {
+          'pointer-events-none opacity-50': isPending
+        }
+      )}
+    >
+      <ThumbsUpIcon />
     </div>
   );
 };

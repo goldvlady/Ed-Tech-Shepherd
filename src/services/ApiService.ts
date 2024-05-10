@@ -1206,6 +1206,22 @@ class ApiService {
     );
   };
 
+  static multiDocMessageToggleLike = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `https://shepherd-ai-pr-123.onrender.com/misc/toggle-like`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
+    );
+  };
+
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {
     const response = await fetch(url, options);

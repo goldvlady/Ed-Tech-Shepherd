@@ -220,6 +220,7 @@ const ChatArea = ({
                     type={msg.log.role === 'user' ? 'user' : 'bot'}
                     content={msg.log.content}
                     isPinned={msg.isPinned}
+                    isLiked={msg.liked}
                   />
                 );
               })}
