@@ -36,7 +36,6 @@ function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selected, setSelected] = useState<Array<string>>([]);
   const { user } = useUserStore();
-  const [chatName, setChatName] = useState('');
 
   const navigate = useNavigate();
   const { mutate, isPending: isGeneratingConvID } = useMutation({
@@ -46,7 +45,7 @@ function SelectDocuments() {
       language: (typeof languages)[number];
     }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
   });
-  const { data } = useQuery({
+  const { data: documents } = useQuery({
     queryKey: ['processed-documents'],
     queryFn: async () => {
       const r: multiragResponse<Array<MultiragDocument>> =
@@ -69,9 +68,12 @@ function SelectDocuments() {
       },
       {
         onSuccess(data) {
+          const selectedDocumentsName = documents.data
+            .filter((doc) => selected.includes(doc.document_id))
+            .map((doc) => doc.collection_name);
           mutateChatName(
             {
-              docNames: [chatName],
+              docNames: selectedDocumentsName,
               conversationId: data.data
             },
             {
@@ -123,41 +125,17 @@ function SelectDocuments() {
             </Button>
           </div>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button disabled={selected.length === 0}>Start Chat</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent className="bg-white">
-            <div className="p-2">
-              <ShadcnInput
-                placeholder="Title e.g"
-                value={chatName}
-                onChange={(e) => setChatName(e.target.value)}
-              />
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <Button
-                onClick={startConversation}
-                disabled={
-                  selected.length === 0 ||
-                  isPending ||
-                  isGeneratingConvID ||
-                  chatName.trim().length === 0
-                }
-              >
-                Continue
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        {/* <Button
+
+        <Button
           onClick={startConversation}
-          disabled={selected.length === 0 || isPending}
+          disabled={selected.length === 0 || isPending || isGeneratingConvID}
         >
-          {isPending && <ReloadIcon className="animate-spin mr-2" />}
+          {isPending ||
+            (isGeneratingConvID && (
+              <ReloadIcon className="animate-spin mr-2" />
+            ))}
           Start Chat
-        </Button> */}
+        </Button>
       </header>
       <main
         className={cn(
@@ -168,7 +146,7 @@ function SelectDocuments() {
           }
         )}
       >
-        {data?.data?.map((document) => {
+        {documents?.data?.map((document) => {
           return (
             <DocItem
               selected={selected.some((e) => e === document.document_id)}
