@@ -129,7 +129,9 @@ const ChatArea = ({
           setUserMessage(message);
           break;
       }
-      submitMessageHandler(message);
+      setTimeout(() => {
+        submitMessageHandler(message);
+      }, 500);
     }
   }, [userSelectedText.text, userSelectedText.purpose]);
 
@@ -164,6 +166,7 @@ const ChatArea = ({
 
     const q = encodeQueryParams(body);
     console.log('the query', q);
+    setUserMessage('');
     const ore = new Ore({
       url: `https://shepherd-ai-pr-123.onrender.com/multirag/chat${q}`,
       headers: {
