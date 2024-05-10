@@ -22,15 +22,6 @@ import {
   multiragResponse
 } from '../../../../../../../../types';
 import { languages } from '../../../../../../../../helpers';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogTrigger
-} from '../../../../../../../../components/ui/alert-dialog';
-import { Input as ShadcnInput } from '../../../../../../../../components/ui/input';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');

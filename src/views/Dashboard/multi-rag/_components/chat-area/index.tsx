@@ -215,9 +215,11 @@ const ChatArea = ({
                 console.log('AI Messages', msg);
                 return (
                   <Message
+                    id={msg.id}
                     key={msg.id}
                     type={msg.log.role === 'user' ? 'user' : 'bot'}
                     content={msg.log.content}
+                    isPinned={msg.isPinned}
                   />
                 );
               })}
