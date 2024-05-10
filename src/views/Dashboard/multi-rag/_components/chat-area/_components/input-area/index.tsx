@@ -41,6 +41,12 @@ const InputArea = ({
       <Popover open={open}>
         <PopoverTrigger className="w-full">
           <input
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                submitHandler();
+              }
+            }}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyUp={handleKeyDown}
