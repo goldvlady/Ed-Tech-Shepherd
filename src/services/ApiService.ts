@@ -1041,11 +1041,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       {
         method: 'POST',
-        body: queryParams.formData,
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: queryParams.formData
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1057,6 +1059,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/vector_docs/doc_from_conversation/${conversationID}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1065,32 +1073,44 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/docchat_history/${conversationID}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
   static multiragChat = async (data) => {
-    return await doFetch(`${ApiService.multiRagMainURL}/multirag/chat`, {
-      method: 'GET',
-      body: JSON.stringify(data)
-    });
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/multirag/chat`,
+      {
+        method: 'GET',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
   };
 
   static multiDocBackgroundJobs = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      '${ApiService.multiRagMainURL}/jobs/',
+      `${ApiService.multiRagMainURL}/jobs/`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1101,6 +1121,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/vector_docs/${sId}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1111,6 +1137,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/vector_docs/doc/${documentId}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1121,16 +1153,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/create-highlight`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1141,16 +1170,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/multirag/create-title`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1161,6 +1187,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/conversations/title?id=${conversationID}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1170,6 +1202,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1179,6 +1217,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/summary?documentIds=${documentIds}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1188,6 +1232,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/get-pins?conversationLogId=${conversationLogId}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1197,6 +1247,12 @@ class ApiService {
       `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}`,
       {
         method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1207,16 +1263,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/conversations/documents`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1227,16 +1280,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/toggle-pinned`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };
@@ -1247,16 +1297,13 @@ class ApiService {
       `${ApiService.multiRagMainURL}/misc/toggle-like`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY,
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify(data)
       },
       true,
       {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };

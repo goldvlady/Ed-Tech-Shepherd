@@ -168,7 +168,7 @@ const ChatArea = ({
     console.log('the query', q);
     setUserMessage('');
     const ore = new Ore({
-      url: `https://shepherd-ai-pr-123.onrender.com/multirag/chat${q}`,
+      url: `${process.env.REACT_APP_AI_II}/multirag/chat${q}`,
       headers: {
         'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
