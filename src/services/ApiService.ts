@@ -10,7 +10,8 @@ import {
   QuizData,
   QuizQuestion,
   FlashcardData,
-  StudyPlanTopicDocumentPayload
+  StudyPlanTopicDocumentPayload,
+  StoreQuizScoreType
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1053,6 +1054,8 @@ class ApiService {
     questions: QuizQuestion[];
     title: string;
     tags: string[];
+    level?: string;
+    grade?: string;
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
       method: 'POST',
@@ -1109,6 +1112,7 @@ class ApiService {
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
+    scoreDetails?: StoreQuizScoreType[];
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',

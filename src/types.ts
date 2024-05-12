@@ -654,3 +654,10 @@ export interface StudyPlanTopicDocumentPayload {
   topicId: string;
   documentId: string;
 }
+
+export type StoreQuizScoreType = {
+  questionIdx: number;
+  score: 'true' | 'false' | 'pending' | boolean | null;
+  selectedOptions: string[];
+  questionId: string | number;
+};
