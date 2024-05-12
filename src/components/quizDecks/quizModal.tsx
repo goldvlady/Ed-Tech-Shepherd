@@ -339,12 +339,7 @@ const QuizCard = ({
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-          handleSetScore(
-            score,
-            toNumber(questionIdx),
-            [optionAnswer],
-            _id as string
-          );
+          handleSetScore(score, toNumber(questionIdx), [optionAnswer], _id);
           handleStoreQuizHistory(_id as string, toString(isCorrect));
         }
       }
@@ -373,7 +368,7 @@ const QuizCard = ({
           answer,
           toNumber(questionIdx),
           optionCheckboxAnswers,
-          _id as string
+          _id
         );
         handleStoreQuizHistory(_id as string, answer);
       }
@@ -384,7 +379,12 @@ const QuizCard = ({
 
   useEffect(() => {
     if (!isEmpty(enteredAnswer)) {
-      handleSetScore('null', toNumber(index), [enteredAnswer], _id as string);
+      handleSetScore(
+        'pending',
+        toNumber(index),
+        [enteredAnswer],
+        _id as string
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAnswer]);
@@ -1247,7 +1247,7 @@ export const QuizModal = ({
                 )}
                 skipped={Math.floor(
                   toNumber(
-                    (itemSize(filter([...scores], ['score', 'null'])) /
+                    (itemSize(filter([...scores], ['score', 'pending'])) /
                       toNumber(quiz?.questions?.length)) *
                       100
                   )

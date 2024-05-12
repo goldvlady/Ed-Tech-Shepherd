@@ -4,8 +4,22 @@ import Button from './_components/button';
 import { PencilIcon } from '../../../../../../../../../../components/icons';
 import useResourceStore from '../../../../../../../../../../state/resourceStore';
 import { languages } from '../../../../../../../../../../helpers';
-import { Box, Select } from '@chakra-ui/react';
-import ApiService from '../../../../../../../../../../services/ApiService';
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Select as ShadSelect
+} from '../../../../../../../../../../components/ui/select';
+import { Button as ShadCnButton } from '../../../../../../../../../../components/ui/button';
+import { cn } from '../../../../../../../../../../library/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '../../../../../../../../../../components/ui/popover';
+import { Input as ShadCnInput } from '../../../../../../../../../../components/ui/input';
+import { ChevronDown } from 'lucide-react';
 
 const mathTopics = [
   { id: 'algebra', label: 'Algebra' },
@@ -42,9 +56,7 @@ function Input({
     onSubmit,
     handleTopicSecondaryChange
   },
-  state: { chatContext },
-  showMathModeInfo,
-  setShowMathModeInfo
+  state: { chatContext }
 }: {
   actions: {
     handleSubjectChange: (subject: string) => void;
@@ -63,8 +75,8 @@ function Input({
       topicSecondary?: string;
     };
   };
-  showMathModeInfo: boolean;
-  setShowMathModeInfo: React.Dispatch<React.SetStateAction<boolean>>;
+  showMathModeInfo?: boolean;
+  setShowMathModeInfo?: any;
 }) {
   const { courses: courseList, levels } = useResourceStore();
   const [currentInputType, setCurrentInputType] = useState<
@@ -89,31 +101,14 @@ function Input({
     setCurrentInputType(type);
   }
 
-  // const handleSubmit = () => {
-  //   if (chatContext.subject?.trim()) {
-  //     setFilterKeyword({
-  //       keyword: '',
-  //       active: false
-  //     });
-  //     onSubmit();
-  //   }
-
-  //   setCurrentInputType(type);
-  // };
-
-  const setNotifyMathMode = async () => {
-    const resp = await ApiService.setNotifyMathMode().catch((error) => {
-      console.error('Error enabling math mode notification:', error);
-    });
-  };
-
   const handleSubmit = () => {
-    if (chatContext.subject.trim() === '') return;
-    setFilterKeyword({
-      keyword: '',
-      active: false
-    });
-    onSubmit();
+    if (chatContext.subject?.trim()) {
+      setFilterKeyword({
+        keyword: '',
+        active: false
+      });
+      onSubmit();
+    }
   };
 
   const handleButtonClick = () => {
@@ -426,13 +421,7 @@ function Input({
           <Chip
             key={subject}
             title={subject}
-            onClick={() => {
-              handleSubjectChange(subject);
-              if (subject === 'Math') {
-                setShowMathModeInfo(true);
-                setNotifyMathMode();
-              }
-            }}
+            onClick={() => handleSubjectChange(subject)}
           />
         ))}
       </div>

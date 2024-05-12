@@ -60,7 +60,7 @@ const ManualQuizForm = ({
     question: '',
     options: {},
     answer: '',
-    difficulty: 'high school',
+    difficulty: 'Medium',
     grade: '',
     canEdit: true
   });
@@ -105,7 +105,7 @@ const ManualQuizForm = ({
         options: {},
         answer: '',
         grade: '',
-        difficulty: 'high school'
+        difficulty: 'Medium'
       });
     });
   };
@@ -191,10 +191,10 @@ const ManualQuizForm = ({
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const gradeOptions = [

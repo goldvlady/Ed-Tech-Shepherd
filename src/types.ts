@@ -655,7 +655,7 @@ export interface StudyPlanTopicDocumentPayload {
 
 export type StoreQuizScoreType = {
   questionIdx: number;
-  score: 'true' | 'false' | 'pending' | boolean | null;
+  score: 'true' | 'false' | 'pending' | 'null' | boolean | null;
   selectedOptions: string[];
   questionId: string | number;
 };
