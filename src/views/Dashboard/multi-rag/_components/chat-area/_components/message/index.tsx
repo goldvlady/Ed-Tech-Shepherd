@@ -21,6 +21,7 @@ interface VectorsMetadata {
   text: string;
   score: number;
   metadata: DocumentMetadata;
+  chat: string;
 }
 
 const Message = ({
@@ -47,8 +48,11 @@ const Message = ({
   let actualContent = content;
   const [showCitations, setShowCitations] = useState(false);
   const citations = metadata
-    .reduce((acc, el) => acc.concat(el.find((e) => e.text === content)), [])
+    .reduce((acc, el) => acc.concat(el.find((e) => e.chat === content)), [])
     .filter((el) => el);
+  console.log(content, type);
+  console.log(metadata);
+  console.log('citation', citations);
   for (const p of prefixes) {
     if (content.startsWith(p)) {
       prefix = p;
@@ -78,8 +82,9 @@ const Message = ({
       ></div>
       <div className="flex-1 rounded-[10px] basis-1 relative">
         <div
-          className={cn('flex relative', {
-            'justify-end': type === 'user'
+          className={cn('flex flex-col gap-1 relative', {
+            'justify-end': type === 'user',
+            'bg-white rounded-[10px] shadow-md': type !== 'user'
           })}
         >
           {prefix ? (
@@ -88,41 +93,44 @@ const Message = ({
             <>
               <CustomMarkdownView
                 source={content}
-                className={cn(
-                  'text-black bg-white text-[0.87rem] rounded-[10px] shadow-md',
-                  {
-                    'bg-black/10 text-[#072D5F]': type === 'user',
-                    'w-32 h-10': loading
-                  }
-                )}
+                className={cn('text-black text-[0.87rem]', {
+                  'bg-black/10 text-[#072D5F] rounded-[10px] shadow-md':
+                    type === 'user',
+                  'w-32 h-10': loading
+                })}
                 paragraphClass="[&_p]:leading-[20px]"
               />
               {citations.length > 0 ? (
-                <div className="absolute inset-x-0 bottom-4 p-2 flex items-center gap-2">
+                <div className="justify-start flex p-2 items-center gap-2">
                   <button
-                    onClick={() => setShowCitations(true)}
-                    className="bg-inherit rounded-md border border-black/50 px-2 py-1 text-xs hover:bg-white/20"
+                    onClick={() => setShowCitations(!showCitations)}
+                    className="bg-inherit whitespace-nowrap rounded-md border border-black/20 px-2 py-1 text-xs hover:bg-white/20"
                   >
-                    {citations.length} citations
+                    {citations.length}{' '}
+                    {citations.length === 1 ? 'citation' : 'citations'}
                   </button>
-                  <div className="px-2 flex items-center gap-1.5 py-1 w-5/6 overflow-x-scroll scroller rounded-md bg-inherit border border-black/50">
-                    {citations.map((el, index) => (
-                      <HoverCard.Root key={el.node_id}>
-                        <HoverCard.Trigger asChild>
-                          <p className="text-xs hover:bg-white/60">{index}</p>
-                        </HoverCard.Trigger>
-                        <HoverCard.Portal>
-                          <HoverCard.Content
-                            side="top"
-                            className="overflow-y-scroll max-h-[300px] data-[side=bottom]:animate-slideUpAndFade data-[side=right]:animate-slideLeftAndFade data-[side=left]:animate-slideRightAndFade data-[side=top]:animate-slideDownAndFade w-[300px] rounded-md bg-white p-5 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] data-[state=open]:transition-all"
-                            sideOffset={5}
-                          >
-                            <p className="text-xs">{el.text}</p>
-                          </HoverCard.Content>
-                        </HoverCard.Portal>
-                      </HoverCard.Root>
-                    ))}
-                  </div>
+                  {showCitations ? (
+                    <div className="px-2 cursor-pointer flex items-center gap-1.5 py-1 max-w-[83%] overflow-x-scroll scroller rounded-md bg-inherit border border-black/20">
+                      {citations.map((el, index) => (
+                        <HoverCard.Root key={el.node_id}>
+                          <HoverCard.Trigger asChild>
+                            <p className="text-xs hover:bg-white/60">
+                              {index + 1}
+                            </p>
+                          </HoverCard.Trigger>
+                          <HoverCard.Portal>
+                            <HoverCard.Content
+                              side="top"
+                              className="overflow-y-scroll max-h-[300px] data-[side=bottom]:animate-slideUpAndFade data-[side=right]:animate-slideLeftAndFade data-[side=left]:animate-slideRightAndFade data-[side=top]:animate-slideDownAndFade w-[300px] rounded-md bg-white p-5 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] data-[state=open]:transition-all"
+                              sideOffset={5}
+                            >
+                              <p className="text-xs">{el.text}</p>
+                            </HoverCard.Content>
+                          </HoverCard.Portal>
+                        </HoverCard.Root>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </>

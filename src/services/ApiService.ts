@@ -1079,7 +1079,7 @@ class ApiService {
   };
   static fetchMultiragMetadata = async (conversationID: string) => {
     return await doFetch(
-      `${ApiService.multiRagMainURL}/misc/get_metadata/${conversationID}`,
+      `${ApiService.multiRagMainURL}/misc/get-metadata/${conversationID}`,
       {
         method: 'GET'
       },

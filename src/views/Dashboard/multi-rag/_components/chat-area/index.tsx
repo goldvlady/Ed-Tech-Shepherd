@@ -26,6 +26,7 @@ interface VectorsMetadata {
   text: string;
   score: number;
   metadata: DocumentMetadata;
+  chat: string;
 }
 
 const ChatArea = ({
@@ -107,8 +108,9 @@ const ChatArea = ({
         doFetch(
           `${ApiService.multiRagMainURL}/misc/set-metadata`,
           {
+            method: 'POST',
             body: JSON.stringify({
-              metadata: JSON.stringify(
+              citation: JSON.stringify(
                 extractedContent
                   .split('\n')
                   .filter((el) => el.length > 0)
@@ -124,15 +126,16 @@ const ChatArea = ({
             'Content-Type': 'application/json'
           }
         ).then((resp) => resp.json());
-        setVectorsMetadata((prevVectorsData) =>
-          prevVectorsData.concat(
-            extractedContent
-              .split('\n')
-              .filter((el) => el.length > 0)
-              .map((el) => JSON.parse(el))
-              .map((el) => ({ ...el, chat: currentChat }))
-          )
+        const vmd = vectorsMetadata;
+        vmd.push(
+          extractedContent
+            .split('\n')
+            .filter((el) => el.length > 0)
+            .map((el) => JSON.parse(el))
+            .map((el) => ({ ...el, chat: currentChat }))
         );
+        setVectorsMetadata(vmd);
+        setFullBuffer('');
         console.log('FB inside useEffect', fullBuffer);
       }
 
