@@ -1,10 +1,12 @@
-import { UploadIcon } from '@radix-ui/react-icons';
+import { ReloadIcon, UploadIcon } from '@radix-ui/react-icons';
 import { Button } from '../../../../../../../../components/ui/button';
 import { useDropzone } from 'react-dropzone';
 import { useCallback } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../../state/userStore';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 const isExactMatch = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
@@ -14,8 +16,8 @@ const isExactMatch = (arr1, arr2) => {
 };
 
 function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
-  console.log('uploadedDocumentsId', uploadedDocumentsId);
   const { user } = useUserStore();
+  const navigate = useNavigate();
   const handleSubmit = (inputFiles) => {
     setFilesUploading((pS) => {
       return [
@@ -74,15 +76,76 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
         'application/pdf': ['.pdf']
       }
     });
+  const { mutate, isPending: isGeneratingConvID } = useMutation({
+    mutationFn: (data: {
+      referenceId: string;
+      referenceDocIds: Array<string>;
+      language: 'English';
+    }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
+  });
+
+  const { data: documents } = useQuery({
+    queryKey: ['processed-documents'],
+    queryFn: async () => {
+      const r = await ApiService.multiDocVectorDocs(user._id).then((res) =>
+        res.json()
+      );
+      return r;
+    },
+    refetchInterval: 1500
+  });
+
+  const { mutate: mutateChatName, isPending } = useMutation({
+    mutationFn: (data: any) =>
+      ApiService.multiDocCreateTitle(data).then((res) => res.json())
+  });
 
   console.log('acceptedFiles', acceptedFiles);
+
+  const startConversation = () => {
+    mutate(
+      {
+        referenceId: user._id,
+        referenceDocIds: uploadedDocumentsId,
+        language: 'English'
+      },
+      {
+        onSuccess(data) {
+          const selectedDocumentsName = documents.data
+            .filter((doc) => uploadedDocumentsId.includes(doc.document_id))
+            .map((doc) => doc.collection_name);
+          mutateChatName(
+            {
+              docNames: selectedDocumentsName,
+              conversationId: data.data
+            },
+            {
+              onSuccess: (chatName) => {
+                if (chatName.status === 'success') {
+                  navigate(`/dashboard/doc-chat/${data.data}`, {
+                    replace: true
+                  });
+                }
+              }
+            }
+          );
+        }
+      }
+    );
+  };
 
   return (
     <div className="w-full h-full bg-white flex flex-col relative">
       <Button
         className="absolute top-0 right-0 mt-[1.6rem] mr-[2.8rem]"
-        disabled={uploadedDocumentsId.length === 0}
+        onClick={startConversation}
+        disabled={
+          uploadedDocumentsId.length === 0 || isGeneratingConvID || isPending
+        }
       >
+        {isPending || isGeneratingConvID ? (
+          <ReloadIcon className="mr-2 animate-spin" />
+        ) : null}
         Start Chat
       </Button>
       <div className="cc flex-1">

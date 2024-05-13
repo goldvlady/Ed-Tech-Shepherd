@@ -5,15 +5,20 @@ import UploadFiles from './upload-files';
 
 function Sections({
   active,
-  setFilesUploading
+  setFilesUploading,
+  uploadedDocumentsId
 }: {
   active: number;
   setFilesUploading: any;
+  uploadedDocumentsId: any[];
 }) {
   return (
     <main className="w-full bg-white min-h-[25rem] rounded-b-[10px] rounded-tr-[10px] relative overflow-hidden">
       <Section active={active === 0}>
-        <UploadFiles setFilesUploading={setFilesUploading} />
+        <UploadFiles
+          setFilesUploading={setFilesUploading}
+          uploadedDocumentsId={uploadedDocumentsId}
+        />
       </Section>
       <Section active={active === 1}>
         <SelectDocuments />
