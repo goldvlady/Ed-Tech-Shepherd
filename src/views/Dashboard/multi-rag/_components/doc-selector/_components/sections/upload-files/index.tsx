@@ -6,13 +6,25 @@ import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../../state/userStore';
 
+const isExactMatch = (arr1, arr2) => {
+  if (arr1.length !== arr2.length) return false;
+  const sortedArr1 = [...arr1].sort();
+  const sortedArr2 = [...arr2].sort();
+  return sortedArr1.every((value, index) => value === sortedArr2[index]);
+};
+
 function UploadFiles({ setFilesUploading }) {
   const { user } = useUserStore();
   const handleSubmit = (inputFiles) => {
-    setFilesUploading({
-      jobId: '',
-      uploading: true,
-      tables: inputFiles.map((file) => file.name)
+    setFilesUploading((pS) => {
+      return [
+        ...pS,
+        {
+          jobId: '',
+          uploading: true,
+          tables: inputFiles.map((file) => file.name)
+        }
+      ];
     });
     const files = inputFiles;
     console.log('inputFiles', files);
@@ -30,10 +42,30 @@ function UploadFiles({ setFilesUploading }) {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === 'success') {
-          setFilesUploading({
-            uploading: false,
-            jobId: data.job_id,
-            tables: data.uploaded_filenames
+          console.log('uploadMultiDocFiles', data);
+          //   {
+          //     "status": "success",
+          //     "message": "Successfully uploaded files to S3 and started background process",
+          //     "uploaded_filenames": [
+          //         "2208.07165.pdf",
+          //         "asi-06-00106.pdf"
+          //     ],
+          //     "job_id": "job_Cwjuiazk1UzNaE"
+          // }
+          setFilesUploading((prevState) => {
+            // find and replace object from  prevState if data.uploaded_filenames (array of string) === prevState.tables (array of string)
+            const newState = prevState.map((state) => {
+              if (isExactMatch(state.tables, data.uploaded_filenames)) {
+                return {
+                  ...state,
+                  uploading: false,
+                  jobId: data.job_id
+                };
+              } else {
+                return state;
+              }
+            });
+            return newState;
           });
         }
       })

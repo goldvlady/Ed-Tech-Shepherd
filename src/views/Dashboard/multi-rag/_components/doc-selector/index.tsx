@@ -10,15 +10,13 @@ import { useCustomToast } from '../../../../../components/CustomComponents/Custo
 
 function DocSelector() {
   const [active, setActive] = useState(0);
-  const [filesUploading, setFilesUploading] = useState<{
-    jobId: string;
-    uploading: boolean;
-    tables: Array<string>;
-  }>({
-    jobId: '',
-    uploading: false,
-    tables: []
-  });
+  const [filesUploading, setFilesUploading] = useState<
+    {
+      jobId: string;
+      uploading: boolean;
+      tables: Array<string>;
+    }[]
+  >([]);
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
@@ -48,37 +46,27 @@ function DocSelector() {
           title: `Documents Uploaded Successfully`,
           status: 'success'
         });
-        setFilesUploading({
-          jobId: '',
-          uploading: false,
-          tables: []
-        });
       } else {
         toast({
           position: 'top-right',
           title: `Documents Upload Failed. Please retry.`,
           status: 'error'
         });
-        setFilesUploading({
-          jobId: '',
-          uploading: false,
-          tables: []
-        });
       }
     }
   });
-  useEffect(() => {
-    if (!filesUploading.uploading && filesUploading.tables.length > 0) {
-      const data = Object.keys(filesUploading)
-        .filter((key) => key !== 'uploading')
-        .reduce((acc, key) => {
-          acc[key] = filesUploading[key];
-          return acc;
-        }, {}) as { jobId: string; tables: Array<string> };
-      console.log('Transformed D', data);
-      mutate(data);
-    }
-  }, [filesUploading]);
+  // useEffect(() => {
+  //   if (!filesUploading.uploading && filesUploading.tables.length > 0) {
+  //     const data = Object.keys(filesUploading)
+  //       .filter((key) => key !== 'uploading')
+  //       .reduce((acc, key) => {
+  //         acc[key] = filesUploading[key];
+  //         return acc;
+  //       }, {}) as { jobId: string; tables: Array<string> };
+  //     console.log('Transformed D', data);
+  //     mutate(data);
+  //   }
+  // }, [filesUploading]);
   return (
     <div className="w-full h-full bg-[#F9F9FB] flex">
       <div className="h-full flex-1 bg-[#F9F9FB] flex justify-center items-center">
@@ -95,17 +83,12 @@ function DocSelector() {
               onClick={() => setActive(1)}
               className="mx-[-0.5rem]"
             />
-            {/* <HeaderItem
-              title="External Sources"
-              isActive={active === 2}
-              onClick={() => setActive(2)}
-            /> */}
           </header>
           <Sections active={active} setFilesUploading={setFilesUploading} />
           <UploadingItems filesUploading={filesUploading} />
         </div>
       </div>
-      <ChatHistory />
+      {/* <ChatHistory /> */}
     </div>
   );
 }
