@@ -25,7 +25,13 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
         {
           jobId: '',
           uploading: true,
-          tables: inputFiles.map((file) => file.name)
+          tables: inputFiles.map((file) =>
+            file.name.length > 50
+              ? file.name.slice(0, 50 - file.name.split('.').pop().length - 1) +
+                '.' +
+                file.name.split('.').pop()
+              : file.name
+          )
         }
       ];
     });
