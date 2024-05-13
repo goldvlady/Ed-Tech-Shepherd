@@ -21,7 +21,7 @@ import { cn } from '../../../../../../../library/utils';
 //   ScrollMode
 // } from '@react-pdf-viewer/core';
 import { Link } from 'react-router-dom';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 function ChatHistory() {
   const { user } = useUserStore();
@@ -30,6 +30,7 @@ function ChatHistory() {
     queryFn: () =>
       ApiService.multiPreviousConversations(user._id).then((res) => res.json())
   });
+  const [searchValue, setSearchValue] = useState('');
 
   if (!data) {
     return null;
@@ -45,7 +46,13 @@ function ChatHistory() {
               <InputLeftElement pointerEvents="none" className="max-h-[30px] ">
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
-              <Input type="text" rounded="full" className="max-h-[30px]" />
+              <Input
+                type="text"
+                rounded="full"
+                className="max-h-[30px]"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
             </InputGroup>
           </div>
           <div>
@@ -69,7 +76,11 @@ function ChatHistory() {
       </div>
       <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10">
         {data.data
-          .filter((item) => Boolean(item.title))
+          .filter(
+            (item) =>
+              Boolean(item.title) &&
+              item.title.toLowerCase().includes(searchValue.toLowerCase())
+          )
           .map((item) => (
             <HistoryItem
               key={item.id}
