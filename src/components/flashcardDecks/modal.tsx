@@ -51,6 +51,7 @@ import styled from 'styled-components';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
+import { MdCancel } from 'react-icons/md';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -1099,7 +1100,7 @@ const StudyBox = () => {
   return (
     <Box
       padding={0}
-      display={'flex'}
+      display={{ base: 'flex', sm: 'block' }}
       justifyContent={'space-between'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
       flexDirection={'column'}
@@ -1110,10 +1111,16 @@ const StudyBox = () => {
         <Flex
           width="full"
           padding={{ base: '20px 15px', md: '20px' }}
-          justifyContent="space-between"
-          alignItems="center"
+          justifyContent={{ base: 'flex-start', md: 'space-between' }}
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          flexDirection={{ base: 'column', md: 'row' }}
         >
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            width={{ sm: '100%' }}
+            marginBottom={{ sm: '15px', md: '0' }}
+          >
             <Text
               fontFamily="Inter"
               fontWeight="500"
@@ -1137,7 +1144,12 @@ const StudyBox = () => {
               {flashcard?.deckname}
             </Text>
           </HStack>
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            justifyContent={{ sm: 'space-between', md: 'flex-end' }}
+            width={{ sm: '100%' }}
+          >
             <Button
               leftIcon={
                 isStarted ? (
@@ -1367,7 +1379,7 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
           // position="relative"
           borderRadius="12px"
           w="full" // Use the full width of the screen
-          maxW={{ base: '95%', sm: '80%', md: '700px' }} // Responsive max width
+          maxW={{ base: '95%', sm: 'auto', md: '700px' }} // Responsive max width
           mx="auto"
           position="relative"
         >
