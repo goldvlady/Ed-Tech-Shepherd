@@ -25,23 +25,33 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
         {
           jobId: '',
           uploading: true,
-          tables: inputFiles.map((file) =>
-            file.name.length > 50
-              ? file.name.slice(0, 50 - file.name.split('.').pop().length - 1) +
-                '.' +
-                file.name.split('.').pop()
-              : file.name
-          )
+          tables: inputFiles.map((file) => {
+            const nameParts = file.name.split('.');
+            const ext = nameParts.pop();
+            const nameWithoutExt = nameParts.join('.');
+            return nameWithoutExt.length > 50 - ext.length - 1
+              ? nameWithoutExt.slice(0, 50 - ext.length - 1) + '.' + ext
+              : file.name;
+          })
         }
       ];
     });
-    const files = inputFiles;
+    const files = inputFiles.map((file) => {
+      const nameParts = file.name.split('.');
+      const ext = nameParts.pop();
+      const nameWithoutExt = nameParts.join('.');
+      if (nameWithoutExt.length > 50 - ext.length - 1) {
+        const truncatedName =
+          nameWithoutExt.slice(0, 50 - ext.length - 1) + '.' + ext;
+        return new File([file], truncatedName, { type: file.type });
+      }
+      return file;
+    });
     console.log('inputFiles', files);
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
       formData.append('files', files[i]);
-    }
-    // Setting up the endpoint with sid
+    } // Setting up the endpoint with sid
     const sid = user._id;
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({
