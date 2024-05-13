@@ -155,7 +155,7 @@ const ChatArea = ({
     setStreamEnded(false);
     const body = {
       studentId,
-      query: userMessage,
+      query: selectedText ? selectedText : userMessage,
       language: 'English',
       conversationId: conversationID,
       documents: JSON.stringify(documents),
