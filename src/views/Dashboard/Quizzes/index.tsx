@@ -54,6 +54,8 @@ import ScheduleStudyModal, {
 import { RiShareForwardLine } from '@remixicon/react';
 import ShareModalMenu from '../../../components/ShareModalMenu';
 import moment from 'moment';
+import MobileList from './mobileTable';
+import useIsMobile from '../../../helpers/useIsMobile';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -95,6 +97,7 @@ const Quizzes = () => {
     quiz?: QuizData;
     quizIds?: string[];
   } | null>(null);
+  const isMobile = useIsMobile();
 
   const {
     handleToggleStartQuizModal,
@@ -1139,7 +1142,7 @@ const Quizzes = () => {
                 variant="solid"
                 mb="10px"
                 borderRadius={'10px'}
-                marginLeft={'10px'}
+                marginLeft={{ md: '10px', base: '0' }}
                 colorScheme={'primary'}
                 width={{ base: '100%', md: 'auto' }}
                 onClick={() => {
@@ -1174,8 +1177,26 @@ const Quizzes = () => {
               </Button>
             </Box>
           )}
-          {quizzes && (
+          {!isMobile && quizzes && (
             <SelectableTable
+              isSelectable
+              columns={columns}
+              pagination
+              currentPage={pagination.page}
+              handlePagination={(nextPage) =>
+                fetchQuizzes({ page: nextPage, limit: pagination.limit })
+              }
+              pageCount={Math.ceil(pagination.count / pagination.limit)}
+              onSelect={(selected) => setSelectedQuizzes(selected)}
+              dataSource={quizzes.map((card) => ({
+                ...card,
+                key: card._id
+              }))}
+            />
+          )}
+
+          {isMobile && quizzes && (
+            <MobileList
               isSelectable
               columns={columns}
               pagination
