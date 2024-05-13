@@ -217,7 +217,11 @@ const DocItem = ({
         }
       )}
     >
-      <div className="absolute w-full h-full">
+      <div
+        className={cn('absolute w-full h-full', {
+          hidden: layout === 'list'
+        })}
+      >
         <div className="pointer-events-none absolute w-full pb-2 pr-2 h-full">
           <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
             <Viewer
