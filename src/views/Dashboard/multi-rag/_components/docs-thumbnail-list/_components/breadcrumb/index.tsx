@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '../../../../../../../components/ui/tooltip';
+import { Input } from '../../../../../../../components/ui/input';
 import {
   Sheet,
   SheetContent,
@@ -15,7 +16,7 @@ import {
   SheetTrigger
 } from '../../../../../../../components/ui/sheet';
 import useUserStore from '../../../../../../../state/userStore';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 function BreadCrumb({ conversationId }: { conversationId: string }) {
@@ -54,6 +55,7 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
 }
 
 const ChatHistory = ({ children }: { children: React.ReactNode }) => {
+  const [searchValue, setSearchValue] = useState('');
   const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ['doc-chat-history'],
@@ -73,9 +75,21 @@ const ChatHistory = ({ children }: { children: React.ReactNode }) => {
           <SheetHeader>
             <SheetTitle>Chat History</SheetTitle>
           </SheetHeader>
+          <div className="mt-2 w-full">
+            <Input
+              placeholder="Search"
+              className="w-full"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </div>
           <div className="w-full overflow-auto mt-[1rem] space-y-4 overscroll-y-scroll pb-10 h-full">
             {data?.data
-              ?.filter((item) => item?.title?.length > 0)
+              ?.filter(
+                (item) =>
+                  item?.title?.length > 0 &&
+                  item?.title.toLowerCase().includes(searchValue.toLowerCase())
+              )
               .map((item) => (
                 <Link
                   to={'/dashboard/doc-chat/' + item.id}
