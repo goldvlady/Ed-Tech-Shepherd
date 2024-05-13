@@ -17,6 +17,7 @@ function DocSelector() {
       tables: Array<string>;
     }[]
   >([]);
+  const [uploadedDocumentsId, setUploadDocumentsId] = useState([]);
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
@@ -84,8 +85,15 @@ function DocSelector() {
               className="mx-[-0.5rem]"
             />
           </header>
-          <Sections active={active} setFilesUploading={setFilesUploading} />
-          <UploadingItems filesUploading={filesUploading} />
+          <Sections
+            active={active}
+            setFilesUploading={setFilesUploading}
+            uploadedDocumentsId={uploadedDocumentsId}
+          />
+          <UploadingItems
+            filesUploading={filesUploading}
+            setUploadDocumentsId={setUploadDocumentsId}
+          />
         </div>
       </div>
       {/* <ChatHistory /> */}

@@ -13,7 +13,8 @@ const isExactMatch = (arr1, arr2) => {
   return sortedArr1.every((value, index) => value === sortedArr2[index]);
 };
 
-function UploadFiles({ setFilesUploading }) {
+function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
+  console.log('uploadedDocumentsId', uploadedDocumentsId);
   const { user } = useUserStore();
   const handleSubmit = (inputFiles) => {
     setFilesUploading((pS) => {
@@ -43,15 +44,6 @@ function UploadFiles({ setFilesUploading }) {
       .then((data) => {
         if (data.status === 'success') {
           console.log('uploadMultiDocFiles', data);
-          //   {
-          //     "status": "success",
-          //     "message": "Successfully uploaded files to S3 and started background process",
-          //     "uploaded_filenames": [
-          //         "2208.07165.pdf",
-          //         "asi-06-00106.pdf"
-          //     ],
-          //     "job_id": "job_Cwjuiazk1UzNaE"
-          // }
           setFilesUploading((prevState) => {
             // find and replace object from  prevState if data.uploaded_filenames (array of string) === prevState.tables (array of string)
             const newState = prevState.map((state) => {
@@ -86,7 +78,13 @@ function UploadFiles({ setFilesUploading }) {
   console.log('acceptedFiles', acceptedFiles);
 
   return (
-    <div className="w-full h-full bg-white flex flex-col">
+    <div className="w-full h-full bg-white flex flex-col relative">
+      <Button
+        className="absolute top-0 right-0 mt-[1.6rem] mr-[2.8rem]"
+        disabled={uploadedDocumentsId.length === 0}
+      >
+        Start Chat
+      </Button>
       <div className="cc flex-1">
         <div
           className={cn(
