@@ -1,6 +1,12 @@
 import { ChevronRightIcon } from '@radix-ui/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '../../../../../../../components/ui/tooltip';
 
 function BreadCrumb({ conversationId }: { conversationId: string }) {
   const { data, isLoading } = useQuery({
@@ -17,7 +23,18 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
         {isLoading ? (
           <div className="w-24 h-4 rounded-sm animate-pulse bg-gray-100"></div>
         ) : (
-          <span className="text-[#585F68] truncate">{data?.data}</span>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-[#585F68] truncate cursor-pointer">
+                  {data?.data}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="bg-white border">
+                <p>{data?.data}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </span>
     </div>
