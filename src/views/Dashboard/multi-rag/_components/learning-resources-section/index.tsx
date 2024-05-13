@@ -91,7 +91,7 @@ const ChatHistory = () => {
           <SheetHeader>
             <SheetTitle>Chat History</SheetTitle>
           </SheetHeader>
-          <div className="w-full overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10 h-full">
+          <div className="w-full overflow-auto mt-[1rem] space-y-4 overscroll-y-scroll pb-10 h-full">
             {data?.data
               ?.filter((item) => item?.title?.length > 0)
               .map((item) => (
@@ -102,7 +102,7 @@ const ChatHistory = () => {
                 >
                   <div
                     key={item.id}
-                    className="flex w-full h-[36px] text-[#000000] justify-between leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer"
+                    className="flex w-full h-[36px] text-[#000000] my-2 justify-between leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer"
                   >
                     <button
                       // onClick={() => handleConversationClick()}
