@@ -95,11 +95,11 @@ function DocSelector() {
               onClick={() => setActive(1)}
               className="mx-[-0.5rem]"
             />
-            <HeaderItem
+            {/* <HeaderItem
               title="External Sources"
               isActive={active === 2}
               onClick={() => setActive(2)}
-            />
+            /> */}
           </header>
           <Sections active={active} setFilesUploading={setFilesUploading} />
           <UploadingItems filesUploading={filesUploading} />
