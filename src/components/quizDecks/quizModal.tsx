@@ -300,7 +300,8 @@ const QuizCard = ({
   handleSetScore?: (
     score: string | 'true' | 'false' | boolean | null,
     idx?: number,
-    selectedOptions?: string[]
+    selectedOptions?: string[],
+    questionId?: string
   ) => void;
   handleStoreQuizHistory?: (
     questionId: string,
@@ -316,6 +317,7 @@ const QuizCard = ({
         questionIdx: string | number;
         score: string | 'true' | 'false' | boolean | null;
         selectedOptions: string[];
+        questionId?: string;
       }[];
   handleViewResult?: () => void;
 }) => {
@@ -334,7 +336,12 @@ const QuizCard = ({
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
 
-          handleSetScore(score, toNumber(questionIdx), [optionAnswer]);
+          handleSetScore(
+            score,
+            toNumber(questionIdx),
+            [optionAnswer],
+            _id as string
+          );
           handleStoreQuizHistory(_id as string, toString(isCorrect));
         }
       }
@@ -359,7 +366,12 @@ const QuizCard = ({
           }
         });
         const answer = isEmpty(answers) ? 'false' : 'true';
-        handleSetScore(answer, toNumber(questionIdx), optionCheckboxAnswers);
+        handleSetScore(
+          answer,
+          toNumber(questionIdx),
+          optionCheckboxAnswers,
+          _id as string
+        );
         handleStoreQuizHistory(_id as string, answer);
       }
     })();
@@ -369,7 +381,7 @@ const QuizCard = ({
 
   useEffect(() => {
     if (!isEmpty(enteredAnswer)) {
-      handleSetScore('null', toNumber(index), [enteredAnswer]);
+      handleSetScore('null', toNumber(index), [enteredAnswer], _id as string);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAnswer]);
@@ -669,7 +681,8 @@ const QuizCard = ({
                 handleSetScore(
                   'true',
                   toNumber(index),
-                  quizScores[index].selectedOptions
+                  quizScores[index].selectedOptions,
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -693,7 +706,8 @@ const QuizCard = ({
                 handleSetScore(
                   'null',
                   toNumber(index),
-                  quizScores[index].selectedOptions
+                  quizScores[index].selectedOptions,
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -717,7 +731,8 @@ const QuizCard = ({
                 handleSetScore(
                   'false',
                   toNumber(index),
-                  quizScores[index].selectedOptions
+                  quizScores[index].selectedOptions,
+                  _id as string
                 );
                 handleStoreQuizHistory(
                   _id as string,
@@ -759,7 +774,12 @@ const QuizCard = ({
               mr={3}
               onClick={() => {
                 if (isNil(quizScores[index])) {
-                  handleSetScore('null', toNumber(index));
+                  handleSetScore(
+                    'null',
+                    toNumber(index),
+                    [],
+                    (_id || '') as string
+                  );
                   handleStoreQuizHistory(_id as string, '_');
                 }
                 setTimeout(() => {
@@ -929,6 +949,7 @@ export const QuizModal = ({
       questionIdx: string | number;
       score: string | 'true' | 'false' | boolean | null;
       selectedOptions: string[];
+      questionId: string;
     }[]
   >([]);
 
@@ -936,14 +957,18 @@ export const QuizModal = ({
 
   const handleSetScore = (
     score: 'true' | 'false' | boolean | null,
-    idx = null,
-    selectedOptions = []
+    idx: number | null,
+    selectedOptions: string[] = [],
+    questionId = ''
   ) => {
-    if (!isNil(idx)) {
+    if (idx !== null) {
       const newScores = [...scores];
-
-      newScores.splice(idx, 1, { questionIdx: idx, score, selectedOptions });
-
+      newScores.splice(idx, 1, {
+        questionIdx: idx,
+        score,
+        selectedOptions,
+        questionId
+      });
       setScores(sortBy(newScores, ['questionIdx']));
       return;
     }
@@ -953,14 +978,10 @@ export const QuizModal = ({
         unionBy(
           [
             {
-              questionIdx:
-                prevScores?.length === 0
-                  ? 0
-                  : prevScores?.length === 1
-                  ? 1
-                  : prevScores?.length,
+              questionIdx: prevScores.length,
               score,
-              selectedOptions
+              selectedOptions,
+              questionId
             }
           ],
           [...prevScores],
@@ -1017,7 +1038,8 @@ export const QuizModal = ({
       // setViewQuizAnswer(true);
       await ApiService.storeQuizScore({
         quizId: quiz._id,
-        score: itemSize(filter(scores, ['score', 'true']))
+        score: itemSize(filter(scores, ['score', 'true'])),
+        scoreDetails: scores
       });
     } catch (error) {
       // console.log('error ========>> ', error);

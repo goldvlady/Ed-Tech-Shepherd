@@ -338,6 +338,9 @@ export interface Score {
   passed: number;
   failed: number;
   notRemembered: number;
+  questionsPassed?: string[];
+  questionsFailed?: string[];
+  questionsNotRemembered?: string[];
   date: string;
 }
 
@@ -415,6 +418,7 @@ export interface Study {
   id: number;
   type: 'timed' | 'manual';
   questions: string;
+  questionId?: string;
   helperText?: string;
   explanation?: string;
   answers: string | string[];
