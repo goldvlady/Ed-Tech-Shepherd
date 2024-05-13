@@ -3,16 +3,6 @@ import { useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger
-} from '../../../../../components/ui/sheet';
-import { Button } from '../../../../../components/ui/button';
-import useUserStore from '../../../../../state/userStore';
-import { Link } from 'react-router-dom';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -26,7 +16,7 @@ const LearningResourcesSection = ({
   const [expanded, setExpanded] = useState(false);
   return (
     <div>
-      <ChatHistory />
+      {/* <ChatHistory /> */}
       <div className="w-[10rem] flex justify-end p-4 pb-0">
         <ActionButton onClick={() => setExpanded(!expanded)}>
           <span className="flex items-center justify-center">
@@ -59,65 +49,6 @@ const LearningResourcesSection = ({
         <GenerateQuizSection />
         <GenerateFlashcardsSection />
       </div>
-    </div>
-  );
-};
-
-const ChatHistory = () => {
-  const { user } = useUserStore();
-  const { data } = useQuery({
-    queryKey: ['doc-chat-history'],
-    queryFn: () =>
-      ApiService.multiPreviousConversations(user._id).then((res) => res.json())
-  });
-
-  if (!data) {
-    return null;
-  }
-
-  return (
-    <div className="flex justify-end p-4 pb-0">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            className="top-0 right-0 rounded-full bg-primaryBlue text-white"
-            size="sm"
-          >
-            <span className="text-xs">History</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="bg-white">
-          <SheetHeader>
-            <SheetTitle>Chat History</SheetTitle>
-          </SheetHeader>
-          <div className="w-full overflow-auto mt-[1rem] space-y-4 overscroll-y-scroll pb-10 h-full">
-            {data?.data
-              ?.filter((item) => item?.title?.length > 0)
-              .map((item) => (
-                <Link
-                  to={'/dashboard/doc-chat/' + item.id}
-                  key={item.id}
-                  replace
-                >
-                  <div
-                    key={item.id}
-                    className="flex w-full h-[36px] text-[#000000] my-2 justify-between leading-5 text-[12px] rounded-[8px] border gap-2 font-normal bg-[#F9F9FB] border-none px-2 hover:bg-[#e5e5e5ba] hover:cursor-pointer"
-                  >
-                    <button
-                      // onClick={() => handleConversationClick()}
-                      className="flex-1 py-2 text-ellipsis text-start truncate"
-                    >
-                      <span className="w-full text-ellipsis truncate">
-                        {item.title}
-                      </span>
-                    </button>
-                  </div>
-                </Link>
-              ))}
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 };
