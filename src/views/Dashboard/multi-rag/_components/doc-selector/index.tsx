@@ -96,7 +96,7 @@ function DocSelector() {
           />
         </div>
       </div>
-      {/* <ChatHistory /> */}
+      <ChatHistory />
     </div>
   );
 }
