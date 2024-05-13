@@ -7,6 +7,7 @@ import {
 } from '@radix-ui/react-icons';
 import { useMutation } from '@tanstack/react-query';
 import { cn } from '../../../../../../../library/utils';
+import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 function UploadingItems({ filesUploading, setUploadDocumentsId }) {
   console.log('multiDocBackgroundJobs', filesUploading);
@@ -36,6 +37,7 @@ const Item = ({
   file: any;
   setUploadDocumentsId: any;
 }) => {
+  const toast = useCustomToast();
   console.log('Item', { item, file });
   const [state, setState] = useState<'error' | 'in_progress' | 'success'>();
   const { mutate } = useMutation({
@@ -58,6 +60,11 @@ const Item = ({
               console.log('Jobs', data);
               if (data.status === 'success') {
                 setState('success');
+                toast({
+                  position: 'top-right',
+                  title: `Documents Uploaded Successfully`,
+                  status: 'success'
+                });
                 clearInterval(interval);
                 setUploadDocumentsId((prevState) => {
                   if (!prevState.includes(data.vectors[0].document_id)) {
@@ -69,6 +76,11 @@ const Item = ({
                 setState('in_progress');
               } else if (data.status === 'error') {
                 setState('error');
+                toast({
+                  position: 'top-right',
+                  title: `Documents Upload Failed. Please retry.`,
+                  status: 'error'
+                });
                 clearInterval(interval);
               } else {
                 clearInterval(interval);

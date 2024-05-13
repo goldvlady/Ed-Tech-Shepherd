@@ -1077,6 +1077,20 @@ class ApiService {
       }
     );
   };
+  static fetchMultiragMetadata = async (conversationID: string) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/get_metadata/${conversationID}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
   static multiragChat = async (data) => {
     return await doFetch(
       `${ApiService.multiRagMainURL}/multirag/chat`,

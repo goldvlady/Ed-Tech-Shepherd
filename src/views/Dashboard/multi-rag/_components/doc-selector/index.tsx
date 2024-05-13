@@ -30,7 +30,7 @@ function DocSelector() {
       );
       return data;
     },
-    async onSuccess(data) {
+    async onSuccess(data, { jobId }) {
       console.log('success', data);
       if (data.status === 'in_progress') {
         const data = Object.keys(filesUploading)
@@ -42,12 +42,25 @@ function DocSelector() {
         console.log('Transformed D', data);
         mutate(data);
       } else if (data.status === 'success') {
+        const d = [...filesUploading];
+        const updatedFilesUploading = d.map((data) => ({
+          ...data,
+          uploading: data.jobId === jobId ? false : true
+        }));
+        setFilesUploading(updatedFilesUploading);
         toast({
           position: 'top-right',
           title: `Documents Uploaded Successfully`,
           status: 'success'
         });
       } else {
+        // if it fails i don't wanna indefinitely keep uploading
+        const d = [...filesUploading];
+        const updatedFilesUploading = d.map((data) => ({
+          ...data,
+          uploading: data.jobId === jobId ? false : true
+        }));
+        setFilesUploading(updatedFilesUploading);
         toast({
           position: 'top-right',
           title: `Documents Upload Failed. Please retry.`,
@@ -57,15 +70,19 @@ function DocSelector() {
     }
   });
   // useEffect(() => {
-  //   if (!filesUploading.uploading && filesUploading.tables.length > 0) {
-  //     const data = Object.keys(filesUploading)
-  //       .filter((key) => key !== 'uploading')
-  //       .reduce((acc, key) => {
-  //         acc[key] = filesUploading[key];
-  //         return acc;
-  //       }, {}) as { jobId: string; tables: Array<string> };
-  //     console.log('Transformed D', data);
-  //     mutate(data);
+  //   if (filesUploading.length > 0) {
+  //     filesUploading.forEach((filesUploading) => {
+  //       if (
+  //         filesUploading.jobId &&
+  //         filesUploading.uploading &&
+  //         filesUploading.tables.length > 0
+  //       ) {
+  //         mutate({
+  //           jobId: filesUploading.jobId,
+  //           tables: filesUploading.tables
+  //         });
+  //       }
+  //     });
   //   }
   // }, [filesUploading]);
   return (

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { useQuery } from '@tanstack/react-query';
-import { multiragResponse } from '../../../../../types';
+import { User, multiragResponse } from '../../../../../types';
 import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
 import { Ore } from '@glamboyosa/ore';
 import { encodeQueryParams } from '../../../../../helpers';
@@ -10,6 +10,7 @@ import { useVectorsStore } from '../../../../../state/vectorsStore';
 import MessageArea from './_components/message-area';
 import SuggestionArea from './_components/suggestion-area';
 import InputArea from './_components/input-area';
+import { doFetch } from '../../../../../util';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -30,22 +31,26 @@ interface VectorsMetadata {
 const ChatArea = ({
   conversationID,
   studentId,
-  userSelectedText
+  userSelectedText,
+  user
 }: {
   conversationID: string;
   studentId: string;
+  user: User;
   userSelectedText: {
     purpose: 'summary' | 'explain' | 'translate' | null;
     text: string;
   };
 }) => {
-  const [vectorsMetadata, setVectorsMetadata] = useState<VectorsMetadata[]>([]);
+  const [vectorsMetadata, setVectorsMetadata] = useState<
+    Array<VectorsMetadata[]>
+  >([]);
   const [userMessage, setUserMessage] = useState('');
   const [streamEnded, setStreamEnded] = useState(true);
   const [fullBuffer, setFullBuffer] = useState('');
   const [currentChat, setCurrentChat] = useState('');
   const documents = useVectorsStore((state) => state.chatDocuments);
-  const { data, isLoading, isRefetching, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['conversationHistory', conversationID],
 
     queryFn: async () => {
@@ -56,6 +61,18 @@ const ChatArea = ({
       return r;
     }
   });
+  const { data: vectorMD } = useQuery({
+    queryKey: ['metadata', conversationID],
+
+    queryFn: async () => {
+      const r: multiragResponse<Array<VectorsMetadata[]>> =
+        await ApiService.fetchMultiragMetadata(conversationID).then((res) =>
+          res.json()
+        );
+      return r;
+    }
+  });
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   console.log('data is', data);
   console.log(conversationID);
@@ -66,34 +83,59 @@ const ChatArea = ({
     }
   }, [data]);
   useEffect(() => {
-    if (streamEnded && fullBuffer) {
-      if (vectorsMetadata.length === 0) {
-        const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
-        const match = fullBuffer.match(regex);
-        const index = 1;
-        if (match.length >= 0 && index < match.length) {
-          const extractedContent = fullBuffer.match(regex)[1];
-          console.log(fullBuffer.match);
-          console.log('EXTRACTED CONTENT', extractedContent);
+    if (vectorMD) {
+      setVectorsMetadata(vectorMD.data);
+    }
+  }, [vectorMD]);
+  useEffect(() => {
+    if (streamEnded && fullBuffer.length > 0) {
+      const regex = new RegExp(firstKeyword + '(.*?)' + lastKeyword, 's');
+      const match = fullBuffer.match(regex);
+      const index = 1;
+      if (match.length >= 0 && index < match.length) {
+        const extractedContent = fullBuffer.match(regex)[1];
+        console.log(fullBuffer.match);
+        console.log('EXTRACTED CONTENT', extractedContent);
 
-          console.log(
-            extractedContent.split('\n').filter((el) => el.length > 0)
-          );
-          console.log(
+        console.log(extractedContent.split('\n').filter((el) => el.length > 0));
+        console.log(
+          extractedContent
+            .split('\n')
+            .filter((el) => el.length > 0)
+            .map((el) => JSON.parse(el))
+        );
+        doFetch(
+          `${ApiService.multiRagMainURL}/misc/set-metadata`,
+          {
+            body: JSON.stringify({
+              metadata: JSON.stringify(
+                extractedContent
+                  .split('\n')
+                  .filter((el) => el.length > 0)
+                  .map((el) => JSON.parse(el))
+                  .map((el) => ({ ...el, chat: currentChat }))
+              ),
+              conversationId: conversationID
+            })
+          },
+          true,
+          {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          }
+        ).then((resp) => resp.json());
+        setVectorsMetadata((prevVectorsData) =>
+          prevVectorsData.concat(
             extractedContent
               .split('\n')
               .filter((el) => el.length > 0)
               .map((el) => JSON.parse(el))
-          );
-          setVectorsMetadata(
-            extractedContent
-              .split('\n')
-              .filter((el) => el.length > 0)
-              .map((el) => JSON.parse(el))
-          );
-          console.log(fullBuffer);
-        }
+              .map((el) => ({ ...el, chat: currentChat }))
+          )
+        );
+        console.log('FB inside useEffect', fullBuffer);
       }
+
       refetch();
     }
   }, [streamEnded, fullBuffer, vectorsMetadata]);
@@ -109,7 +151,15 @@ const ChatArea = ({
       return ''; // Don't render anything if there's no current chat content
     }
 
-    return <Message key={Math.random()} content={currentChat} type={'bot'} />;
+    return (
+      <Message
+        clickable
+        metadata={[]}
+        key={Math.random()}
+        content={currentChat}
+        type={'bot'}
+      />
+    );
   }, [currentChat]);
 
   useEffect(() => {
@@ -159,7 +209,7 @@ const ChatArea = ({
       language: 'English',
       conversationId: conversationID,
       documents: JSON.stringify(documents),
-      fetchMetadata: vectorsMetadata.length === 0 ? 'True' : ''
+      fetchMetadata: 'True'
     };
 
     // setUserMessage('');
@@ -199,14 +249,14 @@ const ChatArea = ({
       <MessageArea>
         {isLoading && (
           <>
-            <Message type="bot" loading content="" />
-            <Message type="user" loading content="" />
-            <Message type="bot" loading content="" />
-            <Message type="user" loading content="" />
-            <Message type="bot" loading content="" />
-            <Message type="user" loading content="" />
-            <Message type="bot" loading content="" />
-            <Message type="user" loading content="" />
+            <Message clickable metadata={[]} type="bot" loading content="" />
+            <Message clickable metadata={[]} type="user" loading content="" />
+            <Message clickable metadata={[]} type="bot" loading content="" />
+            <Message clickable metadata={[]} type="user" loading content="" />
+            <Message clickable metadata={[]} type="bot" loading content="" />
+            <Message clickable metadata={[]} type="user" loading content="" />
+            <Message clickable metadata={[]} type="bot" loading content="" />
+            <Message clickable metadata={[]} type="user" loading content="" />
           </>
         )}{' '}
         {messages && messages.length > 0 ? (
@@ -214,15 +264,16 @@ const ChatArea = ({
             {messages
               .sort((a, b) => a.id - b.id)
               .map((msg) => {
-                console.log('AI Messages', msg);
                 return (
                   <Message
+                    metadata={msg.log.role === 'user' ? [] : vectorsMetadata}
                     id={msg.id}
                     key={msg.id}
                     type={msg.log.role === 'user' ? 'user' : 'bot'}
                     content={msg.log.content}
                     isPinned={msg.isPinned}
                     isLiked={msg.liked}
+                    clickable={user ? true : false}
                   />
                 );
               })}
@@ -233,6 +284,7 @@ const ChatArea = ({
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea setUserMessage={setUserMessage} />
         <InputArea
+          clickable={user ? true : false}
           documents={documents}
           submitHandler={submitMessageHandler}
           value={userMessage}

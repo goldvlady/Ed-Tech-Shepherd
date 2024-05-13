@@ -7,6 +7,7 @@ import ApiService from '../../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../../state/userStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 const isExactMatch = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
@@ -18,6 +19,7 @@ const isExactMatch = (arr1, arr2) => {
 function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
   const { user } = useUserStore();
   const navigate = useNavigate();
+  const toast = useCustomToast();
   const handleSubmit = (inputFiles) => {
     setFilesUploading((pS) => {
       return [
@@ -52,6 +54,12 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
     for (let i = 0; i < files.length; i++) {
       formData.append('files', files[i]);
     } // Setting up the endpoint with sid
+    toast({
+      position: 'top-right',
+      title: `Documents upload started`,
+      description: 'Hang on a second',
+      status: 'success'
+    });
     const sid = user._id;
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({

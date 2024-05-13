@@ -13,12 +13,14 @@ const InputArea = ({
   value,
   setValue,
   submitHandler,
-  documents
+  documents,
+  clickable
 }: {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   submitHandler: VoidFunction;
   documents: Array<MultiragDocument>;
+  clickable: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,11 +79,15 @@ const InputArea = ({
           onClick={() => {
             submitHandler();
           }}
+          style={{ pointerEvents: clickable ? 'auto' : 'none' }}
           className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center"
         >
           <ArrowRight className="text-white w-[17px]" />
         </button>
-        <button className="w-[2.18rem] h-[1.75rem] rounded-full bg-[#F9F9FB] flex items-center justify-center">
+        <button
+          style={{ pointerEvents: clickable ? 'auto' : 'none' }}
+          className="w-[2.18rem] h-[1.75rem] rounded-full bg-[#F9F9FB] flex items-center justify-center"
+        >
           <ReloadIcon className="w-[14px]" />
         </button>
       </div>

@@ -1,3 +1,4 @@
+import './index.css';
 import { DrawingPinIcon } from '@radix-ui/react-icons';
 import CustomMarkdownView from '../../../../../../../components/CustomComponents/CustomMarkdownView';
 import { cn } from '../../../../../../../library/utils';
@@ -5,6 +6,22 @@ import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import { useState } from 'react';
 import { ThumbsUpIcon } from 'lucide-react';
+import React from 'react';
+import * as HoverCard from '@radix-ui/react-hover-card';
+interface DocumentMetadata {
+  page_label: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+}
+
+interface VectorsMetadata {
+  node_id: string;
+  text: string;
+  score: number;
+  metadata: DocumentMetadata;
+}
 
 const Message = ({
   id,
@@ -12,10 +29,14 @@ const Message = ({
   content,
   loading,
   isPinned,
-  isLiked
+  isLiked,
+  metadata,
+  clickable
 }: {
   id?: number;
   type: 'bot' | 'user';
+  metadata: Array<VectorsMetadata[]>;
+  clickable: boolean;
   content: string;
   loading?: boolean;
   isPinned?: boolean;
@@ -24,7 +45,10 @@ const Message = ({
   const prefixes = ['Explain: ', 'Summarize: ', 'Translate: '];
   let prefix = '';
   let actualContent = content;
-
+  const [showCitations, setShowCitations] = useState(false);
+  const citations = metadata
+    .reduce((acc, el) => acc.concat(el.find((e) => e.text === content)), [])
+    .filter((el) => el);
   for (const p of prefixes) {
     if (content.startsWith(p)) {
       prefix = p;
@@ -61,20 +85,53 @@ const Message = ({
           {prefix ? (
             <QuoteMessage type={prefix} content={actualContent} />
           ) : (
-            <CustomMarkdownView
-              source={content}
-              className={cn(
-                'text-black bg-white text-[0.87rem] rounded-[10px] shadow-md',
-                {
-                  'bg-black/10 text-[#072D5F]': type === 'user',
-                  'w-32 h-10': loading
-                }
-              )}
-              paragraphClass="[&_p]:leading-[20px]"
-            />
+            <>
+              <CustomMarkdownView
+                source={content}
+                className={cn(
+                  'text-black bg-white text-[0.87rem] rounded-[10px] shadow-md',
+                  {
+                    'bg-black/10 text-[#072D5F]': type === 'user',
+                    'w-32 h-10': loading
+                  }
+                )}
+                paragraphClass="[&_p]:leading-[20px]"
+              />
+              {citations.length > 0 ? (
+                <div className="absolute inset-x-0 bottom-4 p-2 flex items-center gap-2">
+                  <button
+                    onClick={() => setShowCitations(true)}
+                    className="bg-inherit rounded-md border border-black/50 px-2 py-1 text-xs hover:bg-white/20"
+                  >
+                    {citations.length} citations
+                  </button>
+                  <div className="px-2 flex items-center gap-1.5 py-1 w-5/6 overflow-x-scroll scroller rounded-md bg-inherit border border-black/50">
+                    {citations.map((el, index) => (
+                      <HoverCard.Root key={el.node_id}>
+                        <HoverCard.Trigger asChild>
+                          <p className="text-xs hover:bg-white/60">{index}</p>
+                        </HoverCard.Trigger>
+                        <HoverCard.Portal>
+                          <HoverCard.Content
+                            side="top"
+                            className="overflow-y-scroll max-h-[300px] data-[side=bottom]:animate-slideUpAndFade data-[side=right]:animate-slideLeftAndFade data-[side=left]:animate-slideRightAndFade data-[side=top]:animate-slideDownAndFade w-[300px] rounded-md bg-white p-5 shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] data-[state=open]:transition-all"
+                            sideOffset={5}
+                          >
+                            <p className="text-xs">{el.text}</p>
+                          </HoverCard.Content>
+                        </HoverCard.Portal>
+                      </HoverCard.Root>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </>
           )}
           {type === 'bot' && id && (
-            <div className="absolute bottom-[-1.5rem] w-full flex justify-between">
+            <div
+              style={{ pointerEvents: clickable ? 'auto' : 'none' }}
+              className="absolute bottom-[-1.5rem] w-full flex justify-between"
+            >
               <div className="left-section">
                 <LikeMessageButton id={id} isLiked={isLiked} />
               </div>

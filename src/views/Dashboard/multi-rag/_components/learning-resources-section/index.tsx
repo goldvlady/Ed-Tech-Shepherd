@@ -3,15 +3,19 @@ import { useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
+import ShareModal from '../../../../../components/ShareModal';
+import { User } from '../../../../../types';
 
 const LearningResourcesSection = ({
   conversationID,
   selectedDocumentID: documentId,
-  setHighlightedDocumentPageIndex
+  setHighlightedDocumentPageIndex,
+  user
 }: {
   conversationID: string;
   selectedDocumentID: string;
   setHighlightedDocumentPageIndex;
+  user: User;
 }) => {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -37,6 +41,7 @@ const LearningResourcesSection = ({
           }
         )}
       >
+        {user && <ShareModal type="docchat" />}
         <SummarySection
           conversationID={conversationID}
           selectedDoc={documentId}
