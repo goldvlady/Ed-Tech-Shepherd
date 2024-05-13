@@ -68,18 +68,20 @@ function ChatHistory() {
         </h5>
       </div>
       <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10">
-        {data.data.map((item) => (
-          <HistoryItem
-            key={item.id}
-            id={item.id}
-            title={document.title}
-            documentId={
-              item.referenceDocIds[
-                Math.floor(Math.random() * item.referenceDocIds.length)
-              ]
-            }
-          />
-        ))}
+        {data.data
+          .filter((item) => Boolean(item.title))
+          .map((item) => (
+            <HistoryItem
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              documentId={
+                item.referenceDocIds[
+                  Math.floor(Math.random() * item.referenceDocIds.length)
+                ]
+              }
+            />
+          ))}
       </div>
     </div>
   );
@@ -88,8 +90,7 @@ function ChatHistory() {
 function truncateText(text, maxLength) {
   if (!text) return '';
   if (text.length > maxLength) {
-    const extension = text.substring(text.lastIndexOf('.'));
-    return text.slice(0, maxLength - extension.length - 3) + '...' + extension;
+    return text.slice(0, maxLength) + '...';
   } else {
     return text;
   }
