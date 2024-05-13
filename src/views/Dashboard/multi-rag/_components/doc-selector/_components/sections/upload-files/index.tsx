@@ -68,30 +68,22 @@ function UploadFiles({ setFilesUploading }) {
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <input {...getInputProps()} />
           </form>
-          {acceptedFiles.length > 0 ? (
-            <ul>
-              {acceptedFiles.map((file) => (
-                <li>{file.name}</li>
-              ))}
-            </ul>
-          ) : (
-            <div className="w-[53%] h-[50%] cc flex-col">
-              <div className="icon mx-auto">
-                <UploadIcon className="w-[3.81rem] h-[3.81rem]" />
-              </div>
-              <div className="label mt-[5px]">
-                <span className="text-lg font-medium text-[#212224]">
-                  Drag and Drop or{' '}
-                  <span className="text-[#207DF7]">Browse files</span>
-                </span>
-              </div>
-              <p className="text-[0.93rem] whitespace-nowrap text-[#585F68] mt-[0.1rem]">
-                Shepherd supports{' '}
-                <span className="font-medium">.pdf, .txt, .doc</span> document
-                formats
-              </p>
+          <div className="w-[53%] h-[50%] cc flex-col">
+            <div className="icon mx-auto">
+              <UploadIcon className="w-[3.81rem] h-[3.81rem]" />
             </div>
-          )}
+            <div className="label mt-[5px]">
+              <span className="text-lg font-medium text-[#212224]">
+                Drag and Drop or{' '}
+                <span className="text-[#207DF7]">Browse files</span>
+              </span>
+            </div>
+            <p className="text-[0.93rem] whitespace-nowrap text-[#585F68] mt-[0.1rem]">
+              Shepherd supports{' '}
+              <span className="font-medium">.pdf, .txt, .doc</span> document
+              formats
+            </p>
+          </div>
         </div>
       </div>
       {/* <div className="w-full h-[4.5rem] pr-[3.1rem] py-[1rem] flex justify-end items-center">
