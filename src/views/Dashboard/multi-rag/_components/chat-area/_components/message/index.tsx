@@ -2,7 +2,7 @@ import './index.css';
 import { DrawingPinIcon } from '@radix-ui/react-icons';
 import CustomMarkdownView from '../../../../../../../components/CustomComponents/CustomMarkdownView';
 import { cn } from '../../../../../../../library/utils';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import { useState } from 'react';
 import { ThumbsUpIcon } from 'lucide-react';
@@ -204,6 +204,7 @@ const LikeMessageButton = ({
   id?: number;
   isLiked: boolean;
 }) => {
+  const queryClient = useQueryClient();
   const [localIsLiked, setLocalIsLiked] = useState(isLiked);
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
@@ -216,6 +217,9 @@ const LikeMessageButton = ({
         .then((data) => {
           if (data.status === 'success') {
             setLocalIsLiked(data.data.liked);
+            queryClient.invalidateQueries({
+              queryKey: ['pinned-messages']
+            });
           }
         })
   });

@@ -257,7 +257,14 @@ const PinnedSection = ({
   const { data } = useQuery({
     queryKey: ['pinned-messages'],
     queryFn: () =>
-      ApiService.getPinnedMessages(convId).then((res) => res.json())
+      ApiService.getPinnedMessages(convId).then((res) => res.json()),
+    select: (data) => {
+      if (data.status === 'success') {
+        return data.data;
+      } else {
+        return [];
+      }
+    }
   });
 
   console.log('Pinned section', data);
@@ -281,13 +288,19 @@ const PinnedSection = ({
       </ActionButton>
       <div
         className={cn(
-          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50 space-y-2 p-2',
           {
             'opacity-100 pointer-events-auto': expanded
           }
         )}
       >
-        <div className="p-2"></div>
+        {data.map((item) => {
+          return (
+            <div className="p-2 border rounded-md">
+              <p className="text-xs">{item.log.content}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
