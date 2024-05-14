@@ -81,6 +81,7 @@ function PDFViewer({
 }) {
   const queryClient = useQueryClient();
   const pageNavigationPluginInstance = pageNavigationPlugin();
+  const zoomPluginInstance = zoomPlugin();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const { mutate, isPending: isSavingHighlightText } = useMutation({
@@ -107,6 +108,8 @@ function PDFViewer({
   });
 
   console.log('highlighted text', highlightPositions);
+
+  const { ZoomIn, ZoomOut } = zoomPluginInstance;
 
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${selectedDocumentID.name}`;
 
@@ -191,8 +194,10 @@ function PDFViewer({
           </div>
         </div>
         <div className="flex gap-2 items-center">
-          <Minus className="w-[12px] cursor-pointer" />
-          <Plus className="w-[12px] cursor-pointer" />
+          <ZoomOut>
+            {/* <Minus className="w-[12px] cursor-pointer" /> */}
+          </ZoomOut>
+          <ZoomIn>{/* <Plus className="w-[12px] cursor-pointer" /> */}</ZoomIn>
         </div>
       </header>
       <div className="mt-[2rem] rounded-[20px] h-[75vh] w-full overflow-hidden">
@@ -212,7 +217,8 @@ function PDFViewer({
                   viewMode={ViewMode.SinglePage}
                   plugins={[
                     pageNavigationPluginInstance,
-                    highlightPluginInstance
+                    highlightPluginInstance,
+                    zoomPluginInstance
                   ]}
                   onDocumentLoad={(e) => {
                     setTotalPages(e.doc.numPages);
