@@ -193,10 +193,8 @@ function PDFViewer({
           </div>
         </div>
         <div className="flex gap-2 items-center">
-          <ZoomOut>
-            {/* <Minus className="w-[12px] cursor-pointer" /> */}
-          </ZoomOut>
-          <ZoomIn>{/* <Plus className="w-[12px] cursor-pointer" /> */}</ZoomIn>
+          <ZoomOut />
+          <ZoomIn />
         </div>
       </header>
       <div className="mt-[2rem] rounded-[20px] h-[75vh] w-full overflow-hidden">
