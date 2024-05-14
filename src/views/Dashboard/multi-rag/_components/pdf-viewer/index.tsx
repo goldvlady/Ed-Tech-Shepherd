@@ -28,9 +28,10 @@ import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
 import {
   NextIcon,
   PreviousIcon,
-  RenderSearchProps,
+  SearchIcon,
   searchPlugin
 } from '@react-pdf-viewer/search';
+
 import type {
   ToolbarProps,
   ToolbarSlot,
@@ -48,8 +49,8 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   Minus,
-  Plus,
-  SearchIcon
+  Plus
+  // SearchIcon
 } from 'lucide-react';
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
@@ -81,6 +82,8 @@ function PDFViewer({
 }) {
   const queryClient = useQueryClient();
   const pageNavigationPluginInstance = pageNavigationPlugin();
+  const searchPluginInstance = searchPlugin();
+
   const zoomPluginInstance = zoomPlugin();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -110,6 +113,7 @@ function PDFViewer({
   console.log('highlighted text', highlightPositions);
 
   const { ZoomIn, ZoomOut } = zoomPluginInstance;
+  const { ShowSearchPopoverButton } = searchPluginInstance;
 
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${selectedDocumentID.name}`;
 
@@ -173,7 +177,7 @@ function PDFViewer({
     <div className="flex-[1.5] h-full mt-10 rounded-md">
       <header className="pdf-header p-[0.87rem] w-full bg-white rounded-[10px] flex justify-between items-center">
         <div className="flex items-center gap-1">
-          <SearchIcon className="w-[12px]" />
+          <ShowSearchPopoverButton />
           <div className="flex items-center">
             <ChevronUpIcon
               className="cursor-pointer w-[12px]"
@@ -218,7 +222,8 @@ function PDFViewer({
                   plugins={[
                     pageNavigationPluginInstance,
                     highlightPluginInstance,
-                    zoomPluginInstance
+                    zoomPluginInstance,
+                    searchPluginInstance
                   ]}
                   onDocumentLoad={(e) => {
                     setTotalPages(e.doc.numPages);
