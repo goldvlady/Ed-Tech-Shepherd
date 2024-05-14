@@ -1,5 +1,5 @@
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
@@ -18,9 +18,11 @@ const LearningResourcesSection = ({
   user: User;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const [currentTabOpened, setCurrentTabOpened] = useState<
+    'Summary' | 'Highlight' | 'Pinned' | ''
+  >('');
   return (
     <div>
-      {/* <ChatHistory /> */}
       <div className="w-[10rem] flex justify-end p-4 pb-0">
         <ActionButton onClick={() => setExpanded(!expanded)}>
           <span className="flex items-center justify-center">
@@ -45,12 +47,20 @@ const LearningResourcesSection = ({
         <SummarySection
           conversationID={conversationID}
           selectedDoc={documentId}
+          setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}
         />
         <HighlightsSection
           documentId={documentId}
           setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
+          setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}
         />
-        <PinnedSection convId={conversationID} />
+        <PinnedSection
+          convId={conversationID}
+          setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}
+        />
         <GenerateQuizSection />
         <GenerateFlashcardsSection />
       </div>
@@ -60,13 +70,16 @@ const LearningResourcesSection = ({
 
 const SummarySection = ({
   conversationID,
-  selectedDoc
+  selectedDoc,
+  setCurrentTabOpened,
+  currentTabOpened
 }: {
   conversationID: string;
   selectedDoc?: string;
+  setCurrentTabOpened: any;
+  currentTabOpened: string;
 }) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
-  const [summaries, setSummaries] = useState([]);
 
   const { data } = useQuery({
     queryKey: ['documentsBasedOnConversationID'],
@@ -85,7 +98,7 @@ const SummarySection = ({
     },
     placeholderData: () => []
   });
-  console.log(data);
+
   const { data: summary } = useQuery({
     queryKey: ['summary'],
     queryFn: () =>
@@ -106,7 +119,14 @@ const SummarySection = ({
 
   const toggleExpand = () => {
     setSummaryExpanded(!summaryExpanded);
+    setCurrentTabOpened('Summary');
   };
+
+  useEffect(() => {
+    if (currentTabOpened !== 'Summary') {
+      setSummaryExpanded(false);
+    }
+  }, [currentTabOpened]);
   return (
     <div className="relative">
       <ActionButton active={summaryExpanded} onClick={toggleExpand}>
@@ -134,10 +154,14 @@ const SummarySection = ({
 
 const HighlightsSection = ({
   documentId,
-  setHighlightedDocumentPageIndex
+  setHighlightedDocumentPageIndex,
+  setCurrentTabOpened,
+  currentTabOpened
 }: {
   setHighlightedDocumentPageIndex;
   documentId: string;
+  setCurrentTabOpened: any;
+  currentTabOpened: string;
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -177,12 +201,19 @@ const HighlightsSection = ({
     );
   };
 
+  useEffect(() => {
+    if (currentTabOpened !== 'Highlight') {
+      setExpanded(false);
+    }
+  }, [currentTabOpened]);
+
   return (
     <div className="relative">
       <ActionButton
         active={expanded}
         onClick={() => {
           setExpanded(!expanded);
+          setCurrentTabOpened('Highlight');
         }}
       >
         Highlights
@@ -213,7 +244,15 @@ const HighlightsSection = ({
   );
 };
 
-const PinnedSection = ({ convId }: { convId: string }) => {
+const PinnedSection = ({
+  convId,
+  setCurrentTabOpened,
+  currentTabOpened
+}: {
+  convId: string;
+  setCurrentTabOpened: any;
+  currentTabOpened: string;
+}) => {
   const [expanded, setExpanded] = useState(false);
   const { data } = useQuery({
     queryKey: ['pinned-messages'],
@@ -223,12 +262,19 @@ const PinnedSection = ({ convId }: { convId: string }) => {
 
   console.log('Pinned section', data);
 
+  useEffect(() => {
+    if (currentTabOpened !== 'Pinned') {
+      setExpanded(false);
+    }
+  }, [currentTabOpened]);
+
   return (
     <div className="relative">
       <ActionButton
         active={expanded}
         onClick={() => {
           setExpanded(!expanded);
+          setCurrentTabOpened('Pinned');
         }}
       >
         Pinned
