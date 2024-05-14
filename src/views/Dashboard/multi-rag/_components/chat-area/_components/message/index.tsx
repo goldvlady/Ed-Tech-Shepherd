@@ -138,7 +138,7 @@ const Message = ({
           {type === 'bot' && id && (
             <div
               style={{ pointerEvents: clickable ? 'auto' : 'none' }}
-              className="absolute bottom-[-1.5rem] w-full flex justify-between"
+              className="absolute bottom-[-1.5rem] w-full flex justify-end gap-2"
             >
               <div className="left-section">
                 <LikeMessageButton id={id} isLiked={isLiked} />
