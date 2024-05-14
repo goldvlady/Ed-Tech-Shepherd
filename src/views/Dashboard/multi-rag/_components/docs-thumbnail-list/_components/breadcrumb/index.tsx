@@ -18,6 +18,17 @@ import {
 import useUserStore from '../../../../../../../state/userStore';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '../../../../../../../components/ui/alert-dialog';
 
 function BreadCrumb({ conversationId }: { conversationId: string }) {
   const { data, isLoading } = useQuery({
@@ -36,23 +47,42 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
         {isLoading ? (
           <div className="w-24 h-4 rounded-sm animate-pulse bg-gray-100"></div>
         ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="text-[#585F68] truncate cursor-pointer">
-                  {data?.data}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent className="bg-white border">
-                <p>{data?.data}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <ChatName data={data} />
         )}
       </span>
     </div>
   );
 }
+
+const ChatName = ({ data }: { data: any }) => {
+  return (
+    <AlertDialog>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <AlertDialogTrigger asChild>
+              <span className="text-[#585F68] truncate cursor-pointer">
+                {data?.data}
+              </span>
+            </AlertDialogTrigger>
+          </TooltipTrigger>
+          <TooltipContent className="bg-white border">
+            <p>{data?.data}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <AlertDialogContent className="bg-white">
+        <div className="p-2">
+          <Input placeholder="Name of Chat" />
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
 
 const ChatHistory = ({ children }: { children: React.ReactNode }) => {
   const [searchValue, setSearchValue] = useState('');
