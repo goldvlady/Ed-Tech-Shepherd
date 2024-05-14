@@ -25,12 +25,7 @@ import '@react-pdf-viewer/highlight/lib/styles/index.css';
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
 // Import styles
 import '@react-pdf-viewer/page-navigation/lib/styles/index.css';
-import {
-  NextIcon,
-  PreviousIcon,
-  SearchIcon,
-  searchPlugin
-} from '@react-pdf-viewer/search';
+import { searchPlugin } from '@react-pdf-viewer/search';
 
 import type {
   ToolbarProps,
