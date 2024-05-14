@@ -21,7 +21,7 @@ const InputArea = ({
   const [open, setOpen] = useState(false);
 
   const openRefDocuments = (value: string) => {
-    if (value[value.length - 1] === '@') {
+    if (value[value.length - 1] === '@' && value[value.length - 2] !== '@') {
       setOpen(true);
     } else {
       setOpen(false);
