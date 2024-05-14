@@ -41,15 +41,15 @@ function Thumbnail({
       )}
       onClick={onClick}
     >
-      <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
+      {/* <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
         <DotsHorizontalIcon />
-      </div>
+      </div> */}
       <PdfFirstPageImage data={data} />
       <div className="flex items-center gap-1 justify-between w-full z-10 backdrop-blur-sm pt-[0.5rem]">
         <p className="text-[#585F68] text-[10px] whitespace-nowrap">
           {truncateText(data.collection_name, 25)}
         </p>
-        <div
+        {/* <div
           role="button"
           onClick={() => {
             setSelected(!selected);
@@ -62,7 +62,7 @@ function Thumbnail({
           )}
         >
           <CheckIcon className="text-white" />
-        </div>
+        </div> */}
       </div>
     </div>
   );
