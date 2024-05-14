@@ -82,7 +82,7 @@ const Message = ({
       ></div>
       <div className="flex-1 rounded-[10px] basis-1 relative">
         <div
-          className={cn('flex flex-col gap-1 relative', {
+          className={cn('flex gap-1 relative', {
             'justify-end': type === 'user',
             'bg-white rounded-[10px] shadow-md': type !== 'user'
           })}
@@ -90,7 +90,7 @@ const Message = ({
           {prefix ? (
             <QuoteMessage type={prefix} content={actualContent} />
           ) : (
-            <>
+            <div className="flex flex-col">
               <CustomMarkdownView
                 source={content}
                 className={cn('text-black text-[0.87rem]', {
@@ -133,7 +133,7 @@ const Message = ({
                   ) : null}
                 </div>
               ) : null}
-            </>
+            </div>
           )}
           {type === 'bot' && id && (
             <div

@@ -2,12 +2,15 @@ import SuggestionButton from '../suggestion-button';
 
 import { useState } from 'react';
 
-const SuggestionArea = ({ setUserMessage }) => {
+const SuggestionArea = ({ setUserMessage, submitHandler }) => {
   const [usedSuggestions, setUsedSuggestions] = useState({});
 
   const handleSuggestionClick = (message) => {
     setUserMessage(message);
     setUsedSuggestions((prev) => ({ ...prev, [message]: true }));
+    setTimeout(() => {
+      submitHandler(message);
+    }, 200);
   };
 
   return (

@@ -285,7 +285,10 @@ const ChatArea = ({
         {currentChatRender}
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
-        <SuggestionArea setUserMessage={setUserMessage} />
+        <SuggestionArea
+          setUserMessage={setUserMessage}
+          submitHandler={submitMessageHandler}
+        />
         <InputArea
           clickable={user ? true : false}
           documents={documents}
