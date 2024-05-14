@@ -36,7 +36,7 @@ function Thumbnail({
         'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer',
         {
           'bg-[#EBF4FE]': selected,
-          'shadow-xl': selectedToPreview
+          'shadow-xl border-blue-400': selectedToPreview
         }
       )}
       onClick={onClick}
