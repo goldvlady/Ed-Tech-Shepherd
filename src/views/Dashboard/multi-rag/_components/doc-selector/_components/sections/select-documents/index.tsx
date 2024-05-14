@@ -27,6 +27,7 @@ function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selected, setSelected] = useState<Array<string>>([]);
   const { user } = useUserStore();
+  const [searchValue, setSearchValue] = useState('');
 
   const navigate = useNavigate();
   const { mutate, isPending: isGeneratingConvID } = useMutation({
@@ -88,7 +89,7 @@ function SelectDocuments() {
       <header className="flex w-full items-center">
         <div className="controls flex-1 h-[2rem] grid grid-cols-2 gap-4">
           <div>
-            <InputComp />
+            <InputComp setValue={setSearchValue} value={searchValue} />
           </div>
           <div className="h-full flex items-center">
             <Button
@@ -138,45 +139,60 @@ function SelectDocuments() {
           }
         )}
       >
-        {documents?.data?.map((document) => {
-          return (
-            <DocItem
-              selected={selected.some((e) => e === document.document_id)}
-              layout={layout}
-              document={document}
-              onClick={() => {
-                if (selected.some((e) => e === document.document_id)) {
-                  setSelected((prevSelected) =>
-                    prevSelected.filter((item) => item !== document.document_id)
-                  );
-                } else {
-                  setSelected((prevSelected) => [
-                    ...prevSelected,
-                    document.document_id
-                  ]);
-                }
-              }}
-            />
-          );
-        })}
+        {documents?.data
+          ?.filter((item) =>
+            item.collection_name
+              .toLowerCase()
+              .includes(searchValue.toLowerCase())
+          )
+          .map((document) => {
+            return (
+              <DocItem
+                key={document.document_id}
+                selected={selected.some((e) => e === document.document_id)}
+                layout={layout}
+                document={document}
+                onClick={() => {
+                  if (selected.some((e) => e === document.document_id)) {
+                    setSelected((prevSelected) =>
+                      prevSelected.filter(
+                        (item) => item !== document.document_id
+                      )
+                    );
+                  } else {
+                    setSelected((prevSelected) => [
+                      ...prevSelected,
+                      document.document_id
+                    ]);
+                  }
+                }}
+              />
+            );
+          })}
       </main>
     </div>
   );
 }
 
 const InputComp = ({
-  label,
-  placeholder
+  value,
+  setValue
 }: {
-  label?: string;
-  placeholder?: string;
+  value?: string;
+  setValue?: (s: any) => void;
 }) => {
   return (
     <InputGroup className="max-h-[30px] overflow-hidden flex items-center w-1/2">
       <InputLeftElement pointerEvents="none" className="max-h-[30px] ">
         <SearchIcon color="gray.300" />
       </InputLeftElement>
-      <Input type="text" rounded="full" className="max-h-[30px] bg-[#F8F8F9]" />
+      <Input
+        type="text"
+        rounded="full"
+        className="max-h-[30px] bg-[#F8F8F9]"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
     </InputGroup>
   );
 };
