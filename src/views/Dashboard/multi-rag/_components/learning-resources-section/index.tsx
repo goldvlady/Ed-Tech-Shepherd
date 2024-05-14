@@ -294,7 +294,7 @@ const PinnedSection = ({
           }
         )}
       >
-        {data.map((item) => {
+        {data?.map((item) => {
           return (
             <div className="p-2 border rounded-md">
               <p className="text-xs">{item.log.content}</p>

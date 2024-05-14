@@ -162,6 +162,7 @@ const PinMessageButton = ({
   id?: number;
   isPinned: boolean;
 }) => {
+  const queryClient = useQueryClient();
   const [localIsPinned, setLocalIsPinned] = useState(isPinned);
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
@@ -171,6 +172,9 @@ const PinMessageButton = ({
       })
         .then((res) => res.json())
         .then((data) => {
+          queryClient.invalidateQueries({
+            queryKey: ['pinned-messages']
+          });
           if (data.status === 'success') {
             setLocalIsPinned(data.data.isPinned);
           }
@@ -204,7 +208,6 @@ const LikeMessageButton = ({
   id?: number;
   isLiked: boolean;
 }) => {
-  const queryClient = useQueryClient();
   const [localIsLiked, setLocalIsLiked] = useState(isLiked);
   const { mutate, isPending } = useMutation({
     mutationFn: () =>
@@ -217,9 +220,6 @@ const LikeMessageButton = ({
         .then((data) => {
           if (data.status === 'success') {
             setLocalIsLiked(data.data.liked);
-            queryClient.invalidateQueries({
-              queryKey: ['pinned-messages']
-            });
           }
         })
   });

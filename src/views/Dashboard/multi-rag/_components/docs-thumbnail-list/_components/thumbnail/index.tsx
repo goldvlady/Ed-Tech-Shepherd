@@ -45,7 +45,7 @@ function Thumbnail({
         <DotsHorizontalIcon />
       </div>
       <PdfFirstPageImage data={data} />
-      <div className="flex items-center gap-1 justify-between w-full z-10">
+      <div className="flex items-center gap-1 justify-between w-full z-10 backdrop-blur-sm pt-[0.5rem]">
         <p className="text-[#585F68] text-[10px] whitespace-nowrap">
           {truncateText(data.collection_name, 25)}
         </p>
