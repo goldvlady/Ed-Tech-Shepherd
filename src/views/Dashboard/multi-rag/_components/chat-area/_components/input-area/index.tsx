@@ -53,7 +53,7 @@ const InputArea = ({
             onChange={(e) => setValue(e.target.value)}
             onKeyUp={handleKeyDown}
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
-            placeholder="How can Shepherd help with your homework?"
+            placeholder="Ask anything. You can use the @ button to specify a document"
           />
           <PopoverContent className="z-20 bg-white mr-40">
             {documents
