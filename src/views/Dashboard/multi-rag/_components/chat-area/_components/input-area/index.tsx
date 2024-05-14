@@ -1,13 +1,9 @@
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '../../../../../../../components/ui/popover';
 import { MultiragDocument } from '../../../../../../../types';
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import SourceButton from '../source-button';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import { cn } from '../../../../../../../library/utils';
 
 const InputArea = ({
   value,
@@ -23,9 +19,9 @@ const InputArea = ({
   clickable: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === '@') {
-      console.log('Hey?');
+
+  const openRefDocuments = (value: string) => {
+    if (value[value.length - 1] === '@') {
       setOpen(true);
     } else {
       setOpen(false);
@@ -39,8 +35,44 @@ const InputArea = ({
   };
   return (
     <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
+      <div
+        className={cn(
+          'reference-documents w-full p-2 rounded-xl border bg-white absolute left-0 bottom-[3rem] opacity-0 pointer-events-none transition-opacity',
+          {
+            'opacity-100 pointer-events-auto': open
+          }
+        )}
+      >
+        {documents
+          ? documents.map((doc) => (
+              <p
+                className="w-full p-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors rounded-md truncate"
+                key={doc.document_id}
+                onClick={() => addAtHandler(doc.collection_name)}
+              >
+                {doc.collection_name}
+              </p>
+            ))
+          : null}
+      </div>
       <SourceButton />
-      <Popover open={open}>
+      <input
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            submitHandler();
+          }
+        }}
+        value={value}
+        onChange={(e) => {
+          openRefDocuments(e.target.value);
+          setValue(e.target.value);
+        }}
+        // onKeyUp={handleKeyDown}
+        className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
+        placeholder="Ask anything. You can use the @ button to specify a document"
+      />
+      {/* <Popover open={open}>
         <PopoverTrigger className="w-full">
           <input
             onKeyDown={(e) => {
@@ -55,7 +87,7 @@ const InputArea = ({
             className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
             placeholder="Ask anything. You can use the @ button to specify a document"
           />
-          <PopoverContent className="z-20 bg-white mr-40">
+          <PopoverContent className="z-20 bg-white mr-[30px] rounded-xl" >
             {documents
               ? documents
                   .filter((el) =>
@@ -73,7 +105,7 @@ const InputArea = ({
               : null}
           </PopoverContent>
         </PopoverTrigger>
-      </Popover>
+      </Popover> */}
       <div className="flex items-center gap-3 ml-2">
         <button
           onClick={() => {
