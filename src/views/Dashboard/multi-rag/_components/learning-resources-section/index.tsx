@@ -24,7 +24,7 @@ const LearningResourcesSection = ({
       <div className="w-[10rem] flex justify-end p-4 pb-0">
         <ActionButton onClick={() => setExpanded(!expanded)}>
           <span className="flex items-center justify-center">
-            Quick Action
+            Quick Actions
             <ChevronDown
               className={cn('w-[18px] transition-transform rotate-[-90deg]', {
                 'rotate-0': expanded
