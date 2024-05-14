@@ -115,6 +115,11 @@ const ChatHistory = ({ children }: { children: React.ReactNode }) => {
           </div>
           <div className="w-full overflow-auto mt-[1rem] space-y-4 overscroll-y-scroll pb-10 h-full">
             {data?.data
+              ?.sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
               ?.filter(
                 (item) =>
                   item?.title?.length > 0 &&

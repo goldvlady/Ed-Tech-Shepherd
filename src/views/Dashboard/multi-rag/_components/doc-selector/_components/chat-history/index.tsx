@@ -75,7 +75,11 @@ function ChatHistory() {
         </h5>
       </div>
       <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10">
-        {data.data
+        {data?.data
+          ?.sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
           .filter(
             (item) =>
               Boolean(item.title) &&
