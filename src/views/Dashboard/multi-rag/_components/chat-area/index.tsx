@@ -214,7 +214,12 @@ const ChatArea = ({
       conversationId: conversationID,
       documents: JSON.stringify(documents),
       fetchMetadata: 'True',
-      history: JSON.stringify(m.map((m) => `${m.log.role}: ${m.log.content}`))
+      history:
+        m.length >= 4
+          ? JSON.stringify(
+              m.slice(-4).map((m) => `${m.log.role}: ${m.log.content}`)
+            )
+          : JSON.stringify(m.map((m) => `${m.log.role}: ${m.log.content}`))
     };
 
     // setUserMessage('');
