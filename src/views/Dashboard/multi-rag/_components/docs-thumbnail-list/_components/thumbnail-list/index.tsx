@@ -7,6 +7,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Tooltip,
   useDisclosure
 } from '@chakra-ui/react';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
@@ -43,12 +44,14 @@ function ThumbnailList({
 }) {
   const toast = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const handleSubmit = (acceptedFiles: Array<File>) => {
+  const handleSubmit = (acceptedFiles) => {
+    console.log('uploaded files', acceptedFiles);
     setFilesUploading({
       uploading: 'uploading',
       jobId: '',
       tables: []
     });
+    onClose();
     const files = acceptedFiles.map((file) => {
       const nameParts = file.name.split('.');
       const ext = nameParts.pop();
@@ -69,7 +72,7 @@ function ThumbnailList({
       position: 'top-right',
       title: `Documents upload started`,
       description: 'Hang on a second',
-      status: 'success'
+      status: 'loading'
     });
     const sid = user._id;
     // Use fetch to POST data
@@ -82,18 +85,37 @@ function ThumbnailList({
         if (data.status === 'success') {
           console.log('uploadMultiDocFiles', data);
           setFilesUploading({
-            jobId: data.jobId,
+            jobId: data.job_id,
             uploading: 'uploading',
             tables: data.uploaded_filenames
           });
         }
       })
-      .catch((error) => console.error('Error:', error));
+      .catch((error) => {
+        setFilesUploading({
+          jobId: '',
+          uploading: 'error',
+          tables: []
+        });
+        onClose();
+        console.error('Error:', error);
+      });
   };
   const onDrop = useCallback(() => {
-    handleSubmit(acceptedFiles);
+    console.log(inputRef.current.files);
+    const files = Object.keys(inputRef.current.files)
+      .map((f) => {
+        if (inputRef.current.files[f] === 'length') {
+          return null;
+        } else {
+          return inputRef.current.files[f];
+        }
+      })
+      .filter((el) => el);
+    console.log(files);
+    handleSubmit(acceptedFiles.length === 0 ? files : acceptedFiles);
   }, []);
-  const { getRootProps, getInputProps, isDragActive, acceptedFiles } =
+  const { getRootProps, getInputProps, isDragActive, acceptedFiles, inputRef } =
     useDropzone({
       onDrop,
       accept: {
@@ -108,9 +130,18 @@ function ThumbnailList({
         <span
           onClick={() => onOpen()}
           style={{ pointerEvents: isUploading ? 'none' : 'auto' }}
-          className="w-[1.25rem] h-[1.25rem] bg-[#207DF7] rounded-full flex items-center justify-center cursor-pointer"
+          className={cn(
+            'w-[1.25rem] h-[1.25rem] bg-[#207DF7] rounded-full flex items-center justify-center cursor-pointer',
+            isUploading && 'bg-blue-300'
+          )}
         >
-          <PlusIcon className="text-white w-4" />
+          {isUploading ? (
+            <Tooltip label="Adding documents in progress...">
+              <PlusIcon className="text-white w-4" />
+            </Tooltip>
+          ) : (
+            <PlusIcon className="text-white w-4" />
+          )}
         </span>
       </h5>
       <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar">
@@ -133,24 +164,17 @@ function ThumbnailList({
         <ModalContent>
           <ModalHeader>Add Documents</ModalHeader>
           <ModalCloseButton />
-          <ModalBody className="w-full flex items-center justify-center">
+          <ModalBody className="w-full !flex !items-center !justify-center">
             <div
-              className={cn(
-                'w-full flex flex-1 items-center-justify-center cursor-pointer',
-                {
-                  'border border-dashed border-black transition-all':
-                    isDragActive
-                }
-              )}
+              className={cn('w-full  cursor-pointer', {
+                'border border-dashed border-black transition-all': isDragActive
+              })}
               {...getRootProps()}
             >
-              <form
-                onSubmit={() => handleSubmit(acceptedFiles)}
-                encType="multipart/form-data"
-              >
+              <form encType="multipart/form-data">
                 <input {...getInputProps()} />
               </form>
-              <div className="w-[53%] h-[50%] cc flex-col">
+              <div className="cc flex-col">
                 <div className="icon mx-auto">
                   <UploadIcon className="w-[3.81rem] h-[3.81rem]" />
                 </div>

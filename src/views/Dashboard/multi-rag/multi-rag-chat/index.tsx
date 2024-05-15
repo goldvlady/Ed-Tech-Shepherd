@@ -30,6 +30,7 @@ function MultiRagChat() {
     tables: []
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [refetch, setRefetch] = useState(false);
   const [searchParams] = useSearchParams();
   const apiKey = searchParams.get('apiKey');
 
@@ -73,15 +74,38 @@ function MultiRagChat() {
             tables: filesUploading.tables
           });
         } else if (data.status === 'success') {
-          const documentIds = data.vectors.map((v) => v.document_id);
+          const collectionMap = new Map();
+
+          data.vectors.forEach((item) => {
+            const { collection_name, createdAt } = item;
+            // Check if the collection_name already exists in the Map
+            if (
+              !collectionMap.has(collection_name) ||
+              new Date(collectionMap.get(collection_name).createdAt) <
+                new Date(createdAt)
+            ) {
+              collectionMap.set(collection_name, item);
+            }
+          });
+
+          const documentIds = Array.from(collectionMap.values()).map(
+            (v) => v.document_id
+          );
+
           await mutateAsync({ documentIds, conversationId: docId });
           setFilesUploading({ uploading: 'success', tables: [], jobId: '' });
+          setRefetch(true);
+
           setIsLoading(false);
           toast({
             position: 'top-right',
             title: `Documents Added to Conversation Successfully`,
             status: 'success'
           });
+          const timeout = setTimeout(() => {
+            setRefetch(false);
+            clearTimeout(timeout);
+          }, 1000);
         } else {
           // if it fails i don't wanna indefinitely keep uploading
           toast({
@@ -161,6 +185,7 @@ function MultiRagChat() {
         isUploading={
           filesUploading.uploading === 'uploading' ? true : isLoading
         }
+        refetch={refetch}
         setFilesUploading={setFilesUploading}
         conversationID={docId}
         setSelectedDocumentID={setSelectedDocumentID}

@@ -11,9 +11,11 @@ const DocsThumbnailList = ({
   selectedDocumentID,
   setFilesUploading,
   isUploading,
-  user
+  user,
+  refetch
 }: {
   user: User;
+  refetch: boolean;
   isUploading: boolean;
   conversationID: string;
   setSelectedDocumentID: ({ id, name }: { id: string; name: string }) => void;
@@ -32,6 +34,21 @@ const DocsThumbnailList = ({
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const addDocs = useVectorsStore((state) => state.addChatDocuments);
   useEffect(() => {
+    if (refetch) {
+      ApiService.fetchMultiDocBasedOnConversationID(conversationID)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            addDocs(data.data);
+            setFetchedDocuments(data.data);
+            setSelectedDocumentID({
+              id: data.data[0].document_id,
+              name: data.data[0].collection_name
+            });
+          }
+        });
+      return;
+    }
     ApiService.fetchMultiDocBasedOnConversationID(conversationID)
       .then((res) => res.json())
       .then((data) => {
@@ -44,7 +61,7 @@ const DocsThumbnailList = ({
           });
         }
       });
-  });
+  }, [conversationID, refetch]);
 
   return (
     <div className="w-[16.97rem] h-full pt-[0.62rem] px-[1.8rem] pr-[4.5rem]">

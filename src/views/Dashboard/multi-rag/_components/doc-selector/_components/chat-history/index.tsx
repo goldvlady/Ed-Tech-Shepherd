@@ -83,7 +83,8 @@ function ChatHistory() {
           .filter(
             (item) =>
               Boolean(item.title) &&
-              item.title.toLowerCase().includes(searchValue.toLowerCase())
+              item.title.toLowerCase().includes(searchValue.toLowerCase()) &&
+              item.referenceDocIds
           )
           .map((item) => (
             <HistoryItem
