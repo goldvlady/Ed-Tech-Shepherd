@@ -190,30 +190,31 @@ const ChatArea = ({
   }, [userSelectedText.text, userSelectedText.purpose]);
 
   const submitMessageHandler = (selectedText?: string) => {
-    setMessages((prev) =>
-      prev.concat({
-        id: Date.now(), // Simplified ID generation, should be unique in a real application
-        studentId: studentId, // Placeholder, replace with dynamic student ID
-        log: {
-          role: 'user',
-          content: selectedText ? selectedText : userMessage
-        },
-        liked: false,
-        disliked: false,
-        isPinned: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        conversationId: conversationID //
-      })
-    );
+    const newMsg = {
+      id: Date.now(), // Simplified ID generation, should be unique in a real application
+      studentId: studentId, // Placeholder, replace with dynamic student ID
+      log: {
+        role: 'user',
+        content: selectedText ? selectedText : userMessage
+      },
+      liked: false,
+      disliked: false,
+      isPinned: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      conversationId: conversationID //
+    } as ChatMessage;
+    setMessages((prev) => prev.concat(newMsg));
     setStreamEnded(false);
+    const m = [...messages].concat(newMsg);
     const body = {
       studentId,
       query: selectedText ? selectedText : userMessage,
       language: 'English',
       conversationId: conversationID,
       documents: JSON.stringify(documents),
-      fetchMetadata: 'True'
+      fetchMetadata: 'True',
+      history: JSON.stringify(m.map((m) => `${m.log.role}: ${m.log.content}`))
     };
 
     // setUserMessage('');
