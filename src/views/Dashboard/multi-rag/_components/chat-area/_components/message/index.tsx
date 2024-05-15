@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { ThumbsUpIcon } from 'lucide-react';
 import React from 'react';
 import * as HoverCard from '@radix-ui/react-hover-card';
+import { off } from 'process';
 interface DocumentMetadata {
   page_label: string;
   file_name: string;
@@ -47,11 +48,16 @@ const Message = ({
   let prefix = '';
   let actualContent = content;
   const [showCitations, setShowCitations] = useState(false);
-  const citations = metadata
-    .reduce((acc, el) => acc.concat(el.find((e) => e.chat === content)), [])
-    .filter((el) => el);
+  const citations = metadata.reduce((acc, el) => {
+    const matches = el.filter((e) => e.chat === content);
+    if (matches.length > 0) {
+      matches.forEach((m) => acc.push(m));
+    }
+    return acc;
+  }, []);
+
   console.log(content, type);
-  console.log(metadata);
+  console.log('METADATA PASSED IN', metadata);
   console.log('citation', citations);
   for (const p of prefixes) {
     if (content.startsWith(p)) {

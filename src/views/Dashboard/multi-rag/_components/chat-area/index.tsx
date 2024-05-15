@@ -85,6 +85,7 @@ const ChatArea = ({
   }, [data]);
   useEffect(() => {
     if (vectorMD) {
+      console.log('VECTORMD', vectorMD.data);
       setVectorsMetadata(vectorMD.data);
     }
   }, [vectorMD]);
@@ -226,7 +227,7 @@ const ChatArea = ({
         'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     });
-    ore.fetchSSE((buffer, parts) => {
+    ore.fetchSSE((buffer) => {
       console.log(buffer);
 
       setFullBuffer(buffer);
