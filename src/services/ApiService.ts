@@ -1123,7 +1123,25 @@ class ApiService {
       }
     );
   };
-
+  static multiAddDoc = async (data: {
+    documentIds: Array<string>;
+    conversationId: string;
+  }) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/conversations/add-doc`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
   static multiDocVectorDocs = async (sId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
