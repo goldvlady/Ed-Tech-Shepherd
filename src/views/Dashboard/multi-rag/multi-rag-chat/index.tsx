@@ -224,6 +224,7 @@ function MultiRagChat() {
         user={user}
       />
       <LearningResourcesSection
+        refetch={refetch}
         user={user}
         conversationID={docId}
         selectedDocumentID={selectedDocumentID.id}

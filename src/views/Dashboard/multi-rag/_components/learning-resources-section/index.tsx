@@ -11,12 +11,14 @@ const LearningResourcesSection = ({
   conversationID,
   selectedDocumentID: documentId,
   setHighlightedDocumentPageIndex,
-  user
+  user,
+  refetch
 }: {
   conversationID: string;
   selectedDocumentID: string;
   setHighlightedDocumentPageIndex;
   user: User;
+  refetch: boolean;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [currentTabOpened, setCurrentTabOpened] = useState<
@@ -59,6 +61,7 @@ const LearningResourcesSection = ({
         )}
         <SummarySection
           conversationID={conversationID}
+          refetch={refetch}
           selectedDoc={documentId}
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
@@ -85,17 +88,19 @@ const SummarySection = ({
   conversationID,
   selectedDoc,
   setCurrentTabOpened,
-  currentTabOpened
+  currentTabOpened,
+  refetch
 }: {
   conversationID: string;
   selectedDoc?: string;
   setCurrentTabOpened: any;
   currentTabOpened: string;
+  refetch: boolean;
 }) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   const { data } = useQuery({
-    queryKey: ['documentsBasedOnConversationID'],
+    queryKey: ['documentsBasedOnConversationID', conversationID, refetch],
     queryFn: () =>
       ApiService.fetchMultiDocBasedOnConversationID(conversationID).then(
         (res) => res.json()
@@ -113,7 +118,7 @@ const SummarySection = ({
   });
 
   const { data: summary } = useQuery({
-    queryKey: ['summary'],
+    queryKey: ['summary', data],
     queryFn: () =>
       ApiService.multiDocSummary(JSON.stringify(data)).then((res) =>
         res.json()
