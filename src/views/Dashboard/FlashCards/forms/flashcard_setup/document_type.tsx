@@ -34,7 +34,7 @@ const FlashcardFromDocumentSetup = ({
   isAutomated?: boolean;
 }) => {
   const toast = useCustomToast();
-  const { user } = userStore();
+  const { user, hasActiveSubscription, flashcardCountLimit } = userStore();
   const {
     flashcardData,
     setFlashcardData,
@@ -134,17 +134,13 @@ const FlashcardFromDocumentSetup = ({
       try {
         // Assuming you have an API endpoint that checks the question count
         // Subscription and flashcard limit check
-        const { hasActiveSubscription } = userStore.getState();
         const flashcardCountResponse = await ApiService.checkFlashcardCount(
           user.student._id
         );
         const userFlashcardCount = await flashcardCountResponse.json();
-
         if (
           (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
-          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
-            userFlashcardCount.count >=
-              user.subscription.subscriptionMetadata.flashcard_limit)
+          userFlashcardCount.count >= flashcardCountLimit
         ) {
           setPlansModalMessage(
             !hasActiveSubscription
@@ -195,7 +191,11 @@ const FlashcardFromDocumentSetup = ({
 
   return (
     <Box bg="white" width="100%" mt="10px">
-      <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
+      <Text
+        fontSize={{ md: '24px', base: '1.1rem' }}
+        fontWeight="500"
+        marginBottom="5px"
+      >
         Set up flashcard
       </Text>
       <FormControl my={4}>
@@ -218,7 +218,7 @@ const FlashcardFromDocumentSetup = ({
           >
             {preferredLanguage || 'Select a language...'}
           </MenuButton>
-          <MenuList zIndex={3}>
+          <MenuList zIndex={3} width="100%">
             <Input
               size="sm"
               onChange={(e) => setSearchValue(e.target.value)}
@@ -238,6 +238,7 @@ const FlashcardFromDocumentSetup = ({
                 .map((lang) => (
                   <MenuItem
                     fontSize="0.875rem"
+                    width="100%"
                     key={lang}
                     _hover={{ bgColor: '#F2F4F7' }}
                     onClick={() =>
@@ -283,6 +284,7 @@ const FlashcardFromDocumentSetup = ({
           Deckname
         </FormLabel>
         <Input
+          fontSize="0.875rem"
           type="text"
           name="deckname"
           placeholder="e.g. Deckname"
@@ -311,7 +313,9 @@ const FlashcardFromDocumentSetup = ({
           }}
         >
           <Radio value="longTermRetention">
-            <Text fontSize="14px">Long term retention</Text>
+            <Text fontSize="14px" marginRight="15px">
+              Long term retention
+            </Text>
           </Radio>
           <Radio ml={0} value="quickPractice">
             <Text fontSize="14px"> Quick Practice</Text>
@@ -349,6 +353,7 @@ const FlashcardFromDocumentSetup = ({
         <Input
           type="number"
           min={1}
+          fontSize="0.875rem"
           name="numQuestions"
           placeholder="Number of questions"
           value={localData.numQuestions}
@@ -368,6 +373,7 @@ const FlashcardFromDocumentSetup = ({
           value={localData.startPage}
           onChange={handleChange}
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          fontSize="0.875rem"
         />
       </FormControl>
       <FormControl mb={8}>
@@ -380,6 +386,7 @@ const FlashcardFromDocumentSetup = ({
           placeholder="End Page Number"
           value={localData.endPage}
           onChange={handleChange}
+          fontSize="0.875rem"
           _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
         />
       </FormControl>

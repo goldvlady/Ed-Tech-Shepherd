@@ -5,6 +5,7 @@ function useStudentConversations({ studentId, ...options }) {
   const { data, isLoading, isError, isFetching, ...rest } = useQuery({
     queryKey: ['chatHistory', { studentId }],
     queryFn: () => fetchStudentConversations(studentId),
+    refetchOnWindowFocus: false,
     ...options
   });
 

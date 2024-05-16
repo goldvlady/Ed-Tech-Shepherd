@@ -42,7 +42,7 @@ const TopicQuizForm = ({
   uploadingState
 }) => {
   const toast = useCustomToast();
-  const { hasActiveSubscription, user } = userStore();
+  const { hasActiveSubscription, user, quizCountLimit } = userStore();
   const dummyData = {
     subject: '',
     topic: '',
@@ -100,10 +100,7 @@ const TopicQuizForm = ({
       const quizCountResponse = await ApiService.checkQuizCount(user._id);
       const userQuizCount = await quizCountResponse.json();
 
-      const limit = hasActiveSubscription
-        ? user.subscription?.subscriptionMetadata?.quiz_limit || 50000
-        : 40; // Default limit to 40 if on free tier
-      const quizzesRemaining = limit - userQuizCount.count;
+      const quizzesRemaining = quizCountLimit - userQuizCount.count;
 
       if (quizzesRemaining <= 0) {
         // User has reached or exceeded their limit
@@ -208,7 +205,7 @@ const TopicQuizForm = ({
   );
 
   return (
-    <Box width={'100%'} mt="20px">
+    <Box width={'100%'} mt="2rem">
       <FormControl mb={4}>
         <FormLabel textColor={'text.600'}>Preferred Language</FormLabel>
         <Menu>
@@ -218,12 +215,12 @@ const TopicQuizForm = ({
             rightIcon={<FiChevronDown />}
             borderRadius="8px"
             width="100%"
-            height="42px"
-            fontSize="0.875rem"
             fontFamily="Inter"
-            color=" #212224"
-            fontWeight="400"
             textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
           >
             {preferredLanguage || 'Select a language...'}
           </MenuButton>
@@ -233,11 +230,19 @@ const TopicQuizForm = ({
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search Language"
               value={searchValue}
+              height={'3rem'}
+              _placeholder={{
+                color: '#9A9DA2',
+                fontSize: '14px'
+              }}
+              fontSize={'0.87rem'}
+              fontWeight={400}
             />
             <div
               style={{
                 maxHeight: '200px',
-                overflowY: 'auto'
+                overflowY: 'auto',
+                marginTop: '10px'
               }}
             >
               {languages
@@ -265,45 +270,68 @@ const TopicQuizForm = ({
         <Input
           value={title}
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
-          height={'48px'}
           onChange={(e) => handleSetTitle(e.target.value)}
           autoComplete="off"
           defaultValue={title}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Subject: </FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Subject:
+          </span>
+        </FormLabel>
         <Input
           type="text"
           name="subject"
           placeholder="e.g. Chemistry"
           value={localData.subject}
           onChange={handleChange}
-          _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Enter a topic</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Enter a topic
+          </span>
+        </FormLabel>
         <Input
           type="text"
-          _placeholder={{
-            color: 'text.200',
-            fontSize: '14px'
-          }}
           name="topic"
           value={localData?.topic}
           onChange={handleChange}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 
       <FormControl mb={7}>
-        <FormLabel textColor={'text.600'}>Question type:</FormLabel>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Question type:
+          </span>
+        </FormLabel>
 
-        <SelectComponent
+        {/* <SelectComponent
           name="type"
           defaultValue={typeOptions.find(
             (option) => option.value === localData.type
@@ -320,14 +348,54 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {typeOptions.find((option) => option.value === localData.type)
+              ?.label || 'Select Type'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {typeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'type',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
-          Grade (optional):
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Grade (optional):
+          </span>
         </FormLabel>
-        <SelectComponent
+        {/* <SelectComponent
           name="grade"
           placeholder="Select grade"
           defaultValue={gradeOptions.find(
@@ -345,12 +413,54 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {gradeOptions.find((option) => option.value === localData.grade)
+              ?.label || 'Select Grade'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {gradeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'grade',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={8}>
-        <FormLabel textColor={'text.600'}>Level (optional): </FormLabel>
-        <SelectComponent
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Level (optional):
+          </span>
+        </FormLabel>
+        {/* <SelectComponent
           name="difficulty"
           placeholder="Select Level"
           defaultValue={levelOptions.find(
@@ -367,12 +477,53 @@ const TopicQuizForm = ({
             } as ChangeEvent<HTMLSelectElement>;
             handleChange(event);
           }}
-        />
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {levelOptions.find(
+              (option) => option.value === localData.difficulty
+            )?.label || 'Select Level'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {levelOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'difficulty',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChange(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </FormControl>
 
       <FormControl mb={7}>
         <FormLabel textColor={'text.600'}>
-          Number of questions
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Number of questions
+          </span>
           <Tooltip
             hasArrow
             label="Number of questions to create"
@@ -382,13 +533,17 @@ const TopicQuizForm = ({
           </Tooltip>
         </FormLabel>
         <Input
-          textColor={'text.700'}
-          height={'48px'}
           name="count"
           onChange={handleChange}
           type="text"
-          color={'text.200'}
           value={localData.count}
+          height={'3rem'}
+          _placeholder={{
+            color: '#9A9DA2',
+            fontSize: '14px'
+          }}
+          fontSize={'0.87rem'}
+          fontWeight={400}
         />
       </FormControl>
 

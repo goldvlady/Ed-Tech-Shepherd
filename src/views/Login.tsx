@@ -132,7 +132,6 @@ const Login: React.FC = () => {
         } else {
           handleNavigation();
         }
-        setLoading(false);
       }
     });
 

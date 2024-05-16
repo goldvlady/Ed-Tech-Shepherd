@@ -52,7 +52,7 @@ const FlashCardSetupInit = ({
   } = useFlashcardWizard();
 
   const toast = useCustomToast();
-  const { user } = userStore();
+  const { user, flashcardCountLimit } = userStore();
 
   const dummyData = {
     deckname: '',
@@ -225,9 +225,7 @@ const FlashCardSetupInit = ({
 
         if (
           (!hasActiveSubscription && userFlashcardCount.count >= 40) ||
-          (user.subscription?.subscriptionMetadata?.flashcard_limit &&
-            userFlashcardCount.count >=
-              user.subscription.subscriptionMetadata.flashcard_limit)
+          userFlashcardCount.count >= flashcardCountLimit
         ) {
           setPlansModalMessage(
             !hasActiveSubscription

@@ -1281,7 +1281,7 @@ input[type='text']:focus {
 
 .rmsc {
   position: relative;
-  z-index: 1; /* Adjust this value as needed */
+  // z-index: 1; /* Adjust this value as needed */
 }
 
 .rmsc .dropdown-container {
@@ -1297,7 +1297,11 @@ input[type='text']:focus {
   font-size: 0.875rem;
   position: relative;
 }
-
+.panel-content .select-panel {
+  z-index: 1;
+  height: 140px;
+  overflow-y: scroll;
+}
 @media only screen and (max-width: 992px) {
   .rmsc .dropdown-heading {
     width: 250% !important;
@@ -1701,7 +1705,17 @@ input.rpv-core__textbox {
   }
 }
 
-.react-draggable{
+.react-draggable {
   position: absolute !important;
   border: none !important;
+}
+
+.css-4ma18r {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chakra-modal__content .css-rrcl59 {
+    max-width: auto !important;
+  }
 }

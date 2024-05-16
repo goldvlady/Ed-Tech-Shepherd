@@ -27,7 +27,8 @@ import {
   RadioGroup,
   VStack,
   Center,
-  Icon
+  Icon,
+  Button
 } from '@chakra-ui/react';
 import {
   useState,
@@ -42,6 +43,7 @@ import styled from 'styled-components';
 import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import ImageOcclusion from './forms/flashcard_setup/manual-occlusion-2';
 import { cn } from '../../../library/utils';
+import useIsMobile from '../../../helpers/useIsMobile';
 
 const Wrapper = styled(Box)`
   select {
@@ -126,8 +128,7 @@ const useBoxWidth = (ref: RefObject<HTMLDivElement>): number => {
 
 const CreateFlashPage = () => {
   const toast = useCustomToast();
-  const { user }: any = userStore();
-  const { hasActiveSubscription } = userStore.getState();
+  const { user, hasActiveSubscription, activeSubscription }: any = userStore();
   const location = useLocation();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
@@ -160,18 +161,20 @@ const CreateFlashPage = () => {
     setTogglePlansModal(true);
   };
 
-  useEffect(() => {
-    if (!hasActiveSubscription) {
-      // Set messages and show the modal if the user has no active subscription
-      setPlansModalMessage(
-        !user.hadSubscription
-          ? 'Subscribe to unlock your AI Study Tools! 🚀'
-          : 'Pick a plan to access your AI Study Tools! 🚀'
-      );
-      setPlansModalSubMessage('One-click Cancel at anytime.');
-      setTogglePlansModal(true);
-    }
-  }, [user.subscription]);
+  //no longer worried about paywalling this for now, we have a freemmium tier
+  // useEffect(() => {
+  //   if (!hasActiveSubscription) {
+  //     // Set messages and show the modal if the user has no active subscription
+  //     setPlansModalMessage(
+  //       !user.hadSubscription
+  //         ? 'Subscribe to unlock your AI Study Tools! 🚀'
+  //         : 'Pick a plan to access your AI Study Tools! 🚀'
+  //     );
+  //     setPlansModalSubMessage('One-click Cancel at anytime.');
+  //     setTogglePlansModal(true);
+  //   }
+  // }, [user.subscription]);
+
   // const [settings, setSettings] = useState<SettingsType>({
   //   type: TypeEnum.INIT,
   //   source: SourceEnum.SUBJECT
@@ -403,6 +406,7 @@ const CreateFlashPage = () => {
   // } else {
 
   const [openPlansModel, setPlansModel] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <Box width={'100%'}>
@@ -441,7 +445,7 @@ const CreateFlashPage = () => {
                 borderBottom={'1px solid #E7E8E9'}
                 flexDirection={'column'}
                 width={'100%'}
-                padding="30px"
+                padding={{ md: '30px', base: '15px' }}
               >
                 <Box
                   display={'flex'}
@@ -459,22 +463,21 @@ const CreateFlashPage = () => {
                   >
                     Select a Source
                   </Text>
-                  <Text
-                    fontFamily="Inter"
-                    fontWeight="500"
-                    fontSize="12px"
-                    lineHeight="23px"
-                    color="#212224"
-                    mb={4}
-                    display={{ base: 'flex', md: 'none' }}
-                    alignItems={{ base: 'center' }}
-                    border={'1px solid #E7E8E9'}
-                    padding="8px"
-                    borderRadius={'10%'}
-                    onClick={onSwitchMobile}
-                  >
-                    View FlashCards & Mnemonics
-                  </Text>
+
+                  {!switchonMobile && (
+                    <Button
+                      variant="solid"
+                      colorScheme="primary"
+                      size="sm"
+                      ml="auto"
+                      fontSize={'14px'}
+                      padding="20px 25px"
+                      width="40%"
+                      onClick={onSwitchMobile}
+                    >
+                      Go Back
+                    </Button>
+                  )}
                 </Box>
 
                 <RadioGroup
@@ -501,33 +504,56 @@ const CreateFlashPage = () => {
                   }}
                   value={settings.source}
                 >
-                  <HStack align="start" spacing={7}>
-                    <Radio value={SourceEnum.DOCUMENT} isDisabled={isCompleted}>
-                      <Text color="#585F68">Document</Text>
-                    </Radio>
-                    <Radio value={SourceEnum.SUBJECT} isDisabled={isCompleted}>
-                      <Text color="#585F68">Auto</Text>
-                    </Radio>
-                    <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
-                      <Text color="#585F68">Manual</Text>
-                    </Radio>
-                    {user.subscription &&
-                      user.subscription.tier === 'Premium' && (
-                        <Radio value={SourceEnum.ANKI} isDisabled={isCompleted}>
-                          <Text color="#585F68">Anki</Text>
-                        </Radio>
-                      )}
-                    <Radio value={SourceEnum.IMAGE_OCCLUSION}>
-                      <Text color="#585F68">Image Occlusion</Text>
-                    </Radio>
-                  </HStack>
+                  {switchonMobile && (
+                    <HStack
+                      align={{ md: 'start', base: 'center' }}
+                      overflowX={{ base: 'scroll', md: 'hidden' }}
+                      overflowY="hidden"
+                      spacing={7}
+                      sx={{
+                        '&::-webkit-scrollbar': {
+                          display: 'none' // Hides the scrollbar for webkit browsers
+                        },
+                        scrollbarWidth: 'none', // For Firefox
+                        msOverflowStyle: 'none' // For Internet Explorer and Edge
+                      }}
+                    >
+                      <Radio
+                        value={SourceEnum.DOCUMENT}
+                        isDisabled={isCompleted}
+                      >
+                        <Text color="#585F68">Document</Text>
+                      </Radio>
+                      <Radio
+                        value={SourceEnum.SUBJECT}
+                        isDisabled={isCompleted}
+                      >
+                        <Text color="#585F68">Auto</Text>
+                      </Radio>
+                      <Radio value={SourceEnum.MANUAL} isDisabled={isCompleted}>
+                        <Text color="#585F68">Manual</Text>
+                      </Radio>
+                      {hasActiveSubscription &&
+                        activeSubscription.tier === 'Premium' && (
+                          <Radio
+                            value={SourceEnum.ANKI}
+                            isDisabled={isCompleted}
+                          >
+                            <Text color="#585F68">Anki</Text>
+                          </Radio>
+                        )}
+                      <Radio value={SourceEnum.IMAGE_OCCLUSION}>
+                        <Text color="#585F68">Image Occlusion</Text>
+                      </Radio>
+                    </HStack>
+                  )}
                 </RadioGroup>
               </Box>
             )}
             {switchonMobile ? (
               <Box
-                py="45px"
-                paddingX={'30px'}
+                py={{ md: '45px', base: '15px' }}
+                paddingX={{ md: '30px', base: '15px' }}
                 boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
                 width="95%"
                 borderRadius="10px"
@@ -560,6 +586,22 @@ const CreateFlashPage = () => {
                 }}
               >
                 {form}
+                {isMobile && (
+                  <Button
+                    variant="solid"
+                    colorScheme="primary"
+                    size="sm"
+                    ml="auto"
+                    fontSize={'14px'}
+                    mt={4}
+                    padding="20px 25px"
+                    marginLeft="80px"
+                    onClick={onSwitchMobile}
+                    isDisabled={loading}
+                  >
+                    View FlashCards & Mnemonics
+                  </Button>
+                )}
               </Box>
             ) : (
               <Box

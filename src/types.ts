@@ -157,6 +157,23 @@ export type Subscription = {
   subscriptionMetadata?: SubscriptionMetadata;
 };
 
+export type MobileSubscription = {
+  user?: User;
+  mobileSubscriptionId: string;
+  tier?: 'Basic' | 'Premium';
+  status: 'active' | 'expired' | 'cancelled';
+  originalPurchaseDate?: Date;
+  latestPurchaseDate?: Date;
+  originalPurchaseDateMillis?: number;
+  latestPurchaseDateMillis?: number;
+  expirationDate?: Date;
+  expirationDateMillis?: number;
+  willRenew?: boolean;
+  subscriptionMetadata?: SubscriptionMetadata;
+  productIdentifier?: string;
+  lookup_key?: string;
+};
+
 export enum UserNotificationTypes {
   LESSON_SESSION_STARTED = 'lesson_session_started',
   NEW_OFFER_RECEIVED = 'new_offer_received',
@@ -173,6 +190,7 @@ export interface User extends TimestampedEntity {
   avatar?: string;
   dob: string;
   referralCode?: string;
+  school?: any;
   tutor?: Tutor;
   student?: Student;
   isVerified: boolean;
@@ -185,6 +203,8 @@ export interface User extends TimestampedEntity {
   streamTokens?: StreamToken[];
   subscription?: Subscription;
   hasActiveSubscription: boolean;
+  mobileSubscription?: MobileSubscription;
+  isMobileSubscription: boolean | null;
   hadSubscription: boolean;
   onboardCompleted: boolean;
   userRole: 'student' | 'tutor' | 'both';
@@ -215,6 +235,7 @@ export interface Tutor extends TimestampedEntity {
   active?: boolean;
   description?: string;
   avatar?: string;
+  calendlyLink?: string;
   cv: string;
   tz: string;
   identityDocument?: string;
@@ -318,6 +339,9 @@ export interface Score {
   passed: number;
   failed: number;
   notRemembered: number;
+  questionsPassed?: string[];
+  questionsFailed?: string[];
+  questionsNotRemembered?: string[];
   date: string;
 }
 
@@ -404,6 +428,7 @@ export interface Study {
   id: number;
   type: 'timed' | 'manual';
   questions: string;
+  questionId?: string;
   helperText?: string;
   explanation?: string;
   answers: string | string[];
@@ -418,7 +443,8 @@ export enum SessionType {
   FLASHCARD = 'flashcard',
   NOTES = 'notes',
   DOCCHAT = 'docchat',
-  HOMEWORK = 'homework'
+  HOMEWORK = 'homework',
+  LECTURES = 'lecture'
 }
 
 export interface SchedulePayload {

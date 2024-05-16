@@ -84,7 +84,8 @@ const OcclusionFlashcardTab = () => {
   const [state, setState] = useState(initialState);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 5
+    limit: 5,
+    totalPages: 20
   });
   const [paginationUserInput, setPaginationUserInput] = useState(
     pagination.page
@@ -132,6 +133,19 @@ const OcclusionFlashcardTab = () => {
       }
     });
   };
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function to remove the event listener
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (isSuccess) {
@@ -240,11 +254,50 @@ const OcclusionFlashcardTab = () => {
     setPaginationUserInput(pagination.page + 1);
   };
 
+  // const renderPaginationItems = () => {
+  //   const totalVisibleItems = window.innerWidth <= 768 ? 3 : pagination.limit; // Adjust based on screen width
+  //   const halfVisibleItems = Math.floor(totalVisibleItems / 2);
+
+  //   let start = pagination.page - halfVisibleItems;
+  //   start = Math.max(start, 1); // Ensure the start is at least 1
+
+  //   const end = start + totalVisibleItems;
+  //   const items = [];
+
+  //   for (let i = start; i < end; i++) {
+  //     if (i > pagination.totalPage) break;
+
+  //     items.push(
+  //       <PaginationItem
+  //         key={i}
+  //         onClick={() => {
+  //           setPagination((pS) => ({ ...pS, page: i }));
+  //           setPaginationUserInput(i);
+  //         }}
+  //       >
+  //         <PaginationLink href="#" isActive={i === pagination.page}>
+  //           {i}
+  //         </PaginationLink>
+  //       </PaginationItem>
+  //     );
+  //   }
+
+  //   return items;
+  // };
+
   const renderPaginationItems = () => {
-    const start = pagination.page > 1 ? pagination.page - 1 : 1;
+    const totalVisibleItems = windowWidth <= 768 ? 3 : pagination.limit; // Adjust based on screen width
+    const halfVisibleItems = Math.floor(totalVisibleItems / 2);
+
+    let start = pagination.page - halfVisibleItems;
+    start = Math.max(start, 1); // Ensure the start is at least 1
+
+    const end = start + totalVisibleItems;
     const items = [];
 
-    for (let i = start; i < start + pagination.limit; i++) {
+    for (let i = start; i < end; i++) {
+      if (i > pagination?.limit) break; // Assuming totalPages is the maximum number of pages
+
       items.push(
         <PaginationItem
           key={i}
@@ -253,7 +306,7 @@ const OcclusionFlashcardTab = () => {
             setPaginationUserInput(i);
           }}
         >
-          <PaginationLink href="#" isActive={i === pagination.page || i === 0}>
+          <PaginationLink href="#" isActive={i === pagination.page}>
             {i}
           </PaginationLink>
         </PaginationItem>
@@ -267,9 +320,9 @@ const OcclusionFlashcardTab = () => {
 
   return (
     <div className="w-full h-full pt-4">
-      <div className="filter-section flex justify-between px-4 gap-4">
+      <div className="filter-section md:flex block justify-between px-4 gap-4">
         <div
-          className={cn('flex gap-4 items-center transition-opacity', {
+          className={cn('md:flex block gap-4 items-center transition-opacity', {
             'opacity-0': !checkedRows.length,
             'pointer-events-none': !checkedRows.length
           })}
@@ -277,7 +330,7 @@ const OcclusionFlashcardTab = () => {
           <Button className="bg-red-500">Delete Selected</Button>
           <Button>Add Tags</Button>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="flex md:justify-end justify-center mb-[25px] md:mb-0 gap-4 items-center">
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button className="bg-white" variant="outline">
@@ -336,6 +389,7 @@ const OcclusionFlashcardTab = () => {
           </DropdownMenu>
         </div>
       </div>
+      {/* <div className="md:block hidden"> */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -392,7 +446,7 @@ const OcclusionFlashcardTab = () => {
       <div className="flex items-center justify-end space-x-2 py-4">
         <Pagination>
           <PaginationContent>
-            <PaginationItem className="flex gap-2 border rounded p-1">
+            <PaginationItem className="hidden md:flex gap-2 border rounded p-1">
               <Input
                 min={1}
                 type="number"
@@ -419,7 +473,7 @@ const OcclusionFlashcardTab = () => {
                 <TrackNextIcon className="w-4 h-4" />
               </Button>
             </PaginationItem>
-            <PaginationItem>
+            <PaginationItem className="ml-25 mr-25">
               <PaginationPrevious
                 href="#"
                 onClick={handlePreviousClick}

@@ -56,7 +56,8 @@ import {
   IconButton,
   Textarea,
   InputLeftElement,
-  HStack
+  HStack,
+  Link
 } from '@chakra-ui/react';
 import { ref } from '@firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
@@ -74,6 +75,8 @@ import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
 import { RiArrowRightSLine } from 'react-icons/ri';
 import Availability from '../../../components/Availability';
+import FileUpload from '../../Dashboard/FlashCards/components/fileUploadField';
+import uploadFile from '../../../helpers/file.helpers';
 
 interface SubjectLevel {
   subject: string;
@@ -110,13 +113,13 @@ function MyProfile(props) {
 
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
   const [isLoading, setIsLoading] = useState(false);
+  const [icsFile, setIcsFile] = useState(null);
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
 
-  // const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [isEmailSent, setIsEmailSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [fields, setFields] = useState({
+    calendlyLink: tutorData.tutor.calendlyLink
+  });
   const {
     isOpen: isUpdateHourlyRateModalOpen,
     onOpen: openUpdateHourlyRateModal,
@@ -357,7 +360,34 @@ function MyProfile(props) {
       return updatedSubjectLevels;
     });
   };
+  const onHandleFile = (file: File) => {
+    const uploadEmitter = uploadFile(file, {
+      studentID: user?._id as string,
+      documentID: file.name
+    });
 
+    uploadEmitter.on('progress', (progress: number) => {
+      if (progress && progress < 99 && !isLoading) {
+        setIsLoading(true);
+      }
+    });
+
+    uploadEmitter.on('complete', (uploadFile) => {
+      setIcsFile((prev) => ({ ...prev, documentId: uploadFile.fileUrl }));
+      setIsLoading(false);
+    });
+    uploadEmitter.on('error', (error) => {
+      setIsLoading(false);
+    });
+  };
+
+  const disallowAvailabilityUpdate = useMemo(() => {
+    if (user.school) {
+      return Boolean((fields.calendlyLink?.length || 0) === 0);
+    }
+    return !isScheduleValid || !schedule || isUpdating;
+  }, [fields.calendlyLink, isScheduleValid, schedule, isUpdating, user.school]);
+  const calendlyUrl = 'https://calendly.com/';
   return (
     <Box>
       {tutorData && (
@@ -392,126 +422,129 @@ function MyProfile(props) {
                 </Text>
               </Stack>
             </Flex>
-            <Divider />
-            <Flex alignItems="center" gap={2} py={4}>
-              <Text
-                color="#6E7682"
-                fontSize="12px"
-                fontWeight="400"
-                wordBreak={'break-word'}
-                textTransform="uppercase"
-              >
-                Hourly Rate
-              </Text>
-              <Text
-                color="neutral.800"
-                fontSize="base"
-                fontWeight="medium"
-                fontFamily="Inter"
-                lineHeight="21px"
-                letterSpacing="tight"
-              >
-                {`$${tutorData.tutor.rate}.00/hr`}
-              </Text>
-              <Spacer />
+            {!user.school && (
+              <>
+                <Divider />
+                <Flex alignItems="center" gap={2} py={4}>
+                  <Text
+                    color="#6E7682"
+                    fontSize="12px"
+                    fontWeight="400"
+                    wordBreak={'break-word'}
+                    textTransform="uppercase"
+                  >
+                    Hourly Rate
+                  </Text>
+                  <Text
+                    color="neutral.800"
+                    fontSize="base"
+                    fontWeight="medium"
+                    fontFamily="Inter"
+                    lineHeight="21px"
+                    letterSpacing="tight"
+                  >
+                    {`$${tutorData.tutor.rate}.00/hr`}
+                  </Text>
+                  <Spacer />
+                  <Box
+                    w="30px"
+                    h="30px"
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    position="relative"
+                    cursor={'pointer'}
+                    onClick={openUpdateHourlyRateModal}
+                  >
+                    <Center w="100%" h="100%" position="absolute">
+                      <MdEdit />
+                    </Center>
+                  </Box>
+                </Flex>
+              </>
+            )}
+          </Box>
+          {!user.school && (
+            <>
+              {' '}
               <Box
-                w="30px"
-                h="30px"
-                borderRadius="full"
+                p={4}
+                bg="white"
+                borderRadius={10}
                 borderWidth="1px"
-                borderColor="gray.200"
-                position="relative"
-                cursor={'pointer'}
-                onClick={openUpdateHourlyRateModal}
+                borderColor="#EEEFF1"
+                justifyContent="center"
+                alignItems="center"
+                my={4}
               >
-                <Center w="100%" h="100%" position="absolute">
-                  <MdEdit />
+                <Flex alignItems="center">
+                  <Text
+                    color="#6E7682"
+                    fontSize="12px"
+                    fontWeight="400"
+                    wordBreak={'break-word'}
+                    textTransform="uppercase"
+                  >
+                    Intro Video
+                  </Text>
+                  <Spacer />
+                  <Box
+                    w="30px"
+                    h="30px"
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    position="relative"
+                    cursor={'pointer'}
+                    onClick={openUpdateVideoModal}
+                  >
+                    <Center w="100%" h="100%" position="absolute">
+                      <MdEdit />
+                    </Center>
+                  </Box>
+                </Flex>
+                <Center position="relative" borderRadius={10} my={2}>
+                  <Box
+                    h={{ base: '170px', md: '170px' }}
+                    w={{ base: 'full', md: 'full' }}
+                  >
+                    <video
+                      title="tutor-video"
+                      controls
+                      style={{
+                        borderRadius: 10,
+                        width: '100%',
+                        height: '100%'
+                      }}
+                    >
+                      <source
+                        src={tutorData.tutor.introVideo}
+                        type="video/mp4"
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  </Box>{' '}
+                  {/* </AspectRatio> */}
+                  <Center
+                    color="white"
+                    display={vidOverlay ? 'flex' : 'none'}
+                    position={'absolute'}
+                    bg="#0D1926"
+                    opacity={'75%'}
+                    boxSize="full"
+                  >
+                    <VStack>
+                      <BiPlayCircle
+                        onClick={() => setVidOverlay(false)}
+                        size={'50px'}
+                      />
+                      <Text display={'inline'}> play intro video</Text>
+                    </VStack>
+                  </Center>
                 </Center>
               </Box>
-            </Flex>
-          </Box>
-          <Box
-            p={4}
-            bg="white"
-            borderRadius={10}
-            borderWidth="1px"
-            borderColor="#EEEFF1"
-            justifyContent="center"
-            alignItems="center"
-            my={4}
-          >
-            <Flex alignItems="center">
-              <Text
-                color="#6E7682"
-                fontSize="12px"
-                fontWeight="400"
-                wordBreak={'break-word'}
-                textTransform="uppercase"
-              >
-                Intro Video
-              </Text>
-              <Spacer />
-              <Box
-                w="30px"
-                h="30px"
-                borderRadius="full"
-                borderWidth="1px"
-                borderColor="gray.200"
-                position="relative"
-                cursor={'pointer'}
-                onClick={openUpdateVideoModal}
-              >
-                <Center w="100%" h="100%" position="absolute">
-                  <MdEdit />
-                </Center>
-              </Box>
-            </Flex>
-            <Center position="relative" borderRadius={10} my={2}>
-              {/* <AspectRatio
-                h={{ base: '170px', md: '170px' }}
-                w={{ base: 'full', md: 'full' }}
-                ratio={1}
-                objectFit={'cover'}
-              > */}
-              {/* <iframe
-                  title="naruto"
-                  // src={'https://samplelib.com/lib/preview/mp4/sample-5s.mp4'}
-                  src={tutorData.tutor.introVideo}
-                  allowFullScreen
-                  style={{ borderRadius: 10 }}
-                /> */}
-              <Box
-                h={{ base: '170px', md: '170px' }}
-                w={{ base: 'full', md: 'full' }}
-              >
-                <video
-                  title="tutor-video"
-                  controls
-                  style={{ borderRadius: 10, width: '100%', height: '100%' }}
-                >
-                  <source src={tutorData.tutor.introVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </Box>{' '}
-              {/* </AspectRatio> */}
-              <Center
-                color="white"
-                display={vidOverlay ? 'flex' : 'none'}
-                position={'absolute'}
-                bg="#0D1926"
-                opacity={'75%'}
-                boxSize="full"
-              >
-                <VStack>
-                  <BiPlayCircle
-                    onClick={() => setVidOverlay(false)}
-                    size={'50px'}
-                  />
-                  <Text display={'inline'}> play intro video</Text>
-                </VStack>
-              </Center>
-            </Center>
-          </Box>
+            </>
+          )}
 
           <Box
             p={4}
@@ -621,72 +654,77 @@ function MyProfile(props) {
               </Box>
             </TableContainer>
           </Box>
-          <Box
-            p={4}
-            bg="white"
-            borderRadius={10}
-            borderWidth="1px"
-            borderColor="#EEEFF1"
-            justifyContent="center"
-            alignItems="center"
-            my={4}
-          >
-            <Flex alignItems="center">
-              <Text
-                color="#6E7682"
-                fontSize="12px"
-                fontWeight="400"
-                wordBreak={'break-word'}
-                textTransform="uppercase"
-              >
-                Qualifications
-              </Text>
-              <Spacer />
+          {!user.school && (
+            <>
               <Box
-                w="30px"
-                h="30px"
-                borderRadius="full"
+                p={4}
+                bg="white"
+                borderRadius={10}
                 borderWidth="1px"
-                borderColor="gray.200"
-                position="relative"
-                cursor={'pointer'}
-                onClick={openUpdateQualificationsModal}
+                borderColor="#EEEFF1"
+                justifyContent="center"
+                alignItems="center"
+                my={4}
               >
-                <Center w="100%" h="100%" position="absolute">
-                  <MdEdit />
-                </Center>
-              </Box>
-            </Flex>
-            {tutorData.tutor.qualifications.map((q) => (
-              <>
-                <Flex px={3} gap={0} direction={'row'} my={2}>
-                  <Box mb={4}>
-                    <FileAvi2 />
+                <Flex alignItems="center">
+                  <Text
+                    color="#6E7682"
+                    fontSize="12px"
+                    fontWeight="400"
+                    wordBreak={'break-word'}
+                    textTransform="uppercase"
+                  >
+                    Qualifications
+                  </Text>
+                  <Spacer />
+                  <Box
+                    w="30px"
+                    h="30px"
+                    borderRadius="full"
+                    borderWidth="1px"
+                    borderColor="gray.200"
+                    position="relative"
+                    cursor={'pointer'}
+                    onClick={openUpdateQualificationsModal}
+                  >
+                    <Center w="100%" h="100%" position="absolute">
+                      <MdEdit />
+                    </Center>
                   </Box>
-                  <Stack direction={'column'} px={4} spacing={1}>
-                    <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
-                      {q.institution}
-                    </Text>
-                    <Text
-                      fontWeight={400}
-                      color={'#585F68'}
-                      fontSize="14px"
-                      mb={'2px'}
-                    >
-                      {q.degree}
-                    </Text>
-
-                    <Spacer />
-                    <Text fontSize={12} fontWeight={400} color="#6E7682">
-                      {new Date(q.startDate).getFullYear()} -{' '}
-                      {new Date(q.endDate).getFullYear()}
-                    </Text>
-                  </Stack>
                 </Flex>
-                <Divider />
-              </>
-            ))}
-          </Box>
+                {tutorData.tutor?.qualifications?.map((q) => (
+                  <>
+                    <Flex px={3} gap={0} direction={'row'} my={2}>
+                      <Box mb={4}>
+                        <FileAvi2 />
+                      </Box>
+                      <Stack direction={'column'} px={4} spacing={1}>
+                        <Text fontSize={'16px'} fontWeight={'500'} mb={0}>
+                          {q.institution}
+                        </Text>
+                        <Text
+                          fontWeight={400}
+                          color={'#585F68'}
+                          fontSize="14px"
+                          mb={'2px'}
+                        >
+                          {q.degree}
+                        </Text>
+
+                        <Spacer />
+                        <Text fontSize={12} fontWeight={400} color="#6E7682">
+                          {new Date(q.startDate).getFullYear()} -{' '}
+                          {new Date(q.endDate).getFullYear()}
+                        </Text>
+                      </Stack>
+                    </Flex>
+                    <Divider />
+                  </>
+                ))}
+              </Box>
+            </>
+          )}
+
           <Box
             p={4}
             bg="white"
@@ -697,6 +735,7 @@ function MyProfile(props) {
             alignItems="center"
             my={4}
           >
+            {' '}
             <Flex alignItems="center">
               <Text
                 color="#6E7682"
@@ -723,14 +762,39 @@ function MyProfile(props) {
                 </Center>
               </Box>
             </Flex>
-            {/* <AvailabilityTable data={tutorData.tutor} /> */}
-            <Availability
-              schedule={tutorData.tutor.schedule}
-              timezone={tutorData.tutor.tz}
-              // handleUpdateSchedule={handleUpdateTutor}
-              // handleUpdateTimezone={handleUpdateTutor}
-              editMode={false}
-            />
+            {!user.school ? (
+              <>
+                {/* <AvailabilityTable data={tutorData.tutor} /> */}
+                <Availability
+                  schedule={tutorData.tutor.schedule}
+                  timezone={tutorData.tutor.tz}
+                  // handleUpdateSchedule={handleUpdateTutor}
+                  // handleUpdateTimezone={handleUpdateTutor}
+                  editMode={false}
+                />
+              </>
+            ) : (
+              <>
+                {/* <FormLabel>Calendly Url</FormLabel>{' '} */}
+                {/* <Input
+                  onChange={(e) => {
+                    setFields({ calendlyLink: e.target.value });
+                  }}
+                  defaultValue={}
+                /> */}
+
+                <Link
+                  href={tutorData.tutor.calendlyLink}
+                  color="#207df7"
+                  textDecoration="none"
+                  _hover={{ color: 'blue.600' }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tutorData.tutor.calendlyLink}
+                </Link>
+              </>
+            )}
           </Box>
         </>
       )}
@@ -745,26 +809,52 @@ function MyProfile(props) {
         }}
         footerContent={
           <div style={{ display: 'flex', gap: '8px' }}>
-            <Button
-              isDisabled={!isScheduleValid || !schedule || isUpdating}
-              onClick={() => handleUpdateTutor('schedule', schedule)}
-            >
-              {isUpdating ? 'Updating...' : 'Update'}
-            </Button>
+            {user.school ? (
+              <Button
+                isDisabled={disallowAvailabilityUpdate}
+                onClick={() =>
+                  handleUpdateTutor('calendlyLink', fields.calendlyLink)
+                }
+              >
+                {isUpdating ? 'Updating...' : 'Update'}
+              </Button>
+            ) : (
+              <Button
+                color="red"
+                onClick={() => handleUpdateTutor('schedule', schedule)}
+              >
+                {isUpdating ? 'Updating...' : 'Update'}
+              </Button>
+            )}
           </div>
         }
         onClose={closeUpdateAvailabilityModal}
       >
         <Box overflowY={'scroll'} px={6} w={'100%'}>
-          {/* {' '}
-          <AvailabilityEditForm updateSchedule={updateSchedule} /> */}
-          <Availability
-            schedule={tutorData.tutor.schedule}
-            timezone={tutorData.tutor.tz}
-            handleUpdateSchedule={updateSchedule}
-            handleUpdateTimezone={updateTimezone}
-            editMode={true}
-          />
+          {user.school ? (
+            <>
+              <FormLabel>calendly.com/</FormLabel>
+              <Input
+                onChange={(e) => {
+                  setFields({
+                    calendlyLink: `${calendlyUrl}${e.target.value}`
+                  });
+                }}
+                defaultValue={tutorData.tutor.calendlyLink.replace(
+                  `${calendlyUrl}`,
+                  ''
+                )}
+              />
+            </>
+          ) : (
+            <Availability
+              schedule={tutorData.tutor.schedule}
+              timezone={tutorData.tutor.tz}
+              handleUpdateSchedule={updateSchedule}
+              handleUpdateTimezone={updateTimezone}
+              editMode={true}
+            />
+          )}
         </Box>
       </CustomModal>
       <CustomModal

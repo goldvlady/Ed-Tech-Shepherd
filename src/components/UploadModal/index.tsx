@@ -50,7 +50,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
   setFile
 }) => {
   const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
-    userStore.getState();
+    userStore();
 
   const hasFile = Boolean(file);
   const [togglePlansModal, setTogglePlansModal] = useState(false);

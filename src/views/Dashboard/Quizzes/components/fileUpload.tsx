@@ -159,11 +159,10 @@ const FileUploadModal = ({
   onDocumentSelect = () => null,
   onIngestedDocument = () => null
 }: ShowProps) => {
-  const { user } = userStore();
+  const { user, hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
+    userStore();
   const { fetchStudentDocuments, studentDocuments: userDocuments } =
     documentStore();
-  const { hasActiveSubscription, fileSizeLimitMB, fileSizeLimitBytes } =
-    userStore.getState();
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState({
     active: false,

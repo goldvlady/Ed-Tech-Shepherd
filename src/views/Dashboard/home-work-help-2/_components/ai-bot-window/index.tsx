@@ -87,17 +87,19 @@ function AiChatBotWindow() {
     subject,
     topic,
     level,
-    language
+    language,
+    topicSecondary
   }: {
     subject: string;
     topic: string;
     level: string;
     language: (typeof languages)[number];
+    topicSecondary?: string;
   }) => {
-    const cq = { subject, topic, level, language };
+    const cq = { subject, topic, level, language, topicSecondary };
     setConnectionQuery(cq);
     // alert(JSON.stringify({ subject, topic }));
-    if (subject === 'Math') {
+    if (subject === 'Math' && topic.trim().length > 0) {
       try {
         const data = await createMathConvoMutation.mutateAsync({
           language,
@@ -118,9 +120,19 @@ function AiChatBotWindow() {
         // render toast
       }
     } else {
+      console.log('initiateConversation -> user', {
+        subject,
+        topic: topicSecondary || topic,
+        level,
+        language,
+        name: user?.name?.first,
+        studentId: studentId,
+        firebaseId: user?.firebaseId,
+        namespace: 'homework-help'
+      });
       startConversation({
         subject,
-        topic,
+        topic: subject === 'Math' ? topicSecondary : topic,
         level,
         language,
         name: user?.name?.first,

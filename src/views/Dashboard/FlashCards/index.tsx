@@ -55,6 +55,8 @@ import {
   TabsTrigger
 } from '../../../components/ui/tabs';
 import OcclusionFlashcardTab from './components/occlusion-flashcard-tab';
+import SelectableMobileTable from './mobileTable';
+import useIsMobile from '../../../helpers/useIsMobile';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -134,6 +136,8 @@ const CustomTable: React.FC = () => {
   const [selectedFlashcards, setSelectedFlashcard] = useState<Array<string>>(
     []
   );
+
+  const isMobile = useIsMobile();
 
   const [deleteItem, setDeleteItem] = useState<{
     flashcard?: FlashcardData;
@@ -826,7 +830,7 @@ const CustomTable: React.FC = () => {
           </Flex>
 
           <Tabs defaultValue="image-occlusion">
-            <TabsList className="grid w-[400px] grid-cols-2">
+            <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
               <TabsTrigger value="normal">Normal</TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
             </TabsList>
@@ -1045,7 +1049,7 @@ const CustomTable: React.FC = () => {
                         variant="solid"
                         mb="10px"
                         borderRadius={'10px'}
-                        marginLeft={'10px'}
+                        marginLeft={{ md: '10px', base: '0' }}
                         colorScheme={'primary'}
                         width={{ base: '100%', md: 'auto' }}
                         onClick={() => {
@@ -1082,8 +1086,29 @@ const CustomTable: React.FC = () => {
                   ) : (
                     ''
                   )}
-                  {flashcards && (
+                  {!isMobile && flashcards && (
                     <SelectableTable
+                      pagination
+                      currentPage={pagination.page}
+                      handlePagination={(nextPage) =>
+                        fetchFlashcards({
+                          page: nextPage,
+                          limit: pagination.limit
+                        })
+                      }
+                      pageCount={Math.ceil(pagination.count / pagination.limit)}
+                      onSelect={(selected) => setSelectedFlashcard(selected)}
+                      isSelectable
+                      columns={columns}
+                      dataSource={flashcards.map((card) => ({
+                        ...card,
+                        key: card._id
+                      }))}
+                    />
+                  )}
+
+                  {isMobile && flashcards && (
+                    <SelectableMobileTable
                       pagination
                       currentPage={pagination.page}
                       handlePagination={(nextPage) =>

@@ -3,7 +3,6 @@ import FlashcardEmpty from '../../assets/flashcard_empty_state.png';
 import StudySessionLogger from '../../helpers/sessionLogger';
 import { useSearchQuery } from '../../hooks';
 import flashcardStore from '../../state/flashcardStore';
-import useUserStore from '../../state/userStore';
 import {
   FlashcardData,
   Score,
@@ -51,6 +50,8 @@ import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useNavigate } from 'react-router';
+import userStore from '../../state/userStore';
+import { MdCancel } from 'react-icons/md';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -476,7 +477,7 @@ const StudyBox = () => {
     storeCurrentStudy,
     loadTodaysFlashcards
   } = flashcardStore();
-  const { user } = useUserStore();
+  const { user, hasActiveSubscription }: any = userStore();
   const toast = useCustomToast();
   const navigate = useNavigate();
   const apiKey = window.location.href.includes('apiKey');
@@ -497,7 +498,10 @@ const StudyBox = () => {
     score: 0,
     failed: 0,
     passed: 0,
-    notRemembered: 0
+    notRemembered: 0,
+    questionsPassed: [],
+    questionsFailed: [],
+    questionsNotRemembered: []
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
 
@@ -552,7 +556,10 @@ const StudyBox = () => {
       score: 0,
       failed: 0,
       passed: 0,
-      notRemembered: 0
+      notRemembered: 0,
+      questionsPassed: [],
+      questionsFailed: [],
+      questionsNotRemembered: []
     } as Score);
     setCardStyle('default');
     setActivityState({ isStarted: false, isFinished: false });
@@ -573,6 +580,7 @@ const StudyBox = () => {
             id: index + 1,
             type: studyType,
             questions: question.question,
+            questionId: question._id,
             answers: question.answer,
             currentStep: question.currentStep,
             explanation: question.explanation,
@@ -693,7 +701,11 @@ const StudyBox = () => {
         return {
           ...prevScore,
           score: (prevScore.score || 0) + 1,
-          passed: (prevScore.passed || 0) + 1
+          passed: (prevScore.passed || 0) + 1,
+          questionsPassed: [
+            ...(prevScore.questionsPassed || []),
+            currentStudy.questionId
+          ]
         };
       });
       setCorrectAnswerCount((prev) => prev + 1);
@@ -707,7 +719,11 @@ const StudyBox = () => {
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
-    const scoreKey = notRemembered ? 'failed' : 'notRemembered';
+    const scoreKey = notRemembered ? 'notRemembered' : 'failed';
+    const questionArrayKey = notRemembered
+      ? 'questionsNotRemembered'
+      : 'questionsFailed';
+
     if (flashcard && !apiKey) {
       const grade = notRemembered ? 'did not remember' : 'got it wrong';
       updateQuestionAttempt(
@@ -718,18 +734,25 @@ const StudyBox = () => {
       );
       loadTodaysFlashcards();
     }
+
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
       prev[currentStudyIndex] = curr;
 
-      setSavedScore((prev) => ({
-        ...prev,
-        [scoreKey]: (prev[scoreKey] || 0) + 1
-      }));
-
+      setSavedScore((prevScore) => {
+        return {
+          ...prevScore,
+          [scoreKey]: (prevScore[scoreKey] || 0) + 1,
+          [questionArrayKey]: [
+            ...(prevScore[questionArrayKey] || []),
+            currentStudy.questionId
+          ]
+        };
+      });
       return [...prev];
     });
+
     if (currentStudyIndex === 2 && apiKey) {
       setTogglePlansModal(true);
       return;
@@ -1038,40 +1061,35 @@ const StudyBox = () => {
               >
                 Got it wrong
               </Button>
-              {user &&
-                user.subscription &&
-                user.subscription.status === 'active' &&
-                apiKey && (
-                  <Button
-                    leftIcon={
-                      <Icon as={RiRemoteControlLine} fontSize={'16px'} />
-                    }
-                    display="flex"
-                    padding="16.5px 45.5px 16.5px 47.5px"
-                    justifyContent="center"
-                    isLoading={minorLoader}
-                    alignItems="center"
-                    borderRadius="8px"
-                    fontSize="16px"
-                    marginBottom={{ base: '15px' }}
-                    backgroundColor="#FEECEC"
-                    color="#000"
-                    flex="1"
-                    className="ml-3"
-                    height="54px"
-                    width={{ base: '100%', md: 'auto' }}
-                    onClick={cloneFlashcardHandler}
-                    loadingText="Clone Flashcard"
-                    transition="transform 0.3s"
-                    _hover={{
-                      background: '#FEECEC',
-                      transform: 'scale(1.05)'
-                    }}
-                    disabled={isLoading}
-                  >
-                    Clone Flashcard
-                  </Button>
-                )}
+              {user && hasActiveSubscription && apiKey && (
+                <Button
+                  leftIcon={<Icon as={RiRemoteControlLine} fontSize={'16px'} />}
+                  display="flex"
+                  padding="16.5px 45.5px 16.5px 47.5px"
+                  justifyContent="center"
+                  isLoading={minorLoader}
+                  alignItems="center"
+                  borderRadius="8px"
+                  fontSize="16px"
+                  marginBottom={{ base: '15px' }}
+                  backgroundColor="#FEECEC"
+                  color="#000"
+                  flex="1"
+                  className="ml-3"
+                  height="54px"
+                  width={{ base: '100%', md: 'auto' }}
+                  onClick={cloneFlashcardHandler}
+                  loadingText="Clone Flashcard"
+                  transition="transform 0.3s"
+                  _hover={{
+                    background: '#FEECEC',
+                    transform: 'scale(1.05)'
+                  }}
+                  disabled={isLoading}
+                >
+                  Clone Flashcard
+                </Button>
+              )}
             </Box>
           )
         )}
@@ -1082,7 +1100,7 @@ const StudyBox = () => {
   return (
     <Box
       padding={0}
-      display={'flex'}
+      display={{ base: 'flex', sm: 'block' }}
       justifyContent={'space-between'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
       flexDirection={'column'}
@@ -1093,10 +1111,16 @@ const StudyBox = () => {
         <Flex
           width="full"
           padding={{ base: '20px 15px', md: '20px' }}
-          justifyContent="space-between"
-          alignItems="center"
+          justifyContent={{ base: 'flex-start', md: 'space-between' }}
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          flexDirection={{ base: 'column', md: 'row' }}
         >
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            width={{ sm: '100%' }}
+            marginBottom={{ sm: '15px', md: '0' }}
+          >
             <Text
               fontFamily="Inter"
               fontWeight="500"
@@ -1120,7 +1144,12 @@ const StudyBox = () => {
               {flashcard?.deckname}
             </Text>
           </HStack>
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            justifyContent={{ sm: 'space-between', md: 'flex-end' }}
+            width={{ sm: '100%' }}
+          >
             <Button
               leftIcon={
                 isStarted ? (
@@ -1350,7 +1379,7 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
           // position="relative"
           borderRadius="12px"
           w="full" // Use the full width of the screen
-          maxW={{ base: '95%', sm: '80%', md: '700px' }} // Responsive max width
+          maxW={{ base: '95%', sm: 'auto', md: '700px' }} // Responsive max width
           mx="auto"
           position="relative"
         >

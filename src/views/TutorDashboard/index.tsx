@@ -1,4 +1,4 @@
-import { GridList, WelcomePage } from '../../components';
+import { GridList, Proceed, WelcomePage } from '../../components';
 import ApiService from '../../services/ApiService';
 import feedsStore from '../../state/feedsStore';
 import userStore from '../../state/userStore';
@@ -65,11 +65,19 @@ export default function Dashboard() {
       </Box>
     );
   }
-
+  const isEmptyObject = (obj) => {
+    for (const key in obj) {
+      if (obj[key].length > 0) {
+        return false;
+      }
+    }
+    return true;
+  };
   return (
     <>
       <WelcomePage user={user} />
-      {/* <Proceed user={user} /> */}
+      {isEmptyObject(user.tutor.schedule) && <Proceed user={user} />}
+
       <GridList data={tutorReport} />
       <Box my={3} p={6}>
         <Grid
@@ -102,7 +110,6 @@ export default function Dashboard() {
           </GridItem>
         </Grid>
       </Box>
-
       {/* <RecentTransactions /> */}
     </>
   );
