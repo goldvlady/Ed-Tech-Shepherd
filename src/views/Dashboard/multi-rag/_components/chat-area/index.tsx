@@ -206,6 +206,7 @@ const ChatArea = ({
     } as ChatMessage;
     setMessages((prev) => prev.concat(newMsg));
     setStreamEnded(false);
+    console.log('[Veerbal] - message sent');
     const m = [...messages].concat(newMsg);
     const docs = documents.map((doc) => ({
       collection_name: doc.collection_name,
@@ -240,9 +241,12 @@ const ChatArea = ({
     ore.fetchSSE((buffer) => {
       console.log(buffer);
 
+      console.log('[Veerbal] - 2 fetch SSE');
+
       setFullBuffer(buffer);
       if (buffer.includes('done with stream')) {
         setStreamEnded(true);
+        console.log('[Veerbal] - 3 done with stream');
       }
       if (buffer.includes(firstKeyword)) {
         return;
@@ -251,6 +255,7 @@ const ChatArea = ({
         // here eventually we will implement running out of credits like AI tutor
         //setOpenPricingModel(true);
         setStreamEnded(true);
+        console.log('[Veerbal] - 3 done with stream');
         return;
       }
       setCurrentChat(buffer);
@@ -293,7 +298,9 @@ const ChatArea = ({
               })}
           </>
         ) : null}
-        {currentChatRender}
+        {!streamEnded && (
+          <Message type="bot" content="" metadata={[]} clickable bubble />
+        )}
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea

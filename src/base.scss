@@ -1709,3 +1709,28 @@ input.rpv-core__textbox {
   position: absolute !important;
   border: none !important;
 }
+
+#message-loading-bubble .bubble-dot {
+  animation: bounce 0.8s infinite;
+}
+
+#message-loading-bubble .bubble-dot:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+#message-loading-bubble .bubble-dot:nth-child(3) {
+  animation-delay: 0.6s;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-40px);
+  }
+  75% {
+    transform: translateY(40px);
+  }
+}

@@ -33,7 +33,8 @@ const Message = ({
   isPinned,
   isLiked,
   metadata,
-  clickable
+  clickable,
+  bubble
 }: {
   id?: number;
   type: 'bot' | 'user';
@@ -42,6 +43,7 @@ const Message = ({
   content: string;
   loading?: boolean;
   isPinned?: boolean;
+  bubble?: boolean;
   isLiked?: boolean;
 }) => {
   const prefixes = ['Explain: ', 'Summarize: ', 'Translate: '];
@@ -90,10 +92,13 @@ const Message = ({
         <div
           className={cn('flex gap-1 relative', {
             'justify-end': type === 'user',
-            'bg-white rounded-[10px] shadow-md': type !== 'user'
+            'bg-white rounded-[10px] shadow-md': type !== 'user',
+            'bg-transparent shadow-none': bubble
           })}
         >
-          {prefix ? (
+          {bubble ? (
+            <Bubble />
+          ) : prefix ? (
             <QuoteMessage type={prefix} content={actualContent} />
           ) : (
             <div className="flex flex-col">
@@ -141,7 +146,7 @@ const Message = ({
               ) : null}
             </div>
           )}
-          {type === 'bot' && id && (
+          {!bubble && type === 'bot' && id && (
             <div
               style={{ pointerEvents: clickable ? 'auto' : 'none' }}
               className="absolute bottom-[-1.5rem] w-full flex justify-end gap-2"
@@ -269,6 +274,28 @@ const QuoteMessage = ({ type, content }) => {
           </span>
         </div>
       </div>
+    </div>
+  );
+};
+
+const Bubble = () => {
+  return (
+    <div
+      id="message-loading-bubble"
+      className="w-14 px-2 rounded-xl rounded-bl-none py-2 border flex bg-white shadow-md gap-1 justify-center"
+    >
+      <div
+        id="bubble-1"
+        className="bubble-dot bg-gray-200 w-2 h-2 rounded-full"
+      ></div>
+      <div
+        id="bubble-2"
+        className="bubble-dot bg-gray-200 w-2 h-2 rounded-full"
+      ></div>
+      <div
+        id="bubble-3"
+        className="bubble-dot bg-gray-200 w-2 h-2 rounded-full"
+      ></div>
     </div>
   );
 };
