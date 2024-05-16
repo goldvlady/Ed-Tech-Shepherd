@@ -4,6 +4,7 @@ import ThumbnailList from './_components/thumbnail-list';
 import ApiService from '../../../../../services/ApiService';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 import { User } from '../../../../../types';
+import { UseMutateFunction } from '@tanstack/react-query';
 
 const DocsThumbnailList = ({
   conversationID,
@@ -12,10 +13,20 @@ const DocsThumbnailList = ({
   setFilesUploading,
   isUploading,
   user,
-  refetch
+  refetch,
+  uploadExistingDocs
 }: {
   user: User;
   refetch: boolean;
+  uploadExistingDocs: UseMutateFunction<
+    any,
+    Error,
+    {
+      documentIds: Array<string>;
+      conversationId: string;
+    },
+    unknown
+  >;
   isUploading: boolean;
   conversationID: string;
   setSelectedDocumentID: ({ id, name }: { id: string; name: string }) => void;
@@ -69,6 +80,8 @@ const DocsThumbnailList = ({
       <ThumbnailList
         user={user}
         isUploading={isUploading}
+        conversationId={conversationID}
+        uploadExistingDocs={uploadExistingDocs}
         setFilesUploading={setFilesUploading}
         fetchedDocuments={fetchedDocuments}
         setSelectedDocumentID={setSelectedDocumentID}

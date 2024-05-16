@@ -10,15 +10,26 @@ import {
   Tooltip,
   useDisclosure
 } from '@chakra-ui/react';
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState
+} from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from '../../../../../../../library/utils';
 import useUserStore from '../../../../../../../state/userStore';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../../../../../services/ApiService';
-import { User } from '../../../../../../../types';
+import {
+  MultiragDocument,
+  User,
+  multiragResponse
+} from '../../../../../../../types';
 import * as Tabs from '@radix-ui/react-tabs';
-import { useQueryClient } from '@tanstack/react-query';
+import { UseMutateFunction, useQueryClient } from '@tanstack/react-query';
+import { DocItem } from '../../../doc-selector/_components/sections/select-documents';
 
 function ThumbnailList({
   fetchedDocuments,
@@ -26,9 +37,21 @@ function ThumbnailList({
   selectedDocumentID,
   setFilesUploading,
   user,
-  isUploading
+  isUploading,
+  uploadExistingDocs,
+  conversationId
 }: {
   user: User;
+  conversationId: string;
+  uploadExistingDocs: UseMutateFunction<
+    any,
+    Error,
+    {
+      documentIds: Array<string>;
+      conversationId: string;
+    },
+    unknown
+  >;
   isUploading: boolean;
   fetchedDocuments: any[];
   setSelectedDocumentID: ({ id, name }: { id: string; name: string }) => void;
@@ -46,8 +69,9 @@ function ThumbnailList({
 }) {
   const toast = useCustomToast();
   const qc = useQueryClient();
-
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [existingDocs, setExistingDocs] = useState<MultiragDocument[]>([]);
+  const [selected, setSelected] = useState<Array<string>>([]);
   const handleSubmit = (acceptedFiles) => {
     console.log('uploaded files', acceptedFiles);
     setFilesUploading({
@@ -114,7 +138,20 @@ function ThumbnailList({
       'application/pdf': ['.pdf']
     }
   });
-
+  useEffect(() => {
+    qc.ensureQueryData({
+      queryKey: ['processed-documents'],
+      queryFn: async () => {
+        const r: multiragResponse<Array<MultiragDocument>> =
+          await ApiService.multiDocVectorDocs(user._id).then((res) =>
+            res.json()
+          );
+        return r;
+      }
+    }).then((r) => {
+      setExistingDocs(r.data);
+    });
+  }, [user._id, qc]);
   return (
     <div className="w-full h-full mt-[1.5rem]">
       <h5 className="text-[#585F68] text-[0.75rem] font-normal mb-[10px] flex justify-between">
@@ -175,7 +212,53 @@ function ThumbnailList({
                   Add New Documents
                 </Tabs.Trigger>
               </Tabs.List>
-              <Tabs.Content value="tab1"></Tabs.Content>
+              <Tabs.Content
+                className="flex flex-col justify-start gap-2"
+                value="tab1"
+              >
+                {existingDocs.length > 0 &&
+                  existingDocs.map((document) => {
+                    return (
+                      <DocItem
+                        key={document.document_id}
+                        selected={selected.some(
+                          (e) => e === document.document_id
+                        )}
+                        layout={'grid'}
+                        document={document}
+                        onClick={() => {
+                          if (
+                            selected.some((e) => e === document.document_id)
+                          ) {
+                            setSelected((prevSelected) =>
+                              prevSelected.filter(
+                                (item) => item !== document.document_id
+                              )
+                            );
+                          } else {
+                            setSelected((prevSelected) => [
+                              ...prevSelected,
+                              document.document_id
+                            ]);
+                          }
+                        }}
+                      />
+                    );
+                  })}
+                {existingDocs.length > 0 && (
+                  <button
+                    onClick={() => {
+                      uploadExistingDocs({
+                        documentIds: selected,
+                        conversationId
+                      });
+                    }}
+                    className="text-xs p-2 w-full rounded-sm bg-[#207DF7] hover:bg-blue-200"
+                  >
+                    Add documents
+                  </button>
+                )}
+              </Tabs.Content>
               <Tabs.Content
                 className="flex items-center justify-center"
                 value="tab2"

@@ -43,7 +43,11 @@ function MultiRagChat() {
   });
   const navigate = useNavigate();
   const [togglePlansModal, setTogglePlansModal] = useState(false);
-  const { mutateAsync } = useMutation({
+  const {
+    mutateAsync,
+    mutate: addDocs,
+    isPending
+  } = useMutation({
     mutationKey: ['add-doc'],
     mutationFn: async (d: {
       documentIds: Array<string>;
@@ -51,6 +55,18 @@ function MultiRagChat() {
     }) => {
       const data = await ApiService.multiAddDoc(d).then((resp) => resp.json());
       return data;
+    },
+    onSuccess() {
+      setRefetch(true);
+      toast({
+        position: 'top-right',
+        title: `Documents Added to Conversation Successfully`,
+        status: 'success'
+      });
+      const timeout = setTimeout(() => {
+        setRefetch(false);
+        clearTimeout(timeout);
+      }, 1000);
     }
   });
   const toast = useCustomToast();
@@ -94,18 +110,8 @@ function MultiRagChat() {
 
           await mutateAsync({ documentIds, conversationId: docId });
           setFilesUploading({ uploading: 'success', tables: [], jobId: '' });
-          setRefetch(true);
 
           setIsLoading(false);
-          toast({
-            position: 'top-right',
-            title: `Documents Added to Conversation Successfully`,
-            status: 'success'
-          });
-          const timeout = setTimeout(() => {
-            setRefetch(false);
-            clearTimeout(timeout);
-          }, 1000);
         } else {
           // if it fails i don't wanna indefinitely keep uploading
           toast({
@@ -183,11 +189,16 @@ function MultiRagChat() {
       <DocsThumbnailList
         user={user}
         isUploading={
-          filesUploading.uploading === 'uploading' ? true : isLoading
+          filesUploading.uploading === 'uploading'
+            ? true
+            : isLoading
+            ? isLoading
+            : isPending
         }
         refetch={refetch}
         setFilesUploading={setFilesUploading}
         conversationID={docId}
+        uploadExistingDocs={addDocs}
         setSelectedDocumentID={setSelectedDocumentID}
         selectedDocumentID={selectedDocumentID}
       />

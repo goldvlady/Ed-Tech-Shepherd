@@ -197,7 +197,7 @@ const InputComp = ({
   );
 };
 
-const DocItem = ({
+export const DocItem = ({
   layout,
   document,
   selected,
