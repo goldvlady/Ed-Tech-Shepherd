@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
 import ShareModal from '../../../../../components/ShareModal';
 import { User } from '../../../../../types';
+import { Share1Icon } from '@radix-ui/react-icons';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -43,7 +44,19 @@ const LearningResourcesSection = ({
           }
         )}
       >
-        {user && <ShareModal type="docchat" />}
+        {user && (
+          <ShareModal
+            type="docchat"
+            customTriggerComponent={
+              <div className="h-[30px] rounded-[10px] bg-white flex justify-center items-center cursor-pointer select-none transition-shadow hover:shadow-md px-[0.43rem] py-[0.93rem]">
+                <Share1Icon className="mr-2" />
+                <span className="text-xs inline-block text-black whitespace-nowrap">
+                  Share
+                </span>
+              </div>
+            }
+          />
+        )}
         <SummarySection
           conversationID={conversationID}
           selectedDoc={documentId}
