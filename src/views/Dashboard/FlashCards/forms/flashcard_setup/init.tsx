@@ -141,8 +141,8 @@ const FlashCardSetupInit = ({
         localData?.studyType && localData.studyType === 'quickPractice'
           ? 'noRepeat'
           : 'spacedRepetition'
-    },
-    { label: 'Custom', value: 'custom' }
+    }
+    // { label: 'Custom', value: 'custom' }
   ];
 
   const levelOptions = [
