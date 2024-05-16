@@ -17,6 +17,8 @@ import useUserStore from '../../../../../../../state/userStore';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../../../../../services/ApiService';
 import { User } from '../../../../../../../types';
+import * as Tabs from '@radix-ui/react-tabs';
+import { useQueryClient } from '@tanstack/react-query';
 
 function ThumbnailList({
   fetchedDocuments,
@@ -43,6 +45,8 @@ function ThumbnailList({
   };
 }) {
   const toast = useCustomToast();
+  const qc = useQueryClient();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const handleSubmit = (acceptedFiles) => {
     console.log('uploaded files', acceptedFiles);
@@ -152,33 +156,59 @@ function ThumbnailList({
         <ModalContent>
           <ModalHeader>Add Documents</ModalHeader>
           <ModalCloseButton />
-          <ModalBody className="w-full !flex !items-center !justify-center">
-            <div
-              className={cn('w-full  cursor-pointer', {
-                'border border-dashed border-black transition-all': isDragActive
-              })}
-              {...getRootProps()}
-            >
-              <form encType="multipart/form-data">
-                <input {...getInputProps()} />
-              </form>
-              <div className="cc flex-col">
-                <div className="icon mx-auto">
-                  <UploadIcon className="w-[3.81rem] h-[3.81rem]" />
+          <ModalBody className="w-full">
+            <Tabs.Root className="flex w-full flex-col" defaultValue="tab1">
+              <Tabs.List
+                className="shrink-0 flex border-b border-[#207DF7]"
+                aria-label="Manage your account"
+              >
+                <Tabs.Trigger
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-500 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  value="tab1"
+                >
+                  Add Existing Documents
+                </Tabs.Trigger>
+                <Tabs.Trigger
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-500 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  value="tab2"
+                >
+                  Add New Documents
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="tab1"></Tabs.Content>
+              <Tabs.Content
+                className="flex items-center justify-center"
+                value="tab2"
+              >
+                <div
+                  className={cn('w-full  cursor-pointer', {
+                    'border border-dashed border-black transition-all':
+                      isDragActive
+                  })}
+                  {...getRootProps()}
+                >
+                  <form encType="multipart/form-data">
+                    <input {...getInputProps()} />
+                  </form>
+                  <div className="cc flex-col">
+                    <div className="icon mx-auto">
+                      <UploadIcon className="w-[3.81rem] h-[3.81rem]" />
+                    </div>
+                    <div className="label mt-[5px]">
+                      <span className="text-lg font-medium text-[#212224]">
+                        Drag and Drop or{' '}
+                        <span className="text-[#207DF7]">Browse files</span>
+                      </span>
+                    </div>
+                    <p className="text-[0.93rem] whitespace-nowrap text-[#585F68] mt-[0.1rem]">
+                      Shepherd supports{' '}
+                      <span className="font-medium">.pdf, .txt, .doc</span>{' '}
+                      document formats
+                    </p>
+                  </div>
                 </div>
-                <div className="label mt-[5px]">
-                  <span className="text-lg font-medium text-[#212224]">
-                    Drag and Drop or{' '}
-                    <span className="text-[#207DF7]">Browse files</span>
-                  </span>
-                </div>
-                <p className="text-[0.93rem] whitespace-nowrap text-[#585F68] mt-[0.1rem]">
-                  Shepherd supports{' '}
-                  <span className="font-medium">.pdf, .txt, .doc</span> document
-                  formats
-                </p>
-              </div>
-            </div>
+              </Tabs.Content>
+            </Tabs.Root>
           </ModalBody>
         </ModalContent>
       </Modal>
