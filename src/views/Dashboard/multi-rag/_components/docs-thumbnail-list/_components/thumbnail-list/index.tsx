@@ -102,17 +102,6 @@ function ThumbnailList({
       });
   };
   const onDrop = useCallback((acceptedFiles: Array<File>) => {
-    // console.log(inputRef.current.files);
-    // const files = Object.keys(inputRef.current.files)
-    //   .map((f) => {
-    //     if (inputRef.current.files[f] === 'length') {
-    //       return null;
-    //     } else {
-    //       return inputRef.current.files[f];
-    //     }
-    //   })
-    //   .filter((el) => el);
-    // console.log(files);
     handleSubmit(acceptedFiles);
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
