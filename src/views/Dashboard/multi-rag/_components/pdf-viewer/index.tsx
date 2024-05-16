@@ -206,7 +206,7 @@ function PDFViewer({
               'w-1/2': false
             })}
           >
-            <div className="h-full w-full no-scrollbar">
+            <div className="h-full w-full no-scrollbar [&_div]:no-scrollbar">
               {selectedDocumentID.name && (
                 <Viewer
                   fileUrl={pdfURL}
