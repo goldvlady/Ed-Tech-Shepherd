@@ -101,27 +101,26 @@ function ThumbnailList({
         console.error('Error:', error);
       });
   };
-  const onDrop = useCallback(() => {
-    console.log(inputRef.current.files);
-    const files = Object.keys(inputRef.current.files)
-      .map((f) => {
-        if (inputRef.current.files[f] === 'length') {
-          return null;
-        } else {
-          return inputRef.current.files[f];
-        }
-      })
-      .filter((el) => el);
-    console.log(files);
-    handleSubmit(acceptedFiles.length === 0 ? files : acceptedFiles);
+  const onDrop = useCallback((acceptedFiles: Array<File>) => {
+    // console.log(inputRef.current.files);
+    // const files = Object.keys(inputRef.current.files)
+    //   .map((f) => {
+    //     if (inputRef.current.files[f] === 'length') {
+    //       return null;
+    //     } else {
+    //       return inputRef.current.files[f];
+    //     }
+    //   })
+    //   .filter((el) => el);
+    // console.log(files);
+    handleSubmit(acceptedFiles);
   }, []);
-  const { getRootProps, getInputProps, isDragActive, acceptedFiles, inputRef } =
-    useDropzone({
-      onDrop,
-      accept: {
-        'application/pdf': ['.pdf']
-      }
-    });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf']
+    }
+  });
 
   return (
     <div className="w-full h-full mt-[1.5rem]">
