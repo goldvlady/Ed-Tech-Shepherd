@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Message from './_components/message';
 import ApiService from '../../../../../services/ApiService';
 import { useQuery } from '@tanstack/react-query';
@@ -266,41 +267,43 @@ const ChatArea = ({
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
-        {isLoading && (
-          <>
-            <Message clickable metadata={[]} type="bot" loading content="" />
-            <Message clickable metadata={[]} type="user" loading content="" />
-            <Message clickable metadata={[]} type="bot" loading content="" />
-            <Message clickable metadata={[]} type="user" loading content="" />
-            <Message clickable metadata={[]} type="bot" loading content="" />
-            <Message clickable metadata={[]} type="user" loading content="" />
-            <Message clickable metadata={[]} type="bot" loading content="" />
-            <Message clickable metadata={[]} type="user" loading content="" />
-          </>
-        )}{' '}
-        {messages && messages.length > 0 ? (
-          <>
-            {messages
-              .sort((a, b) => a.id - b.id)
-              .map((msg) => {
-                return (
-                  <Message
-                    metadata={msg.log.role === 'user' ? [] : vectorsMetadata}
-                    id={msg.id}
-                    key={msg.id}
-                    type={msg.log.role === 'user' ? 'user' : 'bot'}
-                    content={msg.log.content}
-                    isPinned={msg.isPinned}
-                    isLiked={msg.liked}
-                    clickable={user ? true : false}
-                  />
-                );
-              })}
-          </>
-        ) : null}
-        {!streamEnded && (
-          <Message type="bot" content="" metadata={[]} clickable bubble />
-        )}
+        <AnimatePresence>
+          {isLoading && (
+            <>
+              <Message clickable metadata={[]} type="bot" loading content="" />
+              <Message clickable metadata={[]} type="user" loading content="" />
+              <Message clickable metadata={[]} type="bot" loading content="" />
+              <Message clickable metadata={[]} type="user" loading content="" />
+              <Message clickable metadata={[]} type="bot" loading content="" />
+              <Message clickable metadata={[]} type="user" loading content="" />
+              <Message clickable metadata={[]} type="bot" loading content="" />
+              <Message clickable metadata={[]} type="user" loading content="" />
+            </>
+          )}{' '}
+          {messages && messages.length > 0 ? (
+            <>
+              {messages
+                .sort((a, b) => a.id - b.id)
+                .map((msg) => {
+                  return (
+                    <Message
+                      metadata={msg.log.role === 'user' ? [] : vectorsMetadata}
+                      id={msg.id}
+                      key={msg.id}
+                      type={msg.log.role === 'user' ? 'user' : 'bot'}
+                      content={msg.log.content}
+                      isPinned={msg.isPinned}
+                      isLiked={msg.liked}
+                      clickable={user ? true : false}
+                    />
+                  );
+                })}
+            </>
+          ) : null}
+          {!streamEnded && (
+            <Message type="bot" content="" metadata={[]} clickable bubble />
+          )}
+        </AnimatePresence>
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
         <SuggestionArea
