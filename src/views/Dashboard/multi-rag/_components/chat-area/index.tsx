@@ -207,12 +207,16 @@ const ChatArea = ({
     setMessages((prev) => prev.concat(newMsg));
     setStreamEnded(false);
     const m = [...messages].concat(newMsg);
+    const docs = documents.map((doc) => ({
+      collection_name: doc.collection_name,
+      reference: doc.reference
+    }));
     const body = {
       studentId,
       query: selectedText ? selectedText : userMessage,
       language: 'English',
       conversationId: conversationID,
-      documents: JSON.stringify(documents),
+      documents: JSON.stringify(docs),
       fetchMetadata: 'True',
       history:
         m.length >= 4
