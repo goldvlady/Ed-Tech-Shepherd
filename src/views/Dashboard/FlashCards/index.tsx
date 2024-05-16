@@ -41,7 +41,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
 import { MultiSelect } from 'react-multi-select-component';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoCreateOutline } from 'react-icons/io5';
 import ShareModalMenu from '../../../components/ShareModalMenu';
@@ -154,7 +154,10 @@ const CustomTable: React.FC = () => {
     flashcardIds?: string[];
   } | null>(null);
 
-  const { flashcardId, studyDeckId } = useParams();
+  const { flashcardId } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const studyDeckId = queryParams.get('studyDeckId');
 
   const handleSelectionChange = (selectedOptions: Option[]) => {
     setMultiSelected(selectedOptions);
@@ -188,7 +191,9 @@ const CustomTable: React.FC = () => {
   };
 
   useEffect(() => {
-    loadFlashcardModal(studyDeckId);
+    if (studyDeckId) {
+      loadFlashcardModal(studyDeckId);
+    }
     // eslint-disable-next-line
   }, [studyDeckId]);
 

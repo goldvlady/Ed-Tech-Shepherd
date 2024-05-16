@@ -258,7 +258,10 @@ const RequireAuth = ({
   if (isAuthenticated && !allowTempAccess && !user?.isVerified) {
     navigate('/verification_pending');
   }
-  return isAuthenticated || allowTempAccess ? authenticated : unAuthenticated;
+  return isAuthenticated || allowTempAccess
+    ? authenticated
+    : (localStorage.setItem('preAuthRoute', window.location.href),
+      unAuthenticated);
 };
 
 const NotFound = () => {

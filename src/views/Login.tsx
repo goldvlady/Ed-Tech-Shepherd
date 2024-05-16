@@ -65,6 +65,7 @@ const Login: React.FC = () => {
 
   const handleNavigation = useCallback(async () => {
     let path = '/dashboard';
+    const preAuthRoute = localStorage.getItem('preAuthRoute');
     const url = window.location.href;
     const redirectIndex = url.indexOf('redirect=');
     const redirectPath =
@@ -96,6 +97,10 @@ const Login: React.FC = () => {
     }
     if (redirectPath && !path.includes('complete')) {
       path = path + redirectPath;
+    }
+    if (preAuthRoute) {
+      path = preAuthRoute;
+      localStorage.removeItem('preAuthRoute');
     }
     window.location.href = path;
   }, [appUser, navigate]);
