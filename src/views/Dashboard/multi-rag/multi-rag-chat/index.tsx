@@ -67,6 +67,14 @@ function MultiRagChat() {
         setRefetch(false);
         clearTimeout(timeout);
       }, 1000);
+    },
+    onError(error) {
+      console.log('ERROR ->', error);
+      toast({
+        position: 'top-right',
+        title: `Documents Upload Failed. Please retry.`,
+        status: 'error'
+      });
     }
   });
   const toast = useCustomToast();

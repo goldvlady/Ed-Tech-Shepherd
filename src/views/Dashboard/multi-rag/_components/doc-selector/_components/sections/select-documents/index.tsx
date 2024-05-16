@@ -201,12 +201,14 @@ export const DocItem = ({
   layout,
   document,
   selected,
-  onClick
+  onClick,
+  className
 }: {
   layout: 'grid' | 'list';
   document: any;
   selected: boolean;
   onClick: () => void;
+  className?: string;
 }) => {
   function truncateText(text, maxLength) {
     if (text.length > maxLength) {
@@ -230,7 +232,8 @@ export const DocItem = ({
           'shadow-xl hover:shadow-xl': selected && layout === 'grid',
           'shadow-sm hover:shadow-sm border-b-2 border-b-[#207DF7]':
             selected && layout === 'list'
-        }
+        },
+        className
       )}
     >
       <div

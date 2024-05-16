@@ -100,7 +100,7 @@ function ThumbnailList({
       position: 'top-right',
       title: `Documents upload started`,
       description: 'Hang on a second',
-      status: 'loading'
+      status: 'success'
     });
     const sid = user._id;
     // Use fetch to POST data
@@ -190,7 +190,7 @@ function ThumbnailList({
       </div>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent className="w-[60vw]">
+        <ModalContent className="!max-w-[80vw]">
           <ModalHeader>Add Documents</ModalHeader>
           <ModalCloseButton />
           <ModalBody className="w-full">
@@ -200,67 +200,81 @@ function ThumbnailList({
                 aria-label="Add documents to conversation"
               >
                 <Tabs.Trigger
-                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-200 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-300 select-none first:rounded-tl-md last:rounded-tr-md  hover:text-blue-400 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-pointer"
                   value="tab1"
                 >
                   Add Existing Documents
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-200 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-300 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-400 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-pointer"
                   value="tab2"
                 >
                   Add New Documents
                 </Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content
-                className="flex flex-col justify-start gap-2"
+                className="flex flex-col h-[50vh] justify-start gap-2"
                 value="tab1"
               >
-                {existingDocs.length > 0 &&
-                  existingDocs.map((document) => {
-                    return (
-                      <DocItem
-                        key={document.document_id}
-                        selected={selected.some(
-                          (e) => e === document.document_id
-                        )}
-                        layout={'grid'}
-                        document={document}
-                        onClick={() => {
-                          if (
-                            selected.some((e) => e === document.document_id)
-                          ) {
-                            setSelected((prevSelected) =>
-                              prevSelected.filter(
-                                (item) => item !== document.document_id
-                              )
-                            );
-                          } else {
-                            setSelected((prevSelected) => [
-                              ...prevSelected,
-                              document.document_id
-                            ]);
-                          }
-                        }}
-                      />
-                    );
-                  })}
+                <div className="grid grid-cols-3 my-4 gap-2 !h-11/12 overflow-y-scroll overflow-x-hidden">
+                  {existingDocs.length > 0 &&
+                    existingDocs.map((document) => {
+                      return (
+                        <DocItem
+                          key={document.document_id}
+                          selected={selected.some(
+                            (e) => e === document.document_id
+                          )}
+                          layout={'grid'}
+                          document={document}
+                          onClick={() => {
+                            if (
+                              selected.some((e) => e === document.document_id)
+                            ) {
+                              setSelected((prevSelected) =>
+                                prevSelected.filter(
+                                  (item) => item !== document.document_id
+                                )
+                              );
+                            } else {
+                              setSelected((prevSelected) => [
+                                ...prevSelected,
+                                document.document_id
+                              ]);
+                            }
+                          }}
+                        />
+                      );
+                    })}
+                </div>
                 {existingDocs.length > 0 && (
                   <button
                     onClick={() => {
+                      console.log('vars', {
+                        documentIds: selected,
+                        conversationId
+                      });
                       uploadExistingDocs({
                         documentIds: selected,
                         conversationId
                       });
+                      onClose();
+                      toast({
+                        position: 'top-right',
+                        title: `Documents upload started`,
+                        description: 'Hang on a second',
+                        status: 'success'
+                      });
+                      setSelected([]);
                     }}
-                    className="text-xs p-2 w-full rounded-sm bg-[#207DF7] hover:bg-blue-200"
+                    className="text-sm p-2 w-5/6 place-self-center rounded-md bg-[#207DF7] text-white hover:bg-blue-500"
                   >
                     Add documents
                   </button>
                 )}
               </Tabs.Content>
               <Tabs.Content
-                className="flex items-center justify-center"
+                className="flex items-center h-[50vh] justify-center"
                 value="tab2"
               >
                 <div
