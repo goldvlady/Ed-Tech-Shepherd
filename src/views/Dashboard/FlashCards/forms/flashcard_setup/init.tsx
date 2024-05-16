@@ -256,9 +256,18 @@ const FlashCardSetupInit = ({
   };
 
   const handleAuthClick = async () => {
-    const response = await ApiService.nylasAuth();
-    const data = await response.json();
-    window.location.href = data.url;
+    try {
+      const response = await ApiService.nylasAuth();
+      const data = await response.json();
+      window.location.href = data.url;
+    } catch (error) {
+      toast({
+        title: 'Error conneting to Calendar provider',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
   };
 
   const handleSessionDurationChange = (value) => {
