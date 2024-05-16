@@ -13,15 +13,37 @@ import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../state/userStore';
 import { cn } from '../../../../../../../library/utils';
-// import { Worker } from '@react-pdf-viewer/core';
-// import {
-//   Viewer,
-//   SpecialZoomLevel,
-//   ViewMode,
-//   ScrollMode
-// } from '@react-pdf-viewer/core';
 import { Link } from 'react-router-dom';
 import { memo, useState } from 'react';
+import { AnyObject } from 'chart.js/dist/types/basic';
+import { format, isToday, isYesterday } from 'date-fns';
+
+function groupConversationsByDate(conversations: any[]): any {
+  return conversations
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+    .reduce((acc: any, conversation) => {
+      const date = new Date(conversation.createdAt);
+      let key = '';
+
+      if (isToday(date)) {
+        key = 'Today';
+      } else if (isYesterday(date)) {
+        key = 'Yesterday';
+      } else {
+        key = format(date, 'dd MMMM yyyy');
+      }
+
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(conversation);
+
+      return acc;
+    }, {});
+}
 
 function ChatHistory() {
   const { user } = useUserStore();
@@ -36,6 +58,10 @@ function ChatHistory() {
     return null;
   }
   console.log('Doc chat history', data.data);
+
+  const groupedConversations = groupConversationsByDate(data?.data);
+
+  console.log('groupedConversations', groupedConversations);
 
   return (
     <div className="bg-white h-full flex flex-col">
@@ -75,7 +101,12 @@ function ChatHistory() {
         </h5>
       </div>
       <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10">
-        {data?.data
+        {Object.keys(groupedConversations).map((date) => {
+          return (
+            <HistoryItemGroup date={date} item={groupedConversations[date]} />
+          );
+        })}
+        {/* {data?.data
           ?.sort(
             (a, b) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -97,11 +128,30 @@ function ChatHistory() {
                 ]
               }
             />
-          ))}
+          ))} */}
       </div>
     </div>
   );
 }
+
+const HistoryItemGroup = ({ item, date }: { date: string; item: any }) => {
+  return (
+    <div className="w-full flex gap-2 flex-col my-2">
+      <p className="text-[10px] text-[#585F68] font-normal pl-5">{date}</p>
+      <div className="group-items flex flex-col gap-2">
+        {item.map((conversation) => {
+          return (
+            <HistoryItem
+              key={conversation.id}
+              id={conversation.id}
+              title={conversation.title}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 function truncateText(text, maxLength) {
   if (!text) return '';
@@ -112,37 +162,27 @@ function truncateText(text, maxLength) {
   }
 }
 
-const HistoryItem = memo(
-  ({
-    id,
-    title,
-    documentId
-  }: {
-    id: string;
-    title: string;
-    documentId: string;
-  }) => {
-    return (
-      <Link to={id}>
-        <div
-          className={cn(
-            'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer mx-auto my-2 hover:shadow-md'
-          )}
-        >
-          <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
-            <DotsHorizontalIcon />
-          </div>
-          {/* <PdfFirstPageImage documentId={documentId} /> */}
-          <div className="flex items-center gap-1 justify-between w-full z-10">
-            <p className="text-[#585F68] text-[10px] whitespace-nowrap">
-              {truncateText(title, 25)}
-            </p>
-          </div>
+const HistoryItem = memo(({ id, title }: { id: string; title: string }) => {
+  return (
+    <Link to={id}>
+      <div
+        className={cn(
+          'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer mx-auto my-2 hover:shadow-md'
+        )}
+      >
+        <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
+          <DotsHorizontalIcon />
         </div>
-      </Link>
-    );
-  }
-);
+        {/* <PdfFirstPageImage documentId={documentId} /> */}
+        <div className="flex items-center gap-1 justify-between w-full z-10">
+          <p className="text-[#585F68] text-[10px] whitespace-nowrap">
+            {truncateText(title, 25)}
+          </p>
+        </div>
+      </div>
+    </Link>
+  );
+});
 
 // const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
 //   const { data: pdfDocument } = useQuery({
