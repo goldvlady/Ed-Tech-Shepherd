@@ -137,9 +137,15 @@ function CreateStudyPlans() {
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
   const { courses: courseList, levels: levelOptions } = resourceStore();
-  const { user, fetchUserDocuments } = userStore();
 
-  const { fileSizeLimitBytes } = userStore.getState();
+  const {
+    user,
+    fetchUserDocuments,
+    hasActiveSubscription,
+    fileSizeLimitMB,
+    fileSizeLimitBytes
+  } = userStore();
+
   const btnRef = useRef();
   const toast = useCustomToast();
   const navigate = useNavigate();

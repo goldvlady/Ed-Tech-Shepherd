@@ -207,6 +207,12 @@ class ApiService {
     });
   };
 
+  static nylasAuth = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/nylasAuth`, {
+      method: 'POST'
+    });
+  };
+
   static getMnemonics = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
       method: 'POST',

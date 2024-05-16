@@ -338,7 +338,6 @@ const QuizCard = ({
           const { isCorrect } = options[toNumber(index)];
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
-
           handleSetScore(score, toNumber(questionIdx), [optionAnswer], _id);
           handleStoreQuizHistory(_id as string, toString(isCorrect));
         }
