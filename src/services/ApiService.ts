@@ -1208,6 +1208,22 @@ class ApiService {
     );
   };
 
+  static mutiDocUpdateTitle = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/multirag/update-title/${data.conversationId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
   static multiDocGetTitle = async (conversationID) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
