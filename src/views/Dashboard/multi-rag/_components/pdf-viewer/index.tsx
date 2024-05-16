@@ -221,7 +221,7 @@ function PDFViewer({
                   onDocumentLoad={(e) => {
                     setTotalPages(e.doc.numPages);
                   }}
-                  scrollMode={ScrollMode.Page}
+                  // scrollMode={ScrollMode.Page}
                   onPageChange={(e) => {
                     setCurrentPage(e.currentPage);
                   }}
