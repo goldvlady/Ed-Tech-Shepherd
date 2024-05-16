@@ -365,7 +365,7 @@ export interface FlashcardData {
   source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
-  StudyDetails?: FlashcardStudyDetails[];
+  studyDetails?: FlashcardStudyDetails[];
 }
 
 export interface LibraryCardData {
