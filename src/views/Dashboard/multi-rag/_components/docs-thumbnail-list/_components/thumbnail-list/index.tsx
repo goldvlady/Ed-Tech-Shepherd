@@ -190,23 +190,23 @@ function ThumbnailList({
       </div>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent className="w-[60vw]">
           <ModalHeader>Add Documents</ModalHeader>
           <ModalCloseButton />
           <ModalBody className="w-full">
             <Tabs.Root className="flex w-full flex-col" defaultValue="tab1">
               <Tabs.List
                 className="shrink-0 flex border-b border-[#207DF7]"
-                aria-label="Manage your account"
+                aria-label="Add documents to conversation"
               >
                 <Tabs.Trigger
-                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-500 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-200 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
                   value="tab1"
                 >
                   Add Existing Documents
                 </Tabs.Trigger>
                 <Tabs.Trigger
-                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-500 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
+                  className="bg-white px-5 h-[45px] flex-1 flex items-center justify-center text-[15px] leading-none text-blue-200 select-none first:rounded-tl-md last:rounded-tr-md hover:text-blue-200 data-[state=active]:text-[#207DF7] data-[state=active]:shadow-[inset_0_-1px_0_0,0_1px_0_0] data-[state=active]:focus:relative data-[state=active]:focus:shadow-[0_0_0_2px]  outline-none cursor-default"
                   value="tab2"
                 >
                   Add New Documents
