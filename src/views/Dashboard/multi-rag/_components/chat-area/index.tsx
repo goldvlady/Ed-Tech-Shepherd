@@ -12,6 +12,7 @@ import MessageArea from './_components/message-area';
 import SuggestionArea from './_components/suggestion-area';
 import InputArea from './_components/input-area';
 import { doFetch } from '../../../../../util';
+import { ChatScrollAnchor } from './_components/track-visibility';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -303,6 +304,7 @@ const ChatArea = ({
           {!streamEnded && (
             <Message type="bot" content="" metadata={[]} clickable bubble />
           )}
+          <ChatScrollAnchor trackVisibility={streamEnded} />
         </AnimatePresence>
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
