@@ -81,7 +81,7 @@ const Clients = () => {
       id: item._id
     })) || [];
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(40);
   const [allTutorClients, setAllTutorClients] = useState<any>([]);

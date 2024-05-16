@@ -21,9 +21,9 @@ const TopicList: React.FC<LibraryTopicProps> = ({
     }
   }, [subjectId, fetchlibraryTopics]);
 
-  if (isLoading && !libraryTopics?.length) {
-    return <LoaderOverlay />;
-  }
+  // if (isLoading && !libraryTopics?.length) {
+  //   return <LoaderOverlay />;
+  // }
   return !libraryTopics?.length ? (
     <Box
       display={'flex'}

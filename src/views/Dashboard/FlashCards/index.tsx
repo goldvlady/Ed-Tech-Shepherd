@@ -627,7 +627,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}

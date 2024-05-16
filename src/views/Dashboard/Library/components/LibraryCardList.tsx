@@ -181,9 +181,9 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
     setSelectedDifficulty(option);
   };
 
-  if (isLoading && !libraryCards?.length) {
-    return <LoaderOverlay />;
-  }
+  // if (isLoading && !libraryCards?.length) {
+  //   return <LoaderOverlay />;
+  // }
   return (
     <>
       {isModalOpen && (

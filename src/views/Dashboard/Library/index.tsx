@@ -238,10 +238,10 @@ const Library: React.FC = () => {
 
   return (
     <>
-      {providersLoading && !libraryProviders?.length && <LoaderOverlay />}
+      {/* {providersLoading && !libraryProviders?.length && <LoaderOverlay />}
       {displayMode === 'subjects' && isLoading && !librarySubjects?.length && (
         <LoaderOverlay />
-      )}
+      )} */}
 
       {!librarySubjects?.length && !hasSearched && !isLoading ? (
         <Box

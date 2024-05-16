@@ -18,9 +18,9 @@ const DeckList: React.FC<LibraryDeckProps> = ({ topicId, onSelectDeck }) => {
     }
   }, [topicId, fetchlibraryDecks]);
 
-  if (isLoading && !libraryDecks?.length) {
-    return <LoaderOverlay />;
-  }
+  // if (isLoading && !libraryDecks?.length) {
+  //   return <LoaderOverlay />;
+  // }
   return !libraryDecks?.length ? (
     <Box
       display={'flex'}

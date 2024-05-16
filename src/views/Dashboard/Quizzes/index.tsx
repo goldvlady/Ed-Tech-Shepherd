@@ -625,7 +625,7 @@ const Quizzes = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {(tagEditItem?.quiz || tagEditItem?.quizIds) && (
         <TagModal
           tags={tagEditItem?.quiz?.tags || []}

@@ -410,7 +410,7 @@ const CreateFlashPage = () => {
 
   return (
     <Box width={'100%'}>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       <Wrapper
         ref={wrapperRef}
         bg="white"
