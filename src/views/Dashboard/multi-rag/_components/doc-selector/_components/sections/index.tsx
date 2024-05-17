@@ -30,7 +30,7 @@ function Sections({
   );
 }
 
-const Section = ({
+export const Section = ({
   children,
   active
 }: {

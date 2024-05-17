@@ -118,7 +118,7 @@ function DocSelector() {
   );
 }
 
-const HeaderItem = ({
+export const HeaderItem = ({
   title,
   isActive,
   onClick,
