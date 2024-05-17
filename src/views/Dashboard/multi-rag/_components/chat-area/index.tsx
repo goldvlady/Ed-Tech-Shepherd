@@ -208,9 +208,7 @@ const ChatArea = ({
       conversationId: conversationID //
     } as ChatMessage;
     setMessages((prev) => prev.concat(newMsg));
-    setTimeout(() => {
-      setStreamEnded(false);
-    }, 1000);
+    setStreamEnded(false);
     const m = [...messages].concat(newMsg);
     const docs = documents.map((doc) => ({
       collection_name: doc.collection_name,
@@ -270,7 +268,7 @@ const ChatArea = ({
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {isLoading && (
             <>
               <Message clickable metadata={[]} type="bot" loading content="" />
