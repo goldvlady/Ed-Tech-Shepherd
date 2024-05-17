@@ -264,7 +264,7 @@ const ChatArea = ({
     });
   };
 
-  console.log('JUST A LOG');
+  console.log('JUST A LOG', currentChatRender, !streamEnded);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
@@ -301,10 +301,11 @@ const ChatArea = ({
                 })}
             </>
           ) : null}
-          {!streamEnded && (
+          {/* {currentChatRender} */}
+          {/* {!streamEnded && (
             <Message type="bot" content="" metadata={[]} clickable bubble />
-          )}
-          <ChatScrollAnchor trackVisibility={streamEnded} />
+          )} */}
+          {/* <ChatScrollAnchor trackVisibility={streamEnded} /> */}
         </AnimatePresence>
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
