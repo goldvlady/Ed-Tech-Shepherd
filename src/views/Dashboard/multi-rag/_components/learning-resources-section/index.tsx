@@ -98,6 +98,7 @@ const SummarySection = ({
   refetch: boolean;
 }) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [summaries, setSummaries] = useState([]);
 
   const { data } = useQuery({
     queryKey: ['documentsBasedOnConversationID', conversationID, refetch],
@@ -108,7 +109,6 @@ const SummarySection = ({
     select: (data) => {
       if (data.status === 'success') {
         const docIDs = data.data.map((item) => item.document_id);
-
         return docIDs;
       } else {
         return [];
@@ -125,12 +125,16 @@ const SummarySection = ({
       ),
     select: (data) => {
       if (data.status === 'success') {
+        if (summaries.length === 0) {
+          setSummaries(data.data);
+        }
         return data.data;
       } else {
         return [];
       }
     },
-    enabled: data && data.length > 0
+    refetchInterval: 2000,
+    enabled: data && data.length > 0 && summaries.length === 0
   });
 
   const index = data?.indexOf(selectedDoc);
