@@ -188,9 +188,9 @@ function ThumbnailList({
           />
         ))}
       </div>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
-        <ModalContent className="!max-w-[80vw]">
+        <ModalContent>
           <ModalHeader>Add Documents</ModalHeader>
           <ModalCloseButton />
           <ModalBody className="w-full">
@@ -216,7 +216,7 @@ function ThumbnailList({
                 className="flex flex-col h-[50vh] justify-start gap-2"
                 value="tab1"
               >
-                <div className="grid grid-cols-3 my-4 gap-2 !h-11/12 overflow-y-scroll overflow-x-hidden">
+                <div className="grid grid-cols-3 my-4 gap-2 !h-11/12 overflow-y-scroll overflow-x-hidden p-2 no-scrollbar">
                   {existingDocs.length > 0 &&
                     existingDocs.map((document) => {
                       return (
@@ -249,6 +249,7 @@ function ThumbnailList({
                 </div>
                 {existingDocs.length > 0 && (
                   <button
+                    disabled={selected.length <= 0}
                     onClick={() => {
                       console.log('vars', {
                         documentIds: selected,
@@ -267,7 +268,12 @@ function ThumbnailList({
                       });
                       setSelected([]);
                     }}
-                    className="text-sm p-2 w-5/6 place-self-center rounded-md bg-[#207DF7] text-white hover:bg-blue-500"
+                    className={cn(
+                      'text-sm p-2 w-5/6 place-self-center rounded-md bg-[#207DF7] text-white hover:bg-blue-500',
+                      {
+                        'opacity-50 cursor-not-allowed': selected.length <= 0
+                      }
+                    )}
                   >
                     Add documents
                   </button>
