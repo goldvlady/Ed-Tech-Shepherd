@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, File, Highlighter, PinOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
@@ -158,13 +158,22 @@ const SummarySection = ({
           }
         )}
       >
-        <p className="p-[1.625rem] text-[#585F68] text-[0.75rem]">
-          {summary
-            ? summary.length > 0
-              ? summary[index]
-              : 'No summaries found'
-            : 'Loading summaries...'}
-        </p>
+        {summary && summary?.length === 0 ? (
+          <div className="bg-white p-4 h-64 flex justify-center items-center">
+            <div className="flex justify-center flex-col gap-2 mr-2">
+              <File className="w-24 font-[4rem]" size={60} />
+              <p className="text-xs text-center">Summary not found</p>
+            </div>
+          </div>
+        ) : (
+          <p className="p-[1.625rem] text-[#585F68] text-[0.75rem]">
+            {summary
+              ? summary.length > 0
+                ? summary[index]
+                : 'No summaries found'
+              : 'Loading summaries...'}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -244,19 +253,26 @@ const HighlightsSection = ({
           }
         )}
       >
-        <div className="p-2 space-y-2">
-          {highlightPositions?.map((item) => (
-            <HighlightItem
-              title={item.name}
-              onClick={() => {
-                const pageIndex = item.position[0]
-                  ? item.position[0].pageIndex
-                  : 0;
-                setHighlightedDocumentPageIndex(pageIndex);
-              }}
-            />
-          ))}
-        </div>
+        {!highlightPositions?.length ? (
+          <div className="h-60 flex justify-center items-center flex-col">
+            <Highlighter size={48} />
+            <p className="p-2 text-sm text-gray-500">No highlights found</p>
+          </div>
+        ) : (
+          <div className="p-2 space-y-2">
+            {highlightPositions?.map((item) => (
+              <HighlightItem
+                title={item.name}
+                onClick={() => {
+                  const pageIndex = item.position[0]
+                    ? item.position[0].pageIndex
+                    : 0;
+                  setHighlightedDocumentPageIndex(pageIndex);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -312,13 +328,23 @@ const PinnedSection = ({
           }
         )}
       >
-        {data?.map((item) => {
-          return (
-            <div className="p-2 border rounded-md">
-              <p className="text-xs">{item.log.content}</p>
-            </div>
-          );
-        })}
+        {!data?.length ? (
+          <div className="h-60 flex justify-center items-center flex-col">
+            <PinOff size={48} />
+            <p className="p-2 text-sm text-gray-500 text-center">
+              No pinned messages yet. <br />
+              Pin a message to see it here.
+            </p>
+          </div>
+        ) : (
+          data?.map((item) => {
+            return (
+              <div className="p-2 border rounded-md">
+                <p className="text-xs">{item.log.content}</p>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
