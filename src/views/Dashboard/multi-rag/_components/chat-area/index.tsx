@@ -147,26 +147,27 @@ const ChatArea = ({
   }, [streamEnded, fullBuffer, vectorsMetadata]);
   console.log('FULL BUFFER', fullBuffer);
   console.log('vmd', vectorsMetadata);
-  const currentChatRender = useMemo(() => {
-    // This useCallback will return the ChatMessage component or null based on currentChat's value
-    // It ensures that the component is only re-rendered when currentChat changes
-    console.log('current chat is', currentChat);
+  // const currentChatRender = useMemo(() => {
+  //   // This useCallback will return the ChatMessage component or null based on currentChat's value
+  //   // It ensures that the component is only re-rendered when currentChat changes
+  //   console.log('current chat is', currentChat);
 
-    if (currentChat.length === 0) {
-      console.log(currentChat, 'should be empty');
-      return ''; // Don't render anything if there's no current chat content
-    }
+  //   if (currentChat.length === 0) {
+  //     console.log(currentChat, 'should be empty');
+  //     return ''; // Don't render anything if there's no current chat content
+  //   }
 
-    return (
-      <Message
-        clickable
-        metadata={[]}
-        key={Math.random()}
-        content={currentChat}
-        type={'bot'}
-      />
-    );
-  }, [currentChat]);
+  //   return (
+  //     <Message
+  //       clickable
+  //       metadata={[]}
+  //       key={Math.random()}
+  //       content={currentChat}
+  //       type={'bot'}
+  //       disableAnimation
+  //     />
+  //   );
+  // }, [currentChat]);
 
   useEffect(() => {
     if (userSelectedText.text && userSelectedText.purpose) {
@@ -207,8 +208,9 @@ const ChatArea = ({
       conversationId: conversationID //
     } as ChatMessage;
     setMessages((prev) => prev.concat(newMsg));
-    setStreamEnded(false);
-    console.log('[Veerbal] - message sent');
+    setTimeout(() => {
+      setStreamEnded(false);
+    }, 1000);
     const m = [...messages].concat(newMsg);
     const docs = documents.map((doc) => ({
       collection_name: doc.collection_name,
@@ -264,7 +266,7 @@ const ChatArea = ({
     });
   };
 
-  console.log('JUST A LOG', currentChatRender, !streamEnded);
+  console.log('JUST A LOG', currentChat, !streamEnded);
   return (
     <div className="flex-[1.5] h-full space-y-2 pt-6 px-[3.25rem] flex flex-col no-scrollbar pr-0">
       <MessageArea>
@@ -296,14 +298,28 @@ const ChatArea = ({
                       isPinned={msg.isPinned}
                       isLiked={msg.liked}
                       clickable={user ? true : false}
+                      disableAnimation={msg.log.role !== 'user'}
                     />
                   );
                 })}
             </>
           ) : null}
-          {/* {currentChatRender} */}
-          {/* {!streamEnded && (
+          {currentChat.length > 0 ? (
+            <Message
+              clickable
+              metadata={[]}
+              content={currentChat}
+              type={'bot'}
+              disableAnimation
+            />
+          ) : null}
+          {!streamEnded && currentChat.length === 0 && (
             <Message type="bot" content="" metadata={[]} clickable bubble />
+          )}
+          {/* {!streamEnded ? (
+            <Message type="bot" content="" metadata={[]} clickable bubble />
+          ) : (
+            currentChatRender
           )} */}
           {/* <ChatScrollAnchor trackVisibility={streamEnded} /> */}
         </AnimatePresence>

@@ -54,7 +54,8 @@ const Message = ({
   isLiked,
   metadata,
   clickable,
-  bubble
+  bubble,
+  disableAnimation
 }: {
   id?: number;
   type: 'bot' | 'user';
@@ -65,6 +66,7 @@ const Message = ({
   isPinned?: boolean;
   bubble?: boolean;
   isLiked?: boolean;
+  disableAnimation?: boolean;
 }) => {
   const prefixes = ['Explain: ', 'Summarize: ', 'Translate: '];
   let prefix = '';
@@ -93,8 +95,8 @@ const Message = ({
     prefix = prefix.split(':')[0];
   }
 
-  return (
-    <motion.div initial="initial" animate="enter" variants={variants} layout>
+  const MessageJSX = () => {
+    return (
       <div
         className={cn(
           'w-full rounded-[10px] p-2 flex items-end gap-[1rem] justify-start',
@@ -184,6 +186,22 @@ const Message = ({
         </div>
         <div className="min-w-10 min-h-10 rounded-full bg-black/10 basis-1 opacity-0 pointer-events-none"></div>
       </div>
+    );
+  };
+
+  if (disableAnimation) {
+    return <MessageJSX key={id} />;
+  }
+
+  return (
+    <motion.div
+      key={id}
+      initial="initial"
+      animate="enter"
+      variants={variants}
+      layout
+    >
+      <MessageJSX />
     </motion.div>
   );
 };
