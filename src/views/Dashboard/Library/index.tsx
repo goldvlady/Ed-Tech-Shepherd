@@ -228,10 +228,6 @@ const Library: React.FC = () => {
   }, [location]);
 
   useEffect(() => {
-    fetchLibrarySubjects(selectedProviderId);
-  }, [fetchLibrarySubjects, selectedProviderId]);
-
-  useEffect(() => {
     fetchLibraryProviders();
     // eslint-disable-next-line
   }, []);
@@ -243,7 +239,7 @@ const Library: React.FC = () => {
         <LoaderOverlay />
       )} */}
 
-      {!librarySubjects?.length && !hasSearched && !isLoading ? (
+      {!libraryProviders?.length && !hasSearched && !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -403,7 +399,7 @@ const Library: React.FC = () => {
             )}
             {displayMode === 'subjects' && (
               <SubjectList
-                subjects={librarySubjects}
+                subjectId={selectedProviderId}
                 onSelectSubject={handleSubjectClick}
               />
             )}
