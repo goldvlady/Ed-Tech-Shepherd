@@ -271,14 +271,70 @@ const ChatArea = ({
         <AnimatePresence mode="wait">
           {isLoading && (
             <>
-              <Message clickable metadata={[]} type="bot" loading content="" />
-              <Message clickable metadata={[]} type="user" loading content="" />
-              <Message clickable metadata={[]} type="bot" loading content="" />
-              <Message clickable metadata={[]} type="user" loading content="" />
-              <Message clickable metadata={[]} type="bot" loading content="" />
-              <Message clickable metadata={[]} type="user" loading content="" />
-              <Message clickable metadata={[]} type="bot" loading content="" />
-              <Message clickable metadata={[]} type="user" loading content="" />
+              <Message
+                clickable
+                metadata={[]}
+                type="bot"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="user"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="bot"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="user"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="bot"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="user"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="bot"
+                loading
+                content=""
+                disableAnimation={true}
+              />
+              <Message
+                clickable
+                metadata={[]}
+                type="user"
+                loading
+                content=""
+                disableAnimation={true}
+              />
             </>
           )}{' '}
           {messages && messages.length > 0 ? (
@@ -296,7 +352,7 @@ const ChatArea = ({
                       isPinned={msg.isPinned}
                       isLiked={msg.liked}
                       clickable={user ? true : false}
-                      disableAnimation={msg.log.role !== 'user'}
+                      disableAnimation={true}
                     />
                   );
                 })}
@@ -308,11 +364,18 @@ const ChatArea = ({
               metadata={[]}
               content={currentChat}
               type={'bot'}
-              disableAnimation
+              disableAnimation={true}
             />
           ) : null}
           {!streamEnded && currentChat.length === 0 && (
-            <Message type="bot" content="" metadata={[]} clickable bubble />
+            <Message
+              type="bot"
+              content=""
+              metadata={[]}
+              clickable
+              bubble
+              disableAnimation={true}
+            />
           )}
           {/* {!streamEnded ? (
             <Message type="bot" content="" metadata={[]} clickable bubble />
