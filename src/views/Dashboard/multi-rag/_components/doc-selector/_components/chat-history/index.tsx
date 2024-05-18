@@ -59,7 +59,14 @@ function ChatHistory() {
   }
   console.log('Doc chat history', data.data);
 
-  const groupedConversations = groupConversationsByDate(data?.data);
+  const groupedConversations = groupConversationsByDate(
+    data?.data.filter(
+      (item) =>
+        Boolean(item.title) &&
+        item.title.toLowerCase().includes(searchValue.toLowerCase()) &&
+        item.referenceDocIds
+    )
+  );
 
   console.log('groupedConversations', groupedConversations);
 
@@ -67,7 +74,7 @@ function ChatHistory() {
     <div className="bg-white h-full flex flex-col">
       <div className="w-[17.25rem] p-[1rem] pb-0">
         <div className="w-full h-[30px] flex gap-2 my-4 items-center">
-          <div>
+          <div className="pt-4">
             <InputGroup className="max-h-[30px] overflow-hidden flex items-center">
               <InputLeftElement pointerEvents="none" className="max-h-[30px] ">
                 <SearchIcon color="gray.300" />
@@ -81,7 +88,7 @@ function ChatHistory() {
               />
             </InputGroup>
           </div>
-          <div>
+          {/* <div>
             <Select defaultValue="all">
               <SelectTrigger className="w-20 max-h-[30px] rounded-full">
                 <SelectValue placeholder="All" />
@@ -92,7 +99,7 @@ function ChatHistory() {
                 </SelectGroup>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="mt-[1.56rem] w-full">
