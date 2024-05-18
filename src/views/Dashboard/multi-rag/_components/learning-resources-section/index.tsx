@@ -6,6 +6,7 @@ import ApiService from '../../../../../services/ApiService';
 import ShareModal from '../../../../../components/ShareModal';
 import { User } from '../../../../../types';
 import { Share1Icon } from '@radix-ui/react-icons';
+import CustomMarkdownView from '../../../../../components/CustomComponents/CustomMarkdownView';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -186,11 +187,18 @@ const SummarySection = ({
           </div>
         ) : (
           <p className="p-[1.625rem] text-[#585F68] text-[0.75rem]">
-            {summary
-              ? summary.length > 0
-                ? summary[index]
-                : 'No summaries found'
-              : 'Loading summaries...'}
+            {summary ? (
+              summary.length > 0 ? (
+                <CustomMarkdownView
+                  source={summary[index]}
+                  paragraphClass="[&_p]:leading-[20px] !px-0 py-0 !shadow-none"
+                />
+              ) : (
+                'No summaries found'
+              )
+            ) : (
+              'Loading summaries...'
+            )}
           </p>
         )}
       </div>
