@@ -46,10 +46,14 @@ function ThumbnailList({
   user,
   isUploading,
   uploadExistingDocs,
-  conversationId
+  conversationId,
+  multipleSelectedDocs,
+  setMultipleSelectedDocs
 }: {
   user: User;
   conversationId: string;
+  multipleSelectedDocs: any[];
+  setMultipleSelectedDocs: any;
   uploadExistingDocs: UseMutateFunction<
     any,
     Error,
@@ -194,6 +198,11 @@ function ThumbnailList({
       <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar">
         {fetchedDocuments.map((item: any) => (
           <Thumbnail
+            // multipleSelectedDocs
+            selectedForContext={multipleSelectedDocs.some(
+              (doc) => doc.id === item.document_id
+            )}
+            setMultipleSelectedDocsForContext={setMultipleSelectedDocs}
             selectedToPreview={selectedDocumentID.id === item.document_id}
             key={item.document_id}
             data={item}

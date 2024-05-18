@@ -20,6 +20,9 @@ function MultiRagChat() {
     id: '',
     name: ''
   });
+
+  const [multipleSelectedDocs, setMultipleSelectedDocs] = useState([]);
+
   const [filesUploading, setFilesUploading] = useState<{
     jobId: string;
     uploading: 'uploading' | 'success' | 'default' | 'error';
@@ -43,6 +46,7 @@ function MultiRagChat() {
   });
   const navigate = useNavigate();
   const [togglePlansModal, setTogglePlansModal] = useState(false);
+
   const {
     mutateAsync,
     mutate: addDocs,
@@ -77,6 +81,7 @@ function MultiRagChat() {
       });
     }
   });
+
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
@@ -142,6 +147,7 @@ function MultiRagChat() {
       }
     }
   });
+
   useEffect(() => {
     if (
       filesUploading.jobId.length > 0 &&
@@ -153,6 +159,7 @@ function MultiRagChat() {
       setIsLoading(true);
     }
   }, [filesUploading]);
+
   useEffect(() => {
     if (!user && !apiKey) {
       navigate('/signup');
@@ -169,6 +176,7 @@ function MultiRagChat() {
       });
     }
   }, [user, apiKey, navigate]);
+
   const [highlightedDocumentPageIndex, setHighlightedDocumentPageIndex] =
     useState(0);
 
@@ -209,6 +217,8 @@ function MultiRagChat() {
         uploadExistingDocs={addDocs}
         setSelectedDocumentID={setSelectedDocumentID}
         selectedDocumentID={selectedDocumentID}
+        multipleSelectedDocs={multipleSelectedDocs}
+        setMultipleSelectedDocs={setMultipleSelectedDocs}
       />
       <PDFViewer
         selectedDocumentID={selectedDocumentID}

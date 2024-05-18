@@ -21,21 +21,24 @@ function truncateText(text, maxLength) {
 
 function Thumbnail({
   selectedToPreview,
+  selectedForContext,
+  setMultipleSelectedDocsForContext,
   data,
   onClick
 }: {
+  setMultipleSelectedDocsForContext: any;
+  selectedForContext: boolean;
   selectedToPreview: boolean;
   data: any;
   onClick: () => void;
 }) {
   console.log('Thumbnail', data);
-  const [selected, setSelected] = useState(false);
   return (
     <div
       className={cn(
         'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer',
         {
-          'bg-[#EBF4FE]': selected,
+          'bg-[#EBF4FE]': selectedForContext,
           'shadow-xl border-blue-400': selectedToPreview
         }
       )}
@@ -51,12 +54,29 @@ function Thumbnail({
         <div
           role="button"
           onClick={() => {
-            setSelected(!selected);
+            setMultipleSelectedDocsForContext((prevState) => {
+              const exists = prevState.some(
+                (doc) => doc.id === data.document_id
+              );
+              if (exists) {
+                // Remove the existing document
+                return prevState.filter((doc) => doc.id !== data.document_id);
+              } else {
+                // Add the new document
+                return [
+                  ...prevState,
+                  {
+                    id: data.document_id,
+                    name: data.collection_name
+                  }
+                ];
+              }
+            });
           }}
           className={cn(
             'w-[0.87rem] h-[0.87rem] rounded-[3px] bg-[#F9F9FB] flex justify-center items-center p-[2px] transition',
             {
-              'bg-[#207DF7]': selected
+              'bg-[#207DF7]': selectedForContext
             }
           )}
         >

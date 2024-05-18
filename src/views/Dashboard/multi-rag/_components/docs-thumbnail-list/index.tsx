@@ -14,8 +14,12 @@ const DocsThumbnailList = ({
   isUploading,
   user,
   refetch,
-  uploadExistingDocs
+  uploadExistingDocs,
+  multipleSelectedDocs,
+  setMultipleSelectedDocs
 }: {
+  multipleSelectedDocs: any[];
+  setMultipleSelectedDocs: any;
   user: User;
   refetch: boolean;
   uploadExistingDocs: UseMutateFunction<
@@ -86,6 +90,8 @@ const DocsThumbnailList = ({
         fetchedDocuments={fetchedDocuments}
         setSelectedDocumentID={setSelectedDocumentID}
         selectedDocumentID={selectedDocumentID}
+        multipleSelectedDocs={multipleSelectedDocs}
+        setMultipleSelectedDocs={setMultipleSelectedDocs}
       />
     </div>
   );
