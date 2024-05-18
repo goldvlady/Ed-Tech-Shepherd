@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from '@radix-ui/react-icons';
+import { ChevronRightIcon, Pencil2Icon } from '@radix-ui/react-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import {
@@ -54,8 +54,20 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
         }}
       >
         <DropdownMenu>
+          <Link
+            to="/dashboard/doc-chat"
+            className="absolute right-0 mr-[1.5rem]"
+          >
+            <Button
+              className="border hover:bg-white"
+              size="icon"
+              variant="ghost"
+            >
+              <Pencil2Icon />
+            </Button>
+          </Link>
           <DropdownMenuTrigger asChild>
-            <div className="h-[1.56rem] shadow-md bg-white rounded-[10px] flex justify-start items-center px-[0.87rem] select-none">
+            <div className="h-[1.56rem] shadow-md bg-white rounded-[10px] flex justify-start items-center px-[0.87rem] select-none relative">
               <span className="text-[0.62rem] flex  whitespace-nowrap w-full text-ellipsis overflow-hidden items-center">
                 <span className="text-[#969CA6] cursor-pointer">Doc Chat</span>
                 <ChevronRightIcon className="text-[#969CA6] w-[16px]" />

@@ -5,6 +5,8 @@ import ApiService from '../../../../../services/ApiService';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 import { User } from '../../../../../types';
 import { UseMutateFunction } from '@tanstack/react-query';
+import { Button } from '../../../../../components/ui/button';
+import { Pencil2Icon } from '@radix-ui/react-icons';
 
 const DocsThumbnailList = ({
   conversationID,
@@ -79,7 +81,7 @@ const DocsThumbnailList = ({
   }, [conversationID, refetch]);
 
   return (
-    <div className="w-[16.97rem] h-full pt-[0.62rem] px-[1.8rem] pr-[4.5rem]">
+    <div className="w-[16.97rem] h-full pt-[0.62rem] px-[1.8rem] pr-[4.5rem] relative">
       <BreadCrumb conversationId={conversationID} />
       <ThumbnailList
         user={user}
