@@ -10,13 +10,15 @@ const InputArea = ({
   setValue,
   submitHandler,
   documents,
-  clickable
+  clickable,
+  multipleSelectedDocs
 }: {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   submitHandler: VoidFunction;
   documents: Array<MultiragDocument>;
   clickable: boolean;
+  multipleSelectedDocs: any[];
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -55,7 +57,7 @@ const InputArea = ({
             ))
           : null}
       </div>
-      <SourceButton />
+      <SourceButton multipleSelectedDocs={multipleSelectedDocs} />
       <input
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -72,40 +74,6 @@ const InputArea = ({
         className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
         placeholder="Ask anything. You can use the @ button to specify a document"
       />
-      {/* <Popover open={open}>
-        <PopoverTrigger className="w-full">
-          <input
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                submitHandler();
-              }
-            }}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyUp={handleKeyDown}
-            className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
-            placeholder="Ask anything. You can use the @ button to specify a document"
-          />
-          <PopoverContent className="z-20 bg-white mr-[30px] rounded-xl" >
-            {documents
-              ? documents
-                  .filter((el) =>
-                    el.collection_name.includes(value.split('@')[1])
-                  )
-                  .map((doc) => (
-                    <p
-                      className="p-1 cursor-pointer hover:bg-slate-200 rounded-md"
-                      key={doc.document_id}
-                      onClick={() => addAtHandler(doc.collection_name)}
-                    >
-                      {doc.collection_name}
-                    </p>
-                  ))
-              : null}
-          </PopoverContent>
-        </PopoverTrigger>
-      </Popover> */}
       <div className="flex items-center gap-3 ml-2">
         <button
           onClick={() => {

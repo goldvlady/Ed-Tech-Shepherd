@@ -232,6 +232,7 @@ function MultiRagChat() {
         studentId={user._id}
         userSelectedText={userSelectedText}
         user={user}
+        multipleSelectedDocs={multipleSelectedDocs}
       />
       <LearningResourcesSection
         refetch={refetch}

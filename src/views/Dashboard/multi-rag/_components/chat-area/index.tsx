@@ -35,11 +35,13 @@ const ChatArea = ({
   conversationID,
   studentId,
   userSelectedText,
-  user
+  user,
+  multipleSelectedDocs
 }: {
   conversationID: string;
   studentId: string;
   user: User;
+  multipleSelectedDocs: any[];
   userSelectedText: {
     purpose: 'summary' | 'explain' | 'translate' | null;
     text: string;
@@ -396,6 +398,7 @@ const ChatArea = ({
           submitHandler={submitMessageHandler}
           value={userMessage}
           setValue={setUserMessage}
+          multipleSelectedDocs={multipleSelectedDocs}
         />
       </div>
     </div>
