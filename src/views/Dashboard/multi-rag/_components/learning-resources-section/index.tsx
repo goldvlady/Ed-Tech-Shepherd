@@ -1,5 +1,5 @@
 import { ChevronDown, File, Highlighter, PinOff } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import { useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
@@ -99,6 +99,7 @@ const SummarySection = ({
 }) => {
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [summaries, setSummaries] = useState([]);
+  const ref = useRef(null);
 
   const { data } = useQuery({
     queryKey: ['documentsBasedOnConversationID', conversationID, refetch],
@@ -149,12 +150,26 @@ const SummarySection = ({
       setSummaryExpanded(false);
     }
   }, [currentTabOpened]);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setSummaryExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   return (
     <div className="relative">
       <ActionButton active={summaryExpanded} onClick={toggleExpand}>
         Summary
       </ActionButton>
       <div
+        ref={ref}
         className={cn(
           'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
@@ -195,6 +210,7 @@ const HighlightsSection = ({
   currentTabOpened: string;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const ref = useRef(null);
 
   const { data: highlightPositions } = useQuery({
     queryKey: ['documentHighlight', documentId],
@@ -238,6 +254,19 @@ const HighlightsSection = ({
     }
   }, [currentTabOpened]);
 
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="relative">
       <ActionButton
@@ -250,6 +279,7 @@ const HighlightsSection = ({
         Highlights
       </ActionButton>
       <div
+        ref={ref}
         className={cn(
           'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
@@ -292,6 +322,7 @@ const PinnedSection = ({
   currentTabOpened: string;
 }) => {
   const [expanded, setExpanded] = useState(false);
+  const ref = useRef(null);
   const { data } = useQuery({
     queryKey: ['pinned-messages'],
     queryFn: () =>
@@ -304,6 +335,19 @@ const PinnedSection = ({
       }
     }
   });
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   console.log('Pinned section', data);
 
@@ -325,6 +369,7 @@ const PinnedSection = ({
         Pinned
       </ActionButton>
       <div
+        ref={ref}
         className={cn(
           'absolute w-[31.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50 space-y-2 p-2',
           {
