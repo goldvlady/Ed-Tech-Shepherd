@@ -211,7 +211,7 @@ const ChatArea = ({
     } as ChatMessage;
     setMessages((prev) => prev.concat(newMsg));
     setStreamEnded(false);
-    const m = [...messages].concat(newMsg);
+    const m = [...messages];
     const docs = documents.map((doc) => ({
       collection_name: doc.collection_name,
       reference: doc.reference
