@@ -69,16 +69,16 @@ function BreadCrumb({ conversationId }: { conversationId: string }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-40 bg-white">
             <DropdownMenuGroup>
-              <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
-                <AlertDialogTrigger asChild>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
                   <span>Rename</span>
-                </AlertDialogTrigger>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
-                <SheetTrigger asChild>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <SheetTrigger asChild>
+                <DropdownMenuItem className="hover:bg-gray-100 cursor-pointer">
                   <span>Chat History</span>
-                </SheetTrigger>
-              </DropdownMenuItem>
+                </DropdownMenuItem>
+              </SheetTrigger>
             </DropdownMenuGroup>
           </DropdownMenuContent>
           <RenameChatDialog
