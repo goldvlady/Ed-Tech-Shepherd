@@ -304,7 +304,7 @@ const QuoteMessage = ({ type, content }) => {
           <h6 className="text-[0.75rem] text-ellipsis break-words whitespace-pre-wrap leading-[20px] text-[#667781]">
             <CustomMarkdownView
               source={content}
-              paragraphClass="[&_p]:leading-[20px] !px-0 py-0"
+              paragraphClass="[&_p]:leading-[20px] !px-0 py-0 !shadow-none"
             />
           </h6>
         </div>

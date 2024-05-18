@@ -39,17 +39,16 @@ function Thumbnail({
           'shadow-xl border-blue-400': selectedToPreview
         }
       )}
-      onClick={onClick}
     >
       {/* <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
         <DotsHorizontalIcon />
       </div> */}
-      <PdfFirstPageImage data={data} />
+      <PdfFirstPageImage data={data} onClick={onClick} />
       <div className="flex items-center gap-1 justify-between w-full z-10 backdrop-blur-sm pt-[0.5rem]">
         <p className="text-[#585F68] text-[10px] whitespace-nowrap">
           {truncateText(data.collection_name, 25)}
         </p>
-        {/* <div
+        <div
           role="button"
           onClick={() => {
             setSelected(!selected);
@@ -62,24 +61,36 @@ function Thumbnail({
           )}
         >
           <CheckIcon className="text-white" />
-        </div> */}
+        </div>
       </div>
     </div>
   );
 }
 
-const PdfFirstPageImage = ({ data }: { data: any }) => {
+const PdfFirstPageImage = ({
+  data,
+  onClick
+}: {
+  data: any;
+  onClick: () => void;
+}) => {
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${data.collection_name}`;
   return (
-    <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-        <Viewer
-          fileUrl={pdfURL}
-          defaultScale={SpecialZoomLevel.PageFit}
-          viewMode={ViewMode.SinglePage}
-          scrollMode={ScrollMode.Page}
-        />
-      </Worker>
+    <div
+      className="absolute w-full h-full pt-[1.36rem] pr-[1.36rem]"
+      role="button"
+      onClick={onClick}
+    >
+      <div className="w-full h-full pointer-events-none">
+        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+          <Viewer
+            fileUrl={pdfURL}
+            defaultScale={SpecialZoomLevel.PageFit}
+            viewMode={ViewMode.SinglePage}
+            scrollMode={ScrollMode.Page}
+          />
+        </Worker>
+      </div>
     </div>
   );
 };
