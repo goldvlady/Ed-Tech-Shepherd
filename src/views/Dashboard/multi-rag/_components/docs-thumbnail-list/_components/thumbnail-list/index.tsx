@@ -188,10 +188,10 @@ function ThumbnailList({
         >
           {isUploading ? (
             <Tooltip label="Adding documents in progress...">
-              <PlusIcon className="text-white w-4" />
+              <PlusIcon className="text-white w-[0.8rem]" />
             </Tooltip>
           ) : (
-            <PlusIcon className="text-white w-4" />
+            <PlusIcon className="text-white w-[0.8rem]" />
           )}
         </span>
       </h5>
