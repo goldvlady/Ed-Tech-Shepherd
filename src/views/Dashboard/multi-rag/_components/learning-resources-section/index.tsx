@@ -397,7 +397,10 @@ const PinnedSection = ({
           data?.map((item) => {
             return (
               <div className="p-2 border rounded-md">
-                <p className="text-xs">{item.log.content}</p>
+                <CustomMarkdownView
+                  source={item.log.content}
+                  paragraphClass="[&_p]:leading-[20px] !px-0 py-0 !shadow-none"
+                />
               </div>
             );
           })
