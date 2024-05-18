@@ -297,8 +297,8 @@ const LikeMessageButton = ({
 
 const QuoteMessage = ({ type, content }) => {
   return (
-    <div className="p-1 bg-white rounded-md select-none">
-      <div className="w-full h-full">
+    <div className="p-1 rounded-md select-none bg-black/10">
+      <div className="w-full h-full ">
         <div className="border-l border-l-blue-500 p-2 rounded-md bg-white">
           <h5 className="font-medium text-[0.75rem] text-blue-500">You</h5>
           <h6 className="text-[0.75rem] text-ellipsis break-words whitespace-pre-wrap leading-[20px] text-[#667781]">
