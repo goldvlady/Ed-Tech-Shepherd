@@ -29,6 +29,7 @@ import {
   SelectValue
 } from '../../../../../components/ui/select';
 import { Button } from '../../../../../components/ui/button';
+import { Languages } from 'lucide-react';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -395,31 +396,37 @@ const TranslationDialog = ({ open, onClose, onSelectLanguage }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-white">
-        <DialogHeader>
-          <DialogTitle>Translate</DialogTitle>
-        </DialogHeader>
-        <Select value={selectedLanguage} onValueChange={handleChange}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a language" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            <SelectGroup>
-              <SelectItem value="Spanish">Spanish</SelectItem>
-              <SelectItem value="French">French</SelectItem>
-              <SelectItem value="German">German</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+      <DialogContent className="bg-white max-w-sm">
+        <div>
+          <Languages size={48} />
+        </div>
+        <div className="flex gap-2 items-center w-full">
+          <h5>Translate to: </h5>
+          <Select value={selectedLanguage} onValueChange={handleChange}>
+            <SelectTrigger className="flex-1">
+              <SelectValue placeholder="Select a language" className="flex-1" />
+            </SelectTrigger>
+            <SelectContent className="bg-white flex-1">
+              <SelectGroup>
+                <SelectItem value="Spanish">Spanish</SelectItem>
+                <SelectItem value="French">French</SelectItem>
+                <SelectItem value="German">German</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
         <DialogFooter>
           <Button
+            size="sm"
+            variant="ghost"
             onClick={() => {
               onClose(false);
             }}
           >
             Cancel
           </Button>
-          <Button onClick={handleSelect} disabled={!selectedLanguage}>
+          <Button size="sm" onClick={handleSelect} disabled={!selectedLanguage}>
             Select
           </Button>
         </DialogFooter>
