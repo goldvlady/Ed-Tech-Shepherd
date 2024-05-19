@@ -13,6 +13,22 @@ import SuggestionArea from './_components/suggestion-area';
 import InputArea from './_components/input-area';
 import { doFetch } from '../../../../../util';
 import { ChatScrollAnchor } from './_components/track-visibility';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../../../../../components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../../../../components/ui/select';
+import { Button } from '../../../../../components/ui/button';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -77,8 +93,8 @@ const ChatArea = ({
       return r;
     }
   });
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isTranslateDialogOpen, setIsTranslateDialogOpen] = useState(false);
   console.log('data is', data);
   console.log(conversationID);
   useEffect(() => {
@@ -178,21 +194,38 @@ const ChatArea = ({
         case 'explain':
           message = 'Explain: ' + userSelectedText.text;
           setUserMessage(message);
+          setTimeout(() => {
+            submitMessageHandler(message);
+          }, 500);
           break;
         case 'summary':
           message = 'Summarize: ' + userSelectedText.text;
           setUserMessage(message);
+          setTimeout(() => {
+            submitMessageHandler(message);
+          }, 500);
           break;
         case 'translate':
-          message = 'Translate: ' + userSelectedText.text;
-          setUserMessage(message);
+          // message = 'Translate: ' + userSelectedText.text;
+          handleTranslateDialogToggle(true);
+          // setUserMessage(message);
           break;
       }
-      setTimeout(() => {
-        submitMessageHandler(message);
-      }, 500);
     }
   }, [userSelectedText.text, userSelectedText.purpose]);
+
+  const handleTranslateDialogToggle = (value) => {
+    setIsTranslateDialogOpen(value);
+  };
+
+  const handleLanguageSelect = (language) => {
+    const message = `Translate to ${language}: ${userSelectedText.text}`;
+    setUserMessage(message);
+    handleTranslateDialogToggle(false);
+    setTimeout(() => {
+      submitMessageHandler(message);
+    }, 500);
+  };
 
   const submitMessageHandler = (selectedText?: string) => {
     const newMsg = {
@@ -340,7 +373,52 @@ const ChatArea = ({
           multipleSelectedDocs={multipleSelectedDocs}
         />
       </div>
+      <TranslationDialog
+        open={isTranslateDialogOpen}
+        onClose={handleTranslateDialogToggle}
+        onSelectLanguage={handleLanguageSelect}
+      />
     </div>
+  );
+};
+
+const TranslationDialog = ({ open, onClose, onSelectLanguage }) => {
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+
+  const handleChange = (value) => {
+    setSelectedLanguage(value);
+  };
+
+  const handleSelect = () => {
+    onSelectLanguage(selectedLanguage);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle>Translate</DialogTitle>
+        </DialogHeader>
+        <Select value={selectedLanguage} onValueChange={handleChange}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a language" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectGroup>
+              <SelectItem value="Spanish">Spanish</SelectItem>
+              <SelectItem value="French">French</SelectItem>
+              <SelectItem value="German">German</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <DialogFooter>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSelect} disabled={!selectedLanguage}>
+            Select
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
