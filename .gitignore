@@ -31,3 +31,4 @@ yarn-error.log*
 
 .vscode
 .idx/integrations.json
+.idx/dev.nix
