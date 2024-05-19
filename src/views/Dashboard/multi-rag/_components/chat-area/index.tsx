@@ -273,102 +273,47 @@ const ChatArea = ({
         <AnimatePresence mode="wait">
           {isLoading && (
             <>
-              <Message
-                clickable
-                metadata={[]}
-                type="bot"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="user"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="bot"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="user"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="bot"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="user"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="bot"
-                loading
-                content=""
-                disableAnimation={true}
-              />
-              <Message
-                clickable
-                metadata={[]}
-                type="user"
-                loading
-                content=""
-                disableAnimation={true}
-              />
+              {Array.from({ length: 8 }).map((_, index) => (
+                <Message
+                  key={index}
+                  clickable
+                  metadata={[]}
+                  type={index % 2 === 0 ? 'bot' : 'user'}
+                  loading
+                  content=""
+                  disableAnimation={true}
+                />
+              ))}
             </>
-          )}{' '}
-          {messages && messages.length > 0 ? (
+          )}
+          {messages?.length > 0 && (
             <>
               {messages
                 .sort((a, b) => a.id - b.id)
-                .map((msg) => {
-                  return (
-                    <Message
-                      metadata={msg.log.role === 'user' ? [] : vectorsMetadata}
-                      id={msg.id}
-                      key={msg.id}
-                      type={msg.log.role === 'user' ? 'user' : 'bot'}
-                      content={msg.log.content}
-                      isPinned={msg.isPinned}
-                      isLiked={msg.liked}
-                      clickable={user ? true : false}
-                      disableAnimation={true}
-                    />
-                  );
-                })}
+                .map((msg) => (
+                  <Message
+                    key={msg.id}
+                    metadata={msg.log.role === 'user' ? [] : vectorsMetadata}
+                    id={msg.id}
+                    type={msg.log.role === 'user' ? 'user' : 'bot'}
+                    content={msg.log.content}
+                    isPinned={msg.isPinned}
+                    isLiked={msg.liked}
+                    clickable={!!user}
+                    disableAnimation={true}
+                  />
+                ))}
             </>
-          ) : null}
-          {currentChat.length > 0 ? (
+          )}
+          {currentChat.length > 0 && (
             <Message
               clickable
               metadata={[]}
               content={currentChat}
-              type={'bot'}
+              type="bot"
               disableAnimation={true}
             />
-          ) : null}
+          )}
           {!streamEnded && currentChat.length === 0 && (
             <Message
               type="bot"
@@ -379,12 +324,6 @@ const ChatArea = ({
               disableAnimation={true}
             />
           )}
-          {/* {!streamEnded ? (
-            <Message type="bot" content="" metadata={[]} clickable bubble />
-          ) : (
-            currentChatRender
-          )} */}
-          {/* <ChatScrollAnchor trackVisibility={streamEnded} /> */}
         </AnimatePresence>
       </MessageArea>
       <div className="w-full pb-[3.5rem] relative">
@@ -393,7 +332,7 @@ const ChatArea = ({
           submitHandler={submitMessageHandler}
         />
         <InputArea
-          clickable={user ? true : false}
+          clickable={!!user}
           documents={documents}
           submitHandler={submitMessageHandler}
           value={userMessage}
