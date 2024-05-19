@@ -412,7 +412,13 @@ const TranslationDialog = ({ open, onClose, onSelectLanguage }) => {
           </SelectContent>
         </Select>
         <DialogFooter>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            onClick={() => {
+              onClose(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onClick={handleSelect} disabled={!selectedLanguage}>
             Select
           </Button>

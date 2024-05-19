@@ -91,6 +91,12 @@ const Message = ({
     }
   }
 
+  const translatePrefix = content.match(/^Translate to (\w+):/);
+  if (translatePrefix) {
+    prefix = `Translate to ${translatePrefix[1]}`;
+    actualContent = content.substring(prefix.length + 2); // +2 to account for the ': '
+  }
+
   if (prefix) {
     prefix = prefix.split(':')[0];
   }
