@@ -69,22 +69,7 @@ function DocSelector() {
       }
     }
   });
-  // useEffect(() => {
-  //   if (filesUploading.length > 0) {
-  //     filesUploading.forEach((filesUploading) => {
-  //       if (
-  //         filesUploading.jobId &&
-  //         filesUploading.uploading &&
-  //         filesUploading.tables.length > 0
-  //       ) {
-  //         mutate({
-  //           jobId: filesUploading.jobId,
-  //           tables: filesUploading.tables
-  //         });
-  //       }
-  //     });
-  //   }
-  // }, [filesUploading]);
+
   return (
     <div className="w-full h-full bg-[#F9F9FB] flex">
       <div className="h-full flex-1 bg-[#F9F9FB] flex justify-center items-center">

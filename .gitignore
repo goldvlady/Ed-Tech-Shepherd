@@ -30,3 +30,4 @@ yarn-error.log*
 .netlify
 
 .vscode
+.idx/integrations.json
