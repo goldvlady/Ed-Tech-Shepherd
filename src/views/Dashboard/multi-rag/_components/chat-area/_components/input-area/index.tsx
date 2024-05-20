@@ -69,18 +69,6 @@ const users = [
   }
 ];
 
-const style = merge({}, defaultStyle, {
-  input: {
-    overflow: 'auto',
-    height: 70
-  },
-  highlighter: {
-    boxSizing: 'border-box',
-    overflow: 'hidden',
-    height: 70
-  }
-});
-
 const InputArea = ({
   value,
   setValue,
@@ -106,13 +94,28 @@ const InputArea = ({
     }
   };
 
+  const style = merge({}, defaultStyle, {
+    input: {
+      overflow: 'auto',
+      width: '100%',
+      border: 'none',
+      outline: 'none',
+      fontFamily: 'Arial',
+      letterSpacing: 0.5
+    },
+    highlighter: {
+      boxSizing: 'border-box',
+      overflow: 'hidden'
+      // height: 50
+    }
+  });
   const addAtHandler = (name: string) => {
     const v = value + name + ' ';
     setValue(v);
     setOpen(false);
   };
   return (
-    <div className="h-[50px] w-full border bg-white rounded-[8px] shadow-md flex px-4 relative">
+    <div className="w-full border bg-white rounded-[8px] shadow-md flex px-2 relative">
       <div
         className={cn(
           'reference-documents w-full p-2 rounded-xl border bg-white absolute left-0 bottom-[3rem] opacity-0 pointer-events-none transition-opacity',
@@ -134,34 +137,44 @@ const InputArea = ({
           : null}
       </div>
       <SourceButton multipleSelectedDocs={multipleSelectedDocs} />
-      {/* <MentionsInput
-        value={value}
-        onChange={(e) => {
-          setValue(e.target.value);
-        }}
-        placeholder={"Mention people using '@'"}
-        allowSuggestionsAboveCursor={true}
-        a11ySuggestionsListLabel={'Suggested mentions'}
-        style={{
-          width: '100%',
-          border: 'none',
-          outline: 'none',
-          boxShadow: 'none'
-        }}
-      >
-        <Mention
-          markup="@[__display__](user:__id__)"
-          displayTransform={(url) => `@${url}`}
-          trigger="@"
-          data={users}
-          renderSuggestion={(suggestion, search, highlightedDisplay) => (
-            <div className="user">{highlightedDisplay}</div>
-          )}
-          // onAdd={onAdd}
-          style={defaultMentionStyle}
-        />
-      </MentionsInput> */}
-      <input
+      <div className="w-full no-scrollbar [&_*]:no-scrollbar [&_*]:!border-none  [&_*]:focus:!shadow-none [&_div:nth-child(1)]:!min-h-[0]">
+        <MentionsInput
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
+          placeholder="Ask anything. Use the @"
+          allowSuggestionsAboveCursor={true}
+          a11ySuggestionsListLabel={'Suggested mentions'}
+          style={style}
+          // style={{
+          //   width: '100%',
+          //   border: 'none',
+          //   outline: 'none',
+          //   boxShadow: 'none',
+          //   padding: 0
+          // }}
+        >
+          <Mention
+            markup="@[__display__](user:__id__)"
+            displayTransform={(url) => `@${url}`}
+            trigger="@"
+            data={documents?.map((item) => {
+              return {
+                id: item.collection_name.trim(),
+                display: item.collection_name.trim()
+              };
+            })}
+            renderSuggestion={(suggestion, search, highlightedDisplay) => (
+              <div className="user">{highlightedDisplay}</div>
+            )}
+            // onAdd={onAdd}
+            style={defaultMentionStyle}
+          />
+        </MentionsInput>
+      </div>
+
+      {/* <input
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -176,7 +189,7 @@ const InputArea = ({
         // onKeyUp={handleKeyDown}
         className="w-full input flex-1 border-none bg-transparent outline-none active:outline-none active:ring-0 border-transparent focus:border-transparent focus:ring-0 placeholder:text-[#CDD1D5] placeholder:font-normal text-[#6E7682] font-normal p-0 resize-none"
         placeholder="Ask anything. You can use the @ button to specify a document"
-      />
+      /> */}
       <div className="flex items-center gap-3 ml-2">
         <button
           onClick={() => {
