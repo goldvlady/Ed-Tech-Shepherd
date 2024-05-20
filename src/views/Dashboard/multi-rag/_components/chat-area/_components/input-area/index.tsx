@@ -143,17 +143,10 @@ const InputArea = ({
           onChange={(e) => {
             setValue(e.target.value);
           }}
-          placeholder="Ask anything. Use the @"
+          placeholder="Ask anything. Use @ to select docs"
           allowSuggestionsAboveCursor={true}
           a11ySuggestionsListLabel={'Suggested mentions'}
           style={style}
-          // style={{
-          //   width: '100%',
-          //   border: 'none',
-          //   outline: 'none',
-          //   boxShadow: 'none',
-          //   padding: 0
-          // }}
         >
           <Mention
             markup="@[__display__](user:__id__)"
