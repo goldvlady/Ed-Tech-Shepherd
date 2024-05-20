@@ -80,7 +80,7 @@ function replaceKeywordsWithButtons(
 
 function replaceLatexDelimiters(source: string, showDot = false): string {
   const latexRemoved = source
-    .replaceAll('\\[', '$')
+    ?.replaceAll('\\[', '$')
     .replaceAll('\\]', '$')
     .replaceAll('\\(', '$')
     .replaceAll('\\)', '$');
