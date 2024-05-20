@@ -4,6 +4,82 @@ import { ArrowRight } from 'lucide-react';
 import SourceButton from '../source-button';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '../../../../../../../library/utils';
+import { MentionsInput, Mention } from 'react-mentions';
+import { border } from '@chakra-ui/react';
+import { merge } from '../../../../../../../util';
+import defaultStyle from './defaultStyle';
+import defaultMentionStyle from './defaultMentionStyle';
+
+const users = [
+  {
+    id: 'walter',
+    display: 'Walter White'
+  },
+  {
+    id: 'pipilu',
+    display: '皮皮鲁'
+  },
+  {
+    id: 'luxixi',
+    display: '鲁西西'
+  },
+  {
+    id: 'satoshi1',
+    display: '中本聪'
+  },
+  {
+    id: 'satoshi2',
+    display: 'サトシ・ナカモト'
+  },
+  {
+    id: 'nobi',
+    display: '野比のび太'
+  },
+  {
+    id: 'sung',
+    display: '성덕선'
+  },
+  {
+    id: 'jesse',
+    display: 'Jesse Pinkman'
+  },
+  {
+    id: 'gus',
+    display: 'Gustavo "Gus" Fring'
+  },
+  {
+    id: 'saul',
+    display: 'Saul Goodman'
+  },
+  {
+    id: 'hank',
+    display: 'Hank Schrader'
+  },
+  {
+    id: 'skyler',
+    display: 'Skyler White'
+  },
+  {
+    id: 'mike',
+    display: 'Mike Ehrmantraut'
+  },
+  {
+    id: 'lydia',
+    display: 'Lydìã Rôdarté-Qüayle'
+  }
+];
+
+const style = merge({}, defaultStyle, {
+  input: {
+    overflow: 'auto',
+    height: 70
+  },
+  highlighter: {
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    height: 70
+  }
+});
 
 const InputArea = ({
   value,
@@ -58,6 +134,33 @@ const InputArea = ({
           : null}
       </div>
       <SourceButton multipleSelectedDocs={multipleSelectedDocs} />
+      {/* <MentionsInput
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+        }}
+        placeholder={"Mention people using '@'"}
+        allowSuggestionsAboveCursor={true}
+        a11ySuggestionsListLabel={'Suggested mentions'}
+        style={{
+          width: '100%',
+          border: 'none',
+          outline: 'none',
+          boxShadow: 'none'
+        }}
+      >
+        <Mention
+          markup="@[__display__](user:__id__)"
+          displayTransform={(url) => `@${url}`}
+          trigger="@"
+          data={users}
+          renderSuggestion={(suggestion, search, highlightedDisplay) => (
+            <div className="user">{highlightedDisplay}</div>
+          )}
+          // onAdd={onAdd}
+          style={defaultMentionStyle}
+        />
+      </MentionsInput> */}
       <input
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
