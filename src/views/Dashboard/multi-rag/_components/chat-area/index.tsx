@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { User, multiragResponse } from '../../../../../types';
 import { ChatMessage } from '../../../home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
 import { Ore } from '@glamboyosa/ore';
-import { encodeQueryParams } from '../../../../../helpers';
+import { encodeQueryParams, languages } from '../../../../../helpers';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 import MessageArea from './_components/message-area';
 import SuggestionArea from './_components/suggestion-area';
@@ -408,9 +408,11 @@ const TranslationDialog = ({ open, onClose, onSelectLanguage }) => {
             </SelectTrigger>
             <SelectContent className="bg-white flex-1">
               <SelectGroup>
-                <SelectItem value="Spanish">Spanish</SelectItem>
-                <SelectItem value="French">French</SelectItem>
-                <SelectItem value="German">German</SelectItem>
+                {languages.map((item) => (
+                  <SelectItem key={item} value={item}>
+                    {item}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
