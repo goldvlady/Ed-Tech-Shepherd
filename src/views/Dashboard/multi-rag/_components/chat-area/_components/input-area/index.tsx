@@ -10,65 +10,6 @@ import { merge } from '../../../../../../../util';
 import defaultStyle from './defaultStyle';
 import defaultMentionStyle from './defaultMentionStyle';
 
-const users = [
-  {
-    id: 'walter',
-    display: 'Walter White'
-  },
-  {
-    id: 'pipilu',
-    display: '皮皮鲁'
-  },
-  {
-    id: 'luxixi',
-    display: '鲁西西'
-  },
-  {
-    id: 'satoshi1',
-    display: '中本聪'
-  },
-  {
-    id: 'satoshi2',
-    display: 'サトシ・ナカモト'
-  },
-  {
-    id: 'nobi',
-    display: '野比のび太'
-  },
-  {
-    id: 'sung',
-    display: '성덕선'
-  },
-  {
-    id: 'jesse',
-    display: 'Jesse Pinkman'
-  },
-  {
-    id: 'gus',
-    display: 'Gustavo "Gus" Fring'
-  },
-  {
-    id: 'saul',
-    display: 'Saul Goodman'
-  },
-  {
-    id: 'hank',
-    display: 'Hank Schrader'
-  },
-  {
-    id: 'skyler',
-    display: 'Skyler White'
-  },
-  {
-    id: 'mike',
-    display: 'Mike Ehrmantraut'
-  },
-  {
-    id: 'lydia',
-    display: 'Lydìã Rôdarté-Qüayle'
-  }
-];
-
 const InputArea = ({
   value,
   setValue,
@@ -99,9 +40,8 @@ const InputArea = ({
       overflow: 'auto',
       width: '100%',
       border: 'none',
-      outline: 'none',
-      fontFamily: 'Arial',
-      letterSpacing: 0.5
+      outline: 'none'
+      // fontFamily: 'Arial',
     },
     highlighter: {
       boxSizing: 'border-box',
