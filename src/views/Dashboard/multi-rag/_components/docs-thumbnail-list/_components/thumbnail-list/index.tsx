@@ -123,7 +123,7 @@ function ThumbnailList({
       description: 'Hang on a second',
       status: 'success'
     });
-    const sid = user._id;
+    const sid = user?._id;
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({
       studentId: sid,
@@ -161,19 +161,21 @@ function ThumbnailList({
     }
   });
   useEffect(() => {
-    qc.ensureQueryData({
-      queryKey: ['processed-documents'],
-      queryFn: async () => {
-        const r: multiragResponse<Array<MultiragDocument>> =
-          await ApiService.multiDocVectorDocs(user._id).then((res) =>
-            res.json()
-          );
-        return r;
-      }
-    }).then((r) => {
-      setExistingDocs(r.data);
-    });
-  }, [user._id, qc]);
+    if (user) {
+      qc.ensureQueryData({
+        queryKey: ['processed-documents'],
+        queryFn: async () => {
+          const r: multiragResponse<Array<MultiragDocument>> =
+            await ApiService.multiDocVectorDocs(user._id).then((res) =>
+              res.json()
+            );
+          return r;
+        }
+      }).then((r) => {
+        setExistingDocs(r.data);
+      });
+    }
+  }, [user, qc]);
   return (
     <div className="w-full h-full mt-[1.5rem]">
       <h5 className="text-[#585F68] text-[0.75rem] font-normal mb-[10px] flex justify-between">

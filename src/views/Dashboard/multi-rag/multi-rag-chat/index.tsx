@@ -229,7 +229,7 @@ function MultiRagChat() {
       />
       <ChatArea
         conversationID={docId}
-        studentId={user._id}
+        studentId={user?._id}
         userSelectedText={userSelectedText}
         user={user}
         multipleSelectedDocs={multipleSelectedDocs}

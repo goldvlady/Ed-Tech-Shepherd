@@ -41,7 +41,9 @@ function SelectDocuments() {
     queryKey: ['processed-documents'],
     queryFn: async () => {
       const r: multiragResponse<Array<MultiragDocument>> =
-        await ApiService.multiDocVectorDocs(user._id).then((res) => res.json());
+        await ApiService.multiDocVectorDocs(user?._id).then((res) =>
+          res.json()
+        );
       return r;
     },
     refetchInterval: 1500
