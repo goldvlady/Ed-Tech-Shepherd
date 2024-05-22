@@ -166,27 +166,6 @@ const ChatArea = ({
   }, [streamEnded, fullBuffer, vectorsMetadata]);
   console.log('FULL BUFFER', fullBuffer);
   console.log('vmd', vectorsMetadata);
-  // const currentChatRender = useMemo(() => {
-  //   // This useCallback will return the ChatMessage component or null based on currentChat's value
-  //   // It ensures that the component is only re-rendered when currentChat changes
-  //   console.log('current chat is', currentChat);
-
-  //   if (currentChat.length === 0) {
-  //     console.log(currentChat, 'should be empty');
-  //     return ''; // Don't render anything if there's no current chat content
-  //   }
-
-  //   return (
-  //     <Message
-  //       clickable
-  //       metadata={[]}
-  //       key={Math.random()}
-  //       content={currentChat}
-  //       type={'bot'}
-  //       disableAnimation
-  //     />
-  //   );
-  // }, [currentChat]);
 
   useEffect(() => {
     if (userSelectedText.text && userSelectedText.purpose) {

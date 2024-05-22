@@ -1,14 +1,6 @@
-import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { CheckIcon } from 'lucide-react';
-import { useState } from 'react';
 import { cn } from '../../../../../../../library/utils';
-import { Worker } from '@react-pdf-viewer/core';
-import {
-  Viewer,
-  SpecialZoomLevel,
-  ViewMode,
-  ScrollMode
-} from '@react-pdf-viewer/core';
+import PDFThumbnailViewer from '../../../../../../../components/pdf-thumbnail-viewer';
 
 function truncateText(text, maxLength) {
   if (text.length > maxLength) {
@@ -102,14 +94,7 @@ const PdfFirstPageImage = ({
       onClick={onClick}
     >
       <div className="w-full h-full pointer-events-none">
-        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-          <Viewer
-            fileUrl={pdfURL}
-            defaultScale={SpecialZoomLevel.PageFit}
-            viewMode={ViewMode.SinglePage}
-            scrollMode={ScrollMode.Page}
-          />
-        </Worker>
+        <PDFThumbnailViewer pdfURL={pdfURL} />
       </div>
     </div>
   );
