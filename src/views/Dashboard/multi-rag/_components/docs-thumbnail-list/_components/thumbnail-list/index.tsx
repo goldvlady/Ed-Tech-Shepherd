@@ -197,7 +197,7 @@ function ThumbnailList({
           )}
         </span>
       </h5>
-      <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar">
+      <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar overflow-x-hidden">
         {fetchedDocuments.map((item: any) => (
           <Thumbnail
             // multipleSelectedDocs
