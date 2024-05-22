@@ -81,6 +81,12 @@ const InputArea = ({
       <div className="w-full no-scrollbar [&_*]:no-scrollbar [&_*]:!border-none  [&_*]:focus:!shadow-none [&_div:nth-child(1)]:!min-h-[0]">
         <MentionsInput
           value={value}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              submitHandler();
+            }
+          }}
           onChange={(e) => {
             setValue(e.target.value);
           }}
