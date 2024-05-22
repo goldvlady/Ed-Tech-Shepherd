@@ -12,6 +12,7 @@ import { MultiragDocument } from '../../../../types';
 import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../services/ApiService';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { Worker } from '@react-pdf-viewer/core';
 
 function MultiRagChat() {
   const { docId } = useParams();
@@ -201,53 +202,55 @@ function MultiRagChat() {
   };
 
   return (
-    <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex relative">
-      <DocsThumbnailList
-        user={user}
-        isUploading={
-          filesUploading.uploading === 'uploading'
-            ? true
-            : isLoading
-            ? isLoading
-            : isPending
-        }
-        refetch={refetch}
-        setFilesUploading={setFilesUploading}
-        conversationID={docId}
-        uploadExistingDocs={addDocs}
-        setSelectedDocumentID={setSelectedDocumentID}
-        selectedDocumentID={selectedDocumentID}
-        multipleSelectedDocs={multipleSelectedDocs}
-        setMultipleSelectedDocs={setMultipleSelectedDocs}
-      />
-      <PDFViewer
-        selectedDocumentID={selectedDocumentID}
-        getTextForSummary={getTextForSummary}
-        getTextForExplaination={getTextForExplaination}
-        getTextForTranslation={getTextForTranslation}
-        highlightedDocumentPageIndex={highlightedDocumentPageIndex}
-      />
-      <ChatArea
-        conversationID={docId}
-        studentId={user?._id}
-        userSelectedText={userSelectedText}
-        user={user}
-        multipleSelectedDocs={multipleSelectedDocs}
-      />
-      <LearningResourcesSection
-        refetch={refetch}
-        user={user}
-        conversationID={docId}
-        selectedDocumentID={selectedDocumentID.id}
-        setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
-      />
-      {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
+    <Worker workerUrl={'/pdf.worker.min.js'}>
+      <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex relative">
+        <DocsThumbnailList
+          user={user}
+          isUploading={
+            filesUploading.uploading === 'uploading'
+              ? true
+              : isLoading
+              ? isLoading
+              : isPending
+          }
+          refetch={refetch}
+          setFilesUploading={setFilesUploading}
+          conversationID={docId}
+          uploadExistingDocs={addDocs}
+          setSelectedDocumentID={setSelectedDocumentID}
+          selectedDocumentID={selectedDocumentID}
+          multipleSelectedDocs={multipleSelectedDocs}
+          setMultipleSelectedDocs={setMultipleSelectedDocs}
         />
-      )}
-    </div>
+        <PDFViewer
+          selectedDocumentID={selectedDocumentID}
+          getTextForSummary={getTextForSummary}
+          getTextForExplaination={getTextForExplaination}
+          getTextForTranslation={getTextForTranslation}
+          highlightedDocumentPageIndex={highlightedDocumentPageIndex}
+        />
+        <ChatArea
+          conversationID={docId}
+          studentId={user?._id}
+          userSelectedText={userSelectedText}
+          user={user}
+          multipleSelectedDocs={multipleSelectedDocs}
+        />
+        <LearningResourcesSection
+          refetch={refetch}
+          user={user}
+          conversationID={docId}
+          selectedDocumentID={selectedDocumentID.id}
+          setHighlightedDocumentPageIndex={setHighlightedDocumentPageIndex}
+        />
+        {togglePlansModal && (
+          <PlansModal
+            togglePlansModal={togglePlansModal}
+            setTogglePlansModal={setTogglePlansModal}
+          />
+        )}
+      </div>
+    </Worker>
   );
 }
 

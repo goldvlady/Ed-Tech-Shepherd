@@ -115,6 +115,7 @@ const CodeBlockComponent = ({
   }
 
   const match = /language-(\w+)/.exec(className || '');
+  console.log('Language match', match);
 
   return inline ? (
     <code className={className} {...props}>
