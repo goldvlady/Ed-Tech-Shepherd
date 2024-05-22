@@ -31,7 +31,7 @@ function SelectDocuments() {
       language: (typeof languages)[number];
     }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
   });
-  const { data: documents } = useQuery({
+  const { data: documents, isLoading } = useQuery({
     queryKey: ['processed-documents'],
     queryFn: async () => {
       const r: multiragResponse<Array<MultiragDocument>> =
@@ -126,46 +126,50 @@ function SelectDocuments() {
           Start Chat
         </Button>
       </header>
-      <main
-        className={cn(
-          'w-full h-full py-[0.9rem] transition-all overflow-scroll no-scrollbar',
-          {
-            'grid grid-cols-4 gap-4': layout === 'grid',
-            'space-y-4': layout === 'list'
-          }
-        )}
-      >
-        {documents?.data
-          ?.filter((item) =>
-            item.collection_name
-              .toLowerCase()
-              .includes(searchValue.toLowerCase())
-          )
-          .map((document) => {
-            return (
-              <DocItem
-                key={document.document_id}
-                selected={selected.some((e) => e === document.document_id)}
-                layout={layout}
-                document={document}
-                onClick={() => {
-                  if (selected.some((e) => e === document.document_id)) {
-                    setSelected((prevSelected) =>
-                      prevSelected.filter(
-                        (item) => item !== document.document_id
-                      )
-                    );
-                  } else {
-                    setSelected((prevSelected) => [
-                      ...prevSelected,
-                      document.document_id
-                    ]);
-                  }
-                }}
-              />
-            );
-          })}
-      </main>
+      {isLoading ? (
+        <Skeleton layout={layout} />
+      ) : (
+        <main
+          className={cn(
+            'w-full h-full py-[0.9rem] transition-all overflow-scroll no-scrollbar',
+            {
+              'grid grid-cols-4 gap-4': layout === 'grid',
+              'space-y-4': layout === 'list'
+            }
+          )}
+        >
+          {documents?.data
+            ?.filter((item) =>
+              item.collection_name
+                .toLowerCase()
+                .includes(searchValue.toLowerCase())
+            )
+            .map((document) => {
+              return (
+                <DocItem
+                  key={document.document_id}
+                  selected={selected.some((e) => e === document.document_id)}
+                  layout={layout}
+                  document={document}
+                  onClick={() => {
+                    if (selected.some((e) => e === document.document_id)) {
+                      setSelected((prevSelected) =>
+                        prevSelected.filter(
+                          (item) => item !== document.document_id
+                        )
+                      );
+                    } else {
+                      setSelected((prevSelected) => [
+                        ...prevSelected,
+                        document.document_id
+                      ]);
+                    }
+                  }}
+                />
+              );
+            })}
+        </main>
+      )}
     </div>
   );
 }
@@ -273,6 +277,29 @@ export const DocItem = ({
           Added {format(new Date(document.createdAt), 'dd/MM/yyyy')}
         </p>
       </div>
+    </div>
+  );
+};
+
+const Skeleton = ({ layout }: { layout: string }) => {
+  return (
+    <div
+      className={cn(
+        'w-full h-full py-[0.9rem] transition-all overflow-scroll no-scrollbar overflow-hidden',
+        {
+          'grid grid-cols-4 gap-4': layout === 'grid',
+          'space-y-4': layout === 'list'
+        }
+      )}
+    >
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
+      <div className="w-full h-[10rem] rounded-[10px] bg-gray-200 animate-pulse border"></div>
     </div>
   );
 };
