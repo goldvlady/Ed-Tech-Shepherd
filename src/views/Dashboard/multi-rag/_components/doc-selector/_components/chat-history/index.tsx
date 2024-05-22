@@ -17,15 +17,7 @@ import { Link } from 'react-router-dom';
 import { memo, useState } from 'react';
 import { AnyObject } from 'chart.js/dist/types/basic';
 import { format, isToday, isYesterday } from 'date-fns';
-
-import { Worker } from '@react-pdf-viewer/core';
-import {
-  Viewer,
-  SpecialZoomLevel,
-  ViewMode,
-  ScrollMode
-} from '@react-pdf-viewer/core';
-import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
+import PDFThumbnailViewer from '../../../../../../../components/pdf-thumbnail-viewer';
 
 function groupConversationsByDate(conversations: any[]): any {
   return conversations
@@ -66,7 +58,6 @@ function ChatHistory() {
   if (!data) {
     return null;
   }
-  console.log('Doc chat history', data.data);
 
   const groupedConversations = groupConversationsByDate(
     data?.data.filter(
@@ -97,18 +88,6 @@ function ChatHistory() {
               />
             </InputGroup>
           </div>
-          {/* <div>
-            <Select defaultValue="all">
-              <SelectTrigger className="w-20 max-h-[30px] rounded-full">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                <SelectGroup>
-                  <SelectItem value="all">All</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div> */}
         </div>
       </div>
       <div className="mt-[1.56rem] w-full">
@@ -208,19 +187,11 @@ const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
     enabled: Boolean(documentId)
   });
   if (!pdfDocument) return null;
-
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${pdfDocument.collection_name}`;
+
   return (
     <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
-      {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-        <Viewer
-          fileUrl={pdfURL}
-          defaultScale={SpecialZoomLevel.PageFit}
-          viewMode={ViewMode.SinglePage}
-          scrollMode={ScrollMode.Page}
-          plugins={[]}
-        />
-      </Worker> */}
+      <PDFThumbnailViewer pdfURL={pdfURL} />
     </div>
   );
 };
