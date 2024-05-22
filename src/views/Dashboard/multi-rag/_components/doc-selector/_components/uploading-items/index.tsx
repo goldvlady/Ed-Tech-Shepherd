@@ -51,6 +51,7 @@ const Item = ({
     mutationFn: (data: any) =>
       ApiService.multiDocBackgroundJobs(data).then((res) => res.json())
   });
+  const [docId, setDocID] = useState('');
 
   useEffect(() => {
     let interval = null;
@@ -74,6 +75,7 @@ const Item = ({
                 });
                 clearInterval(interval);
                 setUploadDocumentsId((prevState) => {
+                  setDocID(data.vectors[0].document_id);
                   if (!prevState.includes(data.vectors[0].document_id)) {
                     return [...prevState, data.vectors[0].document_id];
                   }
@@ -124,7 +126,16 @@ const Item = ({
         {file.uploading ? (
           <ReloadIcon className="animate-spin text-[#207DF7]" />
         ) : (
-          <Cross1Icon className="cursor-pointer" />
+          <div
+            onClick={() => {
+              alert('docId ' + docId);
+              setUploadDocumentsId((prevState) => {
+                return prevState.filter((item) => item !== docId);
+              });
+            }}
+          >
+            <Cross1Icon className="cursor-pointer" />
+          </div>
         )}
         {state === 'in_progress' && (
           <ComponentInstanceIcon className="animate-spin" />
