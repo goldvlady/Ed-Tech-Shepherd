@@ -86,6 +86,11 @@ const InputArea = ({
           allowSuggestionsAboveCursor={true}
           a11ySuggestionsListLabel={'Suggested mentions'}
           style={style}
+          customSuggestionsContainer={(children) => (
+            <div className="p-2 rounded-md overflow-hidden shadow-md">
+              {children}
+            </div>
+          )}
         >
           <Mention
             markup="@[[[__display__]]]"
@@ -98,7 +103,7 @@ const InputArea = ({
               };
             })}
             renderSuggestion={(suggestion, search, highlightedDisplay) => (
-              <div className="user">{highlightedDisplay}</div>
+              <div>{highlightedDisplay}</div>
             )}
             // onAdd={onAdd}
             style={defaultMentionStyle}
