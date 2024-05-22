@@ -9,19 +9,13 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { CheckIcon } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Worker } from '@react-pdf-viewer/core';
-import {
-  Viewer,
-  SpecialZoomLevel,
-  ViewMode,
-  ScrollMode
-} from '@react-pdf-viewer/core';
 import useUserStore from '../../../../../../../../state/userStore';
 import {
   MultiragDocument,
   multiragResponse
 } from '../../../../../../../../types';
 import { languages } from '../../../../../../../../helpers';
+import PDFThumbnailViewer from '../../../../../../../../components/pdf-thumbnail-viewer';
 
 function SelectDocuments() {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -134,7 +128,7 @@ function SelectDocuments() {
       </header>
       <main
         className={cn(
-          'w-full h-full py-[0.9rem] transition-all overflow-scroll',
+          'w-full h-full py-[0.9rem] transition-all overflow-scroll no-scrollbar',
           {
             'grid grid-cols-4 gap-4': layout === 'grid',
             'space-y-4': layout === 'list'
@@ -244,14 +238,7 @@ export const DocItem = ({
         })}
       >
         <div className="pointer-events-none absolute w-full pb-2 pr-2 h-full">
-          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-            <Viewer
-              fileUrl={pdfURL}
-              defaultScale={SpecialZoomLevel.PageFit}
-              viewMode={ViewMode.SinglePage}
-              scrollMode={ScrollMode.Page}
-            />
-          </Worker>
+          <PDFThumbnailViewer pdfURL={pdfURL} />
         </div>
       </div>
       <div
