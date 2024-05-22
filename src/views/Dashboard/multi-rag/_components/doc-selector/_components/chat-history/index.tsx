@@ -48,12 +48,16 @@ function groupConversationsByDate(conversations: any[]): any {
 
 function ChatHistory() {
   const { user } = useUserStore();
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
       ApiService.multiPreviousConversations(user?._id).then((res) => res.json())
   });
   const [searchValue, setSearchValue] = useState('');
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   if (!data) {
     return null;
@@ -192,6 +196,34 @@ const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
   return (
     <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
       <PDFThumbnailViewer pdfURL={pdfURL} />
+    </div>
+  );
+};
+
+const LoadingSkeleton = () => {
+  return (
+    <div className="bg-white h-full flex flex-col animate-pulse">
+      {/* Search Bar Skeleton */}
+      <div className="w-[17.25rem] p-[1rem] pb-0">
+        <div className="w-full h-[30px] flex gap-2 my-4 items-center">
+          <div className="pt-4 w-full">
+            <div className="max-h-[30px] flex items-center bg-gray-200 rounded-full h-[30px]"></div>
+          </div>
+        </div>
+      </div>
+      {/* Title Skeleton */}
+      <div className="mt-[1.56rem] w-full">
+        <div className="h-[1.25rem] bg-gray-200 rounded mx-auto w-[60%]"></div>
+      </div>
+      {/* Chat History Skeleton */}
+      <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10 no-scrollbar px-4">
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="w-full">
+            <div className="w-10 h-2 rounded-sm animate-pulse bg-gray-200"></div>
+            <div className="mx-auto w-36 h-36 rounded-md bg-gray-200 animate-pulse mt-3"></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
