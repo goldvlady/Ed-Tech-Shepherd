@@ -1,6 +1,7 @@
 import { pageThumbnailPlugin } from './page-thumbnail-plugin';
 import { Viewer } from '@react-pdf-viewer/core';
 import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
+import { memo } from 'react';
 
 const PDFThumbnailViewer = ({ pdfURL }: { pdfURL: string }) => {
   // console.log('something', something)
@@ -18,4 +19,4 @@ const PDFThumbnailViewer = ({ pdfURL }: { pdfURL: string }) => {
   );
 };
 
-export default PDFThumbnailViewer;
+export default memo(PDFThumbnailViewer, () => true);
