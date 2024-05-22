@@ -209,10 +209,10 @@ const ChatArea = ({
 
   // This function is used to clearning user input when he/she mentions any doc, because of it string gets a new syntax that wraps document name
   const removeFirstBrackets = (input) => {
-    // Remove the first occurrence of '[[['
-    let result = input.replace(/\[\[\[/, '');
-    // Remove the first occurrence of ']]]'
-    result = result.replace(/\]\]\]/, '');
+    // Remove the all occurrence of '[[['
+    let result = input.replace(/\[\[\[/g, '');
+    // Remove all occurrences of ']]]'
+    result = result.replace(/\]\]\]/g, '');
     return result;
   };
 
