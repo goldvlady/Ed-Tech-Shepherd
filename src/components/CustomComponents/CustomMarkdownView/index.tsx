@@ -69,7 +69,11 @@ const CustomMarkdownView = ({
 };
 
 const highlightBracketedText = (text) => {
-  return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');
+  if (text) {
+    return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');
+  } else {
+    return text;
+  }
 };
 
 function replaceKeywordsWithButtons(

@@ -28,10 +28,12 @@ function MultiRagChat() {
     jobId: string;
     uploading: 'uploading' | 'success' | 'default' | 'error';
     tables: Array<string>;
+    processing: boolean;
   }>({
     jobId: '',
     uploading: 'default',
-    tables: []
+    tables: [],
+    processing: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
@@ -103,6 +105,12 @@ function MultiRagChat() {
             jobId: filesUploading.jobId,
             tables: filesUploading.tables
           });
+          setFilesUploading({
+            uploading: 'uploading',
+            tables: [],
+            jobId: '',
+            processing: false
+          });
         } else if (data.status === 'success') {
           const collectionMap = new Map();
 
@@ -123,7 +131,12 @@ function MultiRagChat() {
           );
 
           await mutateAsync({ documentIds, conversationId: docId });
-          setFilesUploading({ uploading: 'success', tables: [], jobId: '' });
+          setFilesUploading({
+            uploading: 'success',
+            tables: [],
+            jobId: '',
+            processing: false
+          });
 
           setIsLoading(false);
         } else {
@@ -134,12 +147,22 @@ function MultiRagChat() {
             status: 'error'
           });
           setIsLoading(false);
-          setFilesUploading({ uploading: 'error', tables: [], jobId: '' });
+          setFilesUploading({
+            uploading: 'error',
+            tables: [],
+            jobId: '',
+            processing: false
+          });
         }
       } catch (error) {
         console.log(error);
         setIsLoading(false);
-        setFilesUploading({ uploading: 'error', tables: [], jobId: '' });
+        setFilesUploading({
+          uploading: 'error',
+          tables: [],
+          jobId: '',
+          processing: false
+        });
         toast({
           position: 'top-right',
           title: `Documents Upload Failed. Please retry.`,

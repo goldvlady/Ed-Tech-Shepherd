@@ -8,6 +8,7 @@ import useUserStore from '../../../../../../../../state/userStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { Loader } from 'lucide-react';
 
 const isExactMatch = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
@@ -16,7 +17,12 @@ const isExactMatch = (arr1, arr2) => {
   return sortedArr1.every((value, index) => value === sortedArr2[index]);
 };
 
-function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
+function UploadFiles({
+  setFilesUploading,
+  uploadedDocumentsId,
+  filesUploading
+}) {
+  console.log('uploadedDocumentsId', filesUploading);
   const { user } = useUserStore();
   const navigate = useNavigate();
   const toast = useCustomToast();
@@ -27,6 +33,7 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
         {
           jobId: '',
           uploading: true,
+          processing: false,
           tables: inputFiles.map((file) => {
             const nameParts = file.name.split('.');
             const ext = nameParts.pop();
@@ -77,6 +84,7 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
                 return {
                   ...state,
                   uploading: false,
+                  processing: true,
                   jobId: data.job_id
                 };
               } else {
@@ -158,15 +166,26 @@ function UploadFiles({ setFilesUploading, uploadedDocumentsId }) {
     );
   };
 
+  const anyProcessingTrue = filesUploading.some((file) => file.processing);
+
   return (
     <div className="w-full h-full bg-white flex flex-col relative">
       <Button
         className="absolute top-0 right-0 mt-[1.6rem] mr-[2.8rem]"
         onClick={startConversation}
         disabled={
-          uploadedDocumentsId.length === 0 || isGeneratingConvID || isPending
+          uploadedDocumentsId.length === 0 ||
+          isGeneratingConvID ||
+          isPending ||
+          anyProcessingTrue
         }
       >
+        {anyProcessingTrue && (
+          <div className="absolute left-[-196px] text-black flex items-center gap-2">
+            <Loader className="animate-spin" />{' '}
+            <span>Processing Documents</span>
+          </div>
+        )}
         {isPending || isGeneratingConvID ? (
           <ReloadIcon className="mr-2 animate-spin" />
         ) : null}

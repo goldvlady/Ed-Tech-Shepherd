@@ -15,13 +15,18 @@ function DocSelector() {
       jobId: string;
       uploading: boolean;
       tables: Array<string>;
+      processing: boolean;
     }[]
   >([]);
   const [uploadedDocumentsId, setUploadDocumentsId] = useState([]);
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
-    mutationFn: async (d: { jobId: string; tables: Array<string> }) => {
+    mutationFn: async (d: {
+      jobId: string;
+      tables: Array<string>;
+      processing: boolean;
+    }) => {
       const data: {
         vectors?: Array<MultiragDocument>;
         status: 'error' | 'in_progress' | 'success';
@@ -38,18 +43,23 @@ function DocSelector() {
           .reduce((acc, key) => {
             acc[key] = filesUploading[key];
             return acc;
-          }, {}) as { jobId: string; tables: Array<string> };
+          }, {}) as {
+          jobId: string;
+          tables: Array<string>;
+          processing: boolean;
+        };
         console.log('Transformed D', data);
         mutate(data);
       } else if (data.status === 'success') {
         const d = [...filesUploading];
         const updatedFilesUploading = d.map((data) => ({
           ...data,
-          uploading: data.jobId === jobId ? false : true
+          uploading: data.jobId === jobId ? false : true,
+          processing: true
         }));
         setFilesUploading(updatedFilesUploading);
         toast({
-          position: 'top-right',
+          position: 'bottom',
           title: `Documents Uploaded Successfully`,
           status: 'success'
         });
@@ -58,11 +68,12 @@ function DocSelector() {
         const d = [...filesUploading];
         const updatedFilesUploading = d.map((data) => ({
           ...data,
-          uploading: data.jobId === jobId ? false : true
+          uploading: data.jobId === jobId ? false : true,
+          processing: false
         }));
         setFilesUploading(updatedFilesUploading);
         toast({
-          position: 'top-right',
+          position: 'bottom',
           title: `Documents Upload Failed. Please retry.`,
           status: 'error'
         });
@@ -91,10 +102,12 @@ function DocSelector() {
             active={active}
             setFilesUploading={setFilesUploading}
             uploadedDocumentsId={uploadedDocumentsId}
+            filesUploading={filesUploading}
           />
           <UploadingItems
             filesUploading={filesUploading}
             setUploadDocumentsId={setUploadDocumentsId}
+            setFilesUploading={setFilesUploading}
           />
         </div>
       </div>

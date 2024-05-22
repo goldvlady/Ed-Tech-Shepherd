@@ -71,6 +71,7 @@ function ThumbnailList({
       jobId: string;
       uploading: 'uploading' | 'success' | 'default' | 'error';
       tables: Array<string>;
+      processing: boolean;
     }>
   >;
   selectedDocumentID: {
@@ -98,7 +99,8 @@ function ThumbnailList({
     setFilesUploading({
       uploading: 'uploading',
       jobId: '',
-      tables: []
+      tables: [],
+      processing: false
     });
     handleAddNewDocClose();
     const files = acceptedFiles.map((file) => {
@@ -136,7 +138,8 @@ function ThumbnailList({
           setFilesUploading({
             jobId: data.job_id,
             uploading: 'uploading',
-            tables: data.uploaded_filenames
+            tables: data.uploaded_filenames,
+            processing: true
           });
         }
       })
@@ -144,7 +147,8 @@ function ThumbnailList({
         setFilesUploading({
           jobId: '',
           uploading: 'error',
-          tables: []
+          tables: [],
+          processing: false
         });
         handleAddNewDocClose();
         console.error('Error:', error);

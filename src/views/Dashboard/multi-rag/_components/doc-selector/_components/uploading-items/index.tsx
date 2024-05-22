@@ -9,7 +9,11 @@ import { useMutation } from '@tanstack/react-query';
 import { cn } from '../../../../../../../library/utils';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
-function UploadingItems({ filesUploading, setUploadDocumentsId }) {
+function UploadingItems({
+  filesUploading,
+  setUploadDocumentsId,
+  setFilesUploading
+}) {
   console.log('multiDocBackgroundJobs', filesUploading);
   return (
     <div className="uploading-documents flex w-full flex-col gap-[9px] justify-start mt-[1.8rem] max-h-[10rem] overflow-y-scroll no-scrollbar">
@@ -20,6 +24,7 @@ function UploadingItems({ filesUploading, setUploadDocumentsId }) {
               item={item}
               file={file}
               setUploadDocumentsId={setUploadDocumentsId}
+              setFilesUploading={setFilesUploading}
             />
           );
         });
@@ -31,11 +36,13 @@ function UploadingItems({ filesUploading, setUploadDocumentsId }) {
 const Item = ({
   item,
   file,
-  setUploadDocumentsId
+  setUploadDocumentsId,
+  setFilesUploading
 }: {
   item: any;
   file: any;
   setUploadDocumentsId: any;
+  setFilesUploading: any;
 }) => {
   const toast = useCustomToast();
   console.log('Item', { item, file });
@@ -71,6 +78,13 @@ const Item = ({
                     return [...prevState, data.vectors[0].document_id];
                   }
                   return prevState;
+                });
+                setFilesUploading((prevState) => {
+                  return prevState.map((job) =>
+                    job.jobId === file.jobId
+                      ? { ...job, processing: false }
+                      : job
+                  );
                 });
               } else if (data.status === 'in_progress') {
                 setState('in_progress');
