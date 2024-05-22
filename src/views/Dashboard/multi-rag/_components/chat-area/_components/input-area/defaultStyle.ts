@@ -7,7 +7,7 @@ export default {
 
   '&multiLine': {
     control: {
-      fontFamily: 'monospace',
+      fontFamily: 'Arial',
       minHeight: 63
     },
     highlighter: {
@@ -16,7 +16,8 @@ export default {
     },
     input: {
       padding: 9,
-      border: '1px solid silver'
+      border: '1px solid silver',
+      fontWeight: 'normal'
     }
   },
 
