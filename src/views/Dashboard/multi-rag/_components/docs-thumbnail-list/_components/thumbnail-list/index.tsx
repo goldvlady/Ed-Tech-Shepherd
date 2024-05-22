@@ -48,12 +48,14 @@ function ThumbnailList({
   uploadExistingDocs,
   conversationId,
   multipleSelectedDocs,
-  setMultipleSelectedDocs
+  setMultipleSelectedDocs,
+  loadingDocuments
 }: {
   user: User;
   conversationId: string;
   multipleSelectedDocs: any[];
   setMultipleSelectedDocs: any;
+  loadingDocuments: boolean;
   uploadExistingDocs: UseMutateFunction<
     any,
     Error,
@@ -201,26 +203,31 @@ function ThumbnailList({
           )}
         </span>
       </h5>
-      <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar overflow-x-hidden">
-        {fetchedDocuments.map((item: any) => (
-          <Thumbnail
-            // multipleSelectedDocs
-            selectedForContext={multipleSelectedDocs.some(
-              (doc) => doc.id === item.document_id
-            )}
-            setMultipleSelectedDocsForContext={setMultipleSelectedDocs}
-            selectedToPreview={selectedDocumentID.id === item.document_id}
-            key={item.document_id}
-            data={item}
-            onClick={() =>
-              setSelectedDocumentID({
-                id: item.document_id,
-                name: item.collection_name
-              })
-            }
-          />
-        ))}
-      </div>
+      {loadingDocuments ? (
+        <LoadingSkeleton />
+      ) : (
+        <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar overflow-x-hidden">
+          {fetchedDocuments.map((item: any) => (
+            <Thumbnail
+              // multipleSelectedDocs
+              selectedForContext={multipleSelectedDocs.some(
+                (doc) => doc.id === item.document_id
+              )}
+              setMultipleSelectedDocsForContext={setMultipleSelectedDocs}
+              selectedToPreview={selectedDocumentID.id === item.document_id}
+              key={item.document_id}
+              data={item}
+              onClick={() =>
+                setSelectedDocumentID({
+                  id: item.document_id,
+                  name: item.collection_name
+                })
+              }
+            />
+          ))}
+        </div>
+      )}
+
       <AddNewDoc
         open={addNewDocumentDialogOpen}
         existingDocs={existingDocs}
@@ -237,6 +244,17 @@ function ThumbnailList({
   );
 }
 
+const LoadingSkeleton = () => {
+  return (
+    <div className="thumbnail-list space-y-2 overflow-y-scroll h-full pb-40 no-scrollbar overflow-x-hidden">
+      {[1, 2, 3, 4].map((_) => {
+        return (
+          <div className="h-[10.31rem] w-[10.31rem] rounded-[10px] mx-auto bg-gray-200 animate-pulse"></div>
+        );
+      })}
+    </div>
+  );
+};
 const AddNewDoc = ({
   open,
   existingDocs,

@@ -49,13 +49,16 @@ const DocsThumbnailList = ({
   };
 }) => {
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(true);
   const addDocs = useVectorsStore((state) => state.addChatDocuments);
   useEffect(() => {
+    setLoadingDocuments(true);
     if (refetch) {
       ApiService.fetchMultiDocBasedOnConversationID(conversationID)
         .then((res) => res.json())
         .then((data) => {
           if (data.status === 'success') {
+            setLoadingDocuments(false);
             addDocs(data.data);
             setFetchedDocuments(data.data);
             setSelectedDocumentID({
@@ -65,19 +68,21 @@ const DocsThumbnailList = ({
           }
         });
       return;
+    } else {
+      ApiService.fetchMultiDocBasedOnConversationID(conversationID)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'success') {
+            setLoadingDocuments(false);
+            addDocs(data.data);
+            setFetchedDocuments(data.data);
+            setSelectedDocumentID({
+              id: data.data[0].document_id,
+              name: data.data[0].collection_name
+            });
+          }
+        });
     }
-    ApiService.fetchMultiDocBasedOnConversationID(conversationID)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === 'success') {
-          addDocs(data.data);
-          setFetchedDocuments(data.data);
-          setSelectedDocumentID({
-            id: data.data[0].document_id,
-            name: data.data[0].collection_name
-          });
-        }
-      });
   }, [conversationID, refetch]);
 
   return (
@@ -94,6 +99,7 @@ const DocsThumbnailList = ({
         selectedDocumentID={selectedDocumentID}
         multipleSelectedDocs={multipleSelectedDocs}
         setMultipleSelectedDocs={setMultipleSelectedDocs}
+        loadingDocuments={loadingDocuments}
       />
     </div>
   );
