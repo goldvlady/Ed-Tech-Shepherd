@@ -66,9 +66,9 @@ function Thumbnail({
             });
           }}
           className={cn(
-            'w-[0.87rem] h-[0.87rem] rounded-[3px] bg-[#F9F9FB] flex justify-center items-center p-[2px] transition',
+            'w-[0.87rem] h-[0.87rem] rounded-[3px] bg-[#F9F9FB] flex justify-center items-center p-[2px] transition border border-[#207DF7]',
             {
-              'bg-[#207DF7]': selectedForContext
+              'bg-[#207DF7] ': selectedForContext
             }
           )}
         >
