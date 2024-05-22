@@ -1330,7 +1330,7 @@ const StudyBox = () => {
       </Box>
       {togglePlansModal && (
         <PlansModal
-          message="Up to 4 weeks free!"
+          message="Get Started!"
           subMessage="One-click Cancel at anytime."
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
