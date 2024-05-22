@@ -63,9 +63,13 @@ const CustomMarkdownView = ({
       rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
     >
-      {replaceLatexDelimiters(source, showDot)}
+      {highlightBracketedText(replaceLatexDelimiters(source, showDot))}
     </MemoizedReactMarkdown>
   );
+};
+
+const highlightBracketedText = (text) => {
+  return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');
 };
 
 function replaceKeywordsWithButtons(

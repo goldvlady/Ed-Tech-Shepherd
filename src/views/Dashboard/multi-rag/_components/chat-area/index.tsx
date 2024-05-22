@@ -207,19 +207,8 @@ const ChatArea = ({
     }, 500);
   };
 
-  // This function is used to clearning user input when he/she mentions any doc, because of it string gets a new syntax that wraps document name
-  const removeFirstBrackets = (input) => {
-    // Remove the all occurrence of '[[['
-    let result = input.replace(/\[\[\[/g, '');
-    // Remove all occurrences of ']]]'
-    result = result.replace(/\]\]\]/g, '');
-    return result;
-  };
-
   const submitMessageHandler = (selectedText?: string) => {
     let textToSend = selectedText ? selectedText : userMessage;
-    // This
-    textToSend = removeFirstBrackets(textToSend);
     const newMsg = {
       id: Date.now(), // Simplified ID generation, should be unique in a real application
       studentId: studentId, // Placeholder, replace with dynamic student ID
