@@ -208,7 +208,7 @@ const ChatArea = ({
   };
 
   const submitMessageHandler = (selectedText?: string) => {
-    let textToSend = selectedText ? selectedText : userMessage;
+    const textToSend = selectedText ? selectedText : userMessage;
     const newMsg = {
       id: Date.now(), // Simplified ID generation, should be unique in a real application
       studentId: studentId, // Placeholder, replace with dynamic student ID
