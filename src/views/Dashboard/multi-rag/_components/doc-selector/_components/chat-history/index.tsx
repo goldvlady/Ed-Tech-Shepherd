@@ -116,7 +116,7 @@ function ChatHistory() {
           Chat History
         </h5>
       </div>
-      <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10">
+      <div className="history flex-1 overflow-auto mt-[1rem] space-y-2 overscroll-y-scroll pb-10 no-scrollbar">
         {Object.keys(groupedConversations).map((date) => {
           return (
             <HistoryItemGroup date={date} item={groupedConversations[date]} />
@@ -129,9 +129,9 @@ function ChatHistory() {
 
 const HistoryItemGroup = ({ item, date }: { date: string; item: any }) => {
   return (
-    <div className="w-full flex gap-2 flex-col my-2">
+    <div className="w-full flex gap-2 flex-col my-2 no-scrollbar">
       <p className="text-[10px] text-[#585F68] font-normal pl-5">{date}</p>
-      <div className="group-items flex flex-col gap-2">
+      <div className="group-items flex flex-col gap-2 no-scrollbar">
         {item.map((conversation) => {
           return (
             <HistoryItem
@@ -212,7 +212,7 @@ const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${pdfDocument.collection_name}`;
   return (
     <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
-      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+      {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
         <Viewer
           fileUrl={pdfURL}
           defaultScale={SpecialZoomLevel.PageFit}
@@ -220,7 +220,7 @@ const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
           scrollMode={ScrollMode.Page}
           plugins={[]}
         />
-      </Worker>
+      </Worker> */}
     </div>
   );
 };
