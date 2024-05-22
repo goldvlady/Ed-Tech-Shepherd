@@ -167,7 +167,7 @@ const HistoryItem = memo(
           </div>
           <PdfFirstPageImage documentId={documentId} />
           <div className="flex items-center gap-1 justify-between w-full z-10">
-            <p className="text-[#585F68] text-[10px] whitespace-nowrap">
+            <p className="text-[#585F68] text-[10px] whitespace-nowrap truncate">
               {truncateText(title, 25)}
             </p>
           </div>
