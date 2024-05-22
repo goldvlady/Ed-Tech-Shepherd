@@ -18,6 +18,15 @@ import { memo, useState } from 'react';
 import { AnyObject } from 'chart.js/dist/types/basic';
 import { format, isToday, isYesterday } from 'date-fns';
 
+import { Worker } from '@react-pdf-viewer/core';
+import {
+  Viewer,
+  SpecialZoomLevel,
+  ViewMode,
+  ScrollMode
+} from '@react-pdf-viewer/core';
+import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
+
 function groupConversationsByDate(conversations: any[]): any {
   return conversations
     .sort(
@@ -113,29 +122,6 @@ function ChatHistory() {
             <HistoryItemGroup date={date} item={groupedConversations[date]} />
           );
         })}
-        {/* {data?.data
-          ?.sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-          .filter(
-            (item) =>
-              Boolean(item.title) &&
-              item.title.toLowerCase().includes(searchValue.toLowerCase()) &&
-              item.referenceDocIds
-          )
-          .map((item) => (
-            <HistoryItem
-              key={item.id}
-              id={item.id}
-              title={item.title}
-              documentId={
-                item.referenceDocIds[
-                  Math.floor(Math.random() * item.referenceDocIds.length)
-                ]
-              }
-            />
-          ))} */}
       </div>
     </div>
   );
@@ -152,6 +138,13 @@ const HistoryItemGroup = ({ item, date }: { date: string; item: any }) => {
               key={conversation.id}
               id={conversation.id}
               title={conversation.title}
+              documentId={
+                conversation.referenceDocIds[
+                  Math.floor(
+                    Math.random() * conversation.referenceDocIds?.length
+                  )
+                ]
+              }
             />
           );
         })}
@@ -169,56 +162,67 @@ function truncateText(text, maxLength) {
   }
 }
 
-const HistoryItem = memo(({ id, title }: { id: string; title: string }) => {
+const HistoryItem = memo(
+  ({
+    id,
+    title,
+    documentId
+  }: {
+    id: string;
+    title: string;
+    documentId: string;
+  }) => {
+    return (
+      <Link to={id}>
+        <div
+          className={cn(
+            'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer mx-auto my-2 hover:shadow-md'
+          )}
+        >
+          <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
+            <DotsHorizontalIcon />
+          </div>
+          <PdfFirstPageImage documentId={documentId} />
+          <div className="flex items-center gap-1 justify-between w-full z-10">
+            <p className="text-[#585F68] text-[10px] whitespace-nowrap">
+              {truncateText(title, 25)}
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+);
+
+const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
+  const { data: pdfDocument } = useQuery({
+    queryKey: ['multiDocVectorDoc', { documentId }],
+    queryFn: () =>
+      ApiService.multiDocVectorDoc(documentId).then((res) => res.json()),
+    select(data) {
+      if (data.status === 'success') {
+        return data.data;
+      }
+      return null;
+    },
+    enabled: Boolean(documentId)
+  });
+  if (!pdfDocument) return null;
+
+  const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${pdfDocument.collection_name}`;
   return (
-    <Link to={id}>
-      <div
-        className={cn(
-          'border h-[10.31rem] w-[10.31rem] rounded-[10px] bg-white relative p-[0.68rem] flex items-end transition-all cursor-pointer mx-auto my-2 hover:shadow-md'
-        )}
-      >
-        <div className="w-[1.87rem] h-[1.87rem] absolute rounded-full bg-[#F9F9FB] top-0 right-0 m-[0.68rem] flex justify-center items-center cursor-pointer z-10">
-          <DotsHorizontalIcon />
-        </div>
-        {/* <PdfFirstPageImage documentId={documentId} /> */}
-        <div className="flex items-center gap-1 justify-between w-full z-10">
-          <p className="text-[#585F68] text-[10px] whitespace-nowrap">
-            {truncateText(title, 25)}
-          </p>
-        </div>
-      </div>
-    </Link>
+    <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+        <Viewer
+          fileUrl={pdfURL}
+          defaultScale={SpecialZoomLevel.PageFit}
+          viewMode={ViewMode.SinglePage}
+          scrollMode={ScrollMode.Page}
+          plugins={[]}
+        />
+      </Worker>
+    </div>
   );
-});
-
-// const PdfFirstPageImage = ({ documentId }: { documentId: string }) => {
-//   const { data: pdfDocument } = useQuery({
-//     queryKey: ['multiDocVectorDoc', { documentId }],
-//     queryFn: () =>
-//       ApiService.multiDocVectorDoc(documentId).then((res) => res.json()),
-//     select(data) {
-//       if (data.status === 'success') {
-//         return data.data;
-//       }
-//       return null;
-//     },
-//     enabled: Boolean(documentId)
-//   });
-//   if (!pdfDocument) return null;
-
-//   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${pdfDocument.collection_name}`;
-//   return (
-//     <div className="pointer-events-none absolute w-full h-full pt-[1.36rem] pr-[1.36rem]">
-//       <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-//         <Viewer
-//           fileUrl={pdfURL}
-//           defaultScale={SpecialZoomLevel.PageFit}
-//           viewMode={ViewMode.SinglePage}
-//           scrollMode={ScrollMode.Page}
-//         />
-//       </Worker>
-//     </div>
-//   );
-// };
+};
 
 export default ChatHistory;
