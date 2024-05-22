@@ -54,6 +54,7 @@ const InputArea = ({
     setValue(v);
     setOpen(false);
   };
+
   return (
     <div className="w-full border bg-white rounded-[8px] shadow-md flex px-2 relative">
       <div
@@ -89,7 +90,7 @@ const InputArea = ({
           style={style}
         >
           <Mention
-            markup="@[__display__](user:__id__)"
+            markup="@[[[__display__]]]"
             displayTransform={(url) => `@${url}`}
             trigger="@"
             data={documents?.map((item) => {
