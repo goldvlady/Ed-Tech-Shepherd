@@ -700,7 +700,7 @@ const CustomTable: React.FC = () => {
           display={'flex'}
           flexDirection={'column'}
           justifyContent={'start'}
-          className="w-full"
+          className="w-screen h-screen"
         >
           <Flex
             width="100%"
