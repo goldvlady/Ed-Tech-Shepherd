@@ -63,10 +63,29 @@ const CustomMarkdownView = ({
       rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
     >
-      {highlightBracketedText(replaceLatexDelimiters(source, showDot))}
+      {extractMarkdown(
+        highlightBracketedText(replaceLatexDelimiters(source, showDot))
+      )}
     </MemoizedReactMarkdown>
   );
 };
+
+// Function to remove markdown wrapper from input e.g ```markdown {content} ```
+function extractMarkdown(content) {
+  // Regular expression to match content between ```markdown and ```
+  const regex = /```markdown\n([\s\S]*?)\n```/;
+
+  // Execute the regex to find matches
+  const match = regex.exec(content);
+
+  // If a match is found, return the first capturing group, which is the content
+  if (match) {
+    return match[1];
+  }
+
+  // Return null if no markdown block is found
+  return content;
+}
 
 const highlightBracketedText = (text) => {
   if (text) {
