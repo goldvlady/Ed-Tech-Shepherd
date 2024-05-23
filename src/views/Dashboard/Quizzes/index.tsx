@@ -696,7 +696,36 @@ const Quizzes = () => {
         }}
         onClose={() => null}
       />
-      {isEmpty(quizzes) && !hasSearched && !isLoading ? (
+      {isEmpty(quizzes) && isLoading ? (
+        <Box
+          padding={'20px'}
+          background={'#F8F9FB'}
+          display={'flex'}
+          flexDirection={'column'}
+          justifyContent={'start'}
+          height={'calc(100vh - 80px)'}
+        >
+          <Flex
+            width="100%"
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+          >
+            <Text
+              fontFamily="Inter"
+              fontWeight="600"
+              fontSize="24px"
+              lineHeight="30px"
+              letterSpacing="-2%"
+              color="#212224"
+            >
+              Quizzes
+              <span className="count-badge">{0}</span>
+            </Text>
+          </Flex>
+          <div className="w-full h-72 bg-white/90 animate-pulse"></div>
+        </Box>
+      ) : isEmpty(quizzes) && !hasSearched && !isLoading ? (
         <Box
           padding={'20px'}
           background={'#F8F9FB'}

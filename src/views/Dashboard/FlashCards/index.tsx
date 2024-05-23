@@ -692,7 +692,36 @@ const CustomTable: React.FC = () => {
         }}
         onClose={() => null}
       />
-      {!flashcards?.length && !hasSearched && !isLoading ? (
+      {!flashcards?.length && isLoading ? (
+        <Box
+          background={'#F8F9FB'}
+          display={'flex'}
+          flexDirection={'column'}
+          justifyContent={'start'}
+          height={'calc(100vh - 80px)'}
+        >
+          <Flex
+            width="100%"
+            alignItems="center"
+            justifyContent="space-between"
+            color="#E5E6E6"
+            pt={{ base: '10px', md: '20px' }}
+            pl={{ base: '10px', md: '20px' }}
+          >
+            <Text
+              fontFamily="Inter"
+              fontWeight="600"
+              fontSize={{ base: '18px', md: '24px' }}
+              lineHeight="30px"
+              letterSpacing="-2%"
+              color="#212224"
+            >
+              Flashcards
+            </Text>
+          </Flex>
+          <div className="w-full h-72 bg-white/90 animate-pulse"></div>
+        </Box>
+      ) : !flashcards?.length && !hasSearched && !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}

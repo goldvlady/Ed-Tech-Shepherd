@@ -3,7 +3,7 @@ import { useSearch } from '../../../hooks';
 import librarySubjectStore from '../../../state/librarySubjectStore';
 import libraryProviderStore from '../../../state/libraryProviderStore';
 import LibraryCardList from './components/LibraryCardList';
-import ProviderList from './components/ProviderList';
+import ProviderList, { ProviderSkeleton } from './components/ProviderList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
@@ -239,7 +239,7 @@ const Library: React.FC = () => {
         <LoaderOverlay />
       )} */}
 
-      {!libraryProviders?.length && !hasSearched && !isLoading ? (
+      {!libraryProviders?.length && !hasSearched && !providersLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -391,17 +391,23 @@ const Library: React.FC = () => {
             ))}
           </Breadcrumb>
           <Box>
-            {displayMode === 'providers' && (
+            {displayMode === 'providers' &&
+            !providersLoading &&
+            libraryProviders?.length > 0 ? (
               <ProviderList
                 providers={libraryProviders}
                 onSelectProvider={handleProviderClick}
               />
+            ) : (
+              <ProviderSkeleton />
             )}
-            {displayMode === 'subjects' && (
+            {displayMode === 'subjects' && !isLoading ? (
               <SubjectList
                 subjectId={selectedProviderId}
                 onSelectSubject={handleSubjectClick}
               />
+            ) : (
+              <ProviderSkeleton />
             )}
             {displayMode === 'topics' && (
               <TopicList
