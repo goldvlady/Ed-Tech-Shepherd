@@ -87,7 +87,7 @@ const Login: React.FC = () => {
       path = '/dashboard/tutordashboard';
     }
     if (redirectPath && !path.includes('complete')) {
-      path = path + redirectPath;
+      path = redirectPath;
     }
     if (preAuthRoute) {
       path = preAuthRoute;
