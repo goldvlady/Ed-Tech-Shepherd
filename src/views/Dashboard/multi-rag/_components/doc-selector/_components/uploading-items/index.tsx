@@ -37,12 +37,14 @@ const Item = ({
   item,
   file,
   setUploadDocumentsId,
-  setFilesUploading
+  setFilesUploading,
+  index
 }: {
   item: any;
   file: any;
   setUploadDocumentsId: any;
   setFilesUploading: any;
+  index?: number;
 }) => {
   const toast = useCustomToast();
   console.log('Item', { item, file });
@@ -127,14 +129,20 @@ const Item = ({
           <ReloadIcon className="animate-spin text-[#207DF7]" />
         ) : (
           <div
+            className="opacity-50 cursor-not-allowed"
             onClick={() => {
-              alert('docId ' + docId);
               setUploadDocumentsId((prevState) => {
-                return prevState.filter((item) => item !== docId);
+                console.log('Test 1', prevState, item, docId);
+                // return prevState.filter((item) => item !== docId);
+                return prevState;
+              });
+              setFilesUploading((prevState) => {
+                console.log('Test 2', prevState);
+                return prevState;
               });
             }}
           >
-            <Cross1Icon className="cursor-pointer" />
+            <Cross1Icon className="cursor-not-allowed" />
           </div>
         )}
         {state === 'in_progress' && (
