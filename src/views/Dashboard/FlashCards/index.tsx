@@ -694,11 +694,13 @@ const CustomTable: React.FC = () => {
       />
       {!flashcards?.length && isLoading ? (
         <Box
+          padding={{ md: '20px', base: '10px' }}
+          overflowX={{ base: 'hidden' }}
+          minHeight="100vh"
           background={'#F8F9FB'}
           display={'flex'}
           flexDirection={'column'}
           justifyContent={'start'}
-          height={'calc(100vh - 80px)'}
         >
           <Flex
             width="100%"
@@ -719,7 +721,7 @@ const CustomTable: React.FC = () => {
               Flashcards
             </Text>
           </Flex>
-          <div className="w-full h-72 bg-white/90 animate-pulse"></div>
+          <div className="w-full h-72 bg-white animate-pulse"></div>
         </Box>
       ) : !flashcards?.length && !hasSearched && !isLoading ? (
         <Box

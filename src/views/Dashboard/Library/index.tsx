@@ -239,59 +239,7 @@ const Library: React.FC = () => {
         <LoaderOverlay />
       )} */}
 
-      {!libraryProviders?.length && !hasSearched && !providersLoading ? (
-        <Box
-          background={'#F8F9FB'}
-          display={'flex'}
-          flexDirection={'column'}
-          justifyContent={'start'}
-          height={'calc(100vh - 80px)'}
-        >
-          <Flex
-            width="100%"
-            alignItems="center"
-            justifyContent="space-between"
-            color="#E5E6E6"
-            pt={{ base: '10px', md: '20px' }}
-            pl={{ base: '10px', md: '20px' }}
-          >
-            <Text
-              fontFamily="Inter"
-              fontWeight="600"
-              fontSize={{ base: '18px', md: '24px' }}
-              lineHeight="30px"
-              letterSpacing="-2%"
-              color="#212224"
-            >
-              Library
-            </Text>
-          </Flex>
-          <Box
-            width={'100%'}
-            display={'flex'}
-            height="100%"
-            justifyContent={'center'}
-            flexDirection={'column'}
-            alignItems={'center'}
-          >
-            <img
-              src="/images/empty_illustration.svg"
-              alt="empty directory icon"
-            />
-            <Text
-              color="text.300"
-              fontFamily="Inter"
-              fontSize="16px"
-              fontStyle="normal"
-              fontWeight="500"
-              lineHeight="21px"
-              letterSpacing="0.112px"
-            >
-              No cards to display
-            </Text>
-          </Box>
-        </Box>
-      ) : (
+      {
         <Box
           padding={{ md: '20px', base: '10px' }}
           overflowX={{ base: 'hidden' }}
@@ -391,7 +339,7 @@ const Library: React.FC = () => {
             ))}
           </Breadcrumb>
           {(!providersLoading && libraryProviders?.length > 0) ||
-          (displayMode === 'subjects' && !isLoading) ? (
+          (displayMode === 'subjects' && !isLoading && hasSearched) ? (
             <Box>
               {displayMode === 'providers' && (
                 <ProviderList
@@ -427,7 +375,7 @@ const Library: React.FC = () => {
             </Box>
           )}
         </Box>
-      )}
+      }
     </>
   );
 };
