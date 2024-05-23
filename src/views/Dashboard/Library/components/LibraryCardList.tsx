@@ -12,6 +12,7 @@ import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import SelectComponent, { Option } from '../../../../components/Select';
 import { capitalize } from 'lodash';
+import { ProviderSkeleton } from './ProviderList';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -233,37 +234,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
           </SimpleGrid>
         </InfiniteScroll>
       ) : (
-        <Box
-          display={'flex'}
-          flexDirection={'column'}
-          justifyContent={'start'}
-          height={'calc(100vh - 350px)'}
-        >
-          <Box
-            width={'100%'}
-            display={'flex'}
-            height="100%"
-            justifyContent={'center'}
-            flexDirection={'column'}
-            alignItems={'center'}
-          >
-            <img
-              src="/images/empty_illustration.svg"
-              alt="empty directory icon"
-            />
-            <Text
-              color="text.300"
-              fontFamily="Inter"
-              fontSize="16px"
-              fontStyle="normal"
-              fontWeight="500"
-              lineHeight="21px"
-              letterSpacing="0.112px"
-            >
-              No cards to display
-            </Text>
-          </Box>
-        </Box>
+        <ProviderSkeleton />
       )}
     </>
   );

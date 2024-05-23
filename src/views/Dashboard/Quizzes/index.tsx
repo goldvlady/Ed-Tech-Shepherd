@@ -723,7 +723,7 @@ const Quizzes = () => {
               <span className="count-badge">{0}</span>
             </Text>
           </Flex>
-          <div className="w-full h-72 bg-white animate-pulse"></div>
+          <div className="w-full h-72 mt-6 bg-white animate-pulse"></div>
         </Box>
       ) : isEmpty(quizzes) && !hasSearched && !isLoading ? (
         <Box

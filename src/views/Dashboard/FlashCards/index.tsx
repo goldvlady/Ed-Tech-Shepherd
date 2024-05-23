@@ -694,13 +694,13 @@ const CustomTable: React.FC = () => {
       />
       {!flashcards?.length && isLoading ? (
         <Box
-          padding={{ md: '20px', base: '10px' }}
           overflowX={{ base: 'hidden' }}
           minHeight="100vh"
           background={'#F8F9FB'}
           display={'flex'}
           flexDirection={'column'}
           justifyContent={'start'}
+          className="w-full"
         >
           <Flex
             width="100%"
