@@ -450,6 +450,7 @@ export interface StudentDocumentPayload {
   documentUrl?: string;
   tags?: string[];
   ingestId?: string;
+  type?: string;
 }
 
 export type LevelType = Level;
