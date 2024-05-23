@@ -86,13 +86,16 @@ const Login: React.FC = () => {
     } else if (appUser?.tutor) {
       path = '/dashboard/tutordashboard';
     }
-    if (redirectPath && !path.includes('complete')) {
-      path = path + redirectPath;
-    }
+    // if (redirectPath && !path.includes('complete')) {
+    //   path = path + redirectPath;
+    // }
     if (preAuthRoute) {
       path = preAuthRoute;
       localStorage.removeItem('preAuthRoute');
     }
+    console.log(path);
+    console.log(redirectPath);
+    console.log('PREAUTH', preAuthRoute);
     navigate(path);
   }, [appUser, navigate]);
 

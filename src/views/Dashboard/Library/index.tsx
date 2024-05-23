@@ -390,41 +390,42 @@ const Library: React.FC = () => {
               </BreadcrumbItem>
             ))}
           </Breadcrumb>
-          <Box>
-            {displayMode === 'providers' &&
-            !providersLoading &&
-            libraryProviders?.length > 0 ? (
-              <ProviderList
-                providers={libraryProviders}
-                onSelectProvider={handleProviderClick}
-              />
-            ) : (
+          {(!providersLoading && libraryProviders?.length > 0) ||
+          (displayMode === 'subjects' && !isLoading) ? (
+            <Box>
+              {displayMode === 'providers' && (
+                <ProviderList
+                  providers={libraryProviders}
+                  onSelectProvider={handleProviderClick}
+                />
+              )}
+              {displayMode === 'subjects' && (
+                <SubjectList
+                  subjectId={selectedProviderId}
+                  onSelectSubject={handleSubjectClick}
+                />
+              )}
+              {displayMode === 'topics' && (
+                <TopicList
+                  subjectId={selectedSubjectId}
+                  onSelectTopic={handleTopicClick}
+                />
+              )}
+              {displayMode === 'decks' && (
+                <DeckList
+                  topicId={selectedTopicId}
+                  onSelectDeck={handleDeckClick}
+                />
+              )}
+              {displayMode === 'cards' && (
+                <LibraryCardList deckId={selectedDeckId} />
+              )}
+            </Box>
+          ) : (
+            <Box>
               <ProviderSkeleton />
-            )}
-            {displayMode === 'subjects' && !isLoading ? (
-              <SubjectList
-                subjectId={selectedProviderId}
-                onSelectSubject={handleSubjectClick}
-              />
-            ) : (
-              <ProviderSkeleton />
-            )}
-            {displayMode === 'topics' && (
-              <TopicList
-                subjectId={selectedSubjectId}
-                onSelectTopic={handleTopicClick}
-              />
-            )}
-            {displayMode === 'decks' && (
-              <DeckList
-                topicId={selectedTopicId}
-                onSelectDeck={handleDeckClick}
-              />
-            )}
-            {displayMode === 'cards' && (
-              <LibraryCardList deckId={selectedDeckId} />
-            )}
-          </Box>
+            </Box>
+          )}
         </Box>
       )}
     </>
