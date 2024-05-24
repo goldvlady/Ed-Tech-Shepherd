@@ -58,6 +58,11 @@ import {
   ReloadIcon,
   TextIcon
 } from '@radix-ui/react-icons';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '../../../../../components/ui/popover';
 
 function PDFViewer({
   selectedDocumentID,
@@ -206,7 +211,7 @@ function PDFViewer({
               'w-1/2': false
             })}
           >
-            <div className="h-full w-full no-scrollbar [&_div]:no-scrollbar">
+            <div className="h-full w-full no-scrollbar [&_div]:no-scrollbar relative">
               {selectedDocumentID.name && (
                 <Viewer
                   fileUrl={pdfURL}
@@ -245,6 +250,8 @@ const RenderHighlightTarget = ({
   getTextForTranslation,
   ...props
 }) => {
+  const [open, setOpen] = useState(false);
+  console.log('Props', props);
   const MenuItem = ({
     title,
     icon,
@@ -272,68 +279,90 @@ const RenderHighlightTarget = ({
       </div>
     );
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setOpen(true);
+    }, 200);
+  }, []);
+
   return (
-    <div
-      className="bg-white flex absolute z-[1] rounded-xl min-w-36 shadow-xl overflow-hidden"
-      style={{
-        left: `${props.selectionRegion.left}%`,
-        top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
-        transform: 'translate(0, 8px)'
-      }}
-    >
-      <div className="w-full h-full">
-        <MenuItem
-          disabled={isSavingHighlightText}
-          onClick={() => {
-            mutate(
-              {
-                documentId: selectedDocumentID.id,
-                highlight: {
-                  name: props.selectedText,
-                  position: props.highlightAreas
-                }
-              },
-              {
-                onSuccess: () => {
-                  queryClient.invalidateQueries({
-                    queryKey: ['documentHighlight', selectedDocumentID.id]
-                  });
-                }
-              }
-            );
+    <Popover open={open}>
+      <PopoverTrigger asChild>
+        <div
+          className={cn(
+            'bg-transparent opacity-0 pointer-events-none absolute'
+          )}
+          style={{
+            top: `${Math.floor(props.selectionRegion.top - 5)}%`,
+            left: `${Math.floor(props.selectionRegion.left)}%`
           }}
-          title="Highlight"
-          icon={<Pencil1Icon className="w-4 mr-1" />}
-        />
-        <hr />
-        <MenuItem
-          onClick={() => {
-            getTextForSummary(props.selectedText);
-            props.toggle();
+        >
+          .
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="bg-transparent shadow-none border-none w-0 h-0">
+        <div
+          className="bg-white flex absolute z-[1] rounded-xl min-w-36 shadow-xl overflow-hidden"
+          style={{
+            left: `${props.selectionRegion.left}%`,
+            top: `${props.selectionRegion.top + props.selectionRegion.height}%`,
+            transform: 'translate(0, 8px)'
           }}
-          title="Summarize"
-          icon={<FileTextIcon className="w-4 mr-1" />}
-        />
-        <hr />
-        <MenuItem
-          onClick={() => {
-            getTextForExplaination(props.selectedText);
-            props.toggle();
-          }}
-          title="Explain"
-          icon={<InfoCircledIcon className="w-4 mr-1 text-lg" />}
-        />
-        <hr />
-        <MenuItem
-          onClick={() => {
-            getTextForTranslation(props.selectedText);
-            props.toggle();
-          }}
-          title="Translate"
-          icon={<TextIcon className="w-4 mr-1 text-lg" />}
-        />
-      </div>
-      {/* <Button
+        >
+          <div className="w-full h-full">
+            <MenuItem
+              disabled={isSavingHighlightText}
+              onClick={() => {
+                mutate(
+                  {
+                    documentId: selectedDocumentID.id,
+                    highlight: {
+                      name: props.selectedText,
+                      position: props.highlightAreas
+                    }
+                  },
+                  {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries({
+                        queryKey: ['documentHighlight', selectedDocumentID.id]
+                      });
+                    }
+                  }
+                );
+              }}
+              title="Highlight"
+              icon={<Pencil1Icon className="w-4 mr-1" />}
+            />
+            <hr />
+            <MenuItem
+              onClick={() => {
+                getTextForSummary(props.selectedText);
+                props.toggle();
+              }}
+              title="Summarize"
+              icon={<FileTextIcon className="w-4 mr-1" />}
+            />
+            <hr />
+            <MenuItem
+              onClick={() => {
+                getTextForExplaination(props.selectedText);
+                props.toggle();
+              }}
+              title="Explain"
+              icon={<InfoCircledIcon className="w-4 mr-1 text-lg" />}
+            />
+            <hr />
+            <MenuItem
+              onClick={() => {
+                getTextForTranslation(props.selectedText);
+                props.toggle();
+              }}
+              title="Translate"
+              icon={<TextIcon className="w-4 mr-1 text-lg" />}
+            />
+          </div>
+          {/* <Button
         disabled={isSavingHighlightText}
         onClick={() => {
           mutate(
@@ -359,7 +388,9 @@ const RenderHighlightTarget = ({
 
         <SaveIcon />
       </Button> */}
-    </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
