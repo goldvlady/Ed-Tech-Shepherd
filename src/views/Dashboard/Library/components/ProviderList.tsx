@@ -35,7 +35,7 @@ export const ProviderSkeleton = () => (
     {[1, 2, 3].map((provider) => (
       <div
         key={provider}
-        className="w-72 h-20 border border-black/5 #F8F9FB animate-pulse"
+        className="w-72 h-20 border border-black/5 bg-[#F8F9FB] animate-pulse"
       ></div>
     ))}
   </SimpleGrid>

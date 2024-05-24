@@ -84,7 +84,7 @@ const loadState = (): Partial<Store> => {
 
 export default create<Store>((set) => ({
   flashcards: null,
-  isLoading: true,
+  isLoading: false,
   minorLoader: false,
   tags: [],
   minimizedStudy: null,

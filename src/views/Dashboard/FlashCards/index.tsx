@@ -91,7 +91,7 @@ const CustomTable: React.FC = () => {
   const navigate = useNavigate();
 
   const toast = useCustomToast();
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(true);
   const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
   const [multiSelected, setMultiSelected] = useState<any>([]);
 
@@ -179,7 +179,11 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards();
     // eslint-disable-next-line
   }, []);
-
+  useEffect(() => {
+    if (flashcards) {
+      setHasSearched(false);
+    }
+  }, [flashcards]);
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
     loadFlashcard(id, false);
@@ -692,37 +696,7 @@ const CustomTable: React.FC = () => {
         }}
         onClose={() => null}
       />
-      {!flashcards?.length && isLoading ? (
-        <Box
-          overflowX={{ base: 'hidden' }}
-          background={'#F8F9FB'}
-          display={'flex'}
-          flexDirection={'column'}
-          justifyContent={'start'}
-          className="w-screen h-screen"
-        >
-          <Flex
-            width="100%"
-            alignItems="center"
-            justifyContent="space-between"
-            color="#E5E6E6"
-            pt={{ base: '10px', md: '20px' }}
-            pl={{ base: '10px', md: '20px' }}
-          >
-            <Text
-              fontFamily="Inter"
-              fontWeight="600"
-              fontSize={{ base: '18px', md: '24px' }}
-              lineHeight="30px"
-              letterSpacing="-2%"
-              color="#212224"
-            >
-              Flashcards
-            </Text>
-          </Flex>
-          <div className="w-full h-72 bg-white animate-pulse"></div>
-        </Box>
-      ) : !flashcards?.length && !hasSearched && !isLoading ? (
+      {!flashcards?.length && !hasSearched && !isLoading ? (
         <Box
           background={'#F8F9FB'}
           display={'flex'}
@@ -861,7 +835,12 @@ const CustomTable: React.FC = () => {
 
           <Tabs defaultValue="image-occlusion">
             <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
-              <TabsTrigger value="normal">Normal</TabsTrigger>
+              <TabsTrigger
+                disabled={flashcards && flashcards.length >= 0 ? true : false}
+                value="normal"
+              >
+                Normal
+              </TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
             </TabsList>
             <TabsContent value="normal">

@@ -716,8 +716,8 @@ export default function Marketplace() {
                 handlePagination={(nextPage) => setPage(nextPage)}
               />
             </>
-          ) : loadingData && allTutors.length === 0 ? (
-            <div className="w-5/6 h-72 bg-white animate-pulse"></div>
+          ) : loadingData && !allTutors.length ? (
+            <div className="w-[90vw] h-72 bg-white/70 rounded-md animate-pulse"></div>
           ) : (
             !loadingData && (
               <>
