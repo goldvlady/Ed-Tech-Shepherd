@@ -835,10 +835,7 @@ const CustomTable: React.FC = () => {
 
           <Tabs defaultValue="image-occlusion">
             <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
-              <TabsTrigger
-                disabled={flashcards && flashcards.length >= 0 ? true : false}
-                value="normal"
-              >
+              <TabsTrigger disabled={!flashcards ? true : false} value="normal">
                 Normal
               </TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
