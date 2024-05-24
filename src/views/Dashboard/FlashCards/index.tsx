@@ -695,7 +695,6 @@ const CustomTable: React.FC = () => {
       {!flashcards?.length && isLoading ? (
         <Box
           overflowX={{ base: 'hidden' }}
-          minHeight="100vh"
           background={'#F8F9FB'}
           display={'flex'}
           flexDirection={'column'}
