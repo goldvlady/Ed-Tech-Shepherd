@@ -66,7 +66,7 @@ const UploadQuizForm = ({
   const dummyData: LocalDummyData = {
     subject: '',
     topic: '',
-    difficulty: 'kindergarten',
+    difficulty: 'Medium',
     count: 1,
     type: MIXED,
     documentId: '',
@@ -350,7 +350,9 @@ const UploadQuizForm = ({
 
           await handleFormatQuizQuestionCallback(
             quizQuestions,
-            localData,
+            merge({}, localData, {
+              level: localData?.difficulty ?? localData?.level
+            }),
             () => {
               setIsUploadingFile(false);
               setIsGenerating(false);

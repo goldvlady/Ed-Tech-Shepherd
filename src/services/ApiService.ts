@@ -10,7 +10,8 @@ import {
   QuizData,
   QuizQuestion,
   FlashcardData,
-  StudyPlanTopicDocumentPayload
+  StudyPlanTopicDocumentPayload,
+  StoreQuizScoreType
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1059,6 +1060,8 @@ class ApiService {
     questions: QuizQuestion[];
     title: string;
     tags: string[];
+    level?: string;
+    grade?: string;
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
       method: 'POST',
@@ -1115,7 +1118,7 @@ class ApiService {
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
-    scoreDetails: any;
+    scoreDetails?: StoreQuizScoreType[];
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',
@@ -1413,6 +1416,15 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/inviteSchoolStudentWithCSV`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+  static setNotifyMathMode = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/setNotifyMathMode`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ notifyMathMode: true })
     });
   };
 }

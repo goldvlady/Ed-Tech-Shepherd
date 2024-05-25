@@ -5,6 +5,7 @@ import {
   MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
+  StoreQuizScoreType,
   TRUE_FALSE
 } from '../../types';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
@@ -282,6 +283,7 @@ const QuizCard = ({
   handleStoreQuizHistory,
   showPreviousButton,
   _id,
+  // questionId,
   index,
   quizScores,
   handleViewResult,
@@ -298,10 +300,10 @@ const QuizCard = ({
   handlePrevious?: () => void;
   answer?: string;
   handleSetScore?: (
-    score: string | 'true' | 'false' | boolean | null,
+    score: StoreQuizScoreType['score'],
     idx?: number,
     selectedOptions?: string[],
-    questionId?: string
+    questionId?: string | number
   ) => void;
   handleStoreQuizHistory?: (
     questionId: string,
@@ -320,6 +322,7 @@ const QuizCard = ({
         questionId?: string;
       }[];
   handleViewResult?: () => void;
+  // questionId?: string | number;
 }) => {
   const [optionAnswer, setOptionAnswer] = useState('');
   const [optionCheckboxAnswers, setOptionCheckboxAnswers] = useState([]);
@@ -335,13 +338,7 @@ const QuizCard = ({
           const { isCorrect } = options[toNumber(index)];
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
-
-          handleSetScore(
-            score,
-            toNumber(questionIdx),
-            [optionAnswer],
-            _id as string
-          );
+          handleSetScore(score, toNumber(questionIdx), [optionAnswer], _id);
           handleStoreQuizHistory(_id as string, toString(isCorrect));
         }
       }
@@ -370,7 +367,7 @@ const QuizCard = ({
           answer,
           toNumber(questionIdx),
           optionCheckboxAnswers,
-          _id as string
+          _id
         );
         handleStoreQuizHistory(_id as string, answer);
       }
@@ -381,7 +378,12 @@ const QuizCard = ({
 
   useEffect(() => {
     if (!isEmpty(enteredAnswer)) {
-      handleSetScore('null', toNumber(index), [enteredAnswer], _id as string);
+      handleSetScore(
+        'pending',
+        toNumber(index),
+        [enteredAnswer],
+        _id as string
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enteredAnswer]);
@@ -704,7 +706,7 @@ const QuizCard = ({
               mr={3}
               onClick={() => {
                 handleSetScore(
-                  'null',
+                  'pending',
                   toNumber(index),
                   quizScores[index].selectedOptions,
                   _id as string
@@ -774,12 +776,7 @@ const QuizCard = ({
               mr={3}
               onClick={() => {
                 if (isNil(quizScores[index])) {
-                  handleSetScore(
-                    'null',
-                    toNumber(index),
-                    [],
-                    (_id || '') as string
-                  );
+                  handleSetScore('pending', toNumber(index), [''], _id);
                   handleStoreQuizHistory(_id as string, '_');
                 }
                 setTimeout(() => {
@@ -944,21 +941,14 @@ export const QuizModal = ({
   const [startQuiz, setStartQuiz] = useState(false);
   const [endQuiz, setEndQuiz] = useState(false);
   const [quizCount, setQuizCount] = useState<number>(0);
-  const [scores, setScores] = useState<
-    {
-      questionIdx: string | number;
-      score: string | 'true' | 'false' | boolean | null;
-      selectedOptions: string[];
-      questionId: string;
-    }[]
-  >([]);
+  const [scores, setScores] = useState<StoreQuizScoreType[]>([]);
 
   const [viewQuizAnswer, setViewQuizAnswer] = useState(false);
 
   const handleSetScore = (
-    score: 'true' | 'false' | boolean | null,
-    idx: number | null,
-    selectedOptions: string[] = [],
+    score: StoreQuizScoreType['score'],
+    idx = null,
+    selectedOptions = [],
     questionId = ''
   ) => {
     if (idx !== null) {
@@ -1143,6 +1133,7 @@ export const QuizModal = ({
                 {...{
                   ...quiz,
                   ...quiz?.questions[quizCount],
+                  // questionId: quiz?.questions[quizCount]?._id,
                   index: quizCount,
                   actionable: true
                 }}
@@ -1180,6 +1171,7 @@ export const QuizModal = ({
                         quizScores={[...scores]}
                         {...{
                           ...question,
+                          // questionId: quiz?.questions[quizCount]?._id,
                           index,
                           actionable: false
                         }}
@@ -1254,7 +1246,7 @@ export const QuizModal = ({
                 )}
                 skipped={Math.floor(
                   toNumber(
-                    (itemSize(filter([...scores], ['score', 'null'])) /
+                    (itemSize(filter([...scores], ['score', 'pending'])) /
                       toNumber(quiz?.questions?.length)) *
                       100
                   )
