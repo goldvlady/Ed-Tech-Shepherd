@@ -11,7 +11,7 @@ import ShepherdSpinner from '../Dashboard/components/shepherd-spinner';
 export default function Dashboard() {
   const { feeds, fetchFeeds } = feedsStore();
   const { user } = userStore();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [calendarEventData, setCalendarEventData] = useState<any>([]);
   const [tutorReport, setTutorReport] = useState<any>([]);
   const [upcomingEvent, setUpcomingEvent] = useState<any>([]);

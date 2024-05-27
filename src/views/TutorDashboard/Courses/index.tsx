@@ -69,7 +69,7 @@ const Courses = () => {
   const { user: userData } = userStore();
   const { fetchSchoolCourses, schoolStudents, schoolCourses } = clientStore();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [allTutorClients, setAllTutorClients] = useState<any>([]);
   const [allSchoolCourses, setAllSchoolCourses] = useState<any>([]);
 

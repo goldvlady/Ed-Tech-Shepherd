@@ -121,7 +121,7 @@ const loadState = (): Partial<Store> => {
 
 export default create<Store>((set) => ({
   startQuizModal: false,
-  isLoading: false,
+  isLoading: true,
   pagination: { limit: 10, page: 1, count: 100 },
   minimizedStudy: null,
   quizzes: null,

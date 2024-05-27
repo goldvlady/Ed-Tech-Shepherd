@@ -91,7 +91,7 @@ const CustomTable: React.FC = () => {
   const navigate = useNavigate();
 
   const toast = useCustomToast();
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(true);
   const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
   const [multiSelected, setMultiSelected] = useState<any>([]);
 
@@ -179,7 +179,11 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards();
     // eslint-disable-next-line
   }, []);
-
+  useEffect(() => {
+    if (flashcards) {
+      setHasSearched(false);
+    }
+  }, [flashcards]);
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
     loadFlashcard(id, false);
@@ -627,7 +631,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
@@ -831,7 +835,9 @@ const CustomTable: React.FC = () => {
 
           <Tabs defaultValue="image-occlusion">
             <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
-              <TabsTrigger value="normal">Normal</TabsTrigger>
+              <TabsTrigger disabled={!flashcards ? true : false} value="normal">
+                Normal
+              </TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
             </TabsList>
             <TabsContent value="normal">

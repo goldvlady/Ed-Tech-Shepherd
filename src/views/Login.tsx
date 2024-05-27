@@ -74,35 +74,29 @@ const Login: React.FC = () => {
         : null;
 
     sessionStorage.setItem('Just Signed in', 'true');
-    if (appUser?.type.includes('tutor')) {
-      const resp = await ApiService.toggleUserRole(appUser._id, 'tutor');
-      path = '/dashboard/tutordashboard';
-    }
-    if (appUser?.signedUpAsTutor) {
-      if (appUser?.tutor) {
-        const resp = await ApiService.toggleUserRole(appUser._id, 'tutor');
-        path = '/dashboard/tutordashboard';
-      } else {
-        path = '/complete_profile';
-      }
-    }
     if (
       (appUser?.tutor &&
         !appUser.tutor.isActive &&
         appUser?.type.includes('student')) ||
       (appUser?.type.includes('student') && !appUser.tutor)
     ) {
-      const resp = await ApiService.toggleUserRole(appUser._id, 'student');
       path = '/dashboard';
+    } else if (appUser?.signedUpAsTutor && !appUser?.tutor) {
+      path = 'complete_profile';
+    } else if (appUser?.tutor) {
+      path = '/dashboard/tutordashboard';
     }
     if (redirectPath && !path.includes('complete')) {
-      path = path + redirectPath;
+      path = redirectPath;
     }
     if (preAuthRoute) {
       path = preAuthRoute;
       localStorage.removeItem('preAuthRoute');
     }
-    window.location.href = path;
+    console.log(path);
+    console.log(redirectPath);
+    console.log('PREAUTH', preAuthRoute);
+    navigate(path);
   }, [appUser, navigate]);
 
   useEffect(() => {

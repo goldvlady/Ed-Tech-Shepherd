@@ -3,7 +3,7 @@ import { useSearch } from '../../../hooks';
 import librarySubjectStore from '../../../state/librarySubjectStore';
 import libraryProviderStore from '../../../state/libraryProviderStore';
 import LibraryCardList from './components/LibraryCardList';
-import ProviderList from './components/ProviderList';
+import ProviderList, { ProviderSkeleton } from './components/ProviderList';
 import SubjectList from './components/SubjectList';
 import TopicList from './components/TopicList';
 import DeckList from './components/DeckList';
@@ -228,74 +228,18 @@ const Library: React.FC = () => {
   }, [location]);
 
   useEffect(() => {
-    fetchLibrarySubjects(selectedProviderId);
-  }, [fetchLibrarySubjects, selectedProviderId]);
-
-  useEffect(() => {
     fetchLibraryProviders();
     // eslint-disable-next-line
   }, []);
 
   return (
     <>
-      {providersLoading && !libraryProviders?.length && <LoaderOverlay />}
+      {/* {providersLoading && !libraryProviders?.length && <LoaderOverlay />}
       {displayMode === 'subjects' && isLoading && !librarySubjects?.length && (
         <LoaderOverlay />
-      )}
+      )} */}
 
-      {!librarySubjects?.length && !hasSearched && !isLoading ? (
-        <Box
-          background={'#F8F9FB'}
-          display={'flex'}
-          flexDirection={'column'}
-          justifyContent={'start'}
-          height={'calc(100vh - 80px)'}
-        >
-          <Flex
-            width="100%"
-            alignItems="center"
-            justifyContent="space-between"
-            color="#E5E6E6"
-            pt={{ base: '10px', md: '20px' }}
-            pl={{ base: '10px', md: '20px' }}
-          >
-            <Text
-              fontFamily="Inter"
-              fontWeight="600"
-              fontSize={{ base: '18px', md: '24px' }}
-              lineHeight="30px"
-              letterSpacing="-2%"
-              color="#212224"
-            >
-              Library
-            </Text>
-          </Flex>
-          <Box
-            width={'100%'}
-            display={'flex'}
-            height="100%"
-            justifyContent={'center'}
-            flexDirection={'column'}
-            alignItems={'center'}
-          >
-            <img
-              src="/images/empty_illustration.svg"
-              alt="empty directory icon"
-            />
-            <Text
-              color="text.300"
-              fontFamily="Inter"
-              fontSize="16px"
-              fontStyle="normal"
-              fontWeight="500"
-              lineHeight="21px"
-              letterSpacing="0.112px"
-            >
-              No cards to display
-            </Text>
-          </Box>
-        </Box>
-      ) : (
+      {
         <Box
           padding={{ md: '20px', base: '10px' }}
           overflowX={{ base: 'hidden' }}
@@ -394,37 +338,44 @@ const Library: React.FC = () => {
               </BreadcrumbItem>
             ))}
           </Breadcrumb>
-          <Box>
-            {displayMode === 'providers' && (
-              <ProviderList
-                providers={libraryProviders}
-                onSelectProvider={handleProviderClick}
-              />
-            )}
-            {displayMode === 'subjects' && (
-              <SubjectList
-                subjects={librarySubjects}
-                onSelectSubject={handleSubjectClick}
-              />
-            )}
-            {displayMode === 'topics' && (
-              <TopicList
-                subjectId={selectedSubjectId}
-                onSelectTopic={handleTopicClick}
-              />
-            )}
-            {displayMode === 'decks' && (
-              <DeckList
-                topicId={selectedTopicId}
-                onSelectDeck={handleDeckClick}
-              />
-            )}
-            {displayMode === 'cards' && (
-              <LibraryCardList deckId={selectedDeckId} />
-            )}
-          </Box>
+          {(!providersLoading && libraryProviders?.length > 0) ||
+          (displayMode === 'subjects' && !isLoading && hasSearched) ? (
+            <Box>
+              {displayMode === 'providers' && (
+                <ProviderList
+                  providers={libraryProviders}
+                  onSelectProvider={handleProviderClick}
+                />
+              )}
+              {displayMode === 'subjects' && (
+                <SubjectList
+                  subjectId={selectedProviderId}
+                  onSelectSubject={handleSubjectClick}
+                />
+              )}
+              {displayMode === 'topics' && (
+                <TopicList
+                  subjectId={selectedSubjectId}
+                  onSelectTopic={handleTopicClick}
+                />
+              )}
+              {displayMode === 'decks' && (
+                <DeckList
+                  topicId={selectedTopicId}
+                  onSelectDeck={handleDeckClick}
+                />
+              )}
+              {displayMode === 'cards' && (
+                <LibraryCardList deckId={selectedDeckId} />
+              )}
+            </Box>
+          ) : (
+            <Box>
+              <ProviderSkeleton />
+            </Box>
+          )}
         </Box>
-      )}
+      }
     </>
   );
 };

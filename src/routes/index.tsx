@@ -15,6 +15,10 @@ import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-sk
 import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
 import ApiService from '../services/ApiService';
+import Home from '../views/Home';
+import TutorDashboardLayout from '../components/Layout';
+import TutorDashboard from '../views/TutorDashboard/index';
+import DashboardLayout from '../views/Dashboard/layout';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -39,16 +43,16 @@ const PendingActivation = lazy(
   () => import('../views/VerificationPages/pending_activation')
 );
 const Signup = lazy(() => import('../views/Signup'));
-const Home = lazy(() => import('../views/Home'));
+//const Home = lazy(() => import('../views/Home'));
 const Feedback = lazy(() => import('../views/Feedback'));
 const Session = lazy(() => import('../views/Session'));
-const DashboardLayout = lazy(() => import('../views/Dashboard/layout'));
+//const DashboardLayout = lazy(() => import('../views/Dashboard/layout'));
 const DocChat = lazy(() => import('../views/Dashboard/DocChat'));
 const TakeQuizzes = lazy(() => import('../views/Dashboard/Quizzes/take'));
 const Tutor = lazy(() => import('../views/Dashboard/Tutor'));
-const TutorDashboardLayout = lazy(() => import('../components/Layout'));
+//const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
-const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
+//const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
 const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
 const Courses = lazy(() => import('../views/TutorDashboard/Courses/index'));
 const Performance = lazy(
