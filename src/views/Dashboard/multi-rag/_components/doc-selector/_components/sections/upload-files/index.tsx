@@ -173,12 +173,7 @@ function UploadFiles({
       <Button
         className="absolute top-0 right-0 mt-[1.6rem] mr-[2.8rem]"
         onClick={startConversation}
-        disabled={
-          uploadedDocumentsId.length === 0 ||
-          isGeneratingConvID ||
-          isPending ||
-          anyProcessingTrue
-        }
+        disabled={isGeneratingConvID || isPending || anyProcessingTrue}
       >
         {anyProcessingTrue && (
           <div className="absolute left-[-196px] text-black flex items-center gap-2">
