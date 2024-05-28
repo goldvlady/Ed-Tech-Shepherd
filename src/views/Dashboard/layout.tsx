@@ -110,6 +110,12 @@ const LinkItems: Array<LinkItemProps> = [
     icon: LuFileQuestion,
     path: '/dashboard/quizzes',
     requiresSubscription: true
+  },
+  {
+    name: 'Study Plans',
+    icon: PiClipboardTextLight,
+    path: '/dashboard/study-plans',
+    requiresSubscription: true
   }
 ];
 interface SidebarProps extends BoxProps {
@@ -729,7 +735,7 @@ const SidebarContent = ({
           {link.name}
         </NavItem>
       ))}
-      <Box ml={8} mb={2} color="text.400">
+      {/* <Box ml={8} mb={2} color="text.400">
         <Button
           pointerEvents={'none'}
           variant={'unstyled'}
@@ -756,7 +762,7 @@ const SidebarContent = ({
             </Text>
           </Flex>
         </Button>
-      </Box>
+      </Box> */}
 
       <Divider />
       <Box ml={8} color="text.400">
