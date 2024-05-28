@@ -47,7 +47,7 @@ import {
   Plus
   // SearchIcon
 } from 'lucide-react';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, memo, useEffect, useState } from 'react';
 import { Button } from '../../../../../components/ui/button';
 import ApiService from '../../../../../services/ApiService';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -113,7 +113,6 @@ function PDFViewer({
   console.log('highlighted text', highlightPositions);
 
   const { ZoomIn, ZoomOut } = zoomPluginInstance;
-  const { ShowSearchPopoverButton } = searchPluginInstance;
 
   const pdfURL = `https://shepherd-document-upload.s3.us-east-2.amazonaws.com/${selectedDocumentID.name}`;
 
@@ -177,7 +176,7 @@ function PDFViewer({
     <div className="flex-[1.5] h-full mt-10 rounded-md">
       <header className="pdf-header p-[0.87rem] w-full bg-white rounded-[10px] flex justify-between items-center">
         <div className="flex items-center gap-1">
-          <ShowSearchPopoverButton />
+          <SearchFromPDF searchPluginInstance={searchPluginInstance} />
           <div className="flex items-center">
             <ChevronUpIcon
               className="cursor-pointer w-[12px]"
@@ -239,6 +238,14 @@ function PDFViewer({
     </div>
   );
 }
+
+const SearchFromPDF = memo(
+  ({ searchPluginInstance }: { searchPluginInstance: any }) => {
+    const { ShowSearchPopoverButton } = searchPluginInstance;
+    return <ShowSearchPopoverButton />;
+  },
+  () => true
+);
 
 const RenderHighlightTarget = ({
   queryClient,
