@@ -300,6 +300,7 @@ export default function WeeklySummary(props) {
               // h={"45px"}
               borderBottom="1px solid #eeeff2"
               borderBottomRadius={'10px'}
+              marginTop="60px"
             >
               <Flex h="16px" alignItems={'center'} gap={1} direction="row">
                 <Flash />
@@ -315,7 +316,7 @@ export default function WeeklySummary(props) {
             </CardFooter>
           </>
         ) : (
-          <Box textAlign={'center'} px={20} mt={5}>
+          <Box textAlign={'center'} px={20} mt={5} mb={{ base: '20px', md: 0 }}>
             <VStack spacing={5}>
               <EmptyFlashcard />
               <Text fontSize={13} fontWeight={500} color="text.400">

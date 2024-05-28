@@ -26,7 +26,6 @@ const StyledSelect = styled(Select)`
     }
   }
 `;
-
 const SelectComponent: React.FC<Props> = ({ options, ref, ...rest }) => {
   return (
     <StyledSelect
@@ -38,8 +37,9 @@ const SelectComponent: React.FC<Props> = ({ options, ref, ...rest }) => {
           return {
             ...o,
             label: (
-              <Flex gap={'5px'}>
-                <StyledCheckbox readOnly isChecked={isSelected} /> {o.label}
+              <Flex gap="5px">
+                <StyledCheckbox readOnly isChecked={isSelected} />
+                {o.label}
               </Flex>
             )
           };
@@ -66,6 +66,10 @@ const SelectComponent: React.FC<Props> = ({ options, ref, ...rest }) => {
             fontSize: '14px',
             background: '#F2F4F7'
           })
+        }),
+        control: (provided) => ({
+          ...provided,
+          fontSize: '0.875rem' // Set font size for the input/control part
         })
       }}
       {...rest}

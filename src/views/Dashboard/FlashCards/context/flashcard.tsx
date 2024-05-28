@@ -62,6 +62,12 @@ interface FlashcardData {
   noteDoc?: string;
   startPage?: number;
   endPage?: number;
+  availableTimeStart?: string;
+  availableTimeEnd?: string;
+  totalStudyHours?: number;
+  frequencyPerWeek?: number;
+  sessionDurationMinutes?: string;
+  studyEndDate?: string;
   questions?: Array<FlashcardQuestion>;
 }
 export interface FlashcardQuestion {

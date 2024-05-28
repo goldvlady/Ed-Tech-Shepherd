@@ -30,4 +30,14 @@ const ProviderList: React.FC<LibraryProviderProps> = ({
   );
 };
 
+export const ProviderSkeleton = () => (
+  <SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 3 }} spacing={10}>
+    {[1, 2, 3].map((provider) => (
+      <div
+        key={provider}
+        className="w-72 h-20 border border-black/5 bg-[#F8F9FB] animate-pulse"
+      ></div>
+    ))}
+  </SimpleGrid>
+);
 export default ProviderList;

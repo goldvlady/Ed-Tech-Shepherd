@@ -529,10 +529,12 @@ const AutocompleteWindow = ({
 
       {currentInputType === 'level'
         ? levels
-            ?.filter((item) =>
-              item.label
-                .toLowerCase()
-                .includes(filterKeyword.keyword.toLowerCase())
+            ?.filter(
+              (item) =>
+                item.label
+                  .toLowerCase()
+                  .includes(filterKeyword.keyword.toLowerCase()) &&
+                item.label !== 'all'
             )
             .sort((a, b) => a.level - b.level) // Sort by item.level in ascending order
             .map((item) => (

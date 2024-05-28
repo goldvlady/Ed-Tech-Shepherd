@@ -405,11 +405,11 @@ const ProfileSwitchModal = ({
                                 ) {
                                   if (data.data.userRole === 'tutor') {
                                     // navigate('/dashboard/tutordashboard', {});
-                                    window.location.href =
-                                      '/dashboard/tutordashboard';
+
+                                    navigate('/dashboard/tutordashboard');
                                   } else if (data.data.userRole === 'student') {
                                     // navigate('/dashboard');
-                                    window.location.href = '/dashboard';
+                                    navigate('/dashboard');
                                   }
                                 }
                               }}

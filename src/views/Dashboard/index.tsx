@@ -187,22 +187,22 @@ export default function Index() {
 
   const sessionPrefaceDialogRef = useRef<SessionPrefaceDialogRef>(null);
 
-  if (isLoading) {
-    return (
-      <Box
-        p={5}
-        textAlign="center"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}
-      >
-        <ShepherdSpinner />
-      </Box>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <Box
+  //       p={5}
+  //       textAlign="center"
+  //       style={{
+  //         display: 'flex',
+  //         justifyContent: 'center',
+  //         alignItems: 'center',
+  //         height: '100vh'
+  //       }}
+  //     >
+  //       <ShepherdSpinner />
+  //     </Box>
+  //   );
+  // }
 
   return (
     <>

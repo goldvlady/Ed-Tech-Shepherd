@@ -51,6 +51,7 @@ import styled from 'styled-components';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
+import { MdCancel } from 'react-icons/md';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -497,7 +498,10 @@ const StudyBox = () => {
     score: 0,
     failed: 0,
     passed: 0,
-    notRemembered: 0
+    notRemembered: 0,
+    questionsPassed: [],
+    questionsFailed: [],
+    questionsNotRemembered: []
   } as Score);
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
 
@@ -552,7 +556,10 @@ const StudyBox = () => {
       score: 0,
       failed: 0,
       passed: 0,
-      notRemembered: 0
+      notRemembered: 0,
+      questionsPassed: [],
+      questionsFailed: [],
+      questionsNotRemembered: []
     } as Score);
     setCardStyle('default');
     setActivityState({ isStarted: false, isFinished: false });
@@ -573,6 +580,7 @@ const StudyBox = () => {
             id: index + 1,
             type: studyType,
             questions: question.question,
+            questionId: question._id,
             answers: question.answer,
             currentStep: question.currentStep,
             explanation: question.explanation,
@@ -693,7 +701,11 @@ const StudyBox = () => {
         return {
           ...prevScore,
           score: (prevScore.score || 0) + 1,
-          passed: (prevScore.passed || 0) + 1
+          passed: (prevScore.passed || 0) + 1,
+          questionsPassed: [
+            ...(prevScore.questionsPassed || []),
+            currentStudy.questionId
+          ]
         };
       });
       setCorrectAnswerCount((prev) => prev + 1);
@@ -707,7 +719,11 @@ const StudyBox = () => {
   };
 
   const rejectAnswer = async (notRemembered?: boolean) => {
-    const scoreKey = notRemembered ? 'failed' : 'notRemembered';
+    const scoreKey = notRemembered ? 'notRemembered' : 'failed';
+    const questionArrayKey = notRemembered
+      ? 'questionsNotRemembered'
+      : 'questionsFailed';
+
     if (flashcard && !apiKey) {
       const grade = notRemembered ? 'did not remember' : 'got it wrong';
       updateQuestionAttempt(
@@ -718,18 +734,25 @@ const StudyBox = () => {
       );
       loadTodaysFlashcards();
     }
+
     setStudies((prev) => {
       const curr = prev[currentStudyIndex];
       curr.isFirstAttempt = false;
       prev[currentStudyIndex] = curr;
 
-      setSavedScore((prev) => ({
-        ...prev,
-        [scoreKey]: (prev[scoreKey] || 0) + 1
-      }));
-
+      setSavedScore((prevScore) => {
+        return {
+          ...prevScore,
+          [scoreKey]: (prevScore[scoreKey] || 0) + 1,
+          [questionArrayKey]: [
+            ...(prevScore[questionArrayKey] || []),
+            currentStudy.questionId
+          ]
+        };
+      });
       return [...prev];
     });
+
     if (currentStudyIndex === 2 && apiKey) {
       setTogglePlansModal(true);
       return;
@@ -1077,7 +1100,7 @@ const StudyBox = () => {
   return (
     <Box
       padding={0}
-      display={'flex'}
+      display={{ base: 'flex', sm: 'block' }}
       justifyContent={'space-between'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
       flexDirection={'column'}
@@ -1088,10 +1111,16 @@ const StudyBox = () => {
         <Flex
           width="full"
           padding={{ base: '20px 15px', md: '20px' }}
-          justifyContent="space-between"
-          alignItems="center"
+          justifyContent={{ base: 'flex-start', md: 'space-between' }}
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          flexDirection={{ base: 'column', md: 'row' }}
         >
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            width={{ sm: '100%' }}
+            marginBottom={{ sm: '15px', md: '0' }}
+          >
             <Text
               fontFamily="Inter"
               fontWeight="500"
@@ -1115,7 +1144,12 @@ const StudyBox = () => {
               {flashcard?.deckname}
             </Text>
           </HStack>
-          <HStack spacing={4} alignItems="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            justifyContent={{ sm: 'space-between', md: 'flex-end' }}
+            width={{ sm: '100%' }}
+          >
             <Button
               leftIcon={
                 isStarted ? (
@@ -1296,7 +1330,7 @@ const StudyBox = () => {
       </Box>
       {togglePlansModal && (
         <PlansModal
-          message="Up to 4 weeks free!"
+          message="Get Started!"
           subMessage="One-click Cancel at anytime."
           togglePlansModal={togglePlansModal}
           setTogglePlansModal={setTogglePlansModal}
@@ -1345,7 +1379,7 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
           // position="relative"
           borderRadius="12px"
           w="full" // Use the full width of the screen
-          maxW={{ base: '95%', sm: '80%', md: '700px' }} // Responsive max width
+          maxW={{ base: '95%', sm: 'auto', md: '700px' }} // Responsive max width
           mx="auto"
           position="relative"
         >

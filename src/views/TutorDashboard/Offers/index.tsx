@@ -15,7 +15,7 @@ import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 
 export default function Offers() {
   const { offers, fetchOffers, pagination } = offerStore();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
 

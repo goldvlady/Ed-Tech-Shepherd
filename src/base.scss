@@ -1709,3 +1709,13 @@ input.rpv-core__textbox {
   position: absolute !important;
   border: none !important;
 }
+
+.css-4ma18r {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chakra-modal__content .css-rrcl59 {
+    max-width: auto !important;
+  }
+}

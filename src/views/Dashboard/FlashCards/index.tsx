@@ -41,7 +41,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { BsSearch } from 'react-icons/bs';
 import { FaEllipsisH, FaCalendarAlt } from 'react-icons/fa';
 import { MultiSelect } from 'react-multi-select-component';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { IoCreateOutline } from 'react-icons/io5';
 import ShareModalMenu from '../../../components/ShareModalMenu';
@@ -55,6 +55,8 @@ import {
   TabsTrigger
 } from '../../../components/ui/tabs';
 import OcclusionFlashcardTab from './components/occlusion-flashcard-tab';
+import SelectableMobileTable from './mobileTable';
+import useIsMobile from '../../../helpers/useIsMobile';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -89,7 +91,7 @@ const CustomTable: React.FC = () => {
   const navigate = useNavigate();
 
   const toast = useCustomToast();
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(true);
   const [selectedTags, setSelectedTags] = useState<Array<string | number>>([]);
   const [multiSelected, setMultiSelected] = useState<any>([]);
 
@@ -135,6 +137,8 @@ const CustomTable: React.FC = () => {
     []
   );
 
+  const isMobile = useIsMobile();
+
   const [deleteItem, setDeleteItem] = useState<{
     flashcard?: FlashcardData;
     flashcardIds?: string[];
@@ -150,7 +154,10 @@ const CustomTable: React.FC = () => {
     flashcardIds?: string[];
   } | null>(null);
 
-  const { flashcardId, studyDeckId } = useParams();
+  const { flashcardId } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const studyDeckId = queryParams.get('studyDeckId');
 
   const handleSelectionChange = (selectedOptions: Option[]) => {
     setMultiSelected(selectedOptions);
@@ -172,7 +179,11 @@ const CustomTable: React.FC = () => {
     loadTodaysFlashcards();
     // eslint-disable-next-line
   }, []);
-
+  useEffect(() => {
+    if (flashcards) {
+      setHasSearched(false);
+    }
+  }, [flashcards]);
   const loadFlashcardModal = async (id: string) => {
     await fetchFlashcards();
     loadFlashcard(id, false);
@@ -184,7 +195,9 @@ const CustomTable: React.FC = () => {
   };
 
   useEffect(() => {
-    loadFlashcardModal(studyDeckId);
+    if (studyDeckId) {
+      loadFlashcardModal(studyDeckId);
+    }
     // eslint-disable-next-line
   }, [studyDeckId]);
 
@@ -618,7 +631,7 @@ const CustomTable: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {(tagEditItem?.flashcard || tagEditItem?.flashcardIds) && (
         <TagModal
           tags={tagEditItem?.flashcard?.tags || []}
@@ -821,8 +834,10 @@ const CustomTable: React.FC = () => {
           </Flex>
 
           <Tabs defaultValue="image-occlusion">
-            <TabsList className="grid w-[400px] grid-cols-2">
-              <TabsTrigger value="normal">Normal</TabsTrigger>
+            <TabsList className="grid md:w-[400px] sm:w-[100%] grid-cols-2">
+              <TabsTrigger disabled={!flashcards ? true : false} value="normal">
+                Normal
+              </TabsTrigger>
               <TabsTrigger value="image-occlusion">Image Occlusion</TabsTrigger>
             </TabsList>
             <TabsContent value="normal">
@@ -1040,7 +1055,7 @@ const CustomTable: React.FC = () => {
                         variant="solid"
                         mb="10px"
                         borderRadius={'10px'}
-                        marginLeft={'10px'}
+                        marginLeft={{ md: '10px', base: '0' }}
                         colorScheme={'primary'}
                         width={{ base: '100%', md: 'auto' }}
                         onClick={() => {
@@ -1077,8 +1092,29 @@ const CustomTable: React.FC = () => {
                   ) : (
                     ''
                   )}
-                  {flashcards && (
+                  {!isMobile && flashcards && (
                     <SelectableTable
+                      pagination
+                      currentPage={pagination.page}
+                      handlePagination={(nextPage) =>
+                        fetchFlashcards({
+                          page: nextPage,
+                          limit: pagination.limit
+                        })
+                      }
+                      pageCount={Math.ceil(pagination.count / pagination.limit)}
+                      onSelect={(selected) => setSelectedFlashcard(selected)}
+                      isSelectable
+                      columns={columns}
+                      dataSource={flashcards.map((card) => ({
+                        ...card,
+                        key: card._id
+                      }))}
+                    />
+                  )}
+
+                  {isMobile && flashcards && (
+                    <SelectableMobileTable
                       pagination
                       currentPage={pagination.page}
                       handlePagination={(nextPage) =>

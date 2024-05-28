@@ -117,78 +117,85 @@ const SelectableTable = <T extends Record<string, unknown>>({
 
   return (
     <Box>
-      <Table size="sm" variant="unstyled" width={{ base: '100em', md: '100%' }}>
-        <Thead marginBottom={10}>
-          <StyledTr>
-            {isSelectable && (
-              <StyledTh>
-                <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
-              </StyledTh>
-            )}
-
-            {columns.map((col) => (
-              <StyledTh
-                key={col.key}
-                textAlign={col.align || 'left'}
-                width={col.width}
-                flex={true}
-              >
-                {' '}
-                {/* Set width here */}
-                {col.title}
-              </StyledTh>
-            ))}
-          </StyledTr>
-        </Thead>
-        <Tbody>
-          {dataSource.map((record) => (
-            <StyledTr
-              key={record.key as string}
-              active={selectedRowKeys?.includes(record.key as string)}
-              selectable={isSelectable}
-            >
+      <div style={{ overflowX: 'auto' }}>
+        <Table
+          size="sm"
+          variant="unstyled"
+          width={{ base: '100em', md: '100%' }}
+        >
+          <Thead marginBottom={10}>
+            <StyledTr>
               {isSelectable && (
-                <StyledTd tagsColor={[record.tags].includes('#Che')}>
-                  <div style={{ padding: '0 5px' }}>
-                    <Checkbox
-                      borderRadius={'5px'}
-                      isChecked={selectedRowKeys?.includes(
-                        record.key as string
-                      )}
-                      onChange={() => handleSelect(record)}
-                    />
-                  </div>
-                </StyledTd>
+                <StyledTh>
+                  <Checkbox isChecked={allChecked} onChange={handleSelectAll} />
+                </StyledTh>
               )}
 
               {columns.map((col) => (
-                <StyledTd
+                <StyledTh
                   key={col.key}
-                  fontWeight="500"
-                  maxW={col.width}
-                  marginRight={col.width && '10px'}
-                  maxH={col.height}
-                  overflowX={col.scrollX ? 'hidden' : 'auto'}
-                  overflowY={col.scrollY ? 'hidden' : 'auto'}
-                  css={scrollbarStyles}
                   textAlign={col.align || 'left'}
-                  style={{
-                    width: col.width,
-                    height: col.height
-                  }}
-                  tagsColor={col.dataIndex === 'tags' ? record.tags : '#585f68'}
+                  width={col.width}
+                  flex={true}
                 >
-                  {col.render
-                    ? col.render(record)
-                    : col.dataIndex
-                    ? record[col?.dataIndex]
-                    : null}
-                </StyledTd>
+                  {col.title}
+                </StyledTh>
               ))}
             </StyledTr>
-          ))}
-        </Tbody>
-      </Table>
+          </Thead>
+          <Tbody>
+            {dataSource.map((record) => (
+              <StyledTr
+                key={record.key as string}
+                active={selectedRowKeys?.includes(record.key as string)}
+                selectable={isSelectable}
+              >
+                {isSelectable && (
+                  <StyledTd tagsColor={[record.tags].includes('#Che')}>
+                    <div style={{ padding: '0 5px' }}>
+                      <Checkbox
+                        borderRadius={'5px'}
+                        isChecked={selectedRowKeys?.includes(
+                          record.key as string
+                        )}
+                        onChange={() => handleSelect(record)}
+                      />
+                    </div>
+                  </StyledTd>
+                )}
+
+                {columns.map((col) => (
+                  <StyledTd
+                    key={col.key}
+                    fontWeight="500"
+                    maxW={col.width}
+                    marginRight={col.width && '10px'}
+                    maxH={col.height}
+                    overflowX={col.scrollX ? 'hidden' : 'auto'}
+                    overflowY={col.scrollY ? 'hidden' : 'auto'}
+                    css={scrollbarStyles}
+                    textAlign={col.align || 'left'}
+                    style={{
+                      width: col.width,
+                      height: col.height
+                    }}
+                    tagsColor={
+                      col.dataIndex === 'tags' ? record.tags : '#585f68'
+                    }
+                  >
+                    {col.render
+                      ? col.render(record)
+                      : col.dataIndex
+                      ? record[col?.dataIndex]
+                      : null}
+                  </StyledTd>
+                ))}
+              </StyledTr>
+            ))}
+          </Tbody>
+        </Table>
+      </div>
+
       {pagination && (
         <Center mt={4}>
           <IconButton

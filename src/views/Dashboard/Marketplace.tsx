@@ -374,12 +374,6 @@ export default function Marketplace() {
         </Box>
         <Box textAlign="center">
           <Flex
-            // alignItems="center"
-            // gap="2"
-            // mt={2}
-            // textColor="text.400"
-            // display={{ base: 'flex', sm: 'inline-grid', lg: 'flex' }}
-            // justifyItems={{ sm: 'center' }}
             direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
             alignItems="center"
             gap="2"
@@ -387,15 +381,23 @@ export default function Marketplace() {
             textColor="text.400"
             justifyContent={{ base: 'center', md: 'space-between' }} // Center on small screens, space-between on medium and up
             px={{ base: 4, md: 8 }} // Adjust padding for responsiveness
+            overflow={{ base: 'scroll', sm: 'hidden' }} // Enable scroll on base, hide on small and up
+            // Optionally set specific overflow directions:
+            overflowX={{ base: 'auto', sm: 'scroll' }} // Horizontal scroll on base, none on small and up
+            overflowY="hidden"
+            sx={{ '&::-webkit-scrollbar': { display: 'none' } }} // Hides scrollbar for a cleaner look, specific to WebKit browsers
           >
             <HStack
-              // direction={{ base: 'row', sm: 'column', lg: 'row' }}
-              // spacing={{ base: 1, sm: 3 }}
-              // display={{ sm: 'grid', lg: 'flex' }}
               direction={{ base: 'column', md: 'row' }} // Stack elements vertically on small screens, horizontally on medium and up
               spacing={{ base: 3, md: 4 }} // Adjust spacing for responsiveness
               alignItems="center"
+              sx={{ width: '900px' }}
+              margin={{ base: 'auto', sm: '0 auto' }}
               width="100%" // Ensure it takes the full width
+              // overflow={{ base: 'scroll', sm: 'hidden' }} // Enable scroll on base, hide on small and up
+              // // Optionally set specific overflow directions:
+              // overflowX={{ base: 'auto', sm: 'hidden' }} // Horizontal scroll on base, none on small and up
+              // overflowY="hidden" // Generally keep vertical overflow hidden
             >
               <Flex
                 alignItems={'center'}
@@ -466,7 +468,9 @@ export default function Marketplace() {
                   styles={{
                     container: (provided) => ({
                       ...provided,
-                      width: '150px'
+                      width: '150px',
+                      position: 'relative',
+                      zIndex: '99999'
                     }),
                     control: (provided) => ({
                       ...provided,
@@ -503,6 +507,7 @@ export default function Marketplace() {
                   height="36px"
                   fontWeight={400}
                   color="text.400"
+                  width={{ sm: '100%', base: 'auto' }}
                 >
                   {level === '' ? 'Level' : level.label}
                 </MenuButton>
@@ -528,7 +533,7 @@ export default function Marketplace() {
                     fontSize={14}
                     borderRadius="40px"
                     height="36px"
-                    width={{ sm: '400px', lg: 'auto' }}
+                    width={{ sm: '100%', base: 'auto' }}
                     fontWeight={400}
                     color="text.400"
                   >
@@ -604,6 +609,7 @@ export default function Marketplace() {
                   height="36px"
                   fontWeight={400}
                   color="text.400"
+                  width={{ sm: '100%', base: 'auto' }}
                 >
                   {price === '' ? 'Price' : price.label}
                 </MenuButton>
@@ -629,6 +635,7 @@ export default function Marketplace() {
                   height="36px"
                   fontWeight={400}
                   color="text.400"
+                  width={{ sm: '100%', base: 'auto' }}
                 >
                   {rating === '' ? 'Rating' : rating.label}
                 </MenuButton>
@@ -646,9 +653,11 @@ export default function Marketplace() {
               </Menu>
             </HStack>
             <Spacer />
-            <Box>
+            <Box
+              display={{ base: 'none', md: 'block' }} // Hide on base (mobile) and show from md (medium screens) upwards
+            >
               <CustomButton
-                buttonText={'Clear Filters'}
+                buttonText="Clear Filters"
                 buttonType="outlined"
                 fontStyle={{ fontSize: '12px', fontWeight: 500 }}
                 onClick={resetForm}
@@ -656,7 +665,24 @@ export default function Marketplace() {
             </Box>
           </Flex>
         </Box>
-
+        <Box
+          display={{
+            base: 'block',
+            md: 'none'
+          }}
+          width="100%"
+          textAlign="center"
+          // width= {{'100%'}},
+          // textAlign= {'center'},
+          // mt={20}
+        >
+          <CustomButton
+            buttonText="Clear Filters"
+            buttonType="outlined"
+            fontStyle={{ fontSize: '12px', fontWeight: 500 }}
+            onClick={resetForm}
+          />
+        </Box>
         <Box my={45} py={2} minHeight="750px">
           {!loadingData && allTutors.length > 0 ? (
             <>
@@ -667,17 +693,17 @@ export default function Marketplace() {
               >
                 {allTutors?.map((tutor: any) => (
                   <TutorCard
-                    key={tutor._id}
-                    id={tutor._id}
-                    name={`${tutor.user.name.first} ${tutor.user.name.last} `}
-                    levelOfEducation={tutor.highestLevelOfEducation}
-                    avatar={tutor.user.avatar}
-                    rate={tutor.rate}
-                    description={tutor.description}
-                    rating={tutor.rating}
-                    reviewCount={tutor.reviewCount}
-                    saved={checkBookmarks(tutor._id)}
-                    courses={tutor.coursesAndLevels.map((course) => course)}
+                    key={tutor?._id}
+                    id={tutor?._id}
+                    name={`${tutor?.user?.name?.first} ${tutor?.user?.name?.last} `}
+                    levelOfEducation={tutor?.highestLevelOfEducation}
+                    avatar={tutor?.user?.avatar}
+                    rate={tutor?.rate}
+                    description={tutor?.description}
+                    rating={tutor?.rating}
+                    reviewCount={tutor?.reviewCount}
+                    saved={checkBookmarks(tutor?._id)}
+                    courses={tutor?.coursesAndLevels?.map((course) => course)}
                     handleSelectedCourse={handleSelectedCourse}
                     isTutorOnline={onlineTutorsId?.includes(tutor?._id)}
                   />
@@ -690,6 +716,25 @@ export default function Marketplace() {
                 handlePagination={(nextPage) => setPage(nextPage)}
               />
             </>
+          ) : loadingData ? (
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="20px">
+              {[1, 2, 3].map((provider) => (
+                <Box
+                  bg={'white'}
+                  w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
+                  height={{
+                    base: '40vh', // Sets height to 40% of the viewport height on the smallest screens
+                    sm: '285px', // Sets a fixed height for sm screens and larger
+                    md: '285px', // Continues the fixed height for md screens
+                    lg: '325px' // Adjusts the height for lg screens and larger
+                  }}
+                  borderRadius="12px"
+                  border="1px solid #EBEDEF"
+                  key={provider}
+                  className=" animate-pulse"
+                ></Box>
+              ))}
+            </SimpleGrid>
           ) : (
             !loadingData && (
               <>

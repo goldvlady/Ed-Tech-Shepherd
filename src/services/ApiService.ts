@@ -206,6 +206,12 @@ class ApiService {
     });
   };
 
+  static nylasAuth = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/nylasAuth`, {
+      method: 'POST'
+    });
+  };
+
   static getMnemonics = async (data: any) => {
     return doFetch(`${ApiService.baseEndpoint}/getMnemonics`, {
       method: 'POST',
@@ -1109,6 +1115,7 @@ class ApiService {
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
+    scoreDetails: any;
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',
