@@ -21,6 +21,7 @@ interface CustomComponents {
   math?: any;
   inlineMath?: any;
   blockMath?: any;
+  h3?: any;
 }
 
 interface ICustomMarkdownView {
@@ -126,7 +127,8 @@ function getComponents(onKeywordClick: any): CustomComponents {
     p: ParagraphComponent,
     math: MathComponent,
     inlineMath: InlineMathComponent,
-    blockMath: BlockMathComponent
+    blockMath: BlockMathComponent,
+    h3: H3
   };
 }
 
@@ -157,6 +159,8 @@ const CodeBlockComponent = ({
     />
   );
 };
+
+const H3 = ({ children }) => <h3 className="mt-2 !text-[1rem]">{children}</h3>;
 
 const ListComponent = ({ children }) => (
   <ul className="list-disc my-6 ml-6 [&>li]:mt-2 list-outside [&_svg]:inline-block">
