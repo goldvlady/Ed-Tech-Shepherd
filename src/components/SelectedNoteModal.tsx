@@ -240,6 +240,7 @@ const SelectedModal = ({
   }, [userDocuments]);
   useEffect(() => {
     fetchStudentDocuments();
+    // eslint-disable-next-line
   }, []);
 
   const clickInput = () => {
@@ -382,6 +383,7 @@ const SelectedModal = ({
         const response = await ApiService.saveStudentDocument({
           documentUrl: newDocumentURL,
           title,
+          type: 'pdf',
           ingestId: ingestId
         });
 
@@ -442,6 +444,7 @@ const SelectedModal = ({
 
     // Early return if no file is selected
     if (!inputFile) {
+      /* eslint-disable no-console */
       console.error('No file selected.');
       return;
     }
@@ -468,6 +471,7 @@ const SelectedModal = ({
       setFileName(fileNameSnippet);
       await handleInputFreshUpload(inputFile, user, inputFile.name);
     } catch (error) {
+      /* eslint-disable no-console */
       console.error('Error handling file upload:', error);
       // Optionally, update the UI or state to reflect the error
     } finally {

@@ -133,6 +133,7 @@ function CreateStudyPlans() {
   const [timezone, setTimezone] = useState('');
   const [showSubjects, setShowSubjects] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [docLoading, setDocLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [syllabusData, setSyllabusData] = useState([]);
   const [studyPlanData, setStudyPlanData] = useState([]);
@@ -157,149 +158,14 @@ function CreateStudyPlans() {
     setShowSubjects(!showSubjects);
   };
 
-  function createSyllabusWeek() {
-    // Find the highest weekNumber currently in syllabusData
-    const maxWeekNumber = syllabusData.reduce(
-      (max, week) => Math.max(max, week.weekNumber),
-      0
-    );
-
-    // Auto-increment weekNumber for the new week
-    const weekNumber = maxWeekNumber + 1;
-
-    // Create the new week object
-    const week = {
-      learningObjectives: [],
-      readingMaterials: [],
-      topics: [
-        {
-          mainTopic: `Topic ${weekNumber}`,
-          subTopics: ['sub-topic']
-        }
-      ],
-      weekNumber: weekNumber
-    };
-    setSyllabusData([...syllabusData, week]);
-
-    return week;
-  }
-  //non
-  function updateWeekProperties(weekNumber, updatedProperties) {
-    const weekIndex = syllabusData.findIndex(
-      (week) => week.weekNumber === weekNumber
-    );
-    if (weekIndex !== -1) {
-      const weekToUpdate = syllabusData[weekIndex];
-      // Update properties
-      Object.keys(updatedProperties).forEach((key) => {
-        if (key === 'topics') {
-          weekToUpdate.topics[0].mainTopic =
-            updatedProperties[key].mainTopic ||
-            weekToUpdate.topics[0].mainTopic;
-          weekToUpdate.topics[0].subTopics =
-            updatedProperties[key].subTopics ||
-            weekToUpdate.topics[0].subTopics;
-        } else {
-          weekToUpdate[key] = updatedProperties[key];
-        }
-      });
-      syllabusData[weekIndex] = weekToUpdate;
-    } else {
-      // console.log(`Week ${weekNumber} not found.`);
-    }
-  }
-  const updateMainTopic = (index, newMainTopic) => {
-    const updatedSyllabusData = [...syllabusData];
-
-    if (index >= 0 && index < updatedSyllabusData.length) {
-      updatedSyllabusData[index] = {
-        ...updatedSyllabusData[index],
-        topics: [
-          {
-            ...updatedSyllabusData[index].topics[0],
-            mainTopic: newMainTopic
-          }
-        ]
-      };
-
-      setSyllabusData(updatedSyllabusData);
-    }
-  };
-  const deleteMainTopic = (index) => {
-    // Delete the topic at the specified index
-    const updatedSyllabusData = syllabusData.filter((_, i) => i !== index);
-
-    // Reorder the week numbers
-    const reorderedSyllabusData = updatedSyllabusData.map((week, i) => {
-      // Increment the weekNumber for weeks after the deleted index
-      if (week.weekNumber > index + 1) {
-        return { ...week, weekNumber: i + 1 };
-      }
-      return week;
-    });
-
-    setSyllabusData(reorderedSyllabusData);
-  };
-
-  const addSubTopic = (weekIndex, newSubTopic) => {
-    const updatedSyllabusData = [...syllabusData];
-    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
-      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
-      mainTopic.subTopics.push(newSubTopic);
-      setSyllabusData(updatedSyllabusData);
-    }
-  };
-  const updateSubTopic = (weekIndex, subTopicIndex, newSubTopic) => {
-    const updatedSyllabusData = [...syllabusData];
-
-    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
-      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
-
-      if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
-        mainTopic.subTopics[subTopicIndex] = newSubTopic;
-        setSyllabusData(updatedSyllabusData);
-      }
-    }
-  };
-
-  const deleteSubTopic = (weekIndex, subTopicIndex) => {
-    const updatedSyllabusData = [...syllabusData];
-    if (weekIndex >= 0 && weekIndex <= updatedSyllabusData.length) {
-      const mainTopic = updatedSyllabusData[weekIndex].topics[0];
-
-      if (subTopicIndex >= 0 && subTopicIndex < mainTopic.subTopics.length) {
-        mainTopic.subTopics.splice(subTopicIndex, 1);
-        setSyllabusData(updatedSyllabusData);
-      }
-    }
-  };
-
-  const moveTopic = (fromIndex, toIndex) => {
-    const copiedSyllabusData = [...syllabusData];
-    const [movedTopic] = copiedSyllabusData.splice(fromIndex, 1);
-    copiedSyllabusData.splice(toIndex, 0, movedTopic);
-    // Update the state with the new order
-    setSyllabusData(copiedSyllabusData);
-  };
-  const topicRef = useRef(null);
-
-  const updateTopicOrder = (weekIndex, newTopicOrder) => {
-    // Create a copy of the studyPlanData array
-    const updatedStudyPlanData = [...studyPlanData];
-    // Update the order of topics within the specified week
-    updatedStudyPlanData[weekIndex].topics = newTopicOrder;
-    // Update the state with the new study plan data
-    setStudyPlanData(updatedStudyPlanData);
-  };
   const saveStudyPlan = async () => {
     setLoading(true);
     const convertedArr = await convertArrays(studyPlanData);
 
     const payload = {
-      course: course,
+      course,
       title: planName,
       tz: timezone,
-      // resourceCount: resourceCount,
       scheduleItems: convertedArr
     };
 
@@ -308,7 +174,6 @@ function CreateStudyPlans() {
       if (resp) {
         const response = await resp.json();
         if (resp.status === 201) {
-          // setIsCompleted(true);
           setLoading(false);
           toast({
             title: 'Study Plan Created Successfully',
@@ -317,7 +182,7 @@ function CreateStudyPlans() {
             isClosable: true
           });
           const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
-          navigate(`${baseUrl}/study-plans/planId=${response.studyPlan.id}  `);
+          navigate(`${baseUrl}/study-plans/planId=${response.studyPlan.id}`);
         } else {
           setLoading(false);
           toast({
@@ -328,111 +193,72 @@ function CreateStudyPlans() {
           });
         }
       }
-    } catch (error: any) {
+    } catch (error) {
       setLoading(false);
-      return { error: error.message, message: error.message };
-    }
-  };
-  const addTopicToWeek = (weekIndex, newTopic) => {
-    const updatedStudyPlan = [...studyPlanData];
-    if (weekIndex >= 0 && weekIndex < updatedStudyPlan.length) {
-      updatedStudyPlan[weekIndex].topics.push(newTopic);
-
-      setStudyPlanData(updatedStudyPlan); // Update studyPlanData state
-
-      // Remove the added topic from unassignedTopics state, if present
-      setUnassignedTopics((prevUnassignedTopics) => {
-        const updatedUnassignedTopics = prevUnassignedTopics.filter((topic) => {
-          // Your logic to compare the added topic and remove it if found
-          // This comparison logic should depend on your topic structure and what uniquely identifies a topic
-          // For example, assuming 'mainTopic' is unique, you can compare it:
-          return topic.mainTopic !== newTopic.mainTopic;
-        });
-
-        return updatedUnassignedTopics;
+      toast({
+        title: `Error: ${error.message}`,
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
       });
     }
   };
-
-  const deleteTopicFromWeek = (weekIndex, topicIndex) => {
-    const updatedStudyPlan = [...studyPlanData];
-    if (
-      weekIndex >= 0 &&
-      weekIndex < updatedStudyPlan.length &&
-      topicIndex >= 0 &&
-      topicIndex < updatedStudyPlan[weekIndex].topics.length
-    ) {
-      const deletedTopic = updatedStudyPlan[weekIndex].topics.splice(
-        topicIndex,
-        1
-      )[0]; // Extract deleted topic
-
-      setStudyPlanData(updatedStudyPlan); // Update studyPlanData state
-
-      setUnassignedTopics((prevUnassignedTopics) => [
-        ...prevUnassignedTopics,
-        deletedTopic
-      ]); // Add deleted topic to unassignedTopics state
-    }
-  };
-
   const uploadFilesAndGetUrls = async (files) => {
     const downloadUrls = [];
 
-    // Create an array to hold upload promises
-    const uploadPromises = [];
+    const uploadPromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
 
-    // Iterate through the array of files
-    for (const file of files) {
-      if (!file) continue;
+        if (file.size > fileSizeLimitBytes * 10) {
+          toast({
+            title: 'Please upload a file under 100MB',
+            status: 'error',
+            position: 'top',
+            isClosable: true
+          });
+          return resolve(null);
+        }
 
-      // Check if the file size exceeds the limit
-      if (file.size > fileSizeLimitBytes * 3) {
-        toast({
-          title: 'Please upload a file under 10MB',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        continue;
-      }
+        const readableFileName = file.name
+          .toLowerCase()
+          .replace(/\.pdf$/, '')
+          .replace(/_/g, ' ');
 
-      const readableFileName = file.name
-        .toLowerCase()
-        .replace(/\.pdf$/, '')
-        .replace(/_/g, ' ');
-
-      // Create a promise for each file upload
-      const uploadPromise = new Promise((resolve, reject) => {
         const uploadEmitter = uploadFile(file, {
           studentID: user._id,
           documentID: readableFileName
         });
 
-        uploadEmitter.on('complete', (uploadFile) => {
-          // Assuming uploadFile contains the fileUrl and other necessary details.
-          const documentURL = uploadFile.fileUrl;
+        uploadEmitter.on('progress', (progress) => {
+          toast({ title: 'uploading documents', status: 'info' });
+          setDocLoading(true);
+        });
 
+        uploadEmitter.on('complete', (uploadFile) => {
+          const documentURL = uploadFile.fileUrl;
           downloadUrls.push(documentURL);
-          resolve(null); // Resolve the promise once the upload is complete
+          toast({ title: 'documents uploaded', status: 'success' });
+          setDocLoading(false);
+          resolve(documentURL);
         });
 
         uploadEmitter.on('error', (error) => {
-          reject(error); // Reject the promise if there is an error
+          setDocLoading(false);
+          toast({ title: `Upload error: ${error.message}`, status: 'error' });
+          reject(error);
         });
       });
+    });
 
-      // Add the promise to the array
-      uploadPromises.push(uploadPromise);
-    }
-
-    // Wait for all upload promises to resolve
     try {
       await Promise.all(uploadPromises);
       return downloadUrls;
     } catch (error) {
-      // Handle any errors that occurred during uploads
-      toast({ title: error.message + error.cause, status: 'error' });
+      toast({
+        title: `Error during upload: ${error.message}`,
+        status: 'error'
+      });
       return []; // Return an empty array in case of errors
     }
   };
@@ -581,6 +407,7 @@ function CreateStudyPlans() {
         studyPlanData={studyPlanData}
         saveStudyPlan={saveStudyPlan}
         loading={loading}
+        docLoading={docLoading}
         setLoading={setLoading}
         course={course}
         setSyllabusData={setSyllabusData}

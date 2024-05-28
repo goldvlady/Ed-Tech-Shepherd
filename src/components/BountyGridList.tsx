@@ -129,6 +129,7 @@ export default function BountyGridList(props) {
     if (selectedBid) {
       openApplyBounty();
     }
+    // eslint-disable-next-line
   }, [selectedBid]);
 
   const handlePagination = (nextPage: number) => {

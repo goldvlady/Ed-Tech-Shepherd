@@ -312,19 +312,28 @@ function Topics(props) {
   const findDocumentsByTopic = (topic) => {
     if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
       const documents = studyPlanResources[topic].documents;
-      const videoExtensions = [
-        '.mp4',
-        '.mov',
-        '.avi',
-        '.mkv',
-        '.wmv',
-        '.flv',
-        '.webm'
-      ];
       return documents.filter((document) => {
         const url = document.documentUrl.toLowerCase();
-        return !videoExtensions.some((extension) => url.endsWith(extension));
+        return (
+          document.type !== 'article' &&
+          document.type !== 'text' &&
+          document.type !== 'lecture'
+        );
       });
+    }
+    return [];
+  };
+  const findArticlesByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      const documents = studyPlanResources[topic].documents;
+      return documents.filter((document) => document.type === 'article');
+    }
+    return [];
+  };
+  const findNotebooksByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      const documents = studyPlanResources[topic].documents;
+      return documents.filter((document) => document.type === 'text');
     }
     return [];
   };
@@ -354,6 +363,13 @@ function Topics(props) {
         // Check if the URL ends with any of the video file extensions
         return videoExtensions.some((extension) => url.endsWith(extension));
       });
+    }
+    return [];
+  };
+  const findLectureByTopic = (topic) => {
+    if (studyPlanResources[topic] && studyPlanResources[topic].documents) {
+      const documents = studyPlanResources[topic].documents;
+      return documents.filter((document) => document.type === 'lecture');
     }
     return [];
   };
@@ -949,7 +965,7 @@ function Topics(props) {
                   updateState({
                     selectedTopic: topic.topicDetails?.label
                   });
-                  setTopicId(topic._id);
+                  setTopicId(topic.topic);
                   getTopicResource(topic.topicDetails?.label);
                   onOpenResource();
                 }}
@@ -1111,17 +1127,6 @@ from  ${moment(
             ))}
         </Box>
       </Box>
-      <ResourceModal
-        isOpen={isOpenResource}
-        onClose={() => {
-          updateState({ topicResource: null });
-          onCloseResource();
-        }}
-        state={state}
-        updateState={updateState}
-        findVideoDocumentsByTopic={findVideoDocumentsByTopic}
-        getTopicResource={getTopicResource}
-      />
       <Modal isOpen={isOpenCadence} onClose={onCloseCadence} size="lg">
         <ModalOverlay />
         <ModalContent>
@@ -1231,6 +1236,22 @@ from  ${moment(
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <ResourceModal
+        isOpen={isOpenResource}
+        onClose={() => {
+          updateState({ topicResource: null });
+          onCloseResource();
+        }}
+        state={state}
+        updateState={updateState}
+        selectedPlanId={selectedPlan}
+        topicId={topicId}
+        fetchPlanResources={fetchPlanResources}
+        findLectureByTopic={findLectureByTopic}
+        findArticlesByTopic={findArticlesByTopic}
+        findNotebooksByTopic={findNotebooksByTopic}
+        getTopicResource={getTopicResource}
+      />
     </>
   );
 }

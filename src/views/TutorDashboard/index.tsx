@@ -73,10 +73,12 @@ export default function Dashboard() {
     }
     return true;
   };
+  console.log(user);
+
   return (
     <>
       <WelcomePage user={user} />
-      {isEmptyObject(user.tutor.schedule) && <Proceed user={user} />}
+      {!user?.tutor?.calendlyLink && <Proceed user={user} />}
 
       <GridList data={tutorReport} />
       <Box my={3} p={6}>

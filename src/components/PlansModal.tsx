@@ -355,6 +355,7 @@ const PlansModal = ({
 
   useEffect(() => {
     fetchUser();
+    // eslint-disable-next-line
   }, []);
 
   return (

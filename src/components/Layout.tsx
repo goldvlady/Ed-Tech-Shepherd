@@ -153,6 +153,7 @@ export default function Layout({ children, className }) {
     if (!isActive) {
       navigate('/activation_pending');
     }
+    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {
@@ -170,12 +171,14 @@ export default function Layout({ children, className }) {
     // return () => {
     //   disconnectAndReset();
     // };
+    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {
     if (userRoleId && userRoleToken) {
       connectUserToChat();
     }
+    // eslint-disable-next-line
   }, [userRoleId, userRoleToken]);
 
   //  useEffect(() => {

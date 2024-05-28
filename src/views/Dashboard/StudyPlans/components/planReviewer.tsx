@@ -50,6 +50,7 @@ const PlanReviewer = ({
   course,
   saveStudyPlan,
   loading,
+  docLoading,
   setLoading,
   isLoading,
   setIsLoading
@@ -180,66 +181,6 @@ const PlanReviewer = ({
       setSyllabusData(updatedSyllabusData);
     }
   };
-  const uploadFilesAndGetUrls = async (files) => {
-    const downloadUrls = [];
-
-    // Create an array to hold upload promises
-    const uploadPromises = [];
-
-    // Iterate through the array of files
-    for (const file of files) {
-      if (!file) continue;
-
-      // Check if the file size exceeds the limit
-      if (file.size > fileSizeLimitBytes * 3) {
-        toast({
-          title: 'Please upload a file under 10MB',
-          status: 'error',
-          position: 'top',
-          isClosable: true
-        });
-        continue;
-      }
-
-      const readableFileName = file.name
-        .toLowerCase()
-        .replace(/\.pdf$/, '')
-        .replace(/_/g, ' ');
-
-      // Create a promise for each file upload
-      const uploadPromise = new Promise((resolve, reject) => {
-        const uploadEmitter = uploadFile(file, {
-          studentID: user._id,
-          documentID: readableFileName
-        });
-
-        uploadEmitter.on('complete', (uploadFile) => {
-          // Assuming uploadFile contains the fileUrl and other necessary details.
-          const documentURL = uploadFile.fileUrl;
-
-          downloadUrls.push(documentURL);
-          resolve(null); // Resolve the promise once the upload is complete
-        });
-
-        uploadEmitter.on('error', (error) => {
-          reject(error); // Reject the promise if there is an error
-        });
-      });
-
-      // Add the promise to the array
-      uploadPromises.push(uploadPromise);
-    }
-
-    // Wait for all upload promises to resolve
-    try {
-      await Promise.all(uploadPromises);
-      return downloadUrls;
-    } catch (error) {
-      // Handle any errors that occurred during uploads
-      toast({ title: error.message + error.cause, status: 'error' });
-      return []; // Return an empty array in case of errors
-    }
-  };
 
   function createSyllabusWeek() {
     // Find the highest weekNumber currently in syllabusData
@@ -268,102 +209,6 @@ const PlanReviewer = ({
     return week;
   }
 
-  const convertArrays = async (A) => {
-    function formatDate(dateString) {
-      const [month, day, year] = dateString.split('/');
-      return `${year}-${month}-${day}`;
-    }
-
-    const convertedTopics = await Promise.all(
-      A.map(async (week, index) => {
-        const dates = week.weekRange.split(' - ');
-        const startDate = formatDate(dates[0]);
-        const endDate = formatDate(dates[1]);
-        const testDate = endDate;
-
-        const topics = await Promise.all(
-          week.topics.map(async (topic) => {
-            const { mainTopic, subTopics, topicUrls } = topic;
-
-            let subTopicDetails = [];
-            if (subTopics) {
-              subTopicDetails = subTopics.map((subTopic) => ({
-                label: subTopic,
-                description: `Description for ${subTopic}`
-              }));
-            } else {
-              subTopicDetails.push({
-                label: mainTopic,
-                description: `Description for ${mainTopic}`
-              });
-            }
-
-            const documentUrls = await uploadFilesAndGetUrls(topicUrls);
-
-            return {
-              topic: {
-                label: mainTopic,
-                subTopics: subTopicDetails,
-                documentUrls,
-                testDate
-              },
-              startDate,
-              endDate,
-              weekIndex: index + 1,
-              status: 'notStarted'
-            };
-          })
-        );
-
-        return topics;
-      })
-    );
-
-    return convertedTopics.flat();
-  };
-
-  //   const saveStudyPlan = async () => {
-  //     setLoading(true);
-  //     const convertedArr = await convertArrays(studyPlanData);
-
-  //     const payload = {
-  //       course: course,
-  //       title: planName,
-  //       tz: timezone,
-  //       // resourceCount: resourceCount,
-  //       scheduleItems: convertedArr
-  //     };
-
-  //     try {
-  //       const resp = await ApiService.createStudyPlan(payload);
-  //       if (resp) {
-  //         const response = await resp.json();
-  //         if (resp.status === 201) {
-  //           // setIsCompleted(true);
-  //           setLoading(false);
-  //           toast({
-  //             title: 'Study Plan Created Successfully',
-  //             position: 'top-right',
-  //             status: 'success',
-  //             isClosable: true
-  //           });
-  //           const baseUrl = isTutor ? '/dashboard/tutordashboard' : '/dashboard';
-  //           navigate(`${baseUrl}/study-plans/planId=${response.studyPlan.id}  `);
-  //         } else {
-  //           setLoading(false);
-  //           toast({
-  //             title: 'Failed to create study plan, try again',
-  //             position: 'top-right',
-  //             status: 'error',
-  //             isClosable: true
-  //           });
-  //         }
-  //       }
-  //     } catch (error: any) {
-  //       setLoading(false);
-  //       return { error: error.message, message: error.message };
-  //     }
-  //   };
   const addTopicToWeek = (weekIndex, newTopic) => {
     const updatedStudyPlan = [...studyPlanData];
     if (weekIndex >= 0 && weekIndex < updatedStudyPlan.length) {
@@ -587,7 +432,7 @@ const PlanReviewer = ({
                                   )}
                               </Flex>
                               <HStack color="gray.500" spacing={3}>
-                                <label htmlFor={`videoInput-${topicIndex}`}>
+                                {/* <label htmlFor={`videoInput-${topicIndex}`}>
                                   <Icon as={FaVideo} boxSize={3} />
                                 </label>
                                 <input
@@ -601,12 +446,13 @@ const PlanReviewer = ({
                                       e.target.files[0]
                                     )
                                   }
-                                />
+                                /> */}
                                 <label htmlFor={`fileInput-${topicIndex}`}>
                                   <Icon as={FaFileAlt} boxSize={3} />
                                 </label>
                                 <input
                                   type="file"
+                                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                                   id={`fileInput-${topicIndex}`}
                                   style={{ display: 'none' }}
                                   onChange={(e) =>
@@ -764,6 +610,9 @@ const PlanReviewer = ({
                       ml={'auto'}
                       onClick={() => saveStudyPlan()}
                       isLoading={loading}
+                      loadingText={
+                        docLoading ? 'Syncing documents' : 'Preparing..'
+                      }
                     >
                       Save & Proceed
                     </Button>
