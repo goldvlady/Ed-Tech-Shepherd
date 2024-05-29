@@ -87,13 +87,13 @@ export default function Layout({ children, className }) {
       icon: UserGroupIcon,
       current: false
     },
-    !user.school && {
+    !user?.school && {
       name: 'Offers',
       href: '/dashboard/tutordashboard/offers',
       icon: OffersIcon,
       current: false
     },
-    !user.school && {
+    !user?.school && {
       name: 'Bounties',
       href: '/dashboard/tutordashboard/bounties',
       icon: BountyIcon,
