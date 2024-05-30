@@ -664,7 +664,7 @@ export default function Layout({ children, className }) {
           </div>
         </div>
         {/* <main className={className}>{children}</main>  */}
-        <Box pt={2} position={'relative'}>
+        <Box pt={2} position={'relative'} h={'100vh'}>
           <Outlet />
         </Box>
       </div>
