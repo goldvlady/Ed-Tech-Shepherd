@@ -526,7 +526,7 @@ const StudyPlanner = ({
               display="inline-flex"
               alignItems="center"
               onClick={handleCreateSyllabus}
-              isDisabled={!planName || !gradeLevel || !course || isLoading}
+              isDisabled={!planName || !course || isLoading}
             >
               <Icon as={FaFileMedical} mr={2} />
               Manually Create Syllabus
