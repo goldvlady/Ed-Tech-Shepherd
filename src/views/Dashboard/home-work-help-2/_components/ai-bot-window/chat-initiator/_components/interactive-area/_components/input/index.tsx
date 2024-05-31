@@ -75,8 +75,6 @@ function Input({
       topicSecondary?: string;
     };
   };
-  showMathModeInfo?: boolean;
-  setShowMathModeInfo?: any;
 }) {
   const { courses: courseList, levels } = useResourceStore();
   const [currentInputType, setCurrentInputType] = useState<

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import WelcomeBackText from './_components/welcome-text';
 import RecentConversations from './_components/recent-conversations';
 import { languages } from '../../../../../../../../helpers';
-import { MathModeInfoTip } from './_components/input/mathmode';
 type Language = (typeof languages)[number] | '';
 function InteractiveArea({
   initiateConversation
@@ -36,8 +35,6 @@ function InteractiveArea({
     topicSecondary: ''
   });
 
-  const [showMathModeInfo, setShowMathModeInfo] = useState(false);
-
   const handleSubjectChange = (subject: string) => {
     setChatContext((prev) => ({ ...prev, subject }));
   };
@@ -58,23 +55,11 @@ function InteractiveArea({
   };
 
   const handleSubmit = () => {
-    setShowMathModeInfo(false);
     initiateConversation(chatContext);
   };
 
   return (
     <div className="w-[80%] mx-auto max-w-[600px] mb-24 relative">
-      <div className="relative">
-        {showMathModeInfo && (
-          <div className=" absolute top-[-16rem] z-50">
-            <MathModeInfoTip
-              isOpen={showMathModeInfo}
-              onClose={() => setShowMathModeInfo(false)}
-            />
-          </div>
-        )}
-      </div>
-
       <WelcomeBackText />
       <Input
         actions={{
@@ -86,8 +71,6 @@ function InteractiveArea({
           handleTopicSecondaryChange
         }}
         state={{ chatContext }}
-        showMathModeInfo={showMathModeInfo}
-        setShowMathModeInfo={setShowMathModeInfo}
       />
       <RecentConversations />
     </div>

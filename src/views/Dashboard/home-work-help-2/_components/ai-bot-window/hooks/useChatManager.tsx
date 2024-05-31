@@ -368,7 +368,7 @@ const useChatManager = (
       if (socketRef.current) {
         socketRef.current.disconnect(); // Disconnect existing socket
       }
-      queryParams.name = user ? user.name.first : 'John Doe';
+      queryParams.name = user.name.first;
       // Initialize new socket connection with server
       socketRef.current = io(SERVER_URL + '/' + namespace, {
         extraHeaders: {
@@ -416,7 +416,7 @@ const useChatManager = (
       conversationOptions?: InitConversationOptions
     ) => {
       const { conversationId } = queryParams;
-      queryParams.name = user ? user.name.first : 'John Doe';
+      queryParams.name = user.name.first;
       refreshManager();
       if (conversationOptions) {
         setChatWindowParams({
