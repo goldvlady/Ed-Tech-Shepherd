@@ -350,7 +350,9 @@ const UploadQuizForm = ({
 
           await handleFormatQuizQuestionCallback(
             quizQuestions,
-            localData,
+            merge({}, localData, {
+              level: localData?.difficulty ?? localData?.level
+            }),
             () => {
               setIsUploadingFile(false);
               setIsGenerating(false);

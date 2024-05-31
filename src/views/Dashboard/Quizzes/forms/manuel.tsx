@@ -52,7 +52,7 @@ const ManualQuizForm = ({
   setPreferredLang
 }) => {
   const [currentQuestion, setCurrentQuestion] = useState<
-    Omit<QuizQuestion & { canEdit?: boolean }, 'options'> & {
+    Omit<QuizQuestion & { canEdit?: boolean; grade?: '' }, 'options'> & {
       options?: Record<string, QuizQuestionOption> | QuizQuestionOption[];
     }
   >({
@@ -60,6 +60,8 @@ const ManualQuizForm = ({
     question: '',
     options: {},
     answer: '',
+    difficulty: 'Medium',
+    grade: '',
     canEdit: true
   });
 
@@ -90,14 +92,20 @@ const ManualQuizForm = ({
       questionPayload = omit(questionPayload, ['answer']);
     }
 
-    await handleCreateUpdateQuiz([questionPayload], { canEdit: true });
+    await handleCreateUpdateQuiz([questionPayload], {
+      level: currentQuestion?.difficulty,
+      grade: currentQuestion?.grade,
+      canEdit: true
+    });
 
     setTimeout(() => {
       setCurrentQuestion({
         type: MULTIPLE_CHOICE_SINGLE,
         question: '',
         options: {},
-        answer: ''
+        answer: '',
+        grade: '',
+        difficulty: 'Medium'
       });
     });
   };
@@ -180,6 +188,24 @@ const ManualQuizForm = ({
     { label: 'Option B', value: 'optionB' },
     { label: 'Option C', value: 'optionC' },
     { label: 'Option D', value: 'optionD' }
+  ];
+
+  const levelOptions = [
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
+  ];
+
+  const gradeOptions = [
+    { label: 'High school freshman', value: 'High school freshman' },
+    { label: 'High school sophomore', value: 'High school sophomore' },
+    { label: 'High school junior', value: 'High school junior' },
+    { label: 'High school senior', value: 'High school senior' },
+    { label: 'College freshman', value: 'College freshman' },
+    { label: 'College sophomore', value: 'College sophomore' },
+    { label: 'College junior', value: 'College junior' },
+    { label: 'College senior', value: 'College senior' }
   ];
 
   return (
@@ -501,6 +527,137 @@ const ManualQuizForm = ({
           )}
         </FormControl>
       )}
+
+      <FormControl mb={8}>
+        <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Grade (optional):
+          </span>
+        </FormLabel>
+        {/* <SelectComponent
+          name="grade"
+          placeholder="Select grade"
+          defaultValue={gradeOptions.find(
+            (option) => option.value === localData?.grade
+          )}
+          tagVariant="solid"
+          options={gradeOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'grade',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {gradeOptions.find(
+              (option) => option.value === currentQuestion.grade
+            )?.label || 'Select Grade'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {gradeOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'grade',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChangeQuestionType(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      </FormControl>
+
+      <FormControl mb={8}>
+        <FormLabel textColor={'text.600'}>
+          <span className="text-[0.87rem] leading-[1.06rem] text-[#5C5F64]">
+            Level (optional):
+          </span>
+        </FormLabel>
+        {/* <SelectComponent
+          name="difficulty"
+          placeholder="Select Level"
+          defaultValue={levelOptions.find(
+            (option) => option.value === localData.difficulty
+          )}
+          options={levelOptions}
+          size={'md'}
+          onChange={(option) => {
+            const event = {
+              target: {
+                name: 'difficulty',
+                value: (option as Option).value
+              }
+            } as ChangeEvent<HTMLSelectElement>;
+            handleChange(event);
+          }}
+        /> */}
+        <Menu>
+          <MenuButton
+            as={Button}
+            variant="outline"
+            rightIcon={<FiChevronDown />}
+            borderRadius="8px"
+            width="100%"
+            fontFamily="Inter"
+            textAlign="left"
+            fontWeight="400"
+            fontSize="0.875rem"
+            height="3rem"
+            textColor={'#9A9DA2'}
+          >
+            {levelOptions.find(
+              (option) => option.value === currentQuestion.difficulty
+            )?.label || 'Select Level'}
+          </MenuButton>
+          <MenuList zIndex={3}>
+            {levelOptions.map((type) => (
+              <MenuItem
+                fontSize="0.875rem"
+                key={type.value}
+                _hover={{ bgColor: '#F2F4F7' }}
+                onClick={() => {
+                  const event = {
+                    target: {
+                      name: 'difficulty',
+                      value: type.value
+                    }
+                  } as ChangeEvent<HTMLSelectElement>;
+                  handleChangeQuestionType(event);
+                }}
+              >
+                {type.label}
+              </MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
+      </FormControl>
 
       <HStack
         w="100%"

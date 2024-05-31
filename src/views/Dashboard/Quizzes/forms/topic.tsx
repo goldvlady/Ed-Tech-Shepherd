@@ -23,16 +23,15 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  Select,
   Flex,
   Icon,
   Text,
   CloseButton
 } from '@chakra-ui/react';
-import { isEmpty, toNumber } from 'lodash';
+import { isEmpty, merge, toNumber } from 'lodash';
+import { FiChevronDown } from 'react-icons/fi';
 import { ChangeEvent, useCallback, useState } from 'react';
 import { languages } from '../../../../helpers';
-import { FiChevronDown } from 'react-icons/fi';
 
 const TopicQuizForm = ({
   handleSetTitle,
@@ -58,18 +57,18 @@ const TopicQuizForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [localData, setLocalData] = useState<any>(dummyData);
 
-  const levelOptions = [
-    { label: 'Very Easy', value: 'Very Easy' },
-    { label: 'Medium', value: 'Medium' },
-    { label: 'Hard', value: 'Hard' },
-    { label: 'Very Hard', value: 'Very Hard' }
-  ];
-
   const typeOptions = [
     { label: 'Multiple Single Choice', value: MULTIPLE_CHOICE_SINGLE },
     { label: 'True/False', value: TRUE_FALSE },
     { label: 'Open Ended', value: OPEN_ENDED },
     { label: 'Mixed', value: MIXED }
+  ];
+
+  const levelOptions = [
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const gradeOptions = [
@@ -176,10 +175,16 @@ const TopicQuizForm = ({
       );
       const { quizzes } = await result.json();
 
-      await handleFormatQuizQuestionCallback(quizzes, localData.count, () => {
-        setIsLoading(false);
-        handleSetUploadingState(false);
-      });
+      await handleFormatQuizQuestionCallback(
+        quizzes,
+        merge({}, localData, {
+          level: localData?.difficulty ?? localData?.level
+        }),
+        () => {
+          setIsLoading(false);
+          handleSetUploadingState(false);
+        }
+      );
     } catch (error) {
       toast({
         position: 'top-right',

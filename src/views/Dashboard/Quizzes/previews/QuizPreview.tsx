@@ -8,6 +8,7 @@ import {
   MULTIPLE_CHOICE_SINGLE,
   OPEN_ENDED,
   QuizQuestion,
+  StoreQuizScoreType,
   TRUE_FALSE
 } from '../../../../types';
 import { QuestionOutlineIcon } from '@chakra-ui/icons';
@@ -56,13 +57,6 @@ import userStore from '../../../../state/userStore';
 import { RiRemoteControlLine } from '@remixicon/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 
-type QuizScoreType = {
-  questionIdx: string | number;
-  questionId: string;
-  score: string | 'true' | 'false' | boolean | null;
-  selectedOptions: string[];
-};
-
 const QuizCard = forwardRef(
   (
     {
@@ -78,7 +72,7 @@ const QuizCard = forwardRef(
       minHeight?: number;
       showAnsweredQuestion?: boolean;
       handleShowUnansweredQuestion?: (val: boolean) => void;
-      quizScores: QuizScoreType[];
+      quizScores: StoreQuizScoreType[];
       question: QuizQuestion;
       index: number;
       showQuizAnswers?: boolean;
@@ -199,7 +193,8 @@ const QuizCard = forwardRef(
           minH={minHeight}
           borderWidth={
             showAnsweredQuestion &&
-            quizScores[index]?.score === '' &&
+            !isNil(quizScores[index]?.score) &&
+            isEmpty(quizScores[index]?.score) &&
             questionType !== OPEN_ENDED
               ? '1px'
               : questionType === OPEN_ENDED &&
@@ -210,7 +205,8 @@ const QuizCard = forwardRef(
           }
           borderColor={
             showAnsweredQuestion &&
-            quizScores[index]?.score === '' &&
+            !isNil(quizScores[index]?.score) &&
+            isEmpty(quizScores[index]?.score) &&
             questionType !== OPEN_ENDED
               ? 'red.200'
               : questionType === OPEN_ENDED &&
@@ -627,7 +623,7 @@ const QuizPreviewer = ({
   const [cloneInProgress, setCloneInProgress] = useState(false);
   const { user, hasActiveSubscription } = userStore();
   const toast = useCustomToast();
-  const [scores, setScores] = useState<QuizScoreType[]>([]);
+  const [scores, setScores] = useState<StoreQuizScoreType[]>([]);
 
   const handleCloseResultsModal = () => setShowResults(false);
 
@@ -665,7 +661,7 @@ const QuizPreviewer = ({
         score: '',
         selectedOptions: [],
         questionId: ''
-      }));
+      })) as unknown as StoreQuizScoreType[];
       setScores(newArray);
     }, 1000);
     setShowUnansweredQuestions(false);
@@ -730,7 +726,7 @@ const QuizPreviewer = ({
   };
 
   const handleUnansweredQuestionsCount = useMemo(
-    () => filter(scores, (score) => score?.score === '')?.length,
+    () => filter(scores, (score) => score?.score === 'pending')?.length,
     [scores]
   );
   const cloneQuizHandler = async () => {

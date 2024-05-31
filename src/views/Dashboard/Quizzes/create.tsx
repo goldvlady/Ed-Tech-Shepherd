@@ -266,6 +266,8 @@ const CreateQuizPage = () => {
 
   const handleCreateQuiz = async (
     quizQuestions = questions,
+    level,
+    grade,
     canEdit = false,
     quizTitle = title,
     quizTags = tags
@@ -282,6 +284,8 @@ const CreateQuizPage = () => {
         questions: parsedQuestionsArray,
         title: quizTitle,
         tags: quizTags,
+        level,
+        grade,
         canEdit
       },
       async (error, res) => {
@@ -401,7 +405,12 @@ const CreateQuizPage = () => {
 
   const handleCreateUpdateQuiz = async (
     createdQuestions = [],
-    payload: { canEdit?: boolean; quizID?: string } = {}
+    payload: {
+      canEdit?: boolean;
+      quizID?: string;
+      level?: string;
+      grade?: string;
+    } = {}
   ) => {
     const opts = merge(
       {
@@ -412,7 +421,12 @@ const CreateQuizPage = () => {
     );
 
     if (isNil(opts.quizID) && isEmpty(opts.quizID)) {
-      await handleCreateQuiz(createdQuestions, opts.canEdit);
+      await handleCreateQuiz(
+        createdQuestions,
+        opts.level,
+        opts.grade,
+        opts.canEdit
+      );
     } else {
       await handleUpdateQuiz(opts.quizID, {
         ...opts,
@@ -547,7 +561,10 @@ const CreateQuizPage = () => {
           };
         }) as NewQuizQuestion[];
 
-        await handleCreateUpdateQuiz(questions);
+        await handleCreateUpdateQuiz(questions, {
+          grade: localData.grade,
+          level: localData.level
+        });
 
         if (typeof cb === 'function') {
           cb();
