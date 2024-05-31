@@ -158,7 +158,7 @@ const CreateQuizPage = () => {
           bg="#F9F9FB"
           borderLeft="1px solid #E7E8E9"
         >
-          {isLoading && <LoaderOverlay />}
+          {/* {isLoading && <LoaderOverlay />} */}
 
           <QuizPreviewer
             apiKey={apiKey}

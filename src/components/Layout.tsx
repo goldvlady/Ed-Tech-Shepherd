@@ -87,13 +87,13 @@ export default function Layout({ children, className }) {
       icon: UserGroupIcon,
       current: false
     },
-    !user.school && {
+    !user?.school && {
       name: 'Offers',
       href: '/dashboard/tutordashboard/offers',
       icon: OffersIcon,
       current: false
     },
-    !user.school && {
+    !user?.school && {
       name: 'Bounties',
       href: '/dashboard/tutordashboard/bounties',
       icon: BountyIcon,
@@ -153,6 +153,7 @@ export default function Layout({ children, className }) {
     if (!isActive) {
       navigate('/activation_pending');
     }
+    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {
@@ -170,12 +171,14 @@ export default function Layout({ children, className }) {
     // return () => {
     //   disconnectAndReset();
     // };
+    // eslint-disable-next-line
   }, [user]);
 
   useEffect(() => {
     if (userRoleId && userRoleToken) {
       connectUserToChat();
     }
+    // eslint-disable-next-line
   }, [userRoleId, userRoleToken]);
 
   //  useEffect(() => {
@@ -661,7 +664,7 @@ export default function Layout({ children, className }) {
           </div>
         </div>
         {/* <main className={className}>{children}</main>  */}
-        <Box pt={2} position={'relative'}>
+        <Box pt={2} position={'relative'} h={'100vh'}>
           <Outlet />
         </Box>
       </div>

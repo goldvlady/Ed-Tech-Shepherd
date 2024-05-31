@@ -635,7 +635,7 @@ const CreateQuizPage = () => {
             }
           }}
         >
-          {isLoading && <LoaderOverlay />}
+          {/* {isLoading && <LoaderOverlay />} */}
 
           <>
             <div className="w-full shadow-md px-6 py-4">

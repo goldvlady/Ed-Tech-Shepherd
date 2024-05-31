@@ -722,6 +722,25 @@ export default function Marketplace() {
                 handlePagination={(nextPage) => setPage(nextPage)}
               />
             </>
+          ) : loadingData ? (
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="20px">
+              {[1, 2, 3].map((provider) => (
+                <Box
+                  bg={'white'}
+                  w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
+                  height={{
+                    base: '40vh', // Sets height to 40% of the viewport height on the smallest screens
+                    sm: '285px', // Sets a fixed height for sm screens and larger
+                    md: '285px', // Continues the fixed height for md screens
+                    lg: '325px' // Adjusts the height for lg screens and larger
+                  }}
+                  borderRadius="12px"
+                  border="1px solid #EBEDEF"
+                  key={provider}
+                  className=" animate-pulse"
+                ></Box>
+              ))}
+            </SimpleGrid>
           ) : (
             !loadingData && (
               <>

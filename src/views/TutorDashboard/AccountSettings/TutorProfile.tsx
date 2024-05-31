@@ -840,7 +840,7 @@ function MyProfile(props) {
                     calendlyLink: `${calendlyUrl}${e.target.value}`
                   });
                 }}
-                defaultValue={tutorData.tutor.calendlyLink.replace(
+                defaultValue={tutorData?.tutor?.calendlyLink?.replace(
                   `${calendlyUrl}`,
                   ''
                 )}

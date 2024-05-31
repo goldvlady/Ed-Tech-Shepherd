@@ -179,22 +179,22 @@ function StudyPlans() {
       id: item._id
     })) || [];
 
-  if (isLoading) {
-    return (
-      <Box
-        p={5}
-        textAlign="center"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}
-      >
-        <ShepherdSpinner />
-      </Box>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <Box
+  //       p={5}
+  //       textAlign="center"
+  //       style={{
+  //         display: 'flex',
+  //         justifyContent: 'center',
+  //         alignItems: 'center',
+  //         height: '100vh'
+  //       }}
+  //     >
+  //       <ShepherdSpinner />
+  //     </Box>
+  //   );
+  // }
   const clearFilters = () => {
     setMinScore(0);
     setMaxScore(100);

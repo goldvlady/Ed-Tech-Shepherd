@@ -593,7 +593,7 @@ const NotesDirectory: React.FC = () => {
 
   return (
     <>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {(tagEditItem?.note || tagEditItem?.document || tagEditItem?.ids) && (
         <TagModal
           tags={editableTags}
