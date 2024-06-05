@@ -65,10 +65,11 @@ const TopicQuizForm = ({
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'Very Easy' },
-    { label: 'Medium', value: 'Medium' },
-    { label: 'Hard', value: 'Hard' },
-    { label: 'Very Hard', value: 'Very Hard' }
+    { label: 'Very Easy', value: 'kindergarten' },
+    { label: 'Medium', value: 'high school' },
+    { label: 'Hard', value: 'college' },
+    { label: 'Very Hard', value: 'phd' },
+    { label: 'Extreme', value: 'genius' }
   ];
 
   const gradeOptions = [

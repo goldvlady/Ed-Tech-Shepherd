@@ -258,7 +258,14 @@ const CreateQuizPage = () => {
           ? toString(findIndex(options, 'isCorrect'))
           : question?.answer;
       return {
-        ...omit(question, ['id', 'updatedAt', 'createdAt', 'canEdit']),
+        ...omit(question, [
+          'id',
+          'updatedAt',
+          'createdAt',
+          'canEdit',
+          'difficulty',
+          'grade'
+        ]),
         options,
         answer
       };
