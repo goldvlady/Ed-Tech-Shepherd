@@ -19,6 +19,7 @@ import Home from '../views/Home';
 import TutorDashboardLayout from '../components/Layout';
 //import TutorDashboard from '../views/TutorDashboard/index';
 import DashboardLayout from '../views/Dashboard/layout';
+import Thanks from '../views/Thanks';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -410,6 +411,7 @@ const AppRoutes: React.FC = () => {
             // />
           }
         />
+        <Route path="thanks" element={<Thanks />} />
 
         <Route
           path="signup"
