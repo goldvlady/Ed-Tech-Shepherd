@@ -27,7 +27,7 @@ import {
   Flex,
   SimpleGrid,
   Icon,
-  Image 
+  Image
 } from '@chakra-ui/react';
 import clsx from 'clsx';
 import {
@@ -58,7 +58,7 @@ import userStore from '../../../../state/userStore';
 import { RiRemoteControlLine } from '@remixicon/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 
-import { MagicBandIcon } from '../../../../components/MagicBand'
+import { MagicBandIcon } from '../../../../components/MagicBand';
 import { LoadingDots } from '../components/loadingDots';
 import ReactMarkdown from 'react-markdown';
 
@@ -67,204 +67,220 @@ interface ChatCompletionRequestMessage {
   content: string;
 }
 
-const ChatBox = (
-  { 
-    question: { options, _id: id, ...question },
-    messages,
-    setMessages,
-  } : {
-    question: QuizQuestion;
-    messages: ChatCompletionRequestMessage[];
-    setMessages: any;
-  }) => {
-    const { user, hasActiveSubscription } = userStore();
-    
-    const [inputMessage, setInputMessage] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const endOfMessagesRef = useRef(null);
+const ChatBox = ({
+  question: { options, _id: id, ...question },
+  messages,
+  setMessages
+}: {
+  question: QuizQuestion;
+  messages: ChatCompletionRequestMessage[];
+  setMessages: any;
+}) => {
+  const { user, hasActiveSubscription } = userStore();
 
-    useEffect(() => {
-      if (endOfMessagesRef.current) {
-        endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, [messages, endOfMessagesRef]);
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const endOfMessagesRef = useRef(null);
 
-    const handleAskQuestion = async () => {
-      if (!inputMessage.trim()) {
-        return;
-      }
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, endOfMessagesRef]);
 
-      const newMessage: ChatCompletionRequestMessage = { role: 'user', content: inputMessage };
-      const updatedMessages: ChatCompletionRequestMessage[] = [...messages, newMessage];
-      
+  const handleAskQuestion = async () => {
+    if (!inputMessage.trim()) {
+      return;
+    }
 
-      setMessages(updatedMessages);
-      setInputMessage('');
-
-      try {
-        setLoading(true);
-        const validMessages = updatedMessages.filter(
-          message => message.role && message.content
-        );
-
-        let assistantResponse = await ApiService.getChatGPTResponse(
-          user.firebaseId,
-          validMessages,
-          String(question.id)
-        )
-        
-        const assistantResponseText: string = await assistantResponse.json();
-
-        if (assistantResponseText) {
-          setMessages([
-            ...validMessages,
-            { role: 'assistant', content: assistantResponseText },
-          ]);
-        }
-        else {
-          throw new Error('No response from assistant');
-        }
-      } catch (err) {
-        // toast({
-        //   title: 'An error occurred.',
-        //   description: "Unable to fetch the assistant's response.",
-        //   status: 'error',
-        //   duration: 9000,
-        //   isClosable: true,
-        // });
-        console.error('Error fetching response from ChatGPT:', err);
-      } finally {
-        setLoading(false);
-      }
+    const newMessage: ChatCompletionRequestMessage = {
+      role: 'user',
+      content: inputMessage
     };
+    const updatedMessages: ChatCompletionRequestMessage[] = [
+      ...messages,
+      newMessage
+    ];
 
-    return (
-      <Box
-        w={{ base: "35vw", md: "729px" }}
-        h={{ base: "70vh", md: "70vh" }}
-        zIndex="1000"
-        margin="auto"
-        minW={"729px"}
-      >
-        <VStack h="full" justifyContent="space-between">
-          <Box w="full" h="full" overflowY="auto" pb="4">
-            {messages
-              .filter(msg => msg.role !== 'system')
-              .map((msg, index) => (
-                <Box position="relative" key={index} ref={index === messages.length - 1 ? endOfMessagesRef : null}>
-                  { msg.role !=="user" && 
-                    <Box
-                      position="absolute" // Use absolute positioning for the circle
-                      bottom="0px" // Adjust as needed to move the circle to the desired location
-                      display="flex"
-                      borderRadius="full" // This creates a circular shape
-                      bg="#207DF7" // This sets the background color to blue
-                      width="36px" // Adjust the width as needed
-                      height="36px" // Adjust the height as needed
-                    ></Box>
-                  }
+    setMessages(updatedMessages);
+    setInputMessage('');
+
+    try {
+      setLoading(true);
+      const validMessages = updatedMessages.filter(
+        (message) => message.role && message.content
+      );
+
+      const assistantResponse = await ApiService.getChatGPTResponse(
+        user.firebaseId,
+        validMessages,
+        String(question.id)
+      );
+
+      const assistantResponseText: string = await assistantResponse.json();
+
+      if (assistantResponseText) {
+        setMessages([
+          ...validMessages,
+          { role: 'assistant', content: assistantResponseText }
+        ]);
+      } else {
+        throw new Error('No response from assistant');
+      }
+    } catch (err) {
+      // toast({
+      //   title: 'An error occurred.',
+      //   description: "Unable to fetch the assistant's response.",
+      //   status: 'error',
+      //   duration: 9000,
+      //   isClosable: true,
+      // });
+      console.error('Error fetching response from ChatGPT:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box
+      w={{ base: '35vw', md: '729px' }}
+      h={{ base: '70vh', md: '70vh' }}
+      zIndex="1000"
+      margin="auto"
+      minW={'729px'}
+    >
+      <VStack h="full" justifyContent="space-between">
+        <Box w="full" h="full" overflowY="auto" pb="4">
+          {messages
+            .filter((msg) => msg.role !== 'system')
+            .map((msg, index) => (
+              <Box
+                position="relative"
+                key={index}
+                ref={index === messages.length - 1 ? endOfMessagesRef : null}
+              >
+                {msg.role !== 'user' && (
                   <Box
-                    key={index}
+                    position="absolute" // Use absolute positioning for the circle
+                    bottom="0px" // Adjust as needed to move the circle to the desired location
                     display="flex"
-                    justifyContent={msg.role === 'user' ? 'flex-end' : 'flex-start'}
-                    ml={"51px"}
-                    mr={"51px"}
-                    my={"10px"}
-                  >
-                    <Box
-                      borderRadius="md"
-                      bg={msg.role === 'user' ? '#F4F5F5' : 'white'}
-                      color={msg.role === 'user' ? '#072D5F' : 'black'}
-                      maxW="627px"
-                      boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
-                    >
-                      <Text
-                        whiteSpace="pre-wrap"
-                        paddingRight="25px"
-                        paddingLeft="25px"
-                        paddingTop="8px"
-                        paddingBottom="8px"
-                      >
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </Text>
-                    </Box>
-                  </Box>
-                  { msg.role ==="user" && 
-                    <Box
-                      position="absolute" // Use absolute positioning for the circle
-                      bottom="0px" // Adjust as needed to move the circle to the desired location
-                      right={"0px"}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      borderRadius="full" // This creates a circular shape
-                      bg="#BFBFBF" // This sets the background color to blue
-                      width="36px" // Adjust the width as needed
-                      height="36px" // Adjust the height as needed
-                    ></Box>
-                  }
-                </Box>
-              ))}
-              {loading && (
+                    borderRadius="full" // This creates a circular shape
+                    bg="#207DF7" // This sets the background color to blue
+                    width="36px" // Adjust the width as needed
+                    height="36px" // Adjust the height as needed
+                  ></Box>
+                )}
                 <Box
+                  key={index}
                   display="flex"
-                  justifyContent="flex-start"
-                  mb="3"
-                  ml="51px"
+                  justifyContent={
+                    msg.role === 'user' ? 'flex-end' : 'flex-start'
+                  }
+                  ml={'51px'}
+                  mr={'51px'}
+                  my={'10px'}
                 >
                   <Box
-                    maxW="70%"
-                    p="2"
                     borderRadius="md"
-                    bg="gray.200"
-                    color="black"
+                    bg={msg.role === 'user' ? '#F4F5F5' : 'white'}
+                    color={msg.role === 'user' ? '#072D5F' : 'black'}
+                    maxW="627px"
+                    boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
                   >
-                    <LoadingDots />
+                    <Text
+                      whiteSpace="pre-wrap"
+                      paddingRight="25px"
+                      paddingLeft="25px"
+                      paddingTop="8px"
+                      paddingBottom="8px"
+                    >
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </Text>
                   </Box>
                 </Box>
-              )}
-          </Box>
-          <HStack spacing="3" width={"630px"} boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)" bg="white" borderRadius="md" pr={"20px"} py={"15px"} height={"50px"}>
-            <Textarea
-              placeholder="Type your message..."
-              size="sm"
-              resize="none"
-              flex="1"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              border={"none"}
-              height={"50px"}
-              overflow={"hidden"}
-              minH={"unset"}
-              minW={"unset"}
-              width={"500px !important"}
-              onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault(); // Prevent the default action to avoid line break in textarea
-                    handleAskQuestion(); // Call the function to handle sending the message
-                  }
-                }
-              }
-            />
-            
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              borderRadius="full" // This creates a circular shape
-              bg="#207DF7" // This sets the background color to blue
-              width="28px" // Adjust the width as needed
-              height="28px" // Adjust the height as needed
-              color="white"
-            >
-              <ArrowForwardIcon w={4} h={4} color="white" onClick={handleAskQuestion}/>
+                {msg.role === 'user' && (
+                  <Box
+                    position="absolute" // Use absolute positioning for the circle
+                    bottom="0px" // Adjust as needed to move the circle to the desired location
+                    right={'0px'}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    borderRadius="full" // This creates a circular shape
+                    bg="#BFBFBF" // This sets the background color to blue
+                    width="36px" // Adjust the width as needed
+                    height="36px" // Adjust the height as needed
+                  ></Box>
+                )}
+              </Box>
+            ))}
+          {loading && (
+            <Box display="flex" justifyContent="flex-start" mb="3" ml="51px">
+              <Box
+                maxW="70%"
+                p="2"
+                borderRadius="md"
+                bg="gray.200"
+                color="black"
+              >
+                <LoadingDots />
+              </Box>
             </Box>
-            
-          </HStack>
-        </VStack>
-      </Box>
-    );
-  }
+          )}
+        </Box>
+        <HStack
+          spacing="3"
+          width={'630px'}
+          boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
+          bg="white"
+          borderRadius="md"
+          pr={'20px'}
+          py={'15px'}
+          height={'50px'}
+        >
+          <Textarea
+            placeholder="Type your message..."
+            size="sm"
+            resize="none"
+            flex="1"
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            border={'none'}
+            height={'50px'}
+            overflow={'hidden'}
+            minH={'unset'}
+            minW={'unset'}
+            width={'500px !important'}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevent the default action to avoid line break in textarea
+                handleAskQuestion(); // Call the function to handle sending the message
+              }
+            }}
+          />
+
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="full" // This creates a circular shape
+            bg="#207DF7" // This sets the background color to blue
+            width="28px" // Adjust the width as needed
+            height="28px" // Adjust the height as needed
+            color="white"
+          >
+            <ArrowForwardIcon
+              w={4}
+              h={4}
+              color="white"
+              onClick={handleAskQuestion}
+            />
+          </Box>
+        </HStack>
+      </VStack>
+    </Box>
+  );
+};
 
 const QuizCard = forwardRef(
   (
@@ -299,13 +315,15 @@ const QuizCard = forwardRef(
         answerProvided: string,
         quizId?: string
       ) => void;
-      onOpenChatBox: (question: QuizQuestion, quizScore: StoreQuizScoreType) => void;
+      onOpenChatBox: (
+        question: QuizQuestion,
+        quizScore: StoreQuizScoreType
+      ) => void;
       currentQuestion: QuizQuestion;
       setCurrentQuestion: any;
     },
     ref?: HTMLTextAreaElement | any
   ) => {
-
     const quizCardRef = useRef<HTMLTextAreaElement | null>(null);
     const [isMultipleOptionsMulti, setIsMultipleOptionsMulti] = useState(false);
     const [isOpenEnded, setIsOpenEnded] = useState(false);
@@ -337,7 +355,7 @@ const QuizCard = forwardRef(
           const { isCorrect } = options[toNumber(index)];
 
           const score = toString(isCorrect) === 'true' ? 'true' : 'false';
-          
+
           handleSetScore(
             score,
             toNumber(questionIdx),
@@ -403,24 +421,44 @@ const QuizCard = forwardRef(
           //   // quizCardRef.current = node;
           // }}
           position="relative"
-
           borderRadius={'8px'}
           bg="white"
           boxShadow={'md'}
           w="full"
           minH={minHeight}
-          borderWidth={currentQuestion?.id === question.id ? "2px" : "0px"} // Set the border width
-          borderColor={currentQuestion?.id === question.id ? "#207DF7" : "white"} // Set the border color to blue
-          
+          borderWidth={currentQuestion?.id === question.id ? '2px' : '0px'} // Set the border width
+          borderColor={
+            currentQuestion?.id === question.id ? '#207DF7' : 'white'
+          } // Set the border color to blue
         >
           <VStack alignItems={'flex-start'} justifyContent={'flex-start'}>
             <Box bg="#F0F2F4" position="relative" w="100%">
-              <HStack mb={2} onClick={() => onOpenChatBox({options: options, ...question}, quizScores[index])}>
-                {showQuizAnswers && (currentQuestion?.id !== question.id) && (
-                  <Box position="absolute" top="1" right="0" display={"flex"} >
-                    <Text fontSize={"10px"} mr="5px" fontWeight="medium" cursor={"pointer"}> Explain with AI</Text>
+              <HStack
+                mb={2}
+                onClick={() =>
+                  onOpenChatBox(
+                    { options: options, ...question },
+                    quizScores[index]
+                  )
+                }
+              >
+                {showQuizAnswers && currentQuestion?.id !== question.id && (
+                  <Box position="absolute" top="1" right="0" display={'flex'}>
+                    <Text
+                      fontSize={'10px'}
+                      mr="5px"
+                      fontWeight="medium"
+                      cursor={'pointer'}
+                    >
+                      {' '}
+                      Explain with AI
+                    </Text>
                     <MagicBandIcon
-                      style={{width:"14px", height:"13px", cursor:"pointer"}}
+                      style={{
+                        width: '14px',
+                        height: '13px',
+                        cursor: 'pointer'
+                      }}
                     />
                   </Box>
                 )}
@@ -964,47 +1002,52 @@ const QuizPreviewer = ({
     }
   };
 
-
   const [isChatBoxVisible, setChatBoxVisible] = useState(false);
 
   const nextCharWithIndex = (a: string, index: number) => {
     return String.fromCharCode(a.charCodeAt(0) + index);
-  }
+  };
 
-  const handleOpenChatBox = async (question: QuizQuestion, quizScore: StoreQuizScoreType) => {
-    
+  const handleOpenChatBox = async (
+    question: QuizQuestion,
+    quizScore: StoreQuizScoreType
+  ) => {
     const response = await ApiService.getChatHistory(String(question.id));
-    const chatHistory: any = await response.json()
+    const chatHistory: any = await response.json();
 
     setCurrentQuestion(question);
 
     let correctAnswer = 'A)';
-    let correctAnswerContent="";
-    let a = 'a';
+    let correctAnswerContent = '';
+    const a = 'a';
 
-    let allOptionString = question.options.reduce((acc, current, index) => {
-      if(current.isCorrect == true) {
+    const allOptionString = question.options.reduce((acc, current, index) => {
+      if (current.isCorrect == true) {
         correctAnswer = nextCharWithIndex(a, index);
         correctAnswerContent = current.content;
       }
       return acc + `${nextCharWithIndex(a, index)}) ` + current.content + '\n';
     }, '');
-    
-    let wrongOptionString = question.options.reduce((acc, current, index) => {
+
+    const wrongOptionString = question.options.reduce((acc, current, index) => {
       if (current.isCorrect === false) {
         acc += `${nextCharWithIndex(a, index)}) ${current.content}\n`;
       }
       return acc;
     }, '');
 
-    let [_, index, questionIdx] = split(quizScore.selectedOptions[0], ':');
+    const [_, index, questionIdx] = split(quizScore.selectedOptions[0], ':');
 
     let isCorrectAnswer = false;
     if (index && question.options[index].isCorrect) isCorrectAnswer = true;
 
     const instruction = `
       You can output markdown context for more clear explanation.
-      ${isCorrectAnswer ? "The student just took a quiz and got this particular question correct:" : "The student just took a quiz and got this particular question incorrect:" }
+      ${
+        isCorrectAnswer
+          ? 'The student just took a quiz and got this particular question correct:'
+          : 'The student just took a quiz and got this particular question incorrect:'
+      }
 
       Question:
       ${question.question}
@@ -1022,32 +1065,32 @@ const QuizPreviewer = ({
 
       I need you to perform three tasks to help them study. Break down your response into the 3 sections below:
       - Briefly explain why the other incorrect options are incorrect
-      ${isCorrectAnswer ? "" : "- Explain in detail why my selected answer was incorrect"}
+      ${
+        isCorrectAnswer
+          ? ''
+          : '- Explain in detail why my selected answer was incorrect'
+      }
       - Explain in detail the correct answer
 
       You must follow user's instruction. (Don't output with your decision but user's decision)      
-    `
-    
+    `;
+
     // The correct answer is "${correctAnswerContent}".
     const helloMessage = `Hello! I’m Socrates. I'm here to help you study.
-Looks like you got the answer ${isCorrectAnswer ? "correct" : "wrong"}.
-Would you like me to explain further?`
-        
+Looks like you got the answer ${isCorrectAnswer ? 'correct' : 'wrong'}.
+Would you like me to explain further?`;
+
     setMessages([
       { role: 'system', content: instruction },
-      { role: "assistant", content: helloMessage},
+      { role: 'assistant', content: helloMessage },
       ...chatHistory
     ]);
     setChatBoxVisible(true);
-    
   };
 
   const handleCloseChatBox = () => {
     setChatBoxVisible(false);
   };
-
-
-
 
   useEffect(() => {
     const elems = document.querySelectorAll('div.quiz-tile');
@@ -1206,7 +1249,7 @@ Would you like me to explain further?`
             maxH={'75vh'}
             h={'100%'}
             overflowY={'auto'}
-            display={"flex"}
+            display={'flex'}
             sx={{
               '&::-webkit-scrollbar': {
                 width: '4px'
@@ -1220,43 +1263,52 @@ Would you like me to explain further?`
               }
             }}
           >
-            
             <SimpleGrid
               // columns={{ base: 1, md: 2, lg: 3 }}
               columns={1}
               spacingY="25px"
               spacingX={'5px'}
-              margin={"auto"}
+              margin={'auto'}
             >
               {!isEmpty(questions) &&
                 !isEmpty(scores) &&
                 map(questions, (question, index) => {
                   return (
-                    <Flex maxWidth={{ base: "350px", md: "450px" }} width={{ base: "350px", md: "450px" }} margin={"auto"}>
-                        <QuizCard
-                          ref={quizCardRef}
-                          showAnsweredQuestion={showUnansweredQuestions}
-                          handleShowUnansweredQuestion={
-                            handleShowUnansweredQuestion
-                          }
-                          quizScores={scores}
-                          key={question?.id}
-                          question={question}
-                          index={index}
-                          handleStoreQuizHistory={handleStoreQuizHistory}
-                          handleSetScore={handleSetScore}
-                          showQuizAnswers={showQuizAnswers}
-                          minHeight={minHeight}
-                          onOpenChatBox={handleOpenChatBox}
-                          currentQuestion={currentQuestion}
-                          setCurrentQuestion={setCurrentQuestion}
-                        />
+                    <Flex
+                      maxWidth={{ base: '350px', md: '450px' }}
+                      width={{ base: '350px', md: '450px' }}
+                      margin={'auto'}
+                    >
+                      <QuizCard
+                        ref={quizCardRef}
+                        showAnsweredQuestion={showUnansweredQuestions}
+                        handleShowUnansweredQuestion={
+                          handleShowUnansweredQuestion
+                        }
+                        quizScores={scores}
+                        key={question?.id}
+                        question={question}
+                        index={index}
+                        handleStoreQuizHistory={handleStoreQuizHistory}
+                        handleSetScore={handleSetScore}
+                        showQuizAnswers={showQuizAnswers}
+                        minHeight={minHeight}
+                        onOpenChatBox={handleOpenChatBox}
+                        currentQuestion={currentQuestion}
+                        setCurrentQuestion={setCurrentQuestion}
+                      />
                     </Flex>
                   );
                 })}
             </SimpleGrid>
             {/* <ChatBox onClose={handleCloseChatBox} /> */}
-            {isChatBoxVisible && <ChatBox question={currentQuestion} messages={messages} setMessages={setMessages}/>}
+            {isChatBoxVisible && (
+              <ChatBox
+                question={currentQuestion}
+                messages={messages}
+                setMessages={setMessages}
+              />
+            )}
             <Box p="32px" />
           </Box>
         </Box>
