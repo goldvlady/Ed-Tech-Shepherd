@@ -52,6 +52,7 @@ import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
 import { MdCancel } from 'react-icons/md';
+import { usePostHog } from 'posthog-js/react';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -460,6 +461,7 @@ const CompletedState = ({
 let studySessionLogger: StudySessionLogger | undefined = undefined;
 
 const StudyBox = () => {
+  const posthog = usePostHog();
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
@@ -628,7 +630,14 @@ const StudyBox = () => {
   }, [currentStudyIndex]);
 
   const saveScore = useCallback(async () => {
-    if (flashcard) await storeScore(flashcard?._id, savedScore);
+    if (flashcard) {
+      posthog?.capture('client_flashcard_studied', {
+        quizId: flashcard?._id,
+        userId: user?._id,
+        score: savedScore
+      });
+      await storeScore(flashcard?._id, savedScore);
+    }
   }, [flashcard, storeScore, savedScore]);
 
   useEffect(() => {

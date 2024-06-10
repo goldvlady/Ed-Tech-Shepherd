@@ -56,6 +56,7 @@ import PlansModal from '../../../../components/PlansModal';
 import userStore from '../../../../state/userStore';
 import { RiRemoteControlLine } from '@remixicon/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { usePostHog } from 'posthog-js/react';
 
 const QuizCard = forwardRef(
   (
@@ -611,6 +612,8 @@ const QuizPreviewer = ({
   setTogglePlansModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleSetUploadingState?: (value: boolean) => void;
 }) => {
+  const posthog = usePostHog();
+
   const navigate = useNavigate();
 
   const quizCardRef = useRef<HTMLTextAreaElement | any>(null);
@@ -644,6 +647,13 @@ const QuizPreviewer = ({
     try {
       await ApiService.storeQuizScore({
         quizId,
+        score: size(filter(scores, ['score', 'true'])),
+        scoreDetails: scores
+      });
+
+      posthog?.capture('client_quiz_studied', {
+        quizId: quizId,
+        userId: user?._id,
         score: size(filter(scores, ['score', 'true'])),
         scoreDetails: scores
       });

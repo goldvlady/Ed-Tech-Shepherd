@@ -11,6 +11,7 @@ import './index.css';
 import 'katex/dist/katex.min.css';
 import { MemoizedReactMarkdown } from './memoized-react-markdown';
 import { CodeBlock } from './code-block';
+import { usePostHog } from 'posthog-js/react';
 
 interface CustomComponents {
   button: any;
@@ -39,6 +40,7 @@ const CustomMarkdownView = ({
   handleSendKeyword,
   className
 }: ICustomMarkdownView) => {
+  const posthog = usePostHog();
   const [renderedSource, setRenderedSource] = useState<string>('');
 
   useEffect(() => {
@@ -49,6 +51,7 @@ const CustomMarkdownView = ({
     event: React.MouseEvent<HTMLButtonElement>,
     keyword: string
   ) => {
+    posthog?.capture('client_docchat_keyword_clicked', { keyword: keyword });
     if (handleSendKeyword) {
       handleSendKeyword(event, keyword);
     }
