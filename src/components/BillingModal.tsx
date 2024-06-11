@@ -81,7 +81,7 @@ function PriceCards({ user }: { user: User }) {
             user.stripeSubscription?.priceId === plan.priceId
               ? 'Subscribed'
               : plan.tier === 'free'
-              ? 'Try for Free'
+              ? 'Downgrade to Free'
               : 'Subscribe Now'}
           </button>
         </div>
