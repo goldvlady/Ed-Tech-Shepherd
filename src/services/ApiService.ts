@@ -1432,7 +1432,11 @@ class ApiService {
       `${AI_API}/quizzes/getChatGPTResponse`,
       {
         method: 'POST',
-        body: JSON.stringify({ messages: messages, question_id: question_id })
+        body: JSON.stringify({
+          firebaseId: firebaseId,
+          messages: messages,
+          question_id: question_id
+        })
       },
       false,
       {
@@ -1441,11 +1445,20 @@ class ApiService {
       }
     );
   };
-  static getChatHistory = async (question_id: string) => {
+  static getChatHistory = async (firebaseId: string, question_id: string) => {
     return doFetch(
-      `${AI_API}/quizzes/getChatHistory?question_id=${question_id}`,
+      `${AI_API}/quizzes/getChatHistory`,
       {
-        method: 'GET'
+        method: 'POST',
+        body: JSON.stringify({
+          firebaseId: firebaseId,
+          question_id: question_id
+        })
+      },
+      false,
+      {
+        'x-shepherd-header': HEADER_KEY,
+        'Content-Type': 'application/json'
       }
     );
   };
