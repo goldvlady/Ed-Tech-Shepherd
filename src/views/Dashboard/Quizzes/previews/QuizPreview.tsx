@@ -1012,7 +1012,10 @@ const QuizPreviewer = ({
     question: QuizQuestion,
     quizScore: StoreQuizScoreType
   ) => {
-    const response = await ApiService.getChatHistory(String(question.id));
+    const response = await ApiService.getChatHistory(
+      user.firebaseId,
+      String(question.id)
+    );
     const chatHistory: any = await response.json();
 
     setCurrentQuestion(question);
