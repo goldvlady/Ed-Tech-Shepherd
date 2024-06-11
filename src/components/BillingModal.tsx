@@ -72,6 +72,7 @@ function PriceCards({ user }: { user: User }) {
             onClick={() =>
               (window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`)
             }
+            disabled={plan.tier === 'free'}
             className={cn(
               'mt-1.5 p-2 text-sm rounded-md border border-black/10 bg-white',
               plan.recurrence === 'semester' && 'bg-blue-500 text-white'
