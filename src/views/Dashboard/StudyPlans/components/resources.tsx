@@ -26,11 +26,12 @@ import {
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
-  Grid
+  Grid,
+  IconButton
 } from '@chakra-ui/react';
-import { BiPlayCircle } from 'react-icons/bi';
+import { BiPlayCircle, BiTrash } from 'react-icons/bi';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
-import { AttachmentIcon, RepeatIcon } from '@chakra-ui/icons';
+import { AttachmentIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons';
 import { FaPlus, FaTrash, FaTrashAlt, FaVideo } from 'react-icons/fa';
 import StudySessionLogger from '../../../../helpers/sessionLogger';
 import { SessionType } from '../../../../types';
@@ -42,6 +43,7 @@ import uploadFile from '../../../../helpers/file.helpers';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import styled from 'styled-components';
 import { textTruncate } from '../../../../util';
+import documentStore from '../../../../state/documentStore';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -89,6 +91,7 @@ const ResourceModal = ({
   const [fileName, setFileName] = useState('');
 
   const { user } = userStore();
+  const { deleteStudentDocument, isLoading: isDocLoading } = documentStore();
   const toast = useCustomToast();
   let studySessionLogger: StudySessionLogger | undefined = undefined;
   console.log(selectedPlanId);
@@ -98,8 +101,17 @@ const ResourceModal = ({
   );
 
   const [selectedVideo, setSelectedVideo] = useState(
-    findLectureByTopic(state.selectedTopic)[0]
+    findLectureByTopic(state.selectedTopic)[0] || {}
   );
+
+  useEffect(() => {
+    const lectures = findLectureByTopic(state.selectedTopic);
+    console.log(lectures);
+
+    if (lectures.length > 0) {
+      setSelectedVideo(lectures[0]);
+    }
+  }, [findLectureByTopic]);
 
   const handleVideoSelect = (video) => {
     setSelectedVideo(video);
@@ -251,6 +263,25 @@ const ResourceModal = ({
     const files = e.dataTransfer.files[0];
     handleUploadInput(files);
   };
+  const handleDeleteResource = async (id: string) => {
+    const isDeleted = await deleteStudentDocument(id);
+
+    if (isDeleted) {
+      toast({
+        position: 'top-right',
+        title: `item deleted successfully`,
+        status: 'success'
+      });
+      fetchPlanResources(selectedPlanId);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to delete item`,
+        status: 'error'
+      });
+    }
+  };
+
   const isYouTubeLink = (url) => {
     const youtubeRegex =
       /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -276,6 +307,7 @@ const ResourceModal = ({
   useEffect(() => {
     resetFields();
   }, []);
+  console.log(selectedVideo);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="3xl">
@@ -401,6 +433,7 @@ const ResourceModal = ({
                                 }}
                               >
                                 <iframe
+                                  key={selectedVideo?._id}
                                   title="YouTube Video"
                                   src={convertToEmbedLink(
                                     selectedVideo?.documentUrl
@@ -418,6 +451,7 @@ const ResourceModal = ({
                               </div>
                             ) : (
                               <video
+                                key={selectedVideo?._id}
                                 title="tutor-video"
                                 controls
                                 onPlay={() => startLecture(topicId)}
@@ -584,16 +618,32 @@ const ResourceModal = ({
                           p={2}
                           borderRadius={10}
                         >
-                          <Text
+                          <Flex
+                            justifyContent="space-between"
+                            alignItems="center"
+                            alignContent={'center'}
                             color="#6E7682"
-                            fontSize="12px"
-                            fontWeight="400"
-                            wordBreak={'break-word'}
-                            textTransform="uppercase"
-                            mb={2}
                           >
-                            {textTruncate(lecture.title, 28)}
-                          </Text>
+                            <Text
+                              fontSize="12px"
+                              fontWeight="400"
+                              wordBreak={'break-word'}
+                              textTransform="uppercase"
+                            >
+                              {textTruncate(lecture.title, 28)}
+                            </Text>
+                            <IconButton
+                              aria-label="Delete video"
+                              cursor={'pointer'}
+                              icon={<BiTrash />}
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteResource(lecture._id);
+                              }}
+                            />
+                          </Flex>
                           {isYouTubeLink(lecture?.documentUrl) ? (
                             <>
                               <img
