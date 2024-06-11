@@ -88,6 +88,7 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
+import BillingModal from '../../components/BillingModal';
 
 interface LinkItemProps {
   name: string;
@@ -252,9 +253,10 @@ const NavItem = ({
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const MobileNav = ({ onOpen, setOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
@@ -566,16 +568,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   </Flex>
                 </MenuItem>
                 {user.userRole === 'student' ? (
-                  <MenuItem
-                    p={2}
-                    m={1}
-                    onClick={() =>
-                      window.open(
-                        `https://billing.stripe.com/p/login/test_7sI9BM0S3aiG6s07ss?prefilled_email=${user.email}`,
-                        '_blank'
-                      )
-                    }
-                  >
+                  <MenuItem p={2} m={1} onClick={() => setOpen(true)}>
                     <Flex alignItems="center" gap={2}>
                       <Center
                         borderRadius="50%"
@@ -598,7 +591,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                         </svg>
                       </Center>
                       <Text color="text.300" fontSize={14}>
-                        Manage Billing
+                        Manage Plans
                       </Text>
                     </Flex>
                   </MenuItem>
@@ -922,7 +915,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user, hasActiveSubscription }: any = userStore();
-  const [togglePlansModal, setTogglePlansModal] = useState(true);
+  const [open, setOpen] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -942,7 +935,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const handleLockedClick = (message, subMessage) => {
     setPlansModalMessage(message);
     setPlansModalSubMessage(subMessage);
-    setTogglePlansModal(true);
+    setOpen(true);
   };
 
   const {
@@ -1042,7 +1035,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
           <div className="flex-1 overflow-y-hidden h-full">
             <div className="w-full z-10">
-              <MobileNav onOpen={onOpen} />
+              <MobileNav setOpen={setOpen} onOpen={onOpen} />
             </div>
             <div className="box pt-20 relative h-full overflow-y-scroll">
               <Outlet />
@@ -1051,14 +1044,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
-      {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage}
-          subMessage={plansModalSubMessage}
-        />
-      )}
+      {open && <BillingModal open={open} setOpen={setOpen} />}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>

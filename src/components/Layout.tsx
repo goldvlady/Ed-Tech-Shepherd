@@ -57,6 +57,7 @@ import { FiChevronDown } from 'react-icons/fi';
 import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { PiClipboardTextLight } from 'react-icons/pi';
+import BillingModal from './BillingModal';
 
 interface NavigationItem {
   name: string;
@@ -114,6 +115,7 @@ export default function Layout({ children, className }) {
   ].filter(Boolean);
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
+  const [open, setOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -628,16 +630,7 @@ export default function Layout({ children, className }) {
                       </Flex>
                     </MenuItem>
                     {user.userRole === 'student' ? (
-                      <MenuItem
-                        p={2}
-                        m={1}
-                        onClick={() =>
-                          window.open(
-                            `https://billing.stripe.com/p/login/test_7sI9BM0S3aiG6s07ss?prefilled_email=${user.email}`,
-                            '_blank'
-                          )
-                        }
-                      >
+                      <MenuItem p={2} m={1} onClick={() => setOpen(true)}>
                         <Flex alignItems="center" gap={2}>
                           <Center
                             borderRadius="50%"
@@ -660,7 +653,7 @@ export default function Layout({ children, className }) {
                             </svg>
                           </Center>
                           <Text color="text.300" fontSize={14}>
-                            Manage Billing
+                            Manage Plans
                           </Text>
                         </Flex>
                       </MenuItem>
@@ -706,7 +699,7 @@ export default function Layout({ children, className }) {
           <Outlet />
         </Box>
       </div>
-
+      <BillingModal open={open} setOpen={setOpen} />
       {/* Upload Document Modal */}
       <Transition.Root show={uploadDocumentModal} as={Fragment}>
         <Dialog
