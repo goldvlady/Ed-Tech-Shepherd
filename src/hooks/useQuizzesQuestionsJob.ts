@@ -73,31 +73,46 @@ function useQuizQuestionsJob(studentID: string) {
   );
 
   // Function to delete all jobs for a documentId
+  // const clearJobs = useCallback(
+  //   (documentId: string) => {
+  //     const jobsRef = ref(database, `/quiz-job/${studentID}`);
+  //     const documentIdQuery = query(
+  //       jobsRef,
+  //       orderByChild('documentId'),
+  //       equalTo(documentId)
+  //     );
+
+  //     onValue(
+  //       documentIdQuery,
+  //       (snapshot: DataSnapshot) => {
+  //         const jobsData: { [key: string]: Job } = snapshot.val() || {};
+
+  //         // Iterate over each job and delete it if it matches the documentId
+  //         Object.keys(jobsData).forEach((jobKey) => {
+  //           if (jobsData[jobKey].documentId === documentId) {
+  //             remove(ref(database, `/quiz-job/${studentID}/${jobKey}`));
+  //           }
+  //         });
+  //       },
+  //       (error) => {
+  //         // console.error('Firebase delete error:', error);
+  //       }
+  //     );
+  //   },
+  //   [studentID]
+  // );
+
   const clearJobs = useCallback(
     (documentId: string) => {
       const jobsRef = ref(database, `/quiz-job/${studentID}`);
-      const documentIdQuery = query(
-        jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
-      );
 
-      onValue(
-        documentIdQuery,
-        (snapshot: DataSnapshot) => {
-          const jobsData: { [key: string]: Job } = snapshot.val() || {};
-
-          // Iterate over each job and delete it if it matches the documentId
-          Object.keys(jobsData).forEach((jobKey) => {
-            if (jobsData[jobKey].documentId === documentId) {
-              remove(ref(database, `/quiz-job/${studentID}/${jobKey}`));
-            }
-          });
-        },
-        (error) => {
-          // console.error('Firebase delete error:', error);
-        }
-      );
+      remove(jobsRef)
+        .then(() => {
+          setQuizQuestions([]);
+        })
+        .catch((error) => {
+          console.error('Error clearing jobs:', error);
+        });
     },
     [studentID]
   );
