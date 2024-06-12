@@ -919,6 +919,30 @@ const SidebarContent = ({
       >
         Feedback
       </NavItem>
+      {user.school && (
+        <Flex
+          gap={1}
+          alignItems="center"
+          textAlign="center"
+          bg="#f1f5f9"
+          p={3}
+          m={4}
+          borderRadius={8}
+          direction="column"
+          boxShadow="lg" // Added drop shadow
+        >
+          <Image
+            src="/images/SeqHub_Logo.png"
+            alt="School Logo"
+            boxSize={'50%'}
+            borderRadius="md"
+          />
+          <Text fontWeight="bold" fontSize="lg">
+            {user.school.name}
+          </Text>
+        </Flex>
+      )}
+
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}
