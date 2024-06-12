@@ -25,11 +25,13 @@ import {
   FormLabel,
   InputGroup,
   InputLeftAddon,
-  InputRightAddon
+  InputRightAddon,
+  Grid,
+  IconButton
 } from '@chakra-ui/react';
-import { BiPlayCircle } from 'react-icons/bi';
+import { BiPlayCircle, BiTrash } from 'react-icons/bi';
 import ResourceIcon from '../../../../assets/resources-plan.svg';
-import { AttachmentIcon, RepeatIcon } from '@chakra-ui/icons';
+import { AttachmentIcon, DeleteIcon, RepeatIcon } from '@chakra-ui/icons';
 import { FaPlus, FaTrash, FaTrashAlt, FaVideo } from 'react-icons/fa';
 import StudySessionLogger from '../../../../helpers/sessionLogger';
 import { SessionType } from '../../../../types';
@@ -40,6 +42,8 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import uploadFile from '../../../../helpers/file.helpers';
 import { RiUploadCloud2Fill } from 'react-icons/ri';
 import styled from 'styled-components';
+import { textTruncate } from '../../../../util';
+import documentStore from '../../../../state/documentStore';
 
 const FileName = styled.span`
   font-size: 0.875rem;
@@ -87,6 +91,7 @@ const ResourceModal = ({
   const [fileName, setFileName] = useState('');
 
   const { user } = userStore();
+  const { deleteStudentDocument, isLoading: isDocLoading } = documentStore();
   const toast = useCustomToast();
   let studySessionLogger: StudySessionLogger | undefined = undefined;
   console.log(selectedPlanId);
@@ -94,6 +99,24 @@ const ResourceModal = ({
   const isTutor = window.location.pathname.includes(
     '/dashboard/tutordashboard'
   );
+
+  const [selectedVideo, setSelectedVideo] = useState(
+    findLectureByTopic(state.selectedTopic)[0] || {}
+  );
+
+  useEffect(() => {
+    const lectures = findLectureByTopic(state.selectedTopic);
+    console.log(lectures);
+
+    if (lectures.length > 0) {
+      setSelectedVideo(lectures[0]);
+    }
+  }, [findLectureByTopic]);
+
+  const handleVideoSelect = (video) => {
+    setSelectedVideo(video);
+    setVidOverlay(true);
+  };
 
   const startLecture = (id) => {
     setIsLectureStarted(!isLectureStarted);
@@ -132,6 +155,8 @@ const ResourceModal = ({
           isClosable: true
         });
         fetchPlanResources(selectedPlanId);
+        resetFields();
+
         setIsAddNewOpened(false);
       }
     } catch (error) {
@@ -238,6 +263,25 @@ const ResourceModal = ({
     const files = e.dataTransfer.files[0];
     handleUploadInput(files);
   };
+  const handleDeleteResource = async (id: string) => {
+    const isDeleted = await deleteStudentDocument(id);
+
+    if (isDeleted) {
+      toast({
+        position: 'top-right',
+        title: `item deleted successfully`,
+        status: 'success'
+      });
+      fetchPlanResources(selectedPlanId);
+    } else {
+      toast({
+        position: 'top-right',
+        title: `Failed to delete item`,
+        status: 'error'
+      });
+    }
+  };
+
   const isYouTubeLink = (url) => {
     const youtubeRegex =
       /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
@@ -251,9 +295,30 @@ const ResourceModal = ({
       ? `https://www.youtube.com/embed/${videoIdMatch[1]}`
       : null;
   };
+  const getYouTubeThumbnail = (url) => {
+    const videoId = url.split('v=')[1];
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  };
+  const resetFields = () => {
+    setNewTitle('');
+    setYoutubeUrl('');
+    setSelectedVideo('');
+  };
+
+  useEffect(() => {
+    resetFields();
+  }, []);
+  console.log(selectedVideo);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        setSelectedVideo('');
+        onClose();
+      }}
+      size="3xl"
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -335,247 +400,280 @@ const ResourceModal = ({
                   borderRadius={10}
                   borderWidth="1px"
                   borderColor="#EEEFF1"
-                  justifyContent="center"
-                  alignItems="center"
                   my={4}
-                  overflowY={'auto'}
                 >
-                  <Flex>
-                    {' '}
-                    <Text
-                      color="#6E7682"
-                      fontSize="12px"
-                      fontWeight="400"
-                      wordBreak={'break-word'}
-                      textTransform="uppercase"
-                    >
-                      Lecture
-                    </Text>
-                    <Spacer />{' '}
-                    {/* {isTutor && (
-                      <Box
-                        display={'flex'}
-                        alignItems={'center'}
-                        gap={1}
-                        _hover={{ cursor: 'pointer' }}
-                        cursor="pointer"
-                      >
-                        <label htmlFor={`videoInput`}>
-                          <Icon as={FaVideo} boxSize={3} mx={2} />
-                          Update Video
-                        </label>
-                        <input
-                          type="file"
-                          id={`videoInput`}
-                          accept="video/*"
-                          style={{ display: 'none' }}
-                          // onChange={(e) =>
-                          //   handleUploadTopicFile(topicIndex, e.target.files[0])
-                          // }
-                        />
-                      </Box>
-                    )} */}
-                  </Flex>
+                  <Box
+                    p={2}
+                    // borderWidth="1px"
+                    // borderRadius={10}
+                    overflowY={'auto'}
+                    mb={6}
+                  >
+                    {!isAddNewOpened && (
+                      <Flex>
+                        <Text
+                          color="#6E7682"
+                          fontSize="12px"
+                          fontWeight="400"
+                          wordBreak={'break-word'}
+                          textTransform="uppercase"
+                        >
+                          {selectedVideo?.title}
+                        </Text>
+                        <Spacer />
+                      </Flex>
+                    )}
 
-                  <Center position="relative" borderRadius={10} my={2}>
-                    {!isAddNewOpened ? (
-                      <>
-                        {' '}
-                        <Box
-                          h={{ base: '350px', md: '350px' }}
-                          w={{ base: 'full', md: 'full' }}
-                        >
-                          {isYouTubeLink(
-                            findLectureByTopic(state.selectedTopic)[0]
-                              ?.documentUrl
-                          ) ? (
-                            <div
-                              style={{
-                                position: 'relative',
-                                width: '100%',
-                                height: '0',
-                                paddingBottom: '56.25%'
-                              }}
-                            >
-                              <iframe
-                                title="YouTube Video"
-                                src={convertToEmbedLink(
-                                  findLectureByTopic(state.selectedTopic)[0]
-                                    ?.documentUrl
-                                )}
-                                frameBorder="0"
-                                allowFullScreen
+                    <Center position="relative" borderRadius={10} my={2}>
+                      {!isAddNewOpened ? (
+                        <>
+                          <Box
+                            h={{ base: '350px', md: '350px' }}
+                            w={{ base: 'full', md: 'full' }}
+                          >
+                            {isYouTubeLink(selectedVideo?.documentUrl) ? (
+                              <div
                                 style={{
-                                  position: 'absolute',
+                                  position: 'relative',
                                   width: '100%',
-                                  height: '100%',
-                                  top: '0',
-                                  left: '0'
+                                  height: '0',
+                                  paddingBottom: '56.25%'
                                 }}
-                              ></iframe>
-                            </div>
-                          ) : (
-                            <video
-                              title="tutor-video"
-                              controls
-                              onPlay={() => startLecture(topicId)}
-                              onEnded={() => {
-                                console.log('ended');
-                                stopLecture(topicId);
-                              }}
-                              style={{
-                                borderRadius: 10,
-                                width: '100%',
-                                height: '100%'
-                              }}
-                            >
-                              <source
-                                src={
-                                  findLectureByTopic(state.selectedTopic)[0]
-                                    ?.documentUrl
-                                }
-                                type="video/mp4"
+                              >
+                                <iframe
+                                  key={selectedVideo?._id}
+                                  title="YouTube Video"
+                                  src={convertToEmbedLink(
+                                    selectedVideo?.documentUrl
+                                  )}
+                                  frameBorder="0"
+                                  allowFullScreen
+                                  style={{
+                                    position: 'absolute',
+                                    width: '100%',
+                                    height: '100%',
+                                    top: '0',
+                                    left: '0'
+                                  }}
+                                ></iframe>
+                              </div>
+                            ) : (
+                              <video
+                                key={selectedVideo?._id}
+                                title="tutor-video"
+                                controls
+                                onPlay={() => startLecture(topicId)}
+                                onEnded={() => stopLecture(topicId)}
+                                style={{
+                                  borderRadius: 10,
+                                  width: '100%',
+                                  height: '100%'
+                                }}
+                              >
+                                <source
+                                  src={selectedVideo?.documentUrl}
+                                  type="video/mp4"
+                                />
+                                Your browser does not support the video tag.
+                              </video>
+                            )}
+                          </Box>
+                          <Center
+                            color="white"
+                            display={vidOverlay ? 'flex' : 'none'}
+                            position={'absolute'}
+                            bg="#0D1926"
+                            opacity={'75%'}
+                            boxSize="full"
+                          >
+                            <VStack>
+                              <BiPlayCircle
+                                onClick={() => setVidOverlay(false)}
+                                size={'50px'}
                               />
-                              Your browser does not support the video tag.
-                            </video>
-                          )}
-                        </Box>
-                        {/* </AspectRatio> */}
-                        <Center
-                          color="white"
-                          display={vidOverlay ? 'flex' : 'none'}
-                          position={'absolute'}
-                          bg="#0D1926"
-                          opacity={'75%'}
-                          boxSize="full"
-                        >
-                          <VStack>
-                            <BiPlayCircle
-                              onClick={() => setVidOverlay(false)}
-                              size={'50px'}
-                            />
-                            <Text display={'inline'}> play video</Text>
-                          </VStack>
-                        </Center>
-                      </>
-                    ) : (
-                      <div className="flex flex-col gap-4 w-full">
-                        <Input
-                          placeholder="video title"
-                          value={newTitle}
-                          onChange={(e) => setNewTitle(e.target.value)}
-                        />{' '}
-                        <InputGroup>
-                          <InputLeftAddon>https://youtube.com/</InputLeftAddon>
+                              <Text display={'inline'}>play video</Text>
+                            </VStack>
+                          </Center>
+                        </>
+                      ) : (
+                        <div className="flex flex-col gap-4 w-full">
                           <Input
-                            placeholder="watch?v=abcdefghjj"
-                            value={youtubeUrl}
-                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                            placeholder="video title"
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
                           />
-                          {/* <InputRightAddon>.com</InputRightAddon> */}
-                        </InputGroup>
-                        <p className="text-center">or</p>
-                        <Center
-                          w="full"
-                          minH="65px"
-                          my={3}
-                          p={2}
-                          border="2px"
-                          borderColor={isDragOver ? 'gray.600' : 'gray.300'}
-                          borderStyle="dashed"
-                          rounded="lg"
-                          cursor="pointer"
-                          bg={isDragOver ? 'gray.600' : 'gray.50'}
-                          color={isDragOver ? 'white' : 'inherit'}
-                          onDragOver={(e) => handleDragEnter(e)}
-                          onDragEnter={(e) => handleDragEnter(e)}
-                          onDragLeave={(e) => handleDragLeave(e)}
-                          onDrop={(e) => handleDrop(e)}
-                          // onClick={clickInput}
-                        >
-                          <label htmlFor="file-upload">
-                            <Center flexDirection="column">
-                              {docLoading ? (
-                                <>
-                                  <Spinner /> Uploading..
-                                </>
-                              ) : fileName ? (
-                                <Flex>
-                                  <AttachmentIcon />{' '}
-                                  <FileName>{fileName}</FileName>
-                                </Flex>
-                              ) : (
-                                <Flex
-                                  direction={'column'}
-                                  alignItems={'center'}
-                                >
-                                  <RiUploadCloud2Fill
-                                    className="h-8 w-8"
-                                    color="gray.500"
-                                  />
-                                  <Text
-                                    mb="2"
-                                    fontSize="sm"
-                                    color={isDragOver ? 'white' : 'gray.500'}
-                                    fontWeight="semibold"
+                          <InputGroup>
+                            <InputLeftAddon>
+                              https://youtube.com/
+                            </InputLeftAddon>
+                            <Input
+                              placeholder="watch?v=abcdefghjj"
+                              value={youtubeUrl}
+                              onChange={(e) => setYoutubeUrl(e.target.value)}
+                            />
+                          </InputGroup>
+                          <p className="text-center">or</p>
+                          <Center
+                            w="full"
+                            minH="65px"
+                            my={3}
+                            p={2}
+                            border="2px"
+                            borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                            borderStyle="dashed"
+                            rounded="lg"
+                            cursor="pointer"
+                            bg={isDragOver ? 'gray.600' : 'gray.50'}
+                            color={isDragOver ? 'white' : 'inherit'}
+                            onDragOver={(e) => handleDragEnter(e)}
+                            onDragEnter={(e) => handleDragEnter(e)}
+                            onDragLeave={(e) => handleDragLeave(e)}
+                            onDrop={(e) => handleDrop(e)}
+                          >
+                            <label htmlFor="file-upload">
+                              <Center flexDirection="column">
+                                {docLoading ? (
+                                  <>
+                                    <Spinner /> Uploading..
+                                  </>
+                                ) : fileName ? (
+                                  <Flex>
+                                    <AttachmentIcon /> <span>{fileName}</span>
+                                  </Flex>
+                                ) : (
+                                  <Flex
+                                    direction={'column'}
+                                    alignItems={'center'}
                                   >
-                                    Click to upload or drag and drop
-                                  </Text>
-                                  <PDFTextContainer>
+                                    <RiUploadCloud2Fill
+                                      className="h-8 w-8"
+                                      color="gray.500"
+                                    />
+                                    <Text
+                                      mb="2"
+                                      fontSize="sm"
+                                      color={isDragOver ? 'white' : 'gray.500'}
+                                      fontWeight="semibold"
+                                    >
+                                      Click to upload or drag and drop
+                                    </Text>
                                     <Text
                                       fontSize="xs"
                                       color={isDragOver ? 'white' : 'gray.500'}
                                     >
                                       Video (MAX: 500 MB)
                                     </Text>
-                                  </PDFTextContainer>
-                                </Flex>
-                              )}
-                            </Center>
-                          </label>
-                          <input
-                            type="file"
-                            accept="video/*"
-                            // accept="application/pdf"
-                            className="hidden"
-                            id="file-upload"
-                            ref={inputRef}
-                            onChange={(e) =>
-                              handleUploadInput(e.target.files[0])
-                            }
-                          />
-                        </Center>
-                        <Flex className=" gap-2 justify-end">
-                          {' '}
-                          <Button
-                            className=""
-                            onClick={() => setIsAddNewOpened(false)}
+                                  </Flex>
+                                )}
+                              </Center>
+                            </label>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              className="hidden"
+                              id="file-upload"
+                              ref={inputRef}
+                              onChange={(e) =>
+                                handleUploadInput(e.target.files[0])
+                              }
+                            />
+                          </Center>
+                          <Flex className="gap-2 justify-end">
+                            <Button onClick={() => setIsAddNewOpened(false)}>
+                              Cancel
+                            </Button>
+                            <Button
+                              isDisabled={
+                                docLoading ||
+                                !newTitle ||
+                                (!newUrl && !youtubeUrl)
+                              }
+                              isLoading={isLoading}
+                              onClick={() =>
+                                saveDocumentAndStoreStudyPlan(
+                                  newUrl
+                                    ? newUrl
+                                    : `https://www.youtube.com/${youtubeUrl}`,
+                                  newTitle,
+                                  'lecture'
+                                )
+                              }
+                            >
+                              Update
+                            </Button>
+                          </Flex>
+                        </div>
+                      )}
+                    </Center>
+                  </Box>
+
+                  <Grid
+                    templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
+                    gap={4}
+                  >
+                    {findLectureByTopic(state.selectedTopic).map(
+                      (lecture, index) => (
+                        <Box
+                          key={lecture._id}
+                          cursor="pointer"
+                          onClick={() => handleVideoSelect(lecture)}
+                          borderWidth={
+                            selectedVideo === lecture ? '2px' : '1px'
+                          }
+                          borderColor={
+                            selectedVideo === lecture ? 'blue.500' : '#EEEFF1'
+                          }
+                          p={2}
+                          borderRadius={10}
+                        >
+                          <Flex
+                            justifyContent="space-between"
+                            alignItems="center"
+                            alignContent={'center'}
+                            color="#6E7682"
                           >
-                            Cancel
-                          </Button>{' '}
-                          <Button
-                            isDisabled={
-                              docLoading ||
-                              !newTitle ||
-                              (!newUrl && !youtubeUrl)
-                            }
-                            isLoading={isLoading}
-                            onClick={() =>
-                              saveDocumentAndStoreStudyPlan(
-                                newUrl
-                                  ? newUrl
-                                  : `https://www.youtube.com/${youtubeUrl}`,
-                                newTitle,
-                                'lecture'
-                              )
-                            }
-                          >
-                            Update
-                          </Button>
-                        </Flex>
-                      </div>
+                            <Text
+                              fontSize="12px"
+                              fontWeight="400"
+                              wordBreak={'break-word'}
+                              textTransform="uppercase"
+                            >
+                              {textTruncate(lecture.title, 28)}
+                            </Text>
+                            <IconButton
+                              aria-label="Delete video"
+                              cursor={'pointer'}
+                              icon={<BiTrash />}
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteResource(lecture._id);
+                              }}
+                            />
+                          </Flex>
+                          {isYouTubeLink(lecture?.documentUrl) ? (
+                            <>
+                              <img
+                                title="lecture-thumbnail"
+                                style={{ borderRadius: 10, width: '100%' }}
+                                src={getYouTubeThumbnail(lecture?.documentUrl)}
+                                alt="lecture-thumbnail"
+                              />
+                            </>
+                          ) : (
+                            <video
+                              title="lecture-thumbnail"
+                              style={{ borderRadius: 10, width: '100%' }}
+                              src={lecture?.documentUrl}
+                              // type="video/mp4"
+                              muted
+                            />
+                          )}
+                        </Box>
+                      )
                     )}
-                  </Center>
+                  </Grid>
                 </Box>
               </TabPanel>
               <TabPanel>
