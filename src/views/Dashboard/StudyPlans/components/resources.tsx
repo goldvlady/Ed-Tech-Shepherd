@@ -302,6 +302,7 @@ const ResourceModal = ({
   const resetFields = () => {
     setNewTitle('');
     setYoutubeUrl('');
+    setSelectedVideo('');
   };
 
   useEffect(() => {
@@ -310,7 +311,14 @@ const ResourceModal = ({
   console.log(selectedVideo);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="3xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        setSelectedVideo('');
+        onClose();
+      }}
+      size="3xl"
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>

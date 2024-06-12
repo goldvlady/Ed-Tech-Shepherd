@@ -378,6 +378,29 @@ export default function Layout({ children, className }) {
               );
             })}
           </Box>
+          {user.school && (
+            <Flex
+              gap={4}
+              alignItems="center"
+              textAlign="center"
+              bg="#f1f5f9"
+              p={3}
+              my={4}
+              borderRadius={8}
+              direction="column"
+              boxShadow="lg" // Added drop shadow
+            >
+              <Image
+                src="/images/SeqHub_Logo.png"
+                alt="School Logo"
+                borderRadius="md"
+              />
+              <Text fontWeight="bold" fontSize="lg">
+                {user.school.name}
+              </Text>
+            </Flex>
+          )}
+
           <Box className="border-t pt-4">
             <Link
               to="tutordashboard/account-settings"

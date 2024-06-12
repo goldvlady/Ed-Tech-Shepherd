@@ -105,7 +105,7 @@ const CreatePassword: React.FC = () => {
         <Heading mb={'12px'} as={'h3'} textAlign={'center'}>
           Create New Password
         </Heading>
-        {user && (
+        {user.school && (
           <Box
             mb={4}
             border="1px solid #E2E8F0"
