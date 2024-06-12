@@ -662,7 +662,7 @@ const FlashCardSetupInit = ({
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
-          isDisabled={isLoading || !isValid || isGenerating}
+          // isDisabled={isLoading || !isValid || isGenerating}
           colorScheme="primary"
           size="sm"
           ml="auto"
