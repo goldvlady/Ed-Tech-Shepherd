@@ -115,7 +115,7 @@ export default function Layout({ children, className }) {
   ].filter(Boolean);
   const [navigation, setNavigation] =
     useState<NavigationItem[]>(dummyNavigation);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
