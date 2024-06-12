@@ -11,7 +11,7 @@ type BillingModalProps = {
 };
 const BillingModal = ({ open, setOpen }: BillingModalProps) => {
   const user = useUserStore((state) => state.user);
-
+  console.log(user);
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent className="bg-white w-screen max-w-[80vw]">
@@ -26,6 +26,10 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
 };
 
 function PriceCards({ user }: { user: User }) {
+  const currentPlan = plans.find(
+    (plan) => plan.priceId === user.stripeSubscription?.priceId
+  );
+  console.log(currentPlan);
   return (
     <div className="flex gap-3">
       {plans.map((plan) => (
@@ -72,7 +76,7 @@ function PriceCards({ user }: { user: User }) {
             onClick={() =>
               (window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`)
             }
-            disabled={plan.tier === 'free'}
+            disabled={user.stripeSubscription?.priceId === plan.priceId}
             className={cn(
               'mt-1.5 p-2 text-sm rounded-md border border-black/10 bg-white',
               plan.recurrence === 'semester' && 'bg-blue-500 text-white'
@@ -83,6 +87,8 @@ function PriceCards({ user }: { user: User }) {
               ? 'Subscribed'
               : plan.tier === 'free'
               ? 'Downgrade to Free'
+              : currentPlan && plan.price > currentPlan.price
+              ? `Upgrade to ${capitalize(plan.recurrence + 'ly')}`
               : 'Subscribe Now'}
           </button>
         </div>
