@@ -99,7 +99,7 @@ const UploadQuizForm = ({
   const { hasActiveSubscription, user, activeSubscription, quizCountLimit } =
     userStore();
 
-  const { watchJobs, clearJobs } = useQuizzesQuestionsJob(user?._id);
+  const { watchJobs } = useQuizzesQuestionsJob(user?._id);
 
   const { saveDocument } = documentStore();
 
@@ -114,7 +114,8 @@ const UploadQuizForm = ({
   const [searchValue, setSearchValue] = useState('');
 
   const handleGenerateQuestions = async (
-    data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>
+    data: Prettify<LocalDummyData & { lang: typeof preferredLanguage }>,
+    callback: (error: unknown, result?: any) => void = () => null
   ) => {
     const { lang, ...d } = data;
     try {
@@ -130,15 +131,20 @@ const UploadQuizForm = ({
       if (resultJson.statusCode > 399) {
         throw new Error(resultJson.body);
       }
+
+      callback?.(null, resultJson?.body);
+      return resultJson;
     } catch (error) {
       toast({
         position: 'top-right',
         title: `failed to generate quizzes job `,
         status: 'error'
       });
-      setIsUploadingFile(false);
-      handleIsLoadingQuizzes(false);
-      handleSetUploadingState(false);
+      callback?.(error);
+    } finally {
+      // setIsUploadingFile(false);
+      // handleIsLoadingQuizzes(false);
+      // handleSetUploadingState(false);
     }
   };
 
@@ -289,6 +295,7 @@ const UploadQuizForm = ({
 
         localData.count = quizzesRemaining;
       }
+
       if (isNil(ingestedDocument)) {
         const title = getFileNameFromUrl(localData?.fileUrl);
         const response = await saveDocument(
@@ -310,68 +317,94 @@ const UploadQuizForm = ({
         );
         await fileProcessor.process();
 
-        await handleGenerateQuestions({
-          ...(omit(localData, [
-            'studentID',
-            'fileUrl',
-            'contentType',
-            'documentID',
-            'ingestDoc'
-          ]) as any),
-          lang: preferredLanguage
-        });
-      } else {
-        await handleGenerateQuestions({
-          ...(omit(localData, [
-            'studentID',
-            'fileUrl',
-            'contentType',
-            'documentID',
-            'ingestDoc'
-          ]) as any),
-          studentId: user._id,
-          documentId: ingestedDocument?.value,
-          lang: preferredLanguage
-        });
-      }
-      watchJobs(
-        isNil(ingestedDocument)
-          ? localData?.documentId
-          : ingestedDocument?.keywords,
-        async (error, quizQuestions) => {
-          if (error) {
-            toast({
-              position: 'top-right',
-              title: `failed to generate quizzes `,
-              status: 'error'
-            });
-
-            return;
-          }
-
-          await handleFormatQuizQuestionCallback(
-            quizQuestions,
-            merge({}, localData, {
-              level: localData?.difficulty ?? localData?.level
-            }),
-            () => {
-              setIsUploadingFile(false);
-              setIsGenerating(false);
-              handleIsLoadingQuizzes(false);
-              handleSetUploadingState(false);
-              setTimeout(
-                () =>
-                  clearJobs(
-                    isNil(ingestedDocument)
-                      ? localData?.documentId
-                      : (ingestedDocument?.keywords as string)
-                  ),
-                5000
-              );
+        await handleGenerateQuestions(
+          {
+            ...(omit(localData, [
+              'studentID',
+              'fileUrl',
+              'contentType',
+              'documentID',
+              'ingestDoc'
+            ]) as any),
+            lang: preferredLanguage
+          },
+          (error, result) => {
+            if (error) {
+              return;
             }
-          );
-        }
-      );
+            watchJobs(result?.data?.jobId, async (error, quizQuestions) => {
+              if (error) {
+                toast({
+                  position: 'top-right',
+                  title: `failed to generate quizzes `,
+                  status: 'error'
+                });
+
+                return;
+              }
+
+              await handleFormatQuizQuestionCallback(
+                quizQuestions,
+                merge({}, localData, {
+                  level: localData?.difficulty ?? localData?.level
+                }),
+                () => {
+                  setIsUploadingFile(false);
+                  setIsGenerating(false);
+                  handleIsLoadingQuizzes(false);
+                  handleSetUploadingState(false);
+                  // setTimeout(() => clearJobs(result?.data?.jobId), 5000);
+                }
+              );
+            });
+          }
+        );
+      } else {
+        await handleGenerateQuestions(
+          {
+            ...(omit(localData, [
+              'studentID',
+              'fileUrl',
+              'contentType',
+              'documentID',
+              'ingestDoc'
+            ]) as any),
+            studentId: user._id,
+            documentId: ingestedDocument?.value,
+            lang: preferredLanguage
+          },
+          (error, result) => {
+            if (error) {
+              return;
+            }
+            watchJobs(result?.data?.jobId, async (error, quizQuestions) => {
+              if (error) {
+                toast({
+                  position: 'top-right',
+                  title: `failed to generate quizzes `,
+                  status: 'error'
+                });
+
+                return;
+              }
+
+              await handleFormatQuizQuestionCallback(
+                quizQuestions,
+                merge({}, localData, {
+                  level: localData?.difficulty ?? localData?.level
+                }),
+                () => {
+                  setIsUploadingFile(false);
+                  setIsGenerating(false);
+                  handleIsLoadingQuizzes(false);
+                  handleSetUploadingState(false);
+                  // setTimeout(() => clearJobs(result?.data?.jobId), 5000);
+                }
+              );
+            });
+          }
+        );
+      }
     } catch (error) {
       toast({
         position: 'top-right',
