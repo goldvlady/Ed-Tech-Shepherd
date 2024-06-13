@@ -603,13 +603,7 @@ export interface QuizQuestion {
   totalSteps?: number;
   id?: string | number;
   _id?: string | number;
-  difficulty?:
-    | 'kindergarten'
-    | 'high school'
-    | 'college'
-    | 'PhD'
-    | 'genius'
-    | 'phd';
+  difficulty?: 'Very Easy' | 'Medium' | 'Hard' | 'Very Hard';
 }
 
 export interface QuizData {
@@ -669,3 +663,10 @@ export interface StudyPlanTopicDocumentPayload {
   topicId: string;
   documentId: string;
 }
+
+export type StoreQuizScoreType = {
+  questionIdx: number;
+  score: 'true' | 'false' | 'pending' | 'null' | boolean | null;
+  selectedOptions: string[];
+  questionId: string | number;
+};

@@ -17,7 +17,7 @@ import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-win
 import ApiService from '../services/ApiService';
 import Home from '../views/Home';
 import TutorDashboardLayout from '../components/Layout';
-import TutorDashboard from '../views/TutorDashboard/index';
+//import TutorDashboard from '../views/TutorDashboard/index';
 import DashboardLayout from '../views/Dashboard/layout';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
@@ -52,7 +52,7 @@ const TakeQuizzes = lazy(() => import('../views/Dashboard/Quizzes/take'));
 const Tutor = lazy(() => import('../views/Dashboard/Tutor'));
 //const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
-//const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
+const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
 const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
 const Courses = lazy(() => import('../views/TutorDashboard/Courses/index'));
 const Performance = lazy(

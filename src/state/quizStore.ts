@@ -61,6 +61,8 @@ type Store = {
       questions: QuizQuestion[];
       tags: string[];
       canEdit?: boolean;
+      level?: string;
+      grade?: string;
     },
     cb?: (err: any | boolean, res?: any) => void
   ) => void;
@@ -269,14 +271,16 @@ export default create<Store>((set) => ({
     set({ isLoading: value });
   },
   handleCreateQuiz: async (
-    { questions, title, tags },
+    { questions, title, tags, level, grade },
     callback = (err: any | boolean, res?: any) => null
   ) => {
     try {
       const result = await ApiService.createQuiz({
         questions,
         title,
-        tags
+        tags,
+        level,
+        grade
       });
       if (result?.status > 399) {
         throw new Error('failed to create quiz');
