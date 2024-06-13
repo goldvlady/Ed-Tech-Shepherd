@@ -96,7 +96,6 @@ const useUserStore = create<Store>((set, get) => ({
       userData.mobileSubscription &&
       userData.mobileSubscription.status === 'active'
     );
-    console.log(userData);
 
     const hasActiveSubscription =
       hasActiveWebSubscription || hasActiveMobileSubscription;
