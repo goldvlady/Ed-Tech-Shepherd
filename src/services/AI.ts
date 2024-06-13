@@ -12,6 +12,11 @@ type DocumentType = {
   language: (typeof languages)[number];
 };
 
+interface ChatCompletionRequestMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 export const fetchStudentDocuments = async (studentId: string) => {
   return await fetch(`${AI_API}/notes?studentId=${studentId}`, {
     headers: {
@@ -569,4 +574,42 @@ export const generateStudyPlan = async (data: {
     const studyPlanResponse = await response.json();
     return studyPlanResponse;
   }
+};
+
+export const getChatGPTResponse = async (
+  firebaseId: string,
+  messages: ChatCompletionRequestMessage[],
+  question_id: string
+) => {
+  const response = await fetch(`${AI_API}/quizzes/getChatGPTResponse`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      firebaseId: firebaseId,
+      messages: messages,
+      question_id: question_id
+    })
+  });
+
+  return response;
+};
+
+export const getChatHistory = async (
+  firebaseId: string,
+  question_id: string
+) => {
+  return fetch(`${AI_API}/quizzes/getChatHistory`, {
+    method: 'POST',
+    headers: {
+      'x-shepherd-header': HEADER_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      firebaseId: firebaseId,
+      question_id: question_id
+    })
+  });
 };
