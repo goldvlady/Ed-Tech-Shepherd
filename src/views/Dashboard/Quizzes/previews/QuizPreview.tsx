@@ -3,6 +3,7 @@ import {
   QuizResultModal
 } from '../../../../components/quizDecks';
 import ApiService from '../../../../services/ApiService';
+import { getChatGPTResponse, getChatHistory } from '../../../../services/AI';
 import {
   MULTIPLE_CHOICE_MULTI,
   MULTIPLE_CHOICE_SINGLE,
@@ -111,7 +112,7 @@ const ChatBox = ({
         (message) => message.role && message.content
       );
 
-      const assistantResponse = await ApiService.getChatGPTResponse(
+      const assistantResponse = await getChatGPTResponse(
         user.firebaseId,
         validMessages,
         String(question.id)
@@ -1012,10 +1013,7 @@ const QuizPreviewer = ({
     question: QuizQuestion,
     quizScore: StoreQuizScoreType
   ) => {
-    const response = await ApiService.getChatHistory(
-      user.firebaseId,
-      String(question.id)
-    );
+    const response = await getChatHistory(user.firebaseId, String(question.id));
     const chatHistory: any = await response.json();
 
     setCurrentQuestion(question);

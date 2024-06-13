@@ -25,12 +25,6 @@ import {
 } from './AI';
 
 // Suppose these functions are in 'apiFunctions.ts' file
-
-interface ChatCompletionRequestMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
   static baseAiEndpoint = AI_API;
@@ -1431,45 +1425,6 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(data)
     });
-  };
-  static getChatGPTResponse = async (
-    firebaseId: string,
-    messages: ChatCompletionRequestMessage[],
-    question_id: string
-  ) => {
-    return doFetch(
-      `${AI_API}/quizzes/getChatGPTResponse`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          firebaseId: firebaseId,
-          messages: messages,
-          question_id: question_id
-        })
-      },
-      false,
-      {
-        'x-shepherd-header': HEADER_KEY,
-        'Content-Type': 'application/json'
-      }
-    );
-  };
-  static getChatHistory = async (firebaseId: string, question_id: string) => {
-    return doFetch(
-      `${AI_API}/quizzes/getChatHistory`,
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          firebaseId: firebaseId,
-          question_id: question_id
-        })
-      },
-      false,
-      {
-        'x-shepherd-header': HEADER_KEY,
-        'Content-Type': 'application/json'
-      }
-    );
   };
 }
 
