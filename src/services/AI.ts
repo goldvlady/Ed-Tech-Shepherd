@@ -2,9 +2,9 @@ import { AI_API, HEADER_KEY } from '../config';
 import { languages } from '../helpers';
 import { AIServiceResponse } from '../views/Dashboard/Notes/types';
 import { isNil } from 'lodash';
-import { usePostHog } from 'posthog-js/react';
+// import { usePostHog } from 'posthog-js/react';
 
-const posthog = usePostHog();
+// const posthog = usePostHog();
 
 type DocumentType = {
   topic?: string;
@@ -100,10 +100,10 @@ export const chatWithDoc = async ({
   query: string;
   documentId: string;
 }) => {
-  posthog?.capture('client_docchat_queried', {
-    studentId: studentId,
-    query: query
-  });
+  // posthog?.capture('client_docchat_queried', {
+  //   studentId: studentId,
+  //   query: query
+  // });
   const request = await fetch(`${AI_API}/notes/chat`, {
     method: 'POST',
     headers: {
@@ -121,7 +121,7 @@ export const chatWithDoc = async ({
 };
 
 export const createDocchatFlashCards = async (data: DocumentType) => {
-  posthog?.capture('client_doc_flashcards_generated', { ...data });
+  // posthog?.capture('client_doc_flashcards_generated', { ...data });
   const request = await fetch(`https://proxinho.fly.dev`, {
     method: 'POST',
     headers: {
@@ -141,11 +141,11 @@ export const chatHomeworkHelp = async ({
   query: string;
   topic: string;
 }) => {
-  posthog?.capture('client_aitutor_queried', {
-    studentId: studentId,
-    query: query,
-    topic: topic
-  });
+  // posthog?.capture('client_aitutor_queried', {
+  //   studentId: studentId,
+  //   query: query,
+  //   topic: topic
+  // });
   const request = await fetch(`${AI_API}/homework-help/chat`, {
     method: 'POST',
     headers: {
