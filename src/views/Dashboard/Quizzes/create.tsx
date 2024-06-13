@@ -63,7 +63,11 @@ import {
   unionBy
 } from 'lodash';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useBeforeUnload,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
 import './styles.css';
 import { HeaderButton, HeaderButtonText } from './styles';
 import clsx from 'clsx';
@@ -214,9 +218,18 @@ const CreateQuizPage = () => {
   //   }
   // }, [user.subscription, hasActiveSubscription]);
 
+  useBeforeUnload(
+    React.useCallback(() => {
+      // setQuestions([]);
+      // setQuizId(null);
+      // setTitle(null);
+      // setTags([]);
+      loadQuiz(null);
+    }, [])
+  );
+
   useEffect(() => {
     const queryQuizId = searchParams.get('quiz_id');
-    console.log(quiz, queryQuizId);
 
     if (isNil(quiz) && !isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {
