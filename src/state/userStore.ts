@@ -96,6 +96,7 @@ const useUserStore = create<Store>((set, get) => ({
       userData.mobileSubscription &&
       userData.mobileSubscription.status === 'active'
     );
+    console.log(userData);
 
     const hasActiveSubscription =
       hasActiveWebSubscription || hasActiveMobileSubscription;
@@ -106,8 +107,9 @@ const useUserStore = create<Store>((set, get) => ({
       ? userData.mobileSubscription
       : userData.subscription;
 
-    const fileSizeLimitMB =
-      activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
+    const fileSizeLimitMB = userData.school
+      ? 50
+      : activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
     const flashcardCountLimit = hasActiveSubscription

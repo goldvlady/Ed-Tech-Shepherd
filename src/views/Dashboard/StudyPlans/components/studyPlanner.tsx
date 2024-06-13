@@ -111,9 +111,9 @@ const StudyPlanner = ({
 
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-    if (file?.size > 10000000) {
+    if (file.size > fileSizeLimitBytes * 10) {
       toast({
-        title: 'Please upload a file under 10MB',
+        title: 'Please upload a file under 100MB',
         status: 'error',
         position: 'top',
         isClosable: true
@@ -252,6 +252,8 @@ const StudyPlanner = ({
         }
       },
       (error) => {
+        console.log(error);
+
         callback(error);
       }
     );
