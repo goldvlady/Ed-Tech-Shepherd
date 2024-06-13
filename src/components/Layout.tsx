@@ -58,6 +58,7 @@ import { useLocation, Link, useNavigate, Outlet } from 'react-router-dom';
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import { PiClipboardTextLight } from 'react-icons/pi';
 import BillingModal from './BillingModal';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 
 interface NavigationItem {
   name: string;
@@ -123,7 +124,7 @@ export default function Layout({ children, className }) {
   const { notifications, hasUnreadNotification, markAllAsRead } =
     useNotifications(userId);
   const auth = getAuth();
-
+  const toast = useCustomToast();
   const activateProfileSwitchModal = () => {
     setToggleProfileSwitchModal(true);
   };
@@ -629,8 +630,24 @@ export default function Layout({ children, className }) {
                         </Text>
                       </Flex>
                     </MenuItem>
-                    {user.userRole === 'student' ? (
-                      <MenuItem p={2} m={1} onClick={() => setOpen(true)}>
+                    {user?.userRole === 'student' ? (
+                      <MenuItem
+                        p={2}
+                        m={1}
+                        onClick={() => {
+                          if (user.isMobileSubscription) {
+                            toast({
+                              position: 'top-right',
+                              title: `View in Mobile App`,
+                              description:
+                                "You've already subscribed from our mobile app! Make changes to your plan from the app.",
+                              status: 'success'
+                            });
+                            return;
+                          }
+                          setOpen(true);
+                        }}
+                      >
                         <Flex alignItems="center" gap={2}>
                           <Center
                             borderRadius="50%"

@@ -89,6 +89,7 @@ import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
 import BillingModal from '../../components/BillingModal';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
 
 interface LinkItemProps {
   name: string;
@@ -275,7 +276,7 @@ const MobileNav = ({ onOpen, setOpen, ...rest }: MobileProps) => {
 
   const { notifications, hasUnreadNotification, markAllAsRead, markAsRead } =
     useNotifications(userId);
-
+  const toast = useCustomToast();
   const handleSignOut = () => {
     signOut(auth).then(() => {
       sessionStorage.clear();
@@ -567,8 +568,24 @@ const MobileNav = ({ onOpen, setOpen, ...rest }: MobileProps) => {
                     </Text>
                   </Flex>
                 </MenuItem>
-                {user.userRole === 'student' ? (
-                  <MenuItem p={2} m={1} onClick={() => setOpen(true)}>
+                {user?.userRole === 'student' ? (
+                  <MenuItem
+                    p={2}
+                    m={1}
+                    onClick={() => {
+                      if (user.isMobileSubscription) {
+                        toast({
+                          position: 'top-right',
+                          title: `View in Mobile App`,
+                          description:
+                            "You've already subscribed from our mobile app! Make changes to your plan from the app.",
+                          status: 'success'
+                        });
+                        return;
+                      }
+                      setOpen(true);
+                    }}
+                  >
                     <Flex alignItems="center" gap={2}>
                       <Center
                         borderRadius="50%"
