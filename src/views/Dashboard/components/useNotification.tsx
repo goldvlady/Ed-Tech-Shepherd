@@ -9,11 +9,17 @@ import {
   DatabaseReference
 } from 'firebase/database';
 import { useEffect, useState, useCallback } from 'react';
+import studyPlanStore from '../../../state/studyPlanStore';
 
 type OfferAttributes = Record<'offerId', unknown>;
 type BountyAttributes = Record<'bountyId', unknown>;
 type FlashcardAttributes = Record<'flashcardId', unknown>;
-type Attributes = OfferAttributes | BountyAttributes | FlashcardAttributes;
+type StudyPlanAttributes = Record<'studyPlanId', any>;
+type Attributes =
+  | OfferAttributes
+  | BountyAttributes
+  | FlashcardAttributes
+  | StudyPlanAttributes;
 export interface UserNotification {
   user: string;
   text: string;
@@ -27,7 +33,7 @@ function useNotifications(userId: string) {
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [hasUnreadNotification, setHasUnreadNotification] =
     useState<boolean>(false);
-
+  const { fetchPlanResources } = studyPlanStore();
   useEffect(() => {
     const userNotificationsRef: DatabaseReference = ref(
       database,
@@ -61,6 +67,16 @@ function useNotifications(userId: string) {
 
       setHasUnreadNotification(unreadNotifications.length > 0);
       setNotifications(validNotifications);
+      // Check for the specific notification type and trigger refetch if it is unviewed
+      unreadNotifications.forEach((notification) => {
+        if (notification.type === 'ALL_STUDY_PLAN_TESTS_CREATED') {
+          const studyPlanAttributes =
+            notification.attributes as StudyPlanAttributes;
+          if (studyPlanAttributes && studyPlanAttributes.studyPlanId) {
+            fetchPlanResources(studyPlanAttributes.studyPlanId);
+          }
+        }
+      });
     };
     const unsubscribe = onValue(
       userNotificationsRef,
@@ -103,6 +119,7 @@ function useNotifications(userId: string) {
     });
     update(ref(database), updates);
   }, [userId, notifications]);
+  console.log(notifications);
 
   return {
     notifications,

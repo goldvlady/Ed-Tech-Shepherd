@@ -225,6 +225,7 @@ const FileUploadModal = ({
       message: 'Uploading... your document is being uploaded'
     }));
     setProgress(25);
+
     const uploadEmitter = uploadFile(file, {
       studentID: user._id, // Assuming user._id is always defined
       documentID: readableFileName // Assuming readableFileName is the file's name
