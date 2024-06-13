@@ -112,7 +112,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
         const response = await createFlashCard(data, 'manual');
         if (response) {
           if (response.status === 200) {
-            posthog?.capture('library_flashcard_saved', {
+            posthog?.capture('client_library_flashcard_created', {
               userId: user._id,
               ...data
             });
@@ -134,6 +134,10 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       } else {
         const response = await editFlashcard(formData.selectedDeckId, data);
         if (response) {
+          posthog?.capture('client_library_flashcard_updated', {
+            userId: user._id,
+            ...data
+          });
           toast({
             title: `${data.deckname} updated`,
             position: 'top-right',
