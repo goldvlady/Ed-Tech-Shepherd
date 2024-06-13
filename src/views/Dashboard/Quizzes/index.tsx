@@ -1080,7 +1080,7 @@ const Quizzes = () => {
                         color="#5E6164"
                         width={{ base: '100%', md: 'auto' }}
                       >
-                        Sortd By
+                        Sort By
                       </Text>
                       <FaCalendarAlt color="#96999C" size="12px" />
                     </Flex>
