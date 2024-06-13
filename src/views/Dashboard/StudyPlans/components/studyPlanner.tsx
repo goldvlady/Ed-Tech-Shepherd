@@ -111,7 +111,7 @@ const StudyPlanner = ({
 
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-    if (file.size > fileSizeLimitBytes * 10) {
+    if (file.size > fileSizeLimitBytes) {
       toast({
         title: 'Please upload a file under 100MB',
         status: 'error',
