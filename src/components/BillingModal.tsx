@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { plans } from '../helpers/plans';
 import { cn } from '../library/utils';
 import useUserStore from '../state/userStore';
 import { User } from '../types';
 import { Dialog, DialogClose, DialogContent, DialogTitle } from './ui/dialog';
 import { capitalize } from '../helpers';
+import ApiService from '../services/ApiService';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 type BillingModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const BillingModal = ({ open, setOpen }: BillingModalProps) => {
   const user = useUserStore((state) => state.user);
-  console.log(user);
+
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent className="bg-white w-screen max-w-[80vw]">
@@ -29,7 +31,8 @@ function PriceCards({ user }: { user: User }) {
   const currentPlan = plans.find(
     (plan) => plan.priceId === user.stripeSubscription?.priceId
   );
-  console.log(currentPlan);
+  const toast = useCustomToast();
+  const [loading, setLoading] = useState(false);
   return (
     <div className="flex gap-3">
       {plans.map((plan) => (
@@ -73,10 +76,40 @@ function PriceCards({ user }: { user: User }) {
             </div>
           </div>
           <button
-            onClick={() =>
-              (window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`)
+            onClick={async () => {
+              if (currentPlan && currentPlan.tier === 'free') {
+                setLoading(true);
+                try {
+                  const resp = await ApiService.downgradeSubscription({
+                    customerId: user.stripeSubscription.customerId,
+                    priceId: currentPlan.priceId
+                  });
+                  await resp.json();
+                  toast({
+                    position: 'top-right',
+                    title: `Downgrade to Free Successful`,
+                    description:
+                      'The downgrade will take effect at the end of your billing cycle',
+                    status: 'success'
+                  });
+                  setLoading(false);
+                  return;
+                } catch (error) {
+                  toast({
+                    position: 'top-right',
+                    title: `Downgrade to Free Failed`,
+                    description: 'Please Try Again',
+                    status: 'error'
+                  });
+                  setLoading(false);
+                  return;
+                }
+              }
+              window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
+            }}
+            disabled={
+              user.stripeSubscription?.priceId === plan.priceId || loading
             }
-            disabled={user.stripeSubscription?.priceId === plan.priceId}
             className={cn(
               'mt-1.5 p-2 text-sm rounded-md border border-black/10 bg-white',
               plan.recurrence === 'semester' && 'bg-blue-500 text-white'
