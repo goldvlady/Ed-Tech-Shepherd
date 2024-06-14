@@ -7,6 +7,7 @@ import { Dialog, DialogClose, DialogContent, DialogTitle } from './ui/dialog';
 import { capitalize } from '../helpers';
 import ApiService from '../services/ApiService';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
+import { CircleXIcon, ShieldCloseIcon } from 'lucide-react';
 type BillingModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +17,7 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogContent className="bg-white w-screen max-w-[80vw]">
+      <DialogContent className="bg-white w-screen  max-w-[98vw]">
         <DialogTitle className="text-lg text-center">
           Subscribe to Shepherd
         </DialogTitle>
@@ -37,7 +38,7 @@ function PriceCards({ user }: { user: User }) {
     <div className="flex gap-3">
       {plans.map((plan) => (
         <div
-          className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[295px]"
+          className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
           key={plan.price}
         >
           <h4 className="text-sm tracking-tight font-medium">
@@ -57,22 +58,86 @@ function PriceCards({ user }: { user: User }) {
               </span>
             )}
           </h2>
-          <div className="flex flex-col  text-sm  gap-1.5">
+          <div className="flex flex-col  text-xs  gap-1.5">
             <div className="flex justify-start items-start gap-1">
               <Check />
-              Up to {plan.tier === 'free' ? 20 : 100} flashcards
+              <span>
+                {plan.tier === 'free'
+                  ? '300 AI words / day'
+                  : 'Unlimited AI Words / day'}
+              </span>
             </div>
             <div className="flex items-start justify-start gap-1">
               <Check />
-              Up to {plan.tier === 'free' ? 20 : 100} quizzes
+              <span>
+                {plan.tier === 'free'
+                  ? '10 flashcards of 20 cards / month'
+                  : 'Unlimited flashcards'}
+              </span>
             </div>
             <div className="flex items-start justify-start whitespace-break-spaces gap-1">
               <Check />
-              Up to {plan.tier === 'free' ? 20 : 100} messages with AI tutor
+              <span>
+                {plan.tier === 'free'
+                  ? '10 quizzes of 20 questions / month'
+                  : 'Unlimited quizzes'}
+              </span>
             </div>
             <div className="flex items-start justify-start whitespace-break-spaces gap-1">
               <Check />
-              Up to {plan.tier === 'free' ? 20 : 100} messages with Docchat
+              <span>
+                {plan.tier === 'free'
+                  ? '1 study plan / topic / month'
+                  : 'Unlimited study plans / topic'}
+              </span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              <Check />
+              <span>
+                {plan.tier === 'free'
+                  ? '10 quizzes of 20 questions / month'
+                  : 'Unlimited quizzes'}
+              </span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              <Check />
+              <span>Unlimited manual everything</span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              <Check />
+              <span>
+                {plan.tier === 'free'
+                  ? '10 AI web searches / month'
+                  : 'Unlimited AI web searches / month'}
+              </span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              <Check className="w-5 h-5" />
+              <span>
+                {plan.tier === 'free'
+                  ? '6 hours of notes recording & transcribing / month'
+                  : 'Unlimited hours of notes recording & transcribing / month'}
+              </span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              <Check />
+              <span>
+                {plan.tier === 'free'
+                  ? 'Chat with 1 doc at a time'
+                  : 'Chat with unlimited docs at a time'}
+              </span>
+            </div>
+            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+              {plan.tier === 'free' ? (
+                <CircleXIcon stroke="red" width={15} height={15} />
+              ) : (
+                <Check />
+              )}
+              <span>
+                {plan.tier === 'free'
+                  ? 'No Access to AI assistants'
+                  : 'Unlimited access to AI assistants'}
+              </span>
             </div>
           </div>
           <button
@@ -111,7 +176,7 @@ function PriceCards({ user }: { user: User }) {
               user.stripeSubscription?.priceId === plan.priceId || loading
             }
             className={cn(
-              'mt-1.5 p-2 text-sm rounded-md border border-black/10 bg-white',
+              'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
               plan.recurrence === 'semester' && 'bg-blue-500 text-white'
             )}
           >
@@ -130,11 +195,12 @@ function PriceCards({ user }: { user: User }) {
   );
 }
 
-const Check = () => (
+const Check = ({ className }: { className?: string }) => (
   <svg
     width="15"
     height="15"
     viewBox="0 0 15 15"
+    className={className}
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
