@@ -113,7 +113,7 @@ const StudyPlanner = ({
     if (!file) return;
     if (file.size > fileSizeLimitBytes) {
       toast({
-        title: 'Please upload a file under 100MB',
+        title: `Please upload a file under ${fileSizeLimitMB}MB`,
         status: 'error',
         position: 'top',
         isClosable: true
