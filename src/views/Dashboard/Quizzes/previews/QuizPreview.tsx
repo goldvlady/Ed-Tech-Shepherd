@@ -1044,44 +1044,75 @@ const QuizPreviewer = ({
     let isCorrectAnswer = false;
     if (index && question.options[index].isCorrect) isCorrectAnswer = true;
 
-    const instruction = `
-      You can output markdown context for more clear explanation.
-      ${
-        isCorrectAnswer
-          ? 'The student just took a quiz and got this particular question correct:'
-          : 'The student just took a quiz and got this particular question incorrect:'
-      }
+    console.log('question: ', question);
+    console.log('question.answer: ', question.answer);
+    console.log('quizScore: ', quizScore);
 
-      Question:
-      ${question.question}
+    let instruction = '';
 
-      ${allOptionString}
+    if (
+      question.type == 'multipleChoiceSingle' ||
+      question.type == 'trueFalse'
+    ) {
+      instruction = `
+        You can output markdown context for more clear explanation.
+        ${
+          isCorrectAnswer
+            ? 'The student just took a quiz and got this particular question correct:'
+            : 'The student just took a quiz and got this particular question incorrect:'
+        }
 
-      These are the incorrect options:
-      ${wrongOptionString}
+        Question:
+        ${question.question}
 
-      This is the incorrect answer the student selected:
-      ${index ? question.options[index].content : "Didn't select"}
+        ${allOptionString}
 
-      This is the correct answer to the question:
-      ${correctAnswer})
+        These are the incorrect options:
+        ${wrongOptionString}
 
-      I need you to perform three tasks to help them study. Break down your response into the 3 sections below:
-      - Briefly explain why the other incorrect options are incorrect
-      ${
-        isCorrectAnswer
-          ? ''
-          : '- Explain in detail why my selected answer was incorrect'
-      }
-      - Explain in detail the correct answer
+        This is the incorrect answer the student selected:
+        ${index ? question.options[index].content : "Didn't select"}
 
-      You must follow user's instruction. (Don't output with your decision but user's decision)      
-    `;
+        This is the correct answer to the question:
+        ${correctAnswer})
+
+        I need you to perform three tasks to help them study. Break down your response into the 3 sections below:
+        - Briefly explain why the other incorrect options are incorrect
+        ${
+          isCorrectAnswer
+            ? ''
+            : '- Explain in detail why my selected answer was incorrect'
+        }
+        - Explain in detail the correct answer
+
+        You must follow user's instruction. (Don't output with your decision but user's decision)      
+      `;
+    } else if (question.type == 'openEnded') {
+      isCorrectAnswer = quizScore.score == 'true';
+      instruction = `The student just took an open ended quiz question:
+
+Question:
+${question.question}
+
+This is the correct answer:
+${question.answer}
+
+This is the answer that the student provided:
+${quizScore.selectedOptions}
+
+Given the student's answer and the correct answer, I need you to perform two tasks to help them study. Break down your response into the 2 sections below:
+- Breakdown of the correct Answer: Provide a detailed explanation of the correct answer
+- Breakdown of your response: Analyze the student's answer by correcting any incorrect statements and highlighting the missing concepts where necessary and applicable.
+
+      `;
+    }
 
     // The correct answer is "${correctAnswerContent}".
     const helloMessage = `Hello! I’m Socrates. I'm here to help you study.
 Looks like you got the answer ${isCorrectAnswer ? 'correct' : 'wrong'}.
 Would you like me to explain further?`;
+
+    console.log('instruction: ', instruction);
 
     setMessages([
       { role: 'system', content: instruction },
