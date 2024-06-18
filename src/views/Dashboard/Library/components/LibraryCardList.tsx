@@ -113,7 +113,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
         if (response) {
           console.log('FLASHCARD IN LIBRARY CREATED');
           if (response.status === 200) {
-            posthog?.capture('client_library_flashcard_created', {
+            posthog.capture('client_library_flashcard_created', {
               distinct_id: user._id,
               // 'userId': user._id,
               ...data
@@ -136,7 +136,7 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       } else {
         const response = await editFlashcard(formData.selectedDeckId, data);
         if (response) {
-          posthog?.capture('client_library_flashcard_updated', {
+          posthog.capture('client_library_flashcard_updated', {
             userId: user._id,
             ...data
           });
