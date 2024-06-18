@@ -111,9 +111,11 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       if (isNewDeck) {
         const response = await createFlashCard(data, 'manual');
         if (response) {
+          console.log('FLASHCARD IN LIBRARY CREATED');
           if (response.status === 200) {
             posthog?.capture('client_library_flashcard_created', {
-              userId: user._id,
+              distinct_id: user._id,
+              // 'userId': user._id,
               ...data
             });
             toast({
