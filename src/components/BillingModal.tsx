@@ -8,6 +8,7 @@ import { capitalize } from '../helpers';
 import ApiService from '../services/ApiService';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CircleXIcon, ShieldCloseIcon } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 type BillingModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,176 +23,523 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
           Subscribe to Shepherd
         </DialogTitle>
 
-        <PriceCards user={user} />
+        <PriceCards user={user} setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );
 };
 
-function PriceCards({ user }: { user: User }) {
+function PriceCards({
+  user,
+  setOpen
+}: {
+  user: User;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const currentPlan = plans.find(
     (plan) => plan.priceId === user.stripeSubscription?.priceId
   );
+
   const toast = useCustomToast();
   const [loading, setLoading] = useState(false);
   return (
-    <div className="flex gap-3">
-      {plans.map((plan) => (
-        <div
-          className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
-          key={plan.price}
-        >
-          <h4 className="text-sm tracking-tight font-medium">
-            {plan.recurrence === 'one-off'
-              ? 'Basic'
-              : capitalize(plan.recurrence + 'ly')}
-          </h4>
-          <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
-            {plan.price === 0 ? (
-              'Free'
-            ) : (
-              <span className="flex items-center text-md  gap-0.5">
-                <span>${plan.price}</span>
-                <span className="font-normal text-gray-500 text-xs">
-                  /{capitalize(plan.recurrence)}
-                </span>
-              </span>
-            )}
-          </h2>
-          <div className="flex flex-col  text-xs  gap-1.5">
-            <div className="flex justify-start items-start gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '300 AI words / day'
-                  : 'Unlimited AI Words / day'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '10 flashcards of 20 cards / month'
-                  : 'Unlimited flashcards'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '10 quizzes of 20 questions / month'
-                  : 'Unlimited quizzes'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '1 study plan / topic / month'
-                  : 'Unlimited study plans / topic'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '10 quizzes of 20 questions / month'
-                  : 'Unlimited quizzes'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>Unlimited manual everything</span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? '10 AI web searches / month'
-                  : 'Unlimited AI web searches / month'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check className="w-5 h-5" />
-              <span>
-                {plan.tier === 'free'
-                  ? '6 hours of notes recording & transcribing / month'
-                  : 'Unlimited hours of notes recording & transcribing / month'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              <Check />
-              <span>
-                {plan.tier === 'free'
-                  ? 'Chat with 1 doc at a time'
-                  : 'Chat with unlimited docs at a time'}
-              </span>
-            </div>
-            <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-              {plan.tier === 'free' ? (
-                <CircleXIcon stroke="red" width={15} height={15} />
-              ) : (
-                <Check />
-              )}
-              <span>
-                {plan.tier === 'free'
-                  ? 'No Access to AI assistants'
-                  : 'Unlimited access to AI assistants'}
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={async () => {
-              if (currentPlan && currentPlan.tier === 'free') {
-                setLoading(true);
-                try {
-                  const resp = await ApiService.downgradeSubscription({
-                    customerId: user.stripeSubscription.customerId,
-                    priceId: currentPlan.priceId
-                  });
-                  await resp.json();
-                  toast({
-                    position: 'top-right',
-                    title: `Downgrade to Free Successful`,
-                    description:
-                      'The downgrade will take effect at the end of your billing cycle',
-                    status: 'success'
-                  });
-                  setLoading(false);
-                  return;
-                } catch (error) {
-                  toast({
-                    position: 'top-right',
-                    title: `Downgrade to Free Failed`,
-                    description: 'Please Try Again',
-                    status: 'error'
-                  });
-                  setLoading(false);
-                  return;
-                }
-              }
-              window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
-            }}
-            disabled={
-              user.stripeSubscription?.priceId === plan.priceId || loading
-            }
-            className={cn(
-              'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
-              plan.recurrence === 'semester' && 'bg-blue-500 text-white'
-            )}
-          >
-            {user.stripeSubscription?.hasAccess &&
-            user.stripeSubscription?.priceId === plan.priceId
-              ? 'Subscribed'
-              : plan.tier === 'free'
-              ? 'Downgrade to Free'
-              : currentPlan && plan.price > currentPlan.price
-              ? `Upgrade to ${capitalize(plan.recurrence + 'ly')}`
-              : 'Subscribe Now'}
-          </button>
+    <Tabs defaultValue="monthly" className="w-1/2 place-self-center">
+      <TabsList className="grid gap-2 w-full grid-cols-3">
+        <TabsTrigger value="monthly">Monthly</TabsTrigger>
+        <TabsTrigger value="semesterly">Semesterly</TabsTrigger>
+        <TabsTrigger value="yearly">Yearly</TabsTrigger>
+      </TabsList>
+      <TabsContent value="monthly">
+        <div className="flex gap-4">
+          {plans
+            .filter(
+              (plan) => plan.tier === 'free' || plan.recurrence === 'month'
+            )
+            .map((plan) => (
+              <div
+                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                key={plan.price}
+              >
+                <h4 className="text-sm tracking-tight font-medium">
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                </h4>
+                <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
+                  <span className="flex items-center text-md  gap-0.5">
+                    <span>${plan.price}</span>
+                    <span className="font-normal text-gray-500 text-xs">
+                      /{capitalize('month')}
+                    </span>
+                  </span>
+                </h2>
+                <div className="flex flex-col  text-xs  gap-1.5">
+                  <div className="flex justify-start items-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '300 AI words / day'
+                        : 'Unlimited AI Words / day'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 flashcards of 20 cards / month'
+                        : 'Unlimited flashcards'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '1 study plan / topic / month'
+                        : 'Unlimited study plans / topic'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>Unlimited manual everything</span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 AI web searches / month'
+                        : 'Unlimited AI web searches / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check className="w-5 h-5" />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '6 hours of notes recording & transcribing / month'
+                        : 'Unlimited hours of notes recording & transcribing / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'Chat with 1 doc at a time'
+                        : 'Chat with unlimited docs at a time'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    {plan.tier === 'free' ? (
+                      <CircleXIcon stroke="red" width={15} height={15} />
+                    ) : (
+                      <Check />
+                    )}
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'No Access to AI assistants'
+                        : 'Unlimited access to AI assistants'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (plan.tier === 'free') {
+                      setLoading(true);
+                      try {
+                        const resp = await ApiService.downgradeSubscription({
+                          customerId: user.stripeSubscription.customerId,
+                          priceId: plans.find((p) => p.recurrence === 'month')
+                            .priceId
+                        });
+                        if (!resp.ok) {
+                          throw new Error('Something went wrong');
+                        }
+                        await resp.json();
+                        setLoading(false);
+                        setOpen(false);
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Successful`,
+                          description:
+                            'The downgrade will take effect at the end of your billing cycle',
+                          status: 'success'
+                        });
+
+                        return;
+                      } catch (error) {
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Failed`,
+                          description: 'Please Try Again',
+                          status: 'error'
+                        });
+                        setLoading(false);
+                        return;
+                      }
+                    }
+                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
+                  }}
+                  disabled={
+                    user.stripeSubscription?.priceId === plan.priceId || loading
+                  }
+                  className={cn(
+                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
+                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
+                  )}
+                >
+                  {user.stripeSubscription?.hasAccess &&
+                  user.stripeSubscription?.priceId === plan.priceId
+                    ? 'Subscribed'
+                    : plan.tier === 'free'
+                    ? 'Downgrade to Free'
+                    : currentPlan && plan.price > currentPlan.price
+                    ? `Upgrade to ${capitalize(plan.recurrence + 'ly')}`
+                    : 'Subscribe Now'}
+                </button>
+              </div>
+            ))}
         </div>
-      ))}
-    </div>
+      </TabsContent>
+      <TabsContent value="semesterly">
+        <div className="flex gap-3">
+          {plans
+            .filter(
+              (plan) => plan.tier === 'free' || plan.recurrence === 'semester'
+            )
+            .map((plan) => (
+              <div
+                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                key={plan.price}
+              >
+                <h4 className="text-sm tracking-tight font-medium">
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                </h4>
+                <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
+                  <span className="flex items-center text-md  gap-0.5">
+                    <span>${plan.price}</span>
+                    <span className="font-normal text-gray-500 text-xs">
+                      /{capitalize('semester')}
+                    </span>
+                  </span>
+                </h2>
+                <div className="flex flex-col  text-xs  gap-1.5">
+                  <div className="flex justify-start items-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '300 AI words / day'
+                        : 'Unlimited AI Words / day'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 flashcards of 20 cards / month'
+                        : 'Unlimited flashcards'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '1 study plan / topic / month'
+                        : 'Unlimited study plans / topic'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>Unlimited manual everything</span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 AI web searches / month'
+                        : 'Unlimited AI web searches / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check className="w-5 h-5" />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '6 hours of notes recording & transcribing / month'
+                        : 'Unlimited hours of notes recording & transcribing / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'Chat with 1 doc at a time'
+                        : 'Chat with unlimited docs at a time'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    {plan.tier === 'free' ? (
+                      <CircleXIcon stroke="red" width={15} height={15} />
+                    ) : (
+                      <Check />
+                    )}
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'No Access to AI assistants'
+                        : 'Unlimited access to AI assistants'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (plan.tier === 'free') {
+                      setLoading(true);
+                      try {
+                        const resp = await ApiService.downgradeSubscription({
+                          customerId: user.stripeSubscription.customerId,
+                          priceId: plans.find(
+                            (p) => p.recurrence === 'semester'
+                          ).priceId
+                        });
+                        if (!resp.ok) {
+                          throw new Error('Something went wrong');
+                        }
+                        await resp.json();
+                        setLoading(false);
+                        setOpen(false);
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Successful`,
+                          description:
+                            'The downgrade will take effect at the end of your billing cycle',
+                          status: 'success'
+                        });
+
+                        return;
+                      } catch (error) {
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Failed`,
+                          description: 'Please Try Again',
+                          status: 'error'
+                        });
+                        setLoading(false);
+                        return;
+                      }
+                    }
+                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
+                  }}
+                  disabled={
+                    user.stripeSubscription?.priceId === plan.priceId || loading
+                  }
+                  className={cn(
+                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
+                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
+                  )}
+                >
+                  {user.stripeSubscription?.hasAccess &&
+                  user.stripeSubscription?.priceId === plan.priceId
+                    ? 'Subscribed'
+                    : plan.tier === 'free'
+                    ? 'Downgrade to Free'
+                    : currentPlan && plan.price > currentPlan.price
+                    ? `Upgrade to ${capitalize(plan.recurrence + 'ly')}`
+                    : 'Subscribe Now'}
+                </button>
+              </div>
+            ))}
+        </div>
+      </TabsContent>
+      <TabsContent value="yearly">
+        <div className="flex gap-3">
+          {plans
+            .filter(
+              (plan) => plan.tier === 'free' || plan.recurrence === 'year'
+            )
+            .map((plan) => (
+              <div
+                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                key={plan.price}
+              >
+                <h4 className="text-sm tracking-tight font-medium">
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                </h4>
+                <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
+                  <span className="flex items-center text-md  gap-0.5">
+                    <span>${plan.price}</span>
+                    <span className="font-normal text-gray-500 text-xs">
+                      /{capitalize('year')}
+                    </span>
+                  </span>
+                </h2>
+                <div className="flex flex-col  text-xs  gap-1.5">
+                  <div className="flex justify-start items-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '300 AI words / day'
+                        : 'Unlimited AI Words / day'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 flashcards of 20 cards / month'
+                        : 'Unlimited flashcards'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '1 study plan / topic / month'
+                        : 'Unlimited study plans / topic'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 quizzes of 20 questions / month'
+                        : 'Unlimited quizzes'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>Unlimited manual everything</span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '10 AI web searches / month'
+                        : 'Unlimited AI web searches / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check className="w-5 h-5" />
+                    <span>
+                      {plan.tier === 'free'
+                        ? '6 hours of notes recording & transcribing / month'
+                        : 'Unlimited hours of notes recording & transcribing / month'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    <Check />
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'Chat with 1 doc at a time'
+                        : 'Chat with unlimited docs at a time'}
+                    </span>
+                  </div>
+                  <div className="flex items-start justify-start whitespace-break-spaces gap-1">
+                    {plan.tier === 'free' ? (
+                      <CircleXIcon stroke="red" width={15} height={15} />
+                    ) : (
+                      <Check />
+                    )}
+                    <span>
+                      {plan.tier === 'free'
+                        ? 'No Access to AI assistants'
+                        : 'Unlimited access to AI assistants'}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (plan.tier === 'free') {
+                      setLoading(true);
+                      try {
+                        const resp = await ApiService.downgradeSubscription({
+                          customerId: user.stripeSubscription.customerId,
+                          priceId: plans.find((p) => p.recurrence === 'year')
+                            .priceId
+                        });
+                        if (!resp.ok) {
+                          throw new Error('Something went wrong');
+                        }
+                        await resp.json();
+                        setLoading(false);
+                        setOpen(false);
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Successful`,
+                          description:
+                            'The downgrade will take effect at the end of your billing cycle',
+                          status: 'success'
+                        });
+
+                        return;
+                      } catch (error) {
+                        toast({
+                          position: 'top-right',
+                          title: `Downgrade to Free Failed`,
+                          description: 'Please Try Again',
+                          status: 'error'
+                        });
+                        setLoading(false);
+                        return;
+                      }
+                    }
+                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
+                  }}
+                  disabled={
+                    user.stripeSubscription?.priceId === plan.priceId || loading
+                  }
+                  className={cn(
+                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
+                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
+                  )}
+                >
+                  {user.stripeSubscription?.hasAccess &&
+                  user.stripeSubscription?.priceId === plan.priceId
+                    ? 'Subscribed'
+                    : plan.tier === 'free'
+                    ? 'Downgrade to Free'
+                    : currentPlan && plan.price > currentPlan.price
+                    ? `Upgrade to ${capitalize(plan.recurrence + 'ly')}`
+                    : 'Subscribe Now'}
+                </button>
+              </div>
+            ))}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 }
 
