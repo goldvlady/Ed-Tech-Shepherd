@@ -46,12 +46,7 @@ export default create<StudyPlanStore>((set) => ({
     subject?: string,
     id?: string
   ) => {
-    set((state) => {
-      if (state.studyPlans?.length > 0) {
-        return { isLoading: true };
-      }
-      return { isLoading: false };
-    });
+    set({ isLoading: true });
 
     const searchParamApiKey =
       new URLSearchParams(window.location.search).get('apiKey') || null;
