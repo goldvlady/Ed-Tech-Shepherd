@@ -3,11 +3,11 @@ import { plans } from '../helpers/plans';
 import { cn } from '../library/utils';
 import useUserStore from '../state/userStore';
 import { User } from '../types';
-import { Dialog, DialogClose, DialogContent, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { capitalize } from '../helpers';
 import ApiService from '../services/ApiService';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
-import { CircleXIcon, ShieldCloseIcon } from 'lucide-react';
+import { CircleXIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 type BillingModalProps = {
   open: boolean;
@@ -18,7 +18,7 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogContent className="bg-white w-screen  max-w-[98vw]">
+      <DialogContent className="bg-white w-screen max-w-[63vw]">
         <DialogTitle className="text-lg text-center">
           Subscribe to Shepherd
         </DialogTitle>
@@ -43,7 +43,7 @@ function PriceCards({
   const toast = useCustomToast();
   const [loading, setLoading] = useState(false);
   return (
-    <Tabs defaultValue="monthly" className="w-1/2 place-self-center">
+    <Tabs defaultValue="monthly" className="place-self-center">
       <TabsList className="grid gap-2 w-full grid-cols-3">
         <TabsTrigger value="monthly">Monthly</TabsTrigger>
         <TabsTrigger value="semesterly">Semesterly</TabsTrigger>
@@ -61,7 +61,7 @@ function PriceCards({
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
-                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Pro'}
                 </h4>
                 <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
                   <span className="flex items-center text-md  gap-0.5">
@@ -125,7 +125,7 @@ function PriceCards({
                     </span>
                   </div>
                   <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-                    <Check className="w-5 h-5" />
+                    <Check />
                     <span>
                       {plan.tier === 'free'
                         ? '6 hours of notes recording & transcribing / month'
@@ -224,13 +224,13 @@ function PriceCards({
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
-                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Pro'}
                 </h4>
                 <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
                   <span className="flex items-center text-md  gap-0.5">
                     <span>${plan.price}</span>
                     <span className="font-normal text-gray-500 text-xs">
-                      /{capitalize('semester')}
+                      /{capitalize('month')}
                     </span>
                   </span>
                 </h2>
@@ -288,7 +288,7 @@ function PriceCards({
                     </span>
                   </div>
                   <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-                    <Check className="w-5 h-5" />
+                    <Check />
                     <span>
                       {plan.tier === 'free'
                         ? '6 hours of notes recording & transcribing / month'
@@ -388,13 +388,13 @@ function PriceCards({
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
-                  {plan.recurrence === 'one-off' ? 'Free' : 'Unlimited'}
+                  {plan.recurrence === 'one-off' ? 'Free' : 'Pro'}
                 </h4>
                 <h2 className="text-lg tracking-tight mt-4 mb-2 font-semibold ">
                   <span className="flex items-center text-md  gap-0.5">
                     <span>${plan.price}</span>
                     <span className="font-normal text-gray-500 text-xs">
-                      /{capitalize('year')}
+                      /{capitalize('month')}
                     </span>
                   </span>
                 </h2>
@@ -452,7 +452,7 @@ function PriceCards({
                     </span>
                   </div>
                   <div className="flex items-start justify-start whitespace-break-spaces gap-1">
-                    <Check className="w-5 h-5" />
+                    <Check />
                     <span>
                       {plan.tier === 'free'
                         ? '6 hours of notes recording & transcribing / month'

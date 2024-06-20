@@ -24,14 +24,14 @@ export const plans: Array<{
   {
     tier: 'pro',
     recurrence: 'semester',
-    price: 48,
-    paymentLink: 'https://buy.stripe.com/test_dR69AA2Em3EZgX63cd',
-    priceId: 'price_1POcsqF6YXFSjxP0jt1TxxHc'
+    price: 12,
+    paymentLink: 'https://buy.stripe.com/test_6oE8ww4Mu1wRfT2bIL',
+    priceId: 'price_1PTj2TF6YXFSjxP0wg2NNz1O'
   },
   {
     tier: 'pro',
     recurrence: 'year',
-    price: 120,
+    price: 10,
     paymentLink: 'https://buy.stripe.com/test_8wM5kken42AVbCMeUW',
     priceId: 'price_1POcuBF6YXFSjxP0HzUKBzzL'
   }
