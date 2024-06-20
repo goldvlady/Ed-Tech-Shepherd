@@ -632,6 +632,7 @@ const StudyBox = () => {
   const saveScore = useCallback(async () => {
     if (flashcard) {
       posthog?.capture('client_flashcard_studied', {
+        distinct_id: user._id,
         quizId: flashcard?._id,
         userId: user?._id,
         score: savedScore

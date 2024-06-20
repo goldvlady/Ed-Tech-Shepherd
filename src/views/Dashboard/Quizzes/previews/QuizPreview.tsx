@@ -902,6 +902,7 @@ const QuizPreviewer = ({
       });
 
       posthog?.capture('client_quiz_studied', {
+        distinct_id: user._id,
         quizId: quizId,
         userId: user?._id,
         score: size(filter(scores, ['score', 'true'])),
@@ -994,6 +995,12 @@ const QuizPreviewer = ({
     try {
       const d = await ApiService.cloneQuiz(quizId);
       const data = await d.json();
+      posthog?.capture('client_quiz_cloned', {
+        distinct_id: user._id,
+        quizId: quizId,
+        userId: user?._id,
+        ...data
+      });
       toast({
         position: 'top-right',
         title: `Quiz Cloned Succesfully`,
