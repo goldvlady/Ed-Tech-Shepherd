@@ -7,64 +7,81 @@ import Schedule from '../Dashboard/components/Schedule';
 import { Box, Grid, GridItem } from '@chakra-ui/react';
 import React, { useState, useEffect, useCallback } from 'react';
 import ShepherdSpinner from '../Dashboard/components/shepherd-spinner';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Dashboard() {
-  const { feeds, fetchFeeds } = feedsStore();
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [calendarEventData, setCalendarEventData] = useState<any>([]);
-  const [tutorReport, setTutorReport] = useState<any>([]);
-  const [upcomingEvent, setUpcomingEvent] = useState<any>([]);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const [
-        tutorReportResponse,
-        calendarResponse,
-        upcomingEventResponse,
-        feedsResponse
-      ] = await Promise.all([
-        ApiService.getTutorReport(),
-        ApiService.getCalendarEvents(),
-        ApiService.getUpcomingEvent(),
-        fetchFeeds()
-      ]);
+  const {
+    data: tutorReport,
+    isLoading: isTutorReportLoading,
+    isError: isTutorReportError,
+    failureCount: tutorReportFailureCount
+  } = useQuery({
+    queryKey: ['tutorReport'],
+    queryFn: async () => {
+      const response = await ApiService.getTutorReport();
+      if (!response.ok)
+        throw new Error('Something went wrong fetching student reports');
+      const { data } = await response.json();
+      return data;
+    },
+    retry: 3
+  });
+  const {
+    data: feeds,
+    isLoading: isFeedsLoading,
+    isError: isFeedsError,
+    failureCount: feedsFailureCount
+  } = useQuery({
+    queryKey: ['feeds', user.userRole === 'both' ? 'student' : user.userRole],
+    queryFn: async () => {
+      const response = await ApiService.getActivityFeeds();
 
-      const tutorReportData = await tutorReportResponse.json();
-      const calendarData = await calendarResponse.json();
-      const nextEvent = await upcomingEventResponse.json();
+      if (!response.ok) throw new Error('Something went wrong fetching');
+      const feeds = await response.json();
+      return feeds;
+    },
+    retry: 3
+  });
+  const {
+    data: events,
+    isLoading: isEventsLoading,
+    isError: isEventsError,
+    failureCount
+  } = useQuery({
+    queryKey: ['events', user.userRole === 'both' ? 'student' : user.userRole],
+    queryFn: async () => {
+      const response = await ApiService.getCalendarEvents();
+      if (!response.ok) throw new Error('Something went wrong fetching');
+      const { data } = await response.json();
+      return data;
+    },
+    retry: 3
+  });
+  const {
+    data: upcomingEvent,
+    isLoading: isUpcomingEventLoading,
+    isError: isUpcomingEventError,
+    failureCount: upcomingEventFailureCount
+  } = useQuery({
+    queryKey: [
+      'upcomingEvent',
+      user.userRole === 'both' ? 'student' : user.userRole
+    ],
+    queryFn: async () => {
+      const response = await ApiService.getUpcomingEvent();
 
-      setTutorReport(tutorReportData.data);
-      setCalendarEventData(calendarData.data);
-      setUpcomingEvent(nextEvent);
-      // setFeeds(feedsResponse);
-    } catch (error) {
-      /* empty */
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchFeeds]);
+      if (!response.ok)
+        throw new Error('Something went wrong fetching student reports');
+      const upcomingEvent = await response.json();
+      return upcomingEvent;
+    },
+    retry: 3
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  if (isLoading) {
-    return (
-      <Box
-        p={5}
-        textAlign="center"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}
-      >
-        <ShepherdSpinner />
-      </Box>
-    );
-  }
   const isEmptyObject = (obj) => {
     for (const key in obj) {
       if (obj[key].length > 0) {
@@ -88,27 +105,49 @@ export default function Dashboard() {
           gap={6}
         >
           <GridItem colSpan={2}>
-            <Box
-              border="1px solid #eeeff2"
-              borderRadius={'14px'}
-              p={3}
-              height="450px"
-            >
-              <ActivityFeeds feeds={feeds} userType="Tutor" />
-            </Box>
+            {feeds && !isFeedsLoading ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+              >
+                <ActivityFeeds feeds={feeds} userType="Tutor" />
+              </Box>
+            ) : (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+                className="animate-pulse"
+              ></Box>
+            )}
           </GridItem>
           <GridItem colSpan={1}>
-            <Box
-              border="1px solid #eeeff2"
-              borderRadius={'14px'}
-              width="400px"
-              px={3}
-              py={2}
-              height="450px"
-            >
-              {' '}
-              <Schedule events={calendarEventData} />
-            </Box>
+            {events && !isEventsLoading ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                width="400px"
+                px={3}
+                py={2}
+                height="450px"
+              >
+                {' '}
+                <Schedule events={events} />
+              </Box>
+            ) : (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                width="400px"
+                px={3}
+                py={2}
+                height="450px"
+                className="animate-pulse"
+              ></Box>
+            )}
           </GridItem>
         </Grid>
       </Box>
