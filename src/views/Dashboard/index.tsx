@@ -71,7 +71,7 @@ export default function Index() {
     isError: isFeedsError,
     failureCount: feedsFailureCount
   } = useQuery({
-    queryKey: ['feeds', user.userRole === 'both' ? 'student' : user.userRole],
+    queryKey: ['feeds', user.userRole === 'both' ? 'student' : 'student'],
     queryFn: async () => {
       const response = await ApiService.getActivityFeeds();
       if (response.status === 401) {
@@ -93,7 +93,7 @@ export default function Index() {
     isError: isEventsError,
     failureCount
   } = useQuery({
-    queryKey: ['events', user.userRole === 'both' ? 'student' : user.userRole],
+    queryKey: ['events', user.userRole === 'both' ? 'student' : 'student'],
     queryFn: async () => {
       const response = await ApiService.getCalendarEvents();
       if (response.status === 401) {
@@ -140,7 +140,7 @@ export default function Index() {
   } = useQuery({
     queryKey: [
       'upcomingEvent',
-      user.userRole === 'both' ? 'student' : user.userRole
+      user.userRole === 'both' ? 'student' : 'student'
     ],
     queryFn: async () => {
       const response = await ApiService.getUpcomingEvent();
@@ -298,7 +298,7 @@ export default function Index() {
                 </Text>
                 {studentReport && studentReport.topQuizzes.length > 0 ? (
                   <Center p={2} h={'350px'}>
-                    <PerformanceChart chartData={chartData} />
+                    <PerformanceChart chartData={studentReport.topQuizzes} />
                   </Center>
                 ) : studentReport && studentReport.topQuizzes.length === 0 ? (
                   <Box textAlign={'center'} px={20} mt={14}>

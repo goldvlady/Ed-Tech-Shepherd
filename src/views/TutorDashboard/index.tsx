@@ -36,7 +36,7 @@ export default function Dashboard() {
     isError: isFeedsError,
     failureCount: feedsFailureCount
   } = useQuery({
-    queryKey: ['feeds', user.userRole === 'both' ? 'student' : user.userRole],
+    queryKey: ['feeds', 'tutor'],
     queryFn: async () => {
       const response = await ApiService.getActivityFeeds();
 
@@ -52,7 +52,7 @@ export default function Dashboard() {
     isError: isEventsError,
     failureCount
   } = useQuery({
-    queryKey: ['events', user.userRole === 'both' ? 'student' : user.userRole],
+    queryKey: ['events', 'tutor'],
     queryFn: async () => {
       const response = await ApiService.getCalendarEvents();
       if (!response.ok) throw new Error('Something went wrong fetching');
@@ -67,10 +67,7 @@ export default function Dashboard() {
     isError: isUpcomingEventError,
     failureCount: upcomingEventFailureCount
   } = useQuery({
-    queryKey: [
-      'upcomingEvent',
-      user.userRole === 'both' ? 'student' : user.userRole
-    ],
+    queryKey: ['upcomingEvent', 'tutor'],
     queryFn: async () => {
       const response = await ApiService.getUpcomingEvent();
 
