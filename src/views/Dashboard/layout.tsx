@@ -88,7 +88,6 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
-import { usePrefetchQueries } from '../../hooks/usePrefetchQueries';
 
 interface LinkItemProps {
   name: string;
@@ -916,8 +915,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [modalContent, setModalContent] = useState('');
   const [toggleOnboardModal, setToggleOnboardModal] = useState(false);
 
-  const { prefetchQueries } = usePrefetchQueries();
-
   const openModal = (content) => {
     setModalContent(content);
     setIsModalOpen(true);
@@ -963,7 +960,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       setToggleOnboardModal(
         typeof user.onboardCompleted !== 'undefined' && !user.onboardCompleted
       );
-      prefetchQueries(user);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
