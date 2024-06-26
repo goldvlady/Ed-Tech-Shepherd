@@ -31,7 +31,8 @@ import {
   useBreakpointValue,
   useDisclosure,
   Center,
-  VStack
+  VStack,
+  Card
 } from '@chakra-ui/react';
 import { signOut, getAuth } from 'firebase/auth';
 import { capitalize } from 'lodash';
@@ -42,6 +43,7 @@ import { Link } from 'react-router-dom';
 import ShepherdSpinner from './components/shepherd-spinner';
 import eventsStore from '../../state/eventsStore';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '../../components/ui/button';
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -69,7 +71,8 @@ export default function Index() {
     data: feeds,
     isLoading: isFeedsLoading,
     isError: isFeedsError,
-    failureCount: feedsFailureCount
+    failureCount: feedsFailureCount,
+    refetch: feedsRefetch
   } = useQuery({
     queryKey: ['feeds-student'],
     queryFn: async () => {
@@ -91,7 +94,8 @@ export default function Index() {
     data: events,
     isLoading: isEventsLoading,
     isError: isEventsError,
-    failureCount
+    failureCount,
+    refetch: eventsRefetch
   } = useQuery({
     queryKey: ['events-student'],
     queryFn: async () => {
@@ -113,7 +117,8 @@ export default function Index() {
     data: studentReport,
     isLoading: isStudentReportLoading,
     isError: isStudentReportError,
-    failureCount: studentReportFailurCount
+    failureCount: studentReportFailurCount,
+    refetch: studentRefetch
   } = useQuery({
     queryKey: ['studentReport'],
     queryFn: async () => {
@@ -136,7 +141,8 @@ export default function Index() {
     data: upcomingEvent,
     isLoading: isUpcomingEventLoading,
     isError: isUpcomingEventError,
-    failureCount: upcomingEventFailureCount
+    failureCount: upcomingEventFailureCount,
+    refetch: upcomingEventRefetch
   } = useQuery({
     queryKey: ['upcomingEvent-student'],
     queryFn: async () => {
@@ -257,6 +263,21 @@ export default function Index() {
             !isStudentReportLoading &&
             !isStudentReportError ? (
               <WeeklySummary data={studentReport} />
+            ) : isStudentReportError && studentReportFailurCount >= 3 ? (
+              <Card
+                // bg={"#207DF7"}
+                // bgImage={briefCase}
+                // bgRepeat={"no-repeat"}
+                // bgSize={"160px"}
+                // bgPosition={"right -10px bottom 10px"}
+                height={{ base: 'auto', md: '379px' }}
+                borderRadius={{ base: '5px', md: '10px' }}
+                border="1px solid #eeeff2"
+                position={'relative'}
+                marginBottom={{ base: '26px', md: 'none' }}
+              >
+                <Button onClick={() => studentRefetch()}>Retry</Button>
+              </Card>
             ) : (
               <WeeklySummarySkeleton />
             )}
@@ -280,6 +301,18 @@ export default function Index() {
                 position="relative"
                 marginBottom={{ base: '26px', md: '0' }}
               ></Box>
+            ) : isStudentReportError && studentReportFailurCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'10px'}
+                bgColor={'#EEEFF2'}
+                height={'380px'}
+                p={2}
+                position="relative"
+                marginBottom={{ base: '26px', md: '0' }}
+              >
+                <Button onClick={() => studentRefetch()}></Button>
+              </Box>
             ) : (
               <Box
                 border="1px solid #eeeff2"
@@ -335,6 +368,16 @@ export default function Index() {
               >
                 <ActivityFeeds feeds={feeds} userType="Student" />
               </Box>
+            ) : isFeedsError && feedsFailureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+                marginBottom={{ base: '26px', md: ' 0' }}
+              >
+                <Button onClick={() => feedsRefetch()}>Retry</Button>
+              </Box>
             ) : (
               <Box
                 border="1px solid #eeeff2"
@@ -362,6 +405,17 @@ export default function Index() {
                 height="450px"
               >
                 <Schedule events={events} />
+              </Box>
+            ) : isEventsError && failureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                px={3}
+                py={2}
+                height="450px"
+                className="animate-pulse"
+              >
+                <Button onClick={() => eventsRefetch()}>Retry</Button>
               </Box>
             ) : (
               <Box

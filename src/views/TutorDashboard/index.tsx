@@ -8,18 +8,14 @@ import { Box, Grid, GridItem } from '@chakra-ui/react';
 import React, { useState, useEffect, useCallback } from 'react';
 import ShepherdSpinner from '../Dashboard/components/shepherd-spinner';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '../../components/ui/button';
 
 export default function Dashboard() {
   const { user } = userStore();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [calendarEventData, setCalendarEventData] = useState<any>([]);
 
-  const {
-    data: tutorReport,
-    isLoading: isTutorReportLoading,
-    isError: isTutorReportError,
-    failureCount: tutorReportFailureCount
-  } = useQuery({
+  const tr = useQuery({
     queryKey: ['tutorReport'],
     queryFn: async () => {
       const response = await ApiService.getTutorReport();
@@ -34,7 +30,8 @@ export default function Dashboard() {
     data: feeds,
     isLoading: isFeedsLoading,
     isError: isFeedsError,
-    failureCount: feedsFailureCount
+    failureCount: feedsFailureCount,
+    refetch: feedsRefetch
   } = useQuery({
     queryKey: ['feeds', 'tutor'],
     queryFn: async () => {
@@ -50,7 +47,8 @@ export default function Dashboard() {
     data: events,
     isLoading: isEventsLoading,
     isError: isEventsError,
-    failureCount
+    failureCount,
+    refetch: eventsRefetch
   } = useQuery({
     queryKey: ['events-tutor'],
     queryFn: async () => {
@@ -94,7 +92,7 @@ export default function Dashboard() {
       <WelcomePage user={user} />
       {!user?.tutor?.calendlyLink && <Proceed user={user} />}
 
-      <GridList data={tutorReport} />
+      <GridList data={tr.data} />
       <Box my={3} p={6}>
         <Grid
           templateRows="repeat(1, 1fr)"
@@ -110,6 +108,15 @@ export default function Dashboard() {
                 height="450px"
               >
                 <ActivityFeeds feeds={feeds} userType="Tutor" />
+              </Box>
+            ) : isFeedsError && feedsFailureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+              >
+                <Button onClick={() => feedsRefetch()}>Retry</Button>
               </Box>
             ) : (
               <Box
@@ -133,6 +140,17 @@ export default function Dashboard() {
               >
                 {' '}
                 <Schedule events={events} />
+              </Box>
+            ) : isEventsError && failureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                width="400px"
+                px={3}
+                py={2}
+                height="450px"
+              >
+                <Button onClick={() => eventsRefetch()}>Retry</Button>
               </Box>
             ) : (
               <Box
