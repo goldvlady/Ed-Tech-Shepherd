@@ -71,7 +71,7 @@ export default function Index() {
     isError: isFeedsError,
     failureCount: feedsFailureCount
   } = useQuery({
-    queryKey: ['feeds', user.userRole === 'both' ? 'student' : 'student'],
+    queryKey: ['feeds-student'],
     queryFn: async () => {
       const response = await ApiService.getActivityFeeds();
       if (response.status === 401) {
@@ -93,7 +93,7 @@ export default function Index() {
     isError: isEventsError,
     failureCount
   } = useQuery({
-    queryKey: ['events', user.userRole === 'both' ? 'student' : 'student'],
+    queryKey: ['events-student'],
     queryFn: async () => {
       const response = await ApiService.getCalendarEvents();
       if (response.status === 401) {
@@ -138,10 +138,7 @@ export default function Index() {
     isError: isUpcomingEventError,
     failureCount: upcomingEventFailureCount
   } = useQuery({
-    queryKey: [
-      'upcomingEvent',
-      user.userRole === 'both' ? 'student' : 'student'
-    ],
+    queryKey: ['upcomingEvent-student'],
     queryFn: async () => {
       const response = await ApiService.getUpcomingEvent();
       if (response.status === 401) {

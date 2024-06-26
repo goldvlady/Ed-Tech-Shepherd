@@ -52,7 +52,7 @@ export default function Dashboard() {
     isError: isEventsError,
     failureCount
   } = useQuery({
-    queryKey: ['events', 'tutor'],
+    queryKey: ['events-tutor'],
     queryFn: async () => {
       const response = await ApiService.getCalendarEvents();
       if (!response.ok) throw new Error('Something went wrong fetching');
@@ -67,7 +67,7 @@ export default function Dashboard() {
     isError: isUpcomingEventError,
     failureCount: upcomingEventFailureCount
   } = useQuery({
-    queryKey: ['upcomingEvent', 'tutor'],
+    queryKey: ['upcomingEvent-tutor'],
     queryFn: async () => {
       const response = await ApiService.getUpcomingEvent();
 

@@ -1,13 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { User } from '../types';
 import ApiService from '../services/ApiService';
+import { fetchStudentConversations } from '../services/AI';
 
 function usePrefetchQueries() {
   const qc = useQueryClient();
 
   function prefetchQueries(user: User) {
+    const studentId = user._id;
     qc.prefetchQuery({
-      queryKey: ['feeds', user.userRole === 'both' ? 'student' : 'student'],
+      queryKey: ['feeds-student'],
       queryFn: async () => {
         const response = await ApiService.getActivityFeeds();
         if (!response.ok) throw new Error('Something went wrong fetching');
@@ -17,7 +19,7 @@ function usePrefetchQueries() {
       retry: 3
     });
     qc.prefetchQuery({
-      queryKey: ['events', user.userRole === 'both' ? 'student' : 'student'],
+      queryKey: ['events-student'],
       queryFn: async () => {
         const response = await ApiService.getCalendarEvents();
         if (!response.ok) throw new Error('Something went wrong fetching');
@@ -38,10 +40,7 @@ function usePrefetchQueries() {
       retry: 3
     });
     qc.prefetchQuery({
-      queryKey: [
-        'upcomingEvent',
-        user.userRole === 'both' ? 'student' : 'student'
-      ],
+      queryKey: ['upcomingEvent-student'],
       queryFn: async () => {
         const response = await ApiService.getUpcomingEvent();
         if (!response.ok)
@@ -63,7 +62,7 @@ function usePrefetchQueries() {
       retry: 3
     });
     qc.prefetchQuery({
-      queryKey: ['feeds', 'tutor'],
+      queryKey: ['feeds-tutor'],
       queryFn: async () => {
         const response = await ApiService.getActivityFeeds();
 
@@ -74,7 +73,7 @@ function usePrefetchQueries() {
       retry: 3
     });
     qc.prefetchQuery({
-      queryKey: ['events', 'tutor'],
+      queryKey: ['events-tutor'],
       queryFn: async () => {
         const response = await ApiService.getCalendarEvents();
         if (!response.ok) throw new Error('Something went wrong fetching');
@@ -84,7 +83,7 @@ function usePrefetchQueries() {
       retry: 3
     });
     qc.prefetchQuery({
-      queryKey: ['upcomingEvent', 'tutor'],
+      queryKey: ['upcomingEvent-tutor'],
       queryFn: async () => {
         const response = await ApiService.getUpcomingEvent();
 
@@ -94,6 +93,10 @@ function usePrefetchQueries() {
         return upcomingEvent;
       },
       retry: 3
+    });
+    qc.prefetchQuery({
+      queryKey: ['chatHistory', { studentId }],
+      queryFn: () => fetchStudentConversations(studentId)
     });
   }
   return { prefetchQueries };
