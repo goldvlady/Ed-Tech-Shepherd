@@ -44,6 +44,23 @@ import ShepherdSpinner from './components/shepherd-spinner';
 import eventsStore from '../../state/eventsStore';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../components/ui/button';
+const keys = [
+  'studentReport',
+  'calendarData',
+  'nextEvent',
+  'chartData'
+] as const;
+type KeyType = (typeof keys)[number];
+const loadDataFromLocalStorage = (key: KeyType) => {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
+};
+
+// Load data from local storage
+const storedStudentReport = loadDataFromLocalStorage('studentReport');
+const storedCalendarData = loadDataFromLocalStorage('calendarData');
+const storedNextEvent = loadDataFromLocalStorage('nextEvent');
+const storedChartData = loadDataFromLocalStorage('chartData');
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -111,7 +128,8 @@ export default function Index() {
       const { data } = await response.json();
       return data;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => loadDataFromLocalStorage('calendarData')
   });
   const {
     data: studentReport,
@@ -135,7 +153,8 @@ export default function Index() {
       const studentReport = await response.json();
       return studentReport;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => loadDataFromLocalStorage('studentReport')
   });
   const {
     data: upcomingEvent,
@@ -159,7 +178,8 @@ export default function Index() {
       const upcomingEvent = await response.json();
       return upcomingEvent;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => loadDataFromLocalStorage('nextEvent')
   });
 
   const checkTimeDifference = () => {
@@ -182,6 +202,15 @@ export default function Index() {
     }
     // eslint-disable-next-line
   }, [upcomingEvent]);
+  useEffect(() => {
+    if (studentReport)
+      localStorage.setItem('studentReport', JSON.stringify(studentReport));
+
+    if (events) localStorage.setItem('calendarData', JSON.stringify(events));
+
+    if (upcomingEvent)
+      localStorage.setItem('nextEvent', JSON.stringify(upcomingEvent));
+  }, [studentReport, events, upcomingEvent]);
 
   const createNewLists = [
     {
