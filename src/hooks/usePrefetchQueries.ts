@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { User } from '../types';
 import ApiService from '../services/ApiService';
 import { fetchStudentConversations } from '../services/AI';
+import { loadDataFromLocalStorage } from '../views/Dashboard';
 
 function usePrefetchQueries() {
   const qc = useQueryClient();
@@ -26,7 +27,11 @@ function usePrefetchQueries() {
         const { data } = await response.json();
         return data;
       },
-      retry: 3
+      retry: 3,
+      initialData: () => {
+        const d = loadDataFromLocalStorage('calendarData');
+        return d;
+      }
     });
     qc.prefetchQuery({
       queryKey: ['studentReport'],
@@ -37,7 +42,11 @@ function usePrefetchQueries() {
         const studentReport = await response.json();
         return studentReport;
       },
-      retry: 3
+      retry: 3,
+      initialData: () => {
+        const d = loadDataFromLocalStorage('studentReport');
+        return d;
+      }
     });
     qc.prefetchQuery({
       queryKey: ['upcomingEvent-student'],
@@ -48,7 +57,11 @@ function usePrefetchQueries() {
         const upcomingEvent = await response.json();
         return upcomingEvent;
       },
-      retry: 3
+      retry: 3,
+      initialData: () => {
+        const d = loadDataFromLocalStorage('nextEvent');
+        return d;
+      }
     });
     qc.prefetchQuery({
       queryKey: ['tutorReport'],

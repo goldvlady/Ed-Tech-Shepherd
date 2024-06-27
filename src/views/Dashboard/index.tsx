@@ -52,6 +52,11 @@ const keys = [
 ] as const;
 type KeyType = (typeof keys)[number];
 
+export const loadDataFromLocalStorage = (key: KeyType) => {
+  const data = localStorage.getItem(key);
+  console.log('LSD', data);
+  return data ? JSON.parse(data) : null;
+};
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
   const side = useBreakpointValue({ base: '30%', md: '40px' });
@@ -70,11 +75,6 @@ export default function Index() {
 
   const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>(false);
 
-  const loadDataFromLocalStorage = (key: KeyType) => {
-    const data = localStorage.getItem(key);
-    console.log(data);
-    return data ? JSON.parse(data) : null;
-  };
   const {
     data: feeds,
     isLoading: isFeedsLoading,
@@ -119,8 +119,7 @@ export default function Index() {
       const { data } = await response.json();
       return data;
     },
-    retry: 3,
-    initialData: () => loadDataFromLocalStorage('calendarData')
+    retry: 3
   });
   const {
     data: studentReport,
@@ -144,8 +143,7 @@ export default function Index() {
       const studentReport = await response.json();
       return studentReport;
     },
-    retry: 3,
-    initialData: () => loadDataFromLocalStorage('studentReport')
+    retry: 3
   });
   const {
     data: upcomingEvent,
@@ -169,8 +167,7 @@ export default function Index() {
       const upcomingEvent = await response.json();
       return upcomingEvent;
     },
-    retry: 3,
-    initialData: () => loadDataFromLocalStorage('nextEvent')
+    retry: 3
   });
 
   const checkTimeDifference = () => {
