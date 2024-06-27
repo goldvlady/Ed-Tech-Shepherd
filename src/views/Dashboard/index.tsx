@@ -51,16 +51,6 @@ const keys = [
   'chartData'
 ] as const;
 type KeyType = (typeof keys)[number];
-const loadDataFromLocalStorage = (key: KeyType) => {
-  const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : null;
-};
-
-// Load data from local storage
-const storedStudentReport = loadDataFromLocalStorage('studentReport');
-const storedCalendarData = loadDataFromLocalStorage('calendarData');
-const storedNextEvent = loadDataFromLocalStorage('nextEvent');
-const storedChartData = loadDataFromLocalStorage('chartData');
 
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
@@ -78,12 +68,13 @@ export default function Index() {
 
   const { user } = userStore();
 
-  const [chartData, setChartData] = useState<any>('');
-  const [calendarEventData, setCalendarEventData] = useState<any>([]);
-
   const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const loadDataFromLocalStorage = (key: KeyType) => {
+    const data = localStorage.getItem(key);
+    console.log(data);
+    return data ? JSON.parse(data) : null;
+  };
   const {
     data: feeds,
     isLoading: isFeedsLoading,
