@@ -22,7 +22,7 @@ const Thanks = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const timeout = setTimeout(() => {
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     }, 3000);
     return () => clearTimeout(timeout);
   }, [navigate]);
