@@ -9,6 +9,109 @@ function usePrefetchQueries() {
 
   function prefetchQueries(user: User) {
     const studentId = user._id;
+    if (
+      window.location.pathname.includes('dashboard') &&
+      window.location.pathname.split('dashboard').length === 2
+    ) {
+      qc.prefetchQuery({
+        queryKey: ['tutorReport'],
+        queryFn: async () => {
+          const response = await ApiService.getTutorReport();
+          if (!response.ok)
+            throw new Error('Something went wrong fetching student reports');
+          const { data } = await response.json();
+          return data;
+        },
+        retry: 3
+      });
+      qc.prefetchQuery({
+        queryKey: ['feeds-tutor'],
+        queryFn: async () => {
+          const response = await ApiService.getActivityFeeds();
+
+          if (!response.ok) throw new Error('Something went wrong fetching');
+          const feeds = await response.json();
+          return feeds;
+        },
+        retry: 3
+      });
+      qc.prefetchQuery({
+        queryKey: ['events-tutor'],
+        queryFn: async () => {
+          const response = await ApiService.getCalendarEvents();
+          if (!response.ok) throw new Error('Something went wrong fetching');
+          const { data } = await response.json();
+          return data;
+        },
+        retry: 3
+      });
+      qc.prefetchQuery({
+        queryKey: ['upcomingEvent-tutor'],
+        queryFn: async () => {
+          const response = await ApiService.getUpcomingEvent();
+
+          if (!response.ok)
+            throw new Error('Something went wrong fetching student reports');
+          const upcomingEvent = await response.json();
+          return upcomingEvent;
+        },
+        retry: 3
+      });
+      qc.prefetchQuery({
+        queryKey: ['chatHistory', { studentId }],
+        queryFn: () => fetchStudentConversations(studentId)
+      });
+      return;
+    }
+    qc.prefetchQuery({
+      queryKey: ['tutorReport'],
+      queryFn: async () => {
+        const response = await ApiService.getTutorReport();
+        if (!response.ok)
+          throw new Error('Something went wrong fetching student reports');
+        const { data } = await response.json();
+        return data;
+      },
+      retry: 3
+    });
+    qc.prefetchQuery({
+      queryKey: ['feeds-tutor'],
+      queryFn: async () => {
+        const response = await ApiService.getActivityFeeds();
+
+        if (!response.ok) throw new Error('Something went wrong fetching');
+        const feeds = await response.json();
+        return feeds;
+      },
+      retry: 3
+    });
+    qc.prefetchQuery({
+      queryKey: ['events-tutor'],
+      queryFn: async () => {
+        const response = await ApiService.getCalendarEvents();
+        if (!response.ok) throw new Error('Something went wrong fetching');
+        const { data } = await response.json();
+        return data;
+      },
+      retry: 3
+    });
+    qc.prefetchQuery({
+      queryKey: ['upcomingEvent-tutor'],
+      queryFn: async () => {
+        const response = await ApiService.getUpcomingEvent();
+
+        if (!response.ok)
+          throw new Error('Something went wrong fetching student reports');
+        const upcomingEvent = await response.json();
+        return upcomingEvent;
+      },
+      retry: 3
+    });
+    qc.prefetchQuery({
+      queryKey: ['chatHistory', { studentId }],
+      queryFn: () => fetchStudentConversations(studentId)
+    });
+    //
     qc.prefetchQuery({
       queryKey: ['feeds-student'],
       queryFn: async () => {
@@ -62,54 +165,6 @@ function usePrefetchQueries() {
         const d = loadDataFromLocalStorage('nextEvent');
         return d;
       }
-    });
-    qc.prefetchQuery({
-      queryKey: ['tutorReport'],
-      queryFn: async () => {
-        const response = await ApiService.getTutorReport();
-        if (!response.ok)
-          throw new Error('Something went wrong fetching student reports');
-        const { data } = await response.json();
-        return data;
-      },
-      retry: 3
-    });
-    qc.prefetchQuery({
-      queryKey: ['feeds-tutor'],
-      queryFn: async () => {
-        const response = await ApiService.getActivityFeeds();
-
-        if (!response.ok) throw new Error('Something went wrong fetching');
-        const feeds = await response.json();
-        return feeds;
-      },
-      retry: 3
-    });
-    qc.prefetchQuery({
-      queryKey: ['events-tutor'],
-      queryFn: async () => {
-        const response = await ApiService.getCalendarEvents();
-        if (!response.ok) throw new Error('Something went wrong fetching');
-        const { data } = await response.json();
-        return data;
-      },
-      retry: 3
-    });
-    qc.prefetchQuery({
-      queryKey: ['upcomingEvent-tutor'],
-      queryFn: async () => {
-        const response = await ApiService.getUpcomingEvent();
-
-        if (!response.ok)
-          throw new Error('Something went wrong fetching student reports');
-        const upcomingEvent = await response.json();
-        return upcomingEvent;
-      },
-      retry: 3
-    });
-    qc.prefetchQuery({
-      queryKey: ['chatHistory', { studentId }],
-      queryFn: () => fetchStudentConversations(studentId)
     });
   }
   return { prefetchQueries };

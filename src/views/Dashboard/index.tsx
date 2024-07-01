@@ -119,7 +119,11 @@ export default function Index() {
       const { data } = await response.json();
       return data;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('calendarData');
+      return d;
+    }
   });
   const {
     data: studentReport,
@@ -143,7 +147,11 @@ export default function Index() {
       const studentReport = await response.json();
       return studentReport;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('studentReport');
+      return d;
+    }
   });
   const {
     data: upcomingEvent,
@@ -167,7 +175,11 @@ export default function Index() {
       const upcomingEvent = await response.json();
       return upcomingEvent;
     },
-    retry: 3
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('nextEvent');
+      return d;
+    }
   });
 
   const checkTimeDifference = () => {
