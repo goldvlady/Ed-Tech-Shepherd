@@ -1,3 +1,4 @@
+import BillingModal from '../../../components/BillingModal';
 import PlansModal from '../../../components/PlansModal';
 import { useTitle } from '../../../hooks';
 import userStore from '../../../state/userStore';
@@ -119,10 +120,7 @@ function AccSettings() {
               </TabPanels>
             </Box>
           </Tabs>
-          <PlansModal
-            togglePlansModal={togglePlansModal}
-            setTogglePlansModal={setTogglePlansModal}
-          />
+          <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
         </Box>
         {/* <Grid
           h="110vh"

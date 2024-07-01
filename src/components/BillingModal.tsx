@@ -20,7 +20,7 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent className="bg-white w-screen max-w-[63vw]">
         <DialogTitle className="text-lg text-center">
-          Subscribe to Shepherd
+          {user ? 'Upgrade Shepherd Subscription' : 'Subscribe to Shepherd'}
         </DialogTitle>
 
         <PriceCards user={user} setOpen={setOpen} />

@@ -62,6 +62,7 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import { MagicBandIcon } from '../../../../components/MagicBand';
 import { LoadingDots } from '../components/loadingDots';
 import ReactMarkdown from 'react-markdown';
+import BillingModal from '../../../../components/BillingModal';
 
 interface ChatCompletionRequestMessage {
   role: 'system' | 'user' | 'assistant';
@@ -1183,11 +1184,9 @@ Would you like me to explain further?`;
                       </Button>
                     )}
                     {togglePlansModal && (
-                      <PlansModal
-                        message="Get Started!"
-                        subMessage="One-click Cancel at anytime."
-                        togglePlansModal={togglePlansModal}
-                        setTogglePlansModal={setTogglePlansModal}
+                      <BillingModal
+                        open={togglePlansModal}
+                        setOpen={setTogglePlansModal}
                       />
                     )}
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
