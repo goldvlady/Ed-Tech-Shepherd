@@ -125,6 +125,7 @@ export default function Index() {
       return d;
     }
   });
+  console.log('EVENTS ->', events);
   const {
     data: studentReport,
     isLoading: isStudentReportLoading,
@@ -153,6 +154,7 @@ export default function Index() {
       return d;
     }
   });
+  console.log('STUDENT REPORT->', studentReport);
   const {
     data: upcomingEvent,
     isLoading: isUpcomingEventLoading,
