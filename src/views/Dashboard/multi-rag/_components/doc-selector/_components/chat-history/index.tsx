@@ -18,6 +18,7 @@ import { memo, useState } from 'react';
 import { AnyObject } from 'chart.js/dist/types/basic';
 import { format, isToday, isYesterday } from 'date-fns';
 import PDFThumbnailViewer from '../../../../../../../components/pdf-thumbnail-viewer';
+import { usePDFBlobUrl } from '../../../../../../../hooks/usePDFBlobURL';
 
 function groupConversationsByDate(conversations: any[]): any {
   return conversations

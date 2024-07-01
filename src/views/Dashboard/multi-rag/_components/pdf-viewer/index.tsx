@@ -63,6 +63,7 @@ import {
   PopoverContent,
   PopoverTrigger
 } from '../../../../../components/ui/popover';
+import { usePDFBlobUrl } from '../../../../../hooks/usePDFBlobURL';
 
 function PDFViewer({
   selectedDocumentID,
