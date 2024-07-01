@@ -9,6 +9,7 @@ import ApiService from '../services/ApiService';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CircleXIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import SubscriptionRedirectModal from './SubscriptionRedirectModal';
 type BillingModalProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,8 +44,54 @@ function PriceCards({
 
   const toast = useCustomToast();
   const [loading, setLoading] = useState(false);
+  const [isRedirectModalOpen, setIsRedirectModalOpen] = useState(false);
+  const subscriptionHandler = async (plan: (typeof plans)[0]) => {
+    if (user?.isMobileSubscription) {
+      setIsRedirectModalOpen(true);
+      setOpen(false);
+      return;
+    }
+    if (plan.tier === 'free') {
+      setLoading(true);
+      try {
+        const resp = await ApiService.downgradeSubscription({
+          customerId: user.stripeSubscription.customerId,
+          priceId: plans.find((p) => p.recurrence === 'month').priceId
+        });
+        if (!resp.ok) {
+          throw new Error('Something went wrong');
+        }
+        await resp.json();
+        setLoading(false);
+        setOpen(false);
+        toast({
+          position: 'top-right',
+          title: `Downgrade to Free Successful`,
+          description:
+            'The downgrade will take effect at the end of your billing cycle',
+          status: 'success'
+        });
+
+        return;
+      } catch (error) {
+        toast({
+          position: 'top-right',
+          title: `Downgrade to Free Failed`,
+          description: 'Please Try Again',
+          status: 'error'
+        });
+        setLoading(false);
+        return;
+      }
+    }
+    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
+  };
   return (
     <Tabs defaultValue="monthly" className="place-self-center">
+      <SubscriptionRedirectModal
+        isOpen={isRedirectModalOpen}
+        onClose={() => setIsRedirectModalOpen(false)}
+      />
       <TabsList className="grid gap-2 w-full grid-cols-3">
         <TabsTrigger value="monthly">Monthly</TabsTrigger>
         <TabsTrigger value="semesterly">Semesterly</TabsTrigger>
@@ -155,43 +202,7 @@ function PriceCards({
                   </div>
                 </div>
                 <button
-                  onClick={async () => {
-                    if (plan.tier === 'free') {
-                      setLoading(true);
-                      try {
-                        const resp = await ApiService.downgradeSubscription({
-                          customerId: user.stripeSubscription.customerId,
-                          priceId: plans.find((p) => p.recurrence === 'month')
-                            .priceId
-                        });
-                        if (!resp.ok) {
-                          throw new Error('Something went wrong');
-                        }
-                        await resp.json();
-                        setLoading(false);
-                        setOpen(false);
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Successful`,
-                          description:
-                            'The downgrade will take effect at the end of your billing cycle',
-                          status: 'success'
-                        });
-
-                        return;
-                      } catch (error) {
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Failed`,
-                          description: 'Please Try Again',
-                          status: 'error'
-                        });
-                        setLoading(false);
-                        return;
-                      }
-                    }
-                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
-                  }}
+                  onClick={() => subscriptionHandler(plan)}
                   disabled={
                     user.stripeSubscription?.priceId === plan.priceId || loading
                   }
@@ -317,53 +328,7 @@ function PriceCards({
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={async () => {
-                    if (plan.tier === 'free') {
-                      setLoading(true);
-                      try {
-                        const resp = await ApiService.downgradeSubscription({
-                          customerId: user.stripeSubscription.customerId,
-                          priceId: plans.find(
-                            (p) => p.recurrence === 'semester'
-                          ).priceId
-                        });
-                        if (!resp.ok) {
-                          throw new Error('Something went wrong');
-                        }
-                        await resp.json();
-                        setLoading(false);
-                        setOpen(false);
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Successful`,
-                          description:
-                            'The downgrade will take effect at the end of your billing cycle',
-                          status: 'success'
-                        });
-
-                        return;
-                      } catch (error) {
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Failed`,
-                          description: 'Please Try Again',
-                          status: 'error'
-                        });
-                        setLoading(false);
-                        return;
-                      }
-                    }
-                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
-                  }}
-                  disabled={
-                    user.stripeSubscription?.priceId === plan.priceId || loading
-                  }
-                  className={cn(
-                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
-                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
-                  )}
-                >
+                <button onClick={() => subscriptionHandler(plan)}>
                   {user.stripeSubscription?.hasAccess &&
                   user.stripeSubscription?.priceId === plan.priceId
                     ? 'Subscribed'
@@ -481,52 +446,7 @@ function PriceCards({
                     </span>
                   </div>
                 </div>
-                <button
-                  onClick={async () => {
-                    if (plan.tier === 'free') {
-                      setLoading(true);
-                      try {
-                        const resp = await ApiService.downgradeSubscription({
-                          customerId: user.stripeSubscription.customerId,
-                          priceId: plans.find((p) => p.recurrence === 'year')
-                            .priceId
-                        });
-                        if (!resp.ok) {
-                          throw new Error('Something went wrong');
-                        }
-                        await resp.json();
-                        setLoading(false);
-                        setOpen(false);
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Successful`,
-                          description:
-                            'The downgrade will take effect at the end of your billing cycle',
-                          status: 'success'
-                        });
-
-                        return;
-                      } catch (error) {
-                        toast({
-                          position: 'top-right',
-                          title: `Downgrade to Free Failed`,
-                          description: 'Please Try Again',
-                          status: 'error'
-                        });
-                        setLoading(false);
-                        return;
-                      }
-                    }
-                    window.location.href = `${plan.paymentLink}?prefilled_email=${user.email}`;
-                  }}
-                  disabled={
-                    user.stripeSubscription?.priceId === plan.priceId || loading
-                  }
-                  className={cn(
-                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
-                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
-                  )}
-                >
+                <button onClick={() => subscriptionHandler(plan)}>
                   {user.stripeSubscription?.hasAccess &&
                   user.stripeSubscription?.priceId === plan.priceId
                     ? 'Subscribed'
