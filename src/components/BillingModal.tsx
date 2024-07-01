@@ -36,6 +36,7 @@ function PriceCards({
   user: User;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
+  console.log('USER SUB', user.stripeSubscription);
   const currentPlan = plans.find(
     (plan) => plan.priceId === user.stripeSubscription?.priceId
   );
