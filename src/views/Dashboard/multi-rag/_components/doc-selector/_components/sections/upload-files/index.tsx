@@ -73,7 +73,16 @@ function UploadFiles({
       studentId: sid,
       formData
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 404) {
+          toast({
+            title: 'Duplicate Documents Detected',
+            description: 'Document(s) has been uploaded before'
+          });
+          throw new Error('Unable to successfully upload files');
+        }
+        return response.json();
+      })
       .then((data) => {
         if (data.status === 'success') {
           console.log('uploadMultiDocFiles', data);
