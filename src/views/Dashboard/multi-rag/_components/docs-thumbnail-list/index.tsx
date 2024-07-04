@@ -48,6 +48,7 @@ const DocsThumbnailList = ({
     name: string;
   };
 }) => {
+  console.log(user._id, user.student._id);
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const addDocs = useVectorsStore((state) => state.addChatDocuments);
