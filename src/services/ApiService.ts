@@ -1036,6 +1036,7 @@ class ApiService {
     studentId: string;
     formData: FormData;
   }) => {
+    console.log('SID', queryParams.studentId);
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}`,
