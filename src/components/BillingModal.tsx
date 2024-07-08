@@ -51,12 +51,12 @@ function PriceCards({
       setOpen(false);
       return;
     }
-    if (plan.tier === 'free') {
+    if (plan.tier === 'free' && currentPlan && currentPlan.tier !== 'free') {
       setLoading(true);
       try {
         const resp = await ApiService.downgradeSubscription({
           customerId: user.stripeSubscription.customerId,
-          priceId: plans.find((p) => p.recurrence === 'month').priceId
+          priceId: currentPlan.priceId
         });
         if (!resp.ok) {
           throw new Error('Something went wrong');
