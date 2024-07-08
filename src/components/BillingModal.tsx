@@ -208,7 +208,8 @@ function PriceCards({
                   }
                   className={cn(
                     'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
-                    plan.recurrence === 'semester' && 'bg-blue-500 text-white'
+                    plan.recurrence === 'semester' &&
+                      'bg-blue-500 border-black/0 text-white'
                   )}
                 >
                   {user.stripeSubscription?.hasAccess &&
@@ -328,7 +329,14 @@ function PriceCards({
                     </span>
                   </div>
                 </div>
-                <button onClick={() => subscriptionHandler(plan)}>
+                <button
+                  className={cn(
+                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
+                    plan.recurrence === 'semester' &&
+                      'bg-blue-500 border-black/0 text-white'
+                  )}
+                  onClick={() => subscriptionHandler(plan)}
+                >
                   {user.stripeSubscription?.hasAccess &&
                   user.stripeSubscription?.priceId === plan.priceId
                     ? 'Subscribed'
@@ -446,7 +454,14 @@ function PriceCards({
                     </span>
                   </div>
                 </div>
-                <button onClick={() => subscriptionHandler(plan)}>
+                <button
+                  className={cn(
+                    'mt-3 p-2 text-sm rounded-md border border-black/10 bg-white',
+                    plan.recurrence === 'semester' &&
+                      'bg-blue-500 border-black/0 text-white'
+                  )}
+                  onClick={() => subscriptionHandler(plan)}
+                >
                   {user.stripeSubscription?.hasAccess &&
                   user.stripeSubscription?.priceId === plan.priceId
                     ? 'Subscribed'
