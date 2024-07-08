@@ -375,8 +375,11 @@ const Quizzes = () => {
         const percentage = !isNaN(
           (scores[scores.length - 1]?.score / questions.length) * 100
         )
-          ? (scores[scores.length - 1]?.score / questions.length) * 100
+          ? (scores[scores.length - 1]?.score / questions.length) * 100 > 100
+            ? 99
+            : (scores[scores.length - 1]?.score / questions.length) * 100
           : 0;
+
         const percentageString = percentage.toFixed(0);
         type ColorRange = {
           max: number;
