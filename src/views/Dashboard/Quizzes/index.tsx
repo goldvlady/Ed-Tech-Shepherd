@@ -390,15 +390,15 @@ const Quizzes = () => {
           { max: 59.9, min: 0, color: '#F53535', backgroundColor: '#FEECEC' }
         ];
 
-        const { color = '', backgroundColor = '' } = colorRanges.find(
+        const colorValues = colorRanges.find(
           (range) => percentage <= range.max && percentage >= range.min
         ) as ColorRange;
         return (
           <Box width={'fit-content'}>
             <Box
               padding="5px 10px"
-              color={color}
-              background={backgroundColor}
+              color={colorValues?.color ?? ''}
+              background={colorValues?.backgroundColor ?? ''}
               borderRadius={'5px'}
               display={'flex'}
               justifyContent={'center'}
