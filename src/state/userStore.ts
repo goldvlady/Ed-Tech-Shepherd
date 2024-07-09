@@ -125,10 +125,6 @@ const useUserStore = create<Store>((set, get) => ({
       ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
       : 40; // Default limit to 40 if on free tier
 
-    if (isDevelopment) {
-      console.log('DEV flashcardCountLimit', flashcardCountLimit);
-      console.log('DEV quizCountLimit', quizCountLimit);
-    }
     const newState = {
       user: userData,
       hasActiveSubscription,
@@ -188,11 +184,6 @@ const useUserStore = create<Store>((set, get) => ({
           : hasActiveSubscription
           ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
           : 40; // Default limit to 40 if on free tier
-
-        if (isDevelopment) {
-          console.log('DEV flashcardCountLimit', flashcardCountLimit);
-          console.log('DEV quizCountLimit', quizCountLimit);
-        }
 
         const updatedState = {
           user: newUser,
