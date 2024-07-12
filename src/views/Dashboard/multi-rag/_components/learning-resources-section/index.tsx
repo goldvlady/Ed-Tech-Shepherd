@@ -365,6 +365,15 @@ const PinnedSection = ({
     }
   }, [currentTabOpened]);
 
+  const scrollToMessage = (text: string) => {
+    const paragraphs = document.querySelectorAll('p');
+    paragraphs.forEach((paragraph) => {
+      if (paragraph.textContent?.includes(text)) {
+        (paragraph as HTMLElement).scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  };
+
   return (
     <div className="relative">
       <ActionButton
@@ -396,7 +405,10 @@ const PinnedSection = ({
         ) : (
           data?.map((item) => {
             return (
-              <div className="p-2 border rounded-md">
+              <div
+                onClick={() => scrollToMessage(item.log.content)}
+                className="p-2 border rounded-md hover:bg-white/70"
+              >
                 <CustomMarkdownView
                   source={item.log.content}
                   paragraphClass="[&_p]:leading-[20px] !px-0 py-0 !shadow-none"

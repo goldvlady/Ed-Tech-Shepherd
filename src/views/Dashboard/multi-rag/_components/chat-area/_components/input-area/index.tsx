@@ -76,6 +76,7 @@ const InputArea = ({
           onClick={() => {
             submitHandler();
           }}
+          disabled={value.length === 0}
           style={{ pointerEvents: clickable ? 'auto' : 'none' }}
           className="w-[1.75rem] h-[1.75rem] rounded-full bg-[#207DF7] flex justify-center items-center"
         >

@@ -186,9 +186,14 @@ function PDFViewer({
             <div className="w-[1.8rem] h-[0.75rem] rounded-[5px] shadow-inner flex items-center justify-center">
               <p className="text-[0.5rem] pt-0.5">{currentPage + 1}</p>
             </div>
-            <p className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5">
-              {totalPages}
-            </p>
+            <input
+              className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5 outline-none border-none"
+              type="text"
+              defaultValue={currentPage}
+              value={currentPage}
+              onChange={(e) => setCurrentPage(parseInt(e.target.value))}
+            />
+
             <ChevronDownIcon
               className="cursor-pointer w-[12px]"
               onClick={() => {
@@ -223,6 +228,8 @@ function PDFViewer({
                     zoomPluginInstance,
                     searchPluginInstance
                   ]}
+                  enableSmoothScroll
+                  initialPage={currentPage}
                   onDocumentLoad={(e) => {
                     setTotalPages(e.doc.numPages);
                   }}
