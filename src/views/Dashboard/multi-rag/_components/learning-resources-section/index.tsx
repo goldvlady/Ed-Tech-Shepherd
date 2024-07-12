@@ -6,7 +6,9 @@ import ApiService from '../../../../../services/ApiService';
 import ShareModal from '../../../../../components/ShareModal';
 import { User } from '../../../../../types';
 import { Share1Icon } from '@radix-ui/react-icons';
-import CustomMarkdownView from '../../../../../components/CustomComponents/CustomMarkdownView';
+import CustomMarkdownView, {
+  stripMarkdown
+} from '../../../../../components/CustomComponents/CustomMarkdownView';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -364,13 +366,28 @@ const PinnedSection = ({
       setExpanded(false);
     }
   }, [currentTabOpened]);
-
+  const normalizeText = (text: string) => {
+    return text.replace(/\s+/g, '').toLowerCase();
+  };
   const scrollToMessage = (text: string) => {
-    const paragraphs = document.querySelectorAll('p');
-    paragraphs.forEach((paragraph) => {
-      if (paragraph.textContent?.includes(text)) {
-        (paragraph as HTMLElement).scrollIntoView({ behavior: 'smooth' });
-      }
+    console.log(text);
+    const containers = document.querySelectorAll(
+      '.memoized-react-markdown.bot'
+    );
+    console.log(containers);
+    const c = normalizeText(stripMarkdown(text)).replace(/-:/g, ':');
+    containers.forEach((container) => {
+      let fullText = '';
+      const elements = container.querySelectorAll('*'); // Select all children
+      elements.forEach((element) => {
+        fullText += element.textContent || '';
+      });
+
+      const ft = normalizeText(fullText);
+      const regex = new RegExp(c, 'i');
+      console.log(ft);
+      console.log(c);
+      console.log(regex.test(ft));
     });
   };
 
@@ -407,11 +424,11 @@ const PinnedSection = ({
             return (
               <div
                 onClick={() => scrollToMessage(item.log.content)}
-                className="p-2 border rounded-md hover:bg-white/70"
+                className="p-2.5 mb-2 cursor-pointer border  rounded-md hover:bg-slate-50"
               >
                 <CustomMarkdownView
                   source={item.log.content}
-                  paragraphClass="[&_p]:leading-[20px] !px-0 py-0 !shadow-none"
+                  paragraphClass="[&_p]:leading-[20px] !text-xs !px-0 py-0 !shadow-none"
                 />
               </div>
             );

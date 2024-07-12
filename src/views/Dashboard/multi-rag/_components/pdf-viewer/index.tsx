@@ -184,15 +184,21 @@ function PDFViewer({
               onClick={incrementPage}
             />
             <div className="w-[1.8rem] h-[0.75rem] rounded-[5px] shadow-inner flex items-center justify-center">
-              <p className="text-[0.5rem] pt-0.5">{currentPage + 1}</p>
+              <input
+                className="text-[0.5rem] font-normal outline-none border-none"
+                type="number"
+                min={0}
+                max={totalPages}
+                onChange={(e) => {
+                  const { jumpToPage } = pageNavigationPluginInstance;
+                  const page = parseInt(e.target.value);
+                  !Number.isNaN(page) && jumpToPage(page - 1);
+                }}
+              />
             </div>
-            <input
-              className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5 outline-none border-none"
-              type="text"
-              defaultValue={currentPage}
-              value={currentPage}
-              onChange={(e) => setCurrentPage(parseInt(e.target.value))}
-            />
+            <p className="text-[#585F68] text-[0.5rem] font-normal mx-2 pt-0.5 outline-none border-none">
+              {totalPages}
+            </p>
 
             <ChevronDownIcon
               className="cursor-pointer w-[12px]"
@@ -229,7 +235,6 @@ function PDFViewer({
                     searchPluginInstance
                   ]}
                   enableSmoothScroll
-                  initialPage={currentPage}
                   onDocumentLoad={(e) => {
                     setTotalPages(e.doc.numPages);
                   }}

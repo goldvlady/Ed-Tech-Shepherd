@@ -87,7 +87,23 @@ function extractMarkdown(content) {
   // Return null if no markdown block is found
   return content;
 }
-
+export const stripMarkdown = (markdown: string) => {
+  return markdown
+    .replace(/#+\s/g, '') // Headers
+    .replace(/(\*\*|__)/g, '') // Bold
+    .replace(/(\*|_)/g, '') // Italic
+    .replace(/`{1,3}[^`](.*?)`{1,3}/g, '$1') // Inline code
+    .replace(/```[\s\S]*?```/g, '') // Code block
+    .replace(/!\[(.*?)\]\(.*?\)/g, '$1') // Images
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+    .replace(/^\s*\n/gm, '') // Empty lines
+    .replace(/^\s+/g, '') // Leading whitespace
+    .replace(/\s+$/g, '') // Trailing whitespace
+    .replace(/^- /gm, '') // List items
+    .replace(/^\d+\.\s/gm, '') // Numbered list items
+    .replace(/\n+/g, ' ') // New lines
+    .trim();
+};
 const highlightBracketedText = (text) => {
   if (text) {
     return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');

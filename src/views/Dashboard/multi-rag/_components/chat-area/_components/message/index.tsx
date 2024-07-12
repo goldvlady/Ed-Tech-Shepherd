@@ -138,7 +138,7 @@ const Message = ({
                       type === 'user',
                     'w-32 h-10': loading
                   })}
-                  paragraphClass="[&_p]:leading-[20px]"
+                  paragraphClass={`[&_p]:leading-[20px] ${type}`}
                 />
                 {citations.length > 0 ? (
                   <div className="justify-start flex p-2 items-center gap-2">
