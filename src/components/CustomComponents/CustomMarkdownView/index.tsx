@@ -87,6 +87,60 @@ function extractMarkdown(content) {
   // Return null if no markdown block is found
   return content;
 }
+export const convertChildrenToMarkdown = (element) => {
+  const markdownLines = [];
+
+  element.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      markdownLines.push(child.textContent.trim());
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      switch (child.tagName.toLowerCase()) {
+        case 'p':
+          markdownLines.push(child.textContent.trim());
+          break;
+        case 'h1':
+          markdownLines.push(`# ${child.textContent.trim()}`);
+          break;
+        case 'h2':
+          markdownLines.push(`## ${child.textContent.trim()}`);
+          break;
+        case 'h3':
+          markdownLines.push(`### ${child.textContent.trim()}`);
+          break;
+        case 'h4':
+          markdownLines.push(`#### ${child.textContent.trim()}`);
+          break;
+        case 'h5':
+          markdownLines.push(`##### ${child.textContent.trim()}`);
+          break;
+        case 'h6':
+          markdownLines.push(`###### ${child.textContent.trim()}`);
+          break;
+        case 'ul':
+          child.querySelectorAll('li').forEach((li) => {
+            markdownLines.push(`- ${li.textContent.trim()}`);
+          });
+          break;
+        case 'ol':
+          child.querySelectorAll('li').forEach((li, index) => {
+            markdownLines.push(`${index + 1}. ${li.textContent.trim()}`);
+          });
+          break;
+        case 'pre':
+          markdownLines.push(`\`\`\`\n${child.textContent.trim()}\n\`\`\``);
+          break;
+        case 'code':
+          markdownLines.push(`\`${child.textContent.trim()}\``);
+          break;
+        default:
+          markdownLines.push(child.textContent.trim());
+          break;
+      }
+    }
+  });
+
+  return markdownLines.join('\n');
+};
 export const stripMarkdown = (markdown: string) => {
   return markdown
     .replace(/#+\s/g, '') // Headers
@@ -102,6 +156,8 @@ export const stripMarkdown = (markdown: string) => {
     .replace(/^- /gm, '') // List items
     .replace(/^\d+\.\s/gm, '') // Numbered list items
     .replace(/\n+/g, ' ') // New lines
+    .replace(/-\s/g, '') // Hyphen list items
+    .replace(/^\d+\.\s/gm, '') // Ordered list items
     .trim();
 };
 const highlightBracketedText = (text) => {

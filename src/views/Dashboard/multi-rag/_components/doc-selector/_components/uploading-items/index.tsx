@@ -8,6 +8,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { cn } from '../../../../../../../library/utils';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import useUserStore from '../../../../../../../state/userStore';
 
 function UploadingItems({
   filesUploading,
@@ -18,6 +19,7 @@ function UploadingItems({
   const [state, setState] = useState<'error' | 'in_progress' | 'success'>(
     'in_progress'
   );
+  const { user } = useUserStore();
   const { mutate } = useMutation({
     mutationFn: (data: any) =>
       ApiService.multiDocBackgroundJobs(data).then((res) => res.json())
@@ -33,7 +35,8 @@ function UploadingItems({
         mutate(
           {
             jobId: file.jobId,
-            tables: [file.tables]
+            tables: file.tables,
+            sid: user._id
           },
           {
             onSuccess: (data: any) => {
@@ -75,7 +78,7 @@ function UploadingItems({
             }
           }
         );
-      }, 2500);
+      }, 2000);
     }
 
     return () => {

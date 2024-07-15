@@ -80,9 +80,6 @@ const Message = ({
     return acc;
   }, []);
 
-  console.log(content, type);
-  console.log('METADATA PASSED IN', metadata);
-  console.log('citation', citations);
   for (const p of prefixes) {
     if (content.startsWith(p)) {
       prefix = p;

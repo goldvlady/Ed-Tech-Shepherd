@@ -368,15 +368,36 @@ const PinnedSection = ({
     }
   }, [currentTabOpened]);
   const normalizeText = (text: string) => {
-    return text.replace(/\s+/g, '').toLowerCase();
+    return text.replace(/\s+/g, ' ').toLowerCase();
   };
+  function getCharFrequency(str: string) {
+    const frequency = {};
+    for (const char of str) {
+      if (char.trim()) {
+        frequency[char] = (frequency[char] || 0) + 1;
+      }
+    }
+    return frequency;
+  }
+
+  function containsCharFrequency(sub: string, full: string) {
+    const subFrequency = getCharFrequency(sub);
+    const fullFrequency = getCharFrequency(full);
+
+    for (const char in subFrequency) {
+      if (!fullFrequency[char] || subFrequency[char] > fullFrequency[char]) {
+        return false;
+      }
+    }
+    return true;
+  }
   const scrollToMessage = (text: string) => {
     console.log(text);
     const containers = document.querySelectorAll(
       '.memoized-react-markdown.bot'
     );
     console.log(containers);
-    const c = normalizeText(stripMarkdown(text)).replace(/-:/g, ':');
+    const c = stripMarkdown(text).replace(/-:/g, ':');
     containers.forEach((container) => {
       let fullText = '';
       const elements = container.querySelectorAll('*'); // Select all children
@@ -384,11 +405,15 @@ const PinnedSection = ({
         fullText += element.textContent || '';
       });
 
-      const ft = normalizeText(fullText);
-      const regex = new RegExp(c, 'i');
-      console.log(ft);
-      console.log(c);
-      console.log(regex.test(ft));
+      const ft = fullText;
+      const isMatch = containsCharFrequency(c, ft);
+      if (isMatch) {
+        setExpanded(false);
+        container.scrollIntoView({ behavior: 'smooth' });
+      }
+      // console.log(ft, "FULL TEXT");
+      // console.log(c);
+      // console.log(ft.includes(c));
     });
   };
 
