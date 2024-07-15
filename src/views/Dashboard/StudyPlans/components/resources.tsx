@@ -114,6 +114,7 @@ const ResourceModal = ({
   }, [findLectureByTopic]);
 
   const handleVideoSelect = (video) => {
+    setIsAddNewOpened(false);
     setSelectedVideo(video);
     setVidOverlay(true);
   };
@@ -303,6 +304,8 @@ const ResourceModal = ({
     setNewTitle('');
     setYoutubeUrl('');
     setSelectedVideo('');
+    setNewUrl('');
+    setFileName('');
   };
 
   useEffect(() => {
@@ -352,11 +355,11 @@ const ResourceModal = ({
                         color="gray"
                         _hover={{
                           borderRadius: 4,
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          bg: '#edf2f7'
                         }}
-                        bg="#edf2f7"
+                        variant="unstyled"
                         px={3}
-                        py={1}
                         float={'right'}
                         fontSize={12}
                         onClick={() => setIsAddNewOpened(!isAddNewOpened)}
@@ -496,112 +499,132 @@ const ResourceModal = ({
                           </Center>
                         </>
                       ) : (
-                        <div className="flex flex-col gap-4 w-full">
-                          <Input
-                            placeholder="video title"
-                            value={newTitle}
-                            onChange={(e) => setNewTitle(e.target.value)}
-                          />
-                          <InputGroup>
-                            <InputLeftAddon>
-                              https://youtube.com/
-                            </InputLeftAddon>
+                        <div className="w-full">
+                          <div className="flex flex-col gap-2 w-full">
                             <Input
-                              placeholder="watch?v=abcdefghjj"
-                              value={youtubeUrl}
-                              onChange={(e) => setYoutubeUrl(e.target.value)}
+                              placeholder="video title"
+                              value={newTitle}
+                              onChange={(e) => setNewTitle(e.target.value)}
+                              mb={6}
                             />
-                          </InputGroup>
-                          <p className="text-center">or</p>
-                          <Center
-                            w="full"
-                            minH="65px"
-                            my={3}
-                            p={2}
-                            border="2px"
-                            borderColor={isDragOver ? 'gray.600' : 'gray.300'}
-                            borderStyle="dashed"
-                            rounded="lg"
-                            cursor="pointer"
-                            bg={isDragOver ? 'gray.600' : 'gray.50'}
-                            color={isDragOver ? 'white' : 'inherit'}
-                            onDragOver={(e) => handleDragEnter(e)}
-                            onDragEnter={(e) => handleDragEnter(e)}
-                            onDragLeave={(e) => handleDragLeave(e)}
-                            onDrop={(e) => handleDrop(e)}
-                          >
-                            <label htmlFor="file-upload">
-                              <Center flexDirection="column">
-                                {docLoading ? (
-                                  <>
-                                    <Spinner /> Uploading..
-                                  </>
-                                ) : fileName ? (
-                                  <Flex>
-                                    <AttachmentIcon /> <span>{fileName}</span>
-                                  </Flex>
-                                ) : (
-                                  <Flex
-                                    direction={'column'}
-                                    alignItems={'center'}
-                                  >
-                                    <RiUploadCloud2Fill
-                                      className="h-8 w-8"
-                                      color="gray.500"
-                                    />
-                                    <Text
-                                      mb="2"
-                                      fontSize="sm"
-                                      color={isDragOver ? 'white' : 'gray.500'}
-                                      fontWeight="semibold"
-                                    >
-                                      Click to upload or drag and drop
-                                    </Text>
-                                    <Text
-                                      fontSize="xs"
-                                      color={isDragOver ? 'white' : 'gray.500'}
-                                    >
-                                      Video (MAX: 500 MB)
-                                    </Text>
-                                  </Flex>
-                                )}
-                              </Center>
-                            </label>
-                            <input
-                              type="file"
-                              accept="video/*"
-                              className="hidden"
-                              id="file-upload"
-                              ref={inputRef}
-                              onChange={(e) =>
-                                handleUploadInput(e.target.files[0])
-                              }
-                            />
-                          </Center>
-                          <Flex className="gap-2 justify-end">
-                            <Button onClick={() => setIsAddNewOpened(false)}>
-                              Cancel
-                            </Button>
-                            <Button
-                              isDisabled={
-                                docLoading ||
-                                !newTitle ||
-                                (!newUrl && !youtubeUrl)
-                              }
-                              isLoading={isLoading}
-                              onClick={() =>
-                                saveDocumentAndStoreStudyPlan(
-                                  newUrl
-                                    ? newUrl
-                                    : `https://www.youtube.com/${youtubeUrl}`,
-                                  newTitle,
-                                  'lecture'
-                                )
-                              }
+                            <Text
+                              fontSize="14px"
+                              color={'#808080'}
+                              fontWeight="medium"
                             >
-                              Update
-                            </Button>
-                          </Flex>
+                              {' '}
+                              Please add a YouTube video link or upload a video
+                              file.
+                            </Text>
+                            <InputGroup>
+                              <InputLeftAddon
+                                color={'#808080'}
+                                fontWeight="semibold"
+                                fontSize={'sm'}
+                              >
+                                https://youtube.com/
+                              </InputLeftAddon>
+                              <Input
+                                placeholder="watch?v=abcdefghjj"
+                                value={youtubeUrl}
+                                onChange={(e) => setYoutubeUrl(e.target.value)}
+                              />
+                            </InputGroup>
+                            <p className="text-center">or</p>
+                            <Center
+                              w="full"
+                              minH="65px"
+                              my={3}
+                              p={2}
+                              border="2px"
+                              borderColor={isDragOver ? 'gray.600' : 'gray.300'}
+                              borderStyle="dashed"
+                              rounded="lg"
+                              cursor="pointer"
+                              bg={isDragOver ? 'gray.600' : 'gray.50'}
+                              color={isDragOver ? 'white' : 'inherit'}
+                              onDragOver={(e) => handleDragEnter(e)}
+                              onDragEnter={(e) => handleDragEnter(e)}
+                              onDragLeave={(e) => handleDragLeave(e)}
+                              onDrop={(e) => handleDrop(e)}
+                            >
+                              <label htmlFor="file-upload">
+                                <Center flexDirection="column">
+                                  {docLoading ? (
+                                    <>
+                                      <Spinner /> Uploading..
+                                    </>
+                                  ) : fileName ? (
+                                    <Flex>
+                                      <AttachmentIcon /> <span>{fileName}</span>
+                                    </Flex>
+                                  ) : (
+                                    <Flex
+                                      direction={'column'}
+                                      alignItems={'center'}
+                                    >
+                                      <RiUploadCloud2Fill
+                                        className="h-8 w-8"
+                                        color="gray.500"
+                                      />
+                                      <Text
+                                        mb="2"
+                                        fontSize="sm"
+                                        color={
+                                          isDragOver ? 'white' : 'gray.500'
+                                        }
+                                        fontWeight="semibold"
+                                      >
+                                        Click to upload or drag and drop
+                                      </Text>
+                                      <Text
+                                        fontSize="xs"
+                                        color={
+                                          isDragOver ? 'white' : 'gray.500'
+                                        }
+                                      >
+                                        Video (MAX: 500 MB)
+                                      </Text>
+                                    </Flex>
+                                  )}
+                                </Center>
+                              </label>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                id="file-upload"
+                                ref={inputRef}
+                                onChange={(e) =>
+                                  handleUploadInput(e.target.files[0])
+                                }
+                              />
+                            </Center>
+                            <Flex className="gap-2 justify-end">
+                              <Button onClick={() => setIsAddNewOpened(false)}>
+                                Cancel
+                              </Button>
+                              <Button
+                                isDisabled={
+                                  docLoading ||
+                                  !newTitle ||
+                                  (!newUrl && !youtubeUrl)
+                                }
+                                isLoading={isLoading}
+                                onClick={() =>
+                                  saveDocumentAndStoreStudyPlan(
+                                    newUrl
+                                      ? newUrl
+                                      : `https://www.youtube.com/${youtubeUrl}`,
+                                    newTitle,
+                                    'lecture'
+                                  )
+                                }
+                              >
+                                Update
+                              </Button>
+                            </Flex>
+                          </div>
                         </div>
                       )}
                     </Center>

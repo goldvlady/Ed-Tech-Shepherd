@@ -99,3 +99,7 @@ export function PerformanceChart(chartData) {
 
   return <Bar options={options} data={data} />;
 }
+
+export function PerformanceChartSkeleton() {
+  return <div className="bg-inherit h-full w-full animate-pulse"></div>;
+}

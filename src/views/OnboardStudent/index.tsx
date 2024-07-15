@@ -335,7 +335,6 @@ const OnboardStudent = () => {
   const doSubmit = async () => {
     const user = await firebaseAuth.currentUser;
     let firebaseId: string | null | undefined = user?.uid;
-
     if (!firebaseId) {
       await createUserWithEmailAndPassword(firebaseAuth, data.email, password)
         .then((userCredential) => {

@@ -89,13 +89,14 @@ const Login: React.FC = () => {
     if (redirectPath && !path.includes('complete')) {
       path = redirectPath;
     }
-    if (preAuthRoute) {
-      path = preAuthRoute;
-      localStorage.removeItem('preAuthRoute');
-    }
-    console.log(path);
-    console.log(redirectPath);
-    console.log('PREAUTH', preAuthRoute);
+    // if (
+    //   preAuthRoute &&
+    //   !preAuthRoute.includes(path) &&
+    //   !preAuthRoute.includes('login')
+    // ) {
+    //   path = preAuthRoute;
+    //   localStorage.removeItem('preAuthRoute');
+    // }
     navigate(path);
   }, [appUser, navigate]);
 

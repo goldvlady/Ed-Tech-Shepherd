@@ -13,6 +13,7 @@ class StudySessionLogger {
   start() {
     this.startTime = new Date();
     this.currentState = 'STARTED';
+    console.log(new Date());
   }
   end() {
     // if (this.currentState !== 'STARTED') {
@@ -20,11 +21,11 @@ class StudySessionLogger {
     //   console.error('NO SESSION STARTED');
     //   return;
     // }
-    console.log(this.currentState);
 
     // Store the end time
     this.endTime = new Date();
     this.currentState = 'ENDED';
+    console.log(this.startTime);
 
     // Send final session data to the server
     ApiService.logStudySession({

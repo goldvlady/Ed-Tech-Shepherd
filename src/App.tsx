@@ -57,8 +57,6 @@ function App() {
     Hotjar.init(Number(siteId), hotjarVersion);
   }, []);
 
-  // return <h1>Hello</h1>;
-
   return (
     <>
       <QueryClientProvider client={queryClient}>
