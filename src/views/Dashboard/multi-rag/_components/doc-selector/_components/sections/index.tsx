@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import { cn } from '../../../../../../../library/utils';
 import ExternalSources from './external-sources';
 import SelectDocuments from './select-documents';
@@ -7,17 +8,20 @@ function Sections({
   active,
   setFilesUploading,
   uploadedDocumentsId,
-  filesUploading
+  filesUploading,
+  uploadDocumentsName
 }: {
   active: number;
   setFilesUploading: any;
   uploadedDocumentsId: any[];
+  uploadDocumentsName: Array<string>;
   filesUploading: any[];
 }) {
   return (
     <main className="w-full bg-white min-h-[25rem] rounded-b-[10px] rounded-tr-[10px] relative overflow-hidden">
       <Section active={active === 0}>
         <UploadFiles
+          uploadDocumentsName={uploadDocumentsName}
           filesUploading={filesUploading}
           setFilesUploading={setFilesUploading}
           uploadedDocumentsId={uploadedDocumentsId}

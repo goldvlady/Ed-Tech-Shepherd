@@ -20,7 +20,8 @@ const isExactMatch = (arr1, arr2) => {
 function UploadFiles({
   setFilesUploading,
   uploadedDocumentsId,
-  filesUploading
+  filesUploading,
+  uploadDocumentsName
 }) {
   console.log('uploadedDocumentsId', filesUploading);
   const { user } = useUserStore();
@@ -125,17 +126,6 @@ function UploadFiles({
     }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
   });
 
-  const { data: documents } = useQuery({
-    queryKey: ['processed-documents'],
-    queryFn: async () => {
-      const r = await ApiService.multiDocVectorDocs(user._id).then((res) =>
-        res.json()
-      );
-      return r;
-    },
-    refetchInterval: 1500
-  });
-
   const { mutate: mutateChatName, isPending } = useMutation({
     mutationFn: (data: any) =>
       ApiService.multiDocCreateTitle(data).then((res) => res.json())
@@ -152,9 +142,7 @@ function UploadFiles({
       },
       {
         onSuccess(data) {
-          const selectedDocumentsName = documents.data
-            .filter((doc) => uploadedDocumentsId.includes(doc.document_id))
-            .map((doc) => doc.collection_name);
+          const selectedDocumentsName = uploadDocumentsName;
           mutateChatName(
             {
               docNames: selectedDocumentsName,

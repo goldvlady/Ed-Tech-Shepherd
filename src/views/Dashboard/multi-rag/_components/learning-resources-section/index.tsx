@@ -9,6 +9,7 @@ import { Share1Icon } from '@radix-ui/react-icons';
 import CustomMarkdownView, {
   stripMarkdown
 } from '../../../../../components/CustomComponents/CustomMarkdownView';
+import useUserStore from '../../../../../state/userStore';
 
 const LearningResourcesSection = ({
   conversationID,

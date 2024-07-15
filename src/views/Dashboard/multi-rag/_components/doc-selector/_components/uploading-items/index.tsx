@@ -12,58 +12,27 @@ import { useCustomToast } from '../../../../../../../components/CustomComponents
 function UploadingItems({
   filesUploading,
   setUploadDocumentsId,
-  setFilesUploading
-}) {
-  console.log('multiDocBackgroundJobs', filesUploading);
-  return (
-    <div className="uploading-documents flex w-full flex-col gap-[9px] justify-start mt-[1.8rem] max-h-[10rem] overflow-y-scroll no-scrollbar">
-      {filesUploading.map((file) => {
-        return file.tables.map((item) => {
-          return (
-            <Item
-              item={item}
-              file={file}
-              setUploadDocumentsId={setUploadDocumentsId}
-              setFilesUploading={setFilesUploading}
-            />
-          );
-        });
-      })}
-    </div>
-  );
-}
-
-const Item = ({
-  item,
-  file,
-  setUploadDocumentsId,
   setFilesUploading,
-  index
-}: {
-  item: any;
-  file: any;
-  setUploadDocumentsId: any;
-  setFilesUploading: any;
-  index?: number;
-}) => {
-  const toast = useCustomToast();
-  console.log('Item', { item, file });
-  const [state, setState] = useState<'error' | 'in_progress' | 'success'>();
+  setUploadDocumentsName
+}) {
+  const [state, setState] = useState<'error' | 'in_progress' | 'success'>(
+    'in_progress'
+  );
   const { mutate } = useMutation({
     mutationFn: (data: any) =>
       ApiService.multiDocBackgroundJobs(data).then((res) => res.json())
   });
   const [docId, setDocID] = useState('');
-
+  const toast = useCustomToast();
+  const file = filesUploading[0];
   useEffect(() => {
     let interval = null;
-
-    if (file.jobId) {
+    if (file.jobId && file.jobId.length > 0 && file.tables.length > 0) {
       interval = setInterval(() => {
         mutate(
           {
             jobId: file.jobId,
-            tables: [item]
+            tables: [file.tables]
           },
           {
             onSuccess: (data: any) => {
@@ -76,17 +45,14 @@ const Item = ({
                   status: 'success'
                 });
                 clearInterval(interval);
-                setUploadDocumentsId((prevState) => {
-                  setDocID(data.vectors[0].document_id);
-                  if (!prevState.includes(data.vectors[0].document_id)) {
-                    return [...prevState, data.vectors[0].document_id];
-                  }
-                  return prevState;
-                });
+                setUploadDocumentsId(...data.vectors.map((d) => d.document_id));
+                setUploadDocumentsName(
+                  ...data.vectors.map((d) => d.collection_name)
+                );
                 setFilesUploading((prevState) => {
                   return prevState.map((job) =>
                     job.jobId === file.jobId
-                      ? { ...job, processing: false }
+                      ? { ...job, processing: false, tables: [], jobId: '' }
                       : job
                   );
                 });
@@ -106,13 +72,54 @@ const Item = ({
             }
           }
         );
-      }, 5000);
+      }, 2500);
     }
 
     return () => {
       return clearInterval(interval);
     };
-  }, [file.jobId]);
+  }, [file]);
+  console.log('multiDocBackgroundJobs', filesUploading);
+  return (
+    <div className="uploading-documents flex w-full flex-col gap-[9px] justify-start mt-[1.8rem] max-h-[10rem] overflow-y-scroll no-scrollbar">
+      {filesUploading.map((file) => {
+        return file.tables.map((item) => {
+          return (
+            <Item
+              item={item}
+              file={file}
+              setUploadDocumentsId={setUploadDocumentsId}
+              setFilesUploading={setFilesUploading}
+              state={state}
+            />
+          );
+        });
+      })}
+    </div>
+  );
+}
+
+const Item = ({
+  item,
+  file,
+  setUploadDocumentsId,
+  setFilesUploading,
+  state
+}: {
+  item: any;
+  file: any;
+  setUploadDocumentsId: any;
+  setFilesUploading: any;
+  state: 'error' | 'in_progress' | 'success';
+}) => {
+  console.log('Item', { item, file });
+
+  const { mutate } = useMutation({
+    mutationFn: (data: any) =>
+      ApiService.multiDocBackgroundJobs(data).then((res) => res.json())
+  });
+  const [docId, setDocID] = useState('');
+
   return (
     <div
       className={cn(

@@ -19,6 +19,9 @@ function DocSelector() {
     }[]
   >([]);
   const [uploadedDocumentsId, setUploadDocumentsId] = useState([]);
+  const [uploadedDocumentsName, setUploadDocumentsName] = useState<
+    Array<string>
+  >([]);
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
@@ -103,10 +106,12 @@ function DocSelector() {
             setFilesUploading={setFilesUploading}
             uploadedDocumentsId={uploadedDocumentsId}
             filesUploading={filesUploading}
+            uploadDocumentsName={uploadedDocumentsName}
           />
           <UploadingItems
             filesUploading={filesUploading}
             setUploadDocumentsId={setUploadDocumentsId}
+            setUploadDocumentsName={setUploadDocumentsName}
             setFilesUploading={setFilesUploading}
           />
         </div>

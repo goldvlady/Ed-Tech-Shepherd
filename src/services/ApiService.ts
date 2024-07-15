@@ -1241,7 +1241,7 @@ class ApiService {
     );
   };
 
-  static getMultiDocHighlight = async (documentId) => {
+  static getMultiDocHighlight = async (documentId: string) => {
     return await doFetch(
       `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
