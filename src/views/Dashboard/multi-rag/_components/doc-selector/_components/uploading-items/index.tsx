@@ -45,10 +45,12 @@ function UploadingItems({
                   status: 'success'
                 });
                 clearInterval(interval);
-                setUploadDocumentsId(...data.vectors.map((d) => d.document_id));
-                setUploadDocumentsName(
+                setUploadDocumentsId([
+                  ...data.vectors.map((d) => d.document_id)
+                ]);
+                setUploadDocumentsName([
                   ...data.vectors.map((d) => d.collection_name)
-                );
+                ]);
                 setFilesUploading((prevState) => {
                   return prevState.map((job) =>
                     job.jobId === file.jobId
