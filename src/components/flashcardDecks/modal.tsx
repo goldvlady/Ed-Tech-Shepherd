@@ -633,7 +633,7 @@ const StudyBox = () => {
     if (flashcard) {
       posthog?.capture('client_flashcard_studied', {
         distinct_id: user._id,
-        quizId: flashcard?._id,
+        flashcardId: flashcard?._id,
         userId: user?._id,
         score: savedScore
       });
