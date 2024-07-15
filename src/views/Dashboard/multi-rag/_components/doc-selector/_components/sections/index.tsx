@@ -24,7 +24,7 @@ function Sections({
         />
       </Section>
       <Section active={active === 1}>
-        <SelectDocuments />
+        <SelectDocuments active={active === 1} />
       </Section>
       <Section active={active === 2}>
         <ExternalSources />

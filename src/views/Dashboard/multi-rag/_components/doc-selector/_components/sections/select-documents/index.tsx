@@ -17,7 +17,7 @@ import {
 import { languages } from '../../../../../../../../helpers';
 import PDFThumbnailViewer from '../../../../../../../../components/pdf-thumbnail-viewer';
 
-function SelectDocuments() {
+function SelectDocuments({ active }: { active: boolean }) {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selected, setSelected] = useState<Array<string>>([]);
   const { user } = useUserStore();
@@ -40,7 +40,7 @@ function SelectDocuments() {
         );
       return r;
     },
-    refetchInterval: 1500
+    enabled: active
   });
 
   const { mutate: mutateChatName, isPending } = useMutation({
