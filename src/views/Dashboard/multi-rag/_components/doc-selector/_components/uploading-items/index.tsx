@@ -24,10 +24,11 @@ function UploadingItems({
   });
   const [docId, setDocID] = useState('');
   const toast = useCustomToast();
+  console.log(filesUploading[0]);
   const file = filesUploading[0];
   useEffect(() => {
     let interval = null;
-    if (file.jobId && file.jobId.length > 0 && file.tables.length > 0) {
+    if (file && file.jobId && file.jobId.length > 0 && file.tables.length > 0) {
       interval = setInterval(() => {
         mutate(
           {
