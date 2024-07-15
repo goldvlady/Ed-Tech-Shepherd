@@ -1,7 +1,7 @@
 import { ReloadIcon, UploadIcon } from '@radix-ui/react-icons';
 import { Button } from '../../../../../../../../components/ui/button';
 import { useDropzone } from 'react-dropzone';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../../state/userStore';
@@ -25,6 +25,7 @@ function UploadFiles({
 }) {
   console.log('uploadedDocumentsId', filesUploading);
   const { user } = useUserStore();
+  const [disableChatButton, setDisableChatButton] = useState(true);
   const navigate = useNavigate();
   const toast = useCustomToast();
   const handleSubmit = (inputFiles) => {
@@ -103,6 +104,7 @@ function UploadFiles({
             });
             return newState;
           });
+          setDisableChatButton(false);
         }
       })
       .catch((error) => console.error('Error:', error));
@@ -150,6 +152,7 @@ function UploadFiles({
             },
             {
               onSuccess: (chatName) => {
+                setDisableChatButton(true);
                 if (chatName.status === 'success') {
                   navigate(`/dashboard/doc-chat/${data.data}`, {
                     replace: true
@@ -170,7 +173,12 @@ function UploadFiles({
       <Button
         className="absolute top-0 right-0 mt-[1.6rem] mr-[2.8rem]"
         onClick={startConversation}
-        disabled={isGeneratingConvID || isPending || anyProcessingTrue}
+        disabled={
+          disableChatButton ||
+          isGeneratingConvID ||
+          isPending ||
+          anyProcessingTrue
+        }
       >
         {anyProcessingTrue && (
           <div className="absolute left-[-196px] text-black flex items-center gap-2">
