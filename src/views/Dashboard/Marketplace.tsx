@@ -465,40 +465,34 @@ export default function Marketplace() {
                   }
                   components={{ DropdownIndicator }}
                   isSearchable
-                  // @ts-ignore
                   styles={{
-                    // @ts-ignore
-                    container: (provided) =>
-                      ({
-                        ...provided,
-                        width: '150px',
-                        position: 'relative',
-                        zIndex: '99999'
-                      } as unknown as any),
-                    control: (provided) =>
-                      ({
-                        ...provided,
-                        borderRadius: '40px',
-                        fontSize: '14px',
-                        fontWeight: '400',
-                        textAlign: 'left',
-                        borderColor: '#E2E8F0'
-                      } as unknown as any),
-                    menu: (provided) =>
-                      ({
-                        ...provided,
-                        marginTop: '2px'
-                      } as unknown as any),
-                    option: (provided, state) =>
-                      ({
-                        ...provided,
-                        backgroundColor: state.isFocused
-                          ? '#F2F4F7'
-                          : 'transparent',
-                        ':active': {
-                          backgroundColor: '#F2F4F7'
-                        }
-                      } as unknown as any)
+                    container: (provided) => ({
+                      ...provided,
+                      width: '150px',
+                      position: 'relative',
+                      zIndex: '99999'
+                    }),
+                    control: (provided) => ({
+                      ...provided,
+                      borderRadius: '40px',
+                      fontSize: '14px',
+                      fontWeight: '400',
+                      textAlign: 'left',
+                      borderColor: '#E2E8F0'
+                    }),
+                    menu: (provided) => ({
+                      ...provided,
+                      marginTop: '2px'
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isFocused
+                        ? '#F2F4F7'
+                        : 'transparent',
+                      ':active': {
+                        backgroundColor: '#F2F4F7'
+                      }
+                    })
                   }}
                 />
               </Box>
@@ -722,25 +716,6 @@ export default function Marketplace() {
                 handlePagination={(nextPage) => setPage(nextPage)}
               />
             </>
-          ) : loadingData ? (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="20px">
-              {[1, 2, 3].map((provider) => (
-                <Box
-                  bg={'white'}
-                  w={{ sm: '100%', md: '100%', lg: '100%', base: '100%' }}
-                  height={{
-                    base: '40vh', // Sets height to 40% of the viewport height on the smallest screens
-                    sm: '285px', // Sets a fixed height for sm screens and larger
-                    md: '285px', // Continues the fixed height for md screens
-                    lg: '325px' // Adjusts the height for lg screens and larger
-                  }}
-                  borderRadius="12px"
-                  border="1px solid #EBEDEF"
-                  key={provider}
-                  className=" animate-pulse"
-                ></Box>
-              ))}
-            </SimpleGrid>
           ) : (
             !loadingData && (
               <>
