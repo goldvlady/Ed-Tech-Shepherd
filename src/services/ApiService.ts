@@ -1191,6 +1191,21 @@ class ApiService {
       }
     );
   };
+  static multiDocHighlightDelete = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/delete-highlight`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
 
   static multiDocCreateTitle = async (data) => {
     return await doFetch(

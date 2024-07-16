@@ -1,7 +1,13 @@
-import { ChevronDown, File, Highlighter, PinOff } from 'lucide-react';
+import {
+  ChevronDown,
+  File,
+  Highlighter,
+  PinOff,
+  TrashIcon
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '../../../../../library/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
 import ShareModal from '../../../../../components/ShareModal';
 import { User } from '../../../../../types';
@@ -208,39 +214,64 @@ const HighlightsSection = ({
   const [expanded, setExpanded] = useState(false);
   const ref = useRef(null);
 
-  const { data: highlightPositions } = useQuery({
+  const { data: highlightPositions, refetch } = useQuery({
     queryKey: ['documentHighlight', documentId],
     queryFn: () =>
       ApiService.getMultiDocHighlight(documentId).then((res) => res.json()),
     select(data) {
       if (data.status === 'success') {
         console.log(data.data, 'HIGHLIGHT FROM API');
+        console.log(
+          data.data.map((item) => {
+            return JSON.parse(item.highlight);
+          }),
+          'MAP OVER FLAT MAP'
+        );
         const positions = data.data.flatMap((item) => {
           return JSON.parse(item.highlight);
         });
+        console.log(positions, 'Positions flat map from the actual data');
         return [].concat(...positions);
       } else {
         return [];
       }
     }
   });
-
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['delete-highlight'],
+    mutationFn: (data: any) =>
+      ApiService.multiDocHighlightDelete(data).then((res) => res.json()),
+    onSuccess: () => refetch()
+  });
   console.log('highlightPositions', highlightPositions);
 
   const HighlightItem = ({
     title,
-    onClick
+    onClick,
+    deleteHandler,
+    isDeletingHighlight
   }: {
     title: string;
     onClick: () => void;
+    deleteHandler: (highlightText: string) => void;
+    isDeletingHighlight: boolean;
   }) => {
     return (
       <div
-        className="p-2 bg-orange-200 rounded-md transition-shadow hover:shadow-md cursor-pointer"
+        className="p-2 flex items-start bg-orange-200 rounded-md transition-shadow hover:shadow-md cursor-pointer"
         role="listitem"
-        onClick={onClick}
       >
-        <p className="text-xs font-normal">{title}</p>
+        <p onClick={onClick} className="text-xs font-normal flex-1">
+          {title}
+        </p>
+        <TrashIcon
+          style={{ pointerEvents: isDeletingHighlight ? 'none' : 'auto' }}
+          onClick={() => deleteHandler(title)}
+          className={cn(
+            'text-red-500 w-4 ml-auto mr-0.5 cursor:pointer hover:text-red-300',
+            isDeletingHighlight && 'text-red-400'
+          )}
+        />
       </div>
     );
   };
@@ -256,7 +287,15 @@ const HighlightsSection = ({
       setExpanded(false);
     }
   };
-
+  const deleteHandler = (highlightText: string) => {
+    const highlight = highlightPositions.find((h) =>
+      h.name.includes(highlightText)
+    );
+    console.log(highlight);
+    if (highlight) {
+      mutate({ highlight, documentId });
+    }
+  };
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
@@ -298,8 +337,10 @@ const HighlightsSection = ({
                   const pageIndex = item.position[0]
                     ? item.position[0].pageIndex
                     : 0;
-                  setHighlightedDocumentPageIndex(pageIndex);
+                  //setHighlightedDocumentPageIndex(pageIndex);
                 }}
+                deleteHandler={deleteHandler}
+                isDeletingHighlight={isPending}
               />
             ))}
           </div>
