@@ -189,6 +189,7 @@ function PDFViewer({
                 type="number"
                 min={0}
                 max={totalPages}
+                defaultValue={currentPage + 1}
                 onChange={(e) => {
                   const { jumpToPage } = pageNavigationPluginInstance;
                   const page = parseInt(e.target.value);
