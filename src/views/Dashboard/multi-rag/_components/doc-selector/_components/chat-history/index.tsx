@@ -55,7 +55,7 @@ function ChatHistory() {
       ApiService.multiPreviousConversations(user?._id).then((res) => res.json())
   });
   const [searchValue, setSearchValue] = useState('');
-  console.log('UID', user._id);
+
   if (isLoading) {
     return <LoadingSkeleton />;
   }

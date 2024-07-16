@@ -10,6 +10,7 @@ import CustomMarkdownView, {
   stripMarkdown
 } from '../../../../../components/CustomComponents/CustomMarkdownView';
 import useUserStore from '../../../../../state/userStore';
+import { useVectorsStore } from '../../../../../state/vectorsStore';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -104,28 +105,13 @@ const SummarySection = ({
   const [summaryExpanded, setSummaryExpanded] = useState(false);
   const [summaries, setSummaries] = useState([]);
   const ref = useRef(null);
-
-  const { data } = useQuery({
-    queryKey: ['documentsBasedOnConversationID', conversationID, refetch],
-    queryFn: () =>
-      ApiService.fetchMultiDocBasedOnConversationID(conversationID).then(
-        (res) => res.json()
-      ),
-    select: (data) => {
-      if (data.status === 'success') {
-        const docIDs = data.data.map((item) => item.document_id);
-        return docIDs;
-      } else {
-        return [];
-      }
-    },
-    placeholderData: () => []
-  });
-
+  const docIds = useVectorsStore((state) => state.chatDocuments).map(
+    (item) => item.document_id
+  );
   const { data: summary } = useQuery({
-    queryKey: ['summary', data],
+    queryKey: ['summary', docIds],
     queryFn: () =>
-      ApiService.multiDocSummary(JSON.stringify(data)).then((res) =>
+      ApiService.multiDocSummary(JSON.stringify(docIds)).then((res) =>
         res.json()
       ),
     select: (data) => {
@@ -138,11 +124,10 @@ const SummarySection = ({
         return [];
       }
     },
-    refetchInterval: 2000,
-    enabled: data && data.length > 0 && summaries.length === 0
+    enabled: docIds && docIds.length > 0
   });
 
-  const index = data?.indexOf(selectedDoc);
+  const index = docIds?.indexOf(selectedDoc);
 
   const toggleExpand = () => {
     setSummaryExpanded(!summaryExpanded);
@@ -229,6 +214,7 @@ const HighlightsSection = ({
       ApiService.getMultiDocHighlight(documentId).then((res) => res.json()),
     select(data) {
       if (data.status === 'success') {
+        console.log(data.data, 'HIGHLIGHT FROM API');
         const positions = data.data.flatMap((item) => {
           return JSON.parse(item.highlight);
         });

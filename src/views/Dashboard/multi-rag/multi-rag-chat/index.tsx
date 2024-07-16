@@ -88,7 +88,11 @@ function MultiRagChat() {
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
-    mutationFn: async (d: { jobId: string; tables: Array<string> }) => {
+    mutationFn: async (d: {
+      jobId: string;
+      tables: Array<string>;
+      sid: string;
+    }) => {
       const data: {
         vectors?: Array<MultiragDocument>;
         status: 'error' | 'in_progress' | 'success';
@@ -103,13 +107,14 @@ function MultiRagChat() {
         if (data.status === 'in_progress') {
           mutate({
             jobId: filesUploading.jobId,
-            tables: filesUploading.tables
+            tables: filesUploading.tables,
+            sid: user._id
           });
           setFilesUploading({
-            uploading: 'uploading',
+            uploading: 'default',
             tables: [],
             jobId: '',
-            processing: false
+            processing: true
           });
         } else if (data.status === 'success') {
           const collectionMap = new Map();
@@ -178,7 +183,11 @@ function MultiRagChat() {
       filesUploading.tables.length > 0 &&
       filesUploading.uploading === 'uploading'
     ) {
-      mutate({ jobId: filesUploading.jobId, tables: filesUploading.tables });
+      mutate({
+        jobId: filesUploading.jobId,
+        tables: filesUploading.tables,
+        sid: user._id
+      });
       setFilesUploading({ ...filesUploading, uploading: 'default' });
       setIsLoading(true);
     }
@@ -229,13 +238,7 @@ function MultiRagChat() {
       <div className="bg-[#F9F9FB] w-full h-full overflow-hidden flex relative">
         <DocsThumbnailList
           user={user}
-          isUploading={
-            filesUploading.uploading === 'uploading'
-              ? true
-              : isLoading
-              ? isLoading
-              : isPending
-          }
+          isUploading={filesUploading.processing}
           refetch={refetch}
           setFilesUploading={setFilesUploading}
           conversationID={docId}
