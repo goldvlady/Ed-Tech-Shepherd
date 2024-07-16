@@ -465,13 +465,16 @@ export default function Marketplace() {
                   }
                   components={{ DropdownIndicator }}
                   isSearchable
+                  // @ts-ignore
                   styles={{
-                    container: (provided) => ({
-                      ...provided,
-                      width: '150px',
-                      position: 'relative',
-                      zIndex: '99999'
-                    }),
+                    // @ts-ignore
+                    container: (provided) =>
+                      ({
+                        ...provided,
+                        width: '150px',
+                        position: 'relative',
+                        zIndex: '99999'
+                      } as unknown as any),
                     control: (provided) =>
                       ({
                         ...provided,
