@@ -1,24 +1,29 @@
-import { Link, useLocation } from 'react-router-dom';
-import Logo from '../Logo';
-import { FiHome } from 'react-icons/fi';
-import { cn } from '../../library/utils';
-import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { ChevronLeftIcon } from '@radix-ui/react-icons';
+import { isNil, isEmpty } from 'lodash';
+import { useToggle } from 'usehooks-ts';
+
+import { BsChatLeftDots, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
-import { TbCards } from 'react-icons/tb';
+import { FiHome } from 'react-icons/fi';
+import { GiShepherdsCrook } from 'react-icons/gi';
+import { MdOutlineFeedback } from 'react-icons/md';
 import { LuFileQuestion } from 'react-icons/lu';
 import { PiClipboardTextLight } from 'react-icons/pi';
-import BarnImg from '../../assets/Barn.svg';
-import { MdOutlineFeedback } from 'react-icons/md';
 import { RiChat3Line } from 'react-icons/ri';
+import { TbCards } from 'react-icons/tb';
+
+import Logo from '../Logo';
+import { cn } from '../../library/utils';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '../ui/accordion';
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeftIcon } from '@radix-ui/react-icons';
-import { GiShepherdsCrook } from 'react-icons/gi';
+import BarnImg from '../../assets/Barn.svg';
+import { SelectedNoteModal } from '..';
 
 const listItems = [
   { name: 'Library', icon: BsBook, path: '/dashboard/library', coming: false },
@@ -50,6 +55,9 @@ function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [aiChatValue, setAiChatValue] = useState(null);
   const [shepherds, setShepherds] = useState(null);
+
+  const [showDocChatModal, toggleShowDocChatModal, setShowDocChatModal] =
+    useToggle(false);
 
   return (
     <div
@@ -142,7 +150,8 @@ function Sidebar() {
                     title="Doc chat"
                     active={false}
                     icon={null}
-                    link="/dashboard/doc-chat"
+                    // link="/dashboard/doc-chat"
+                    action={toggleShowDocChatModal}
                   />
                   <SidebarItem
                     hideLabel={collapsed}
@@ -275,6 +284,13 @@ function Sidebar() {
           />
         </div>
       </div>
+
+      {showDocChatModal && (
+        <SelectedNoteModal
+          show={showDocChatModal}
+          setShow={setShowDocChatModal}
+        />
+      )}
     </div>
   );
 }
@@ -282,11 +298,10 @@ function Sidebar() {
 const SidebarItem = ({
   title,
   icon,
-  active,
   link,
   comingSoon,
   hideLabel,
-  external
+  action
 }: {
   title: string;
   icon?: JSX.Element;
@@ -295,16 +310,22 @@ const SidebarItem = ({
   comingSoon?: boolean;
   hideLabel?: boolean;
   external?: boolean;
+  action?: () => void;
 }) => {
-  const Comp = link ? Link : 'div';
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   return (
-    <Comp
-      to={link}
-      {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+    <div
       className={cn({
         'pointer-events-none': comingSoon
       })}
+      onClick={() => {
+        if (!isNil(link) && !isEmpty(link)) {
+          navigate(link);
+          return;
+        }
+        action?.();
+      }}
     >
       <div
         className={cn(
@@ -327,7 +348,7 @@ const SidebarItem = ({
           </p>
         )}
       </div>
-    </Comp>
+    </div>
   );
 };
 
