@@ -1034,12 +1034,13 @@ class ApiService {
 
   static uploadMultiDocFiles = async (queryParams: {
     studentId: string;
+    subtopicId: string;
     formData: FormData;
   }) => {
     console.log('SID', queryParams.studentId);
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}&st=${queryParams.subtopicId}`,
       {
         method: 'POST',
         body: queryParams.formData
@@ -1143,10 +1144,10 @@ class ApiService {
       }
     );
   };
-  static multiDocVectorDocs = async (sId: string) => {
+  static multiDocVectorDocs = async (sId: string, subtopicId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `${ApiService.multiRagMainURL}/vector_docs/${sId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/${sId}?st=${subtopicId}`,
       {
         method: 'GET'
       },

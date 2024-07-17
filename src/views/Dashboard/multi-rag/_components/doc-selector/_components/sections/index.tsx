@@ -9,13 +9,19 @@ function Sections({
   setFilesUploading,
   uploadedDocumentsId,
   filesUploading,
-  uploadDocumentsName
+  uploadDocumentsName,
+  setUploadDocumentsName,
+  setUploadedDocs,
+  setState
 }: {
   active: number;
   setFilesUploading: any;
   uploadedDocumentsId: any[];
   uploadDocumentsName: Array<string>;
   filesUploading: any[];
+  setUploadDocumentsName: Dispatch<SetStateAction<string[]>>;
+  setUploadedDocs: Dispatch<SetStateAction<string[]>>;
+  setState: Dispatch<SetStateAction<'success' | 'error' | 'in_progress'>>;
 }) {
   return (
     <main className="w-full bg-white min-h-[25rem] rounded-b-[10px] rounded-tr-[10px] relative overflow-hidden">
@@ -25,6 +31,9 @@ function Sections({
           filesUploading={filesUploading}
           setFilesUploading={setFilesUploading}
           uploadedDocumentsId={uploadedDocumentsId}
+          setUploadDocumentsName={setUploadDocumentsName}
+          setUploadedDocs={setUploadedDocs}
+          setState={setState}
         />
       </Section>
       <Section active={active === 1}>

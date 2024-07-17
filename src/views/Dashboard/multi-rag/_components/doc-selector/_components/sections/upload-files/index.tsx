@@ -9,6 +9,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { Loader } from 'lucide-react';
+import { useSubtopicIdStore } from '../../../../../../../../state/subTopicStore';
 
 const isExactMatch = (arr1, arr2) => {
   if (arr1.length !== arr2.length) return false;
@@ -21,17 +22,22 @@ function UploadFiles({
   setFilesUploading,
   uploadedDocumentsId,
   filesUploading,
-  uploadDocumentsName
+  uploadDocumentsName,
+  setUploadDocumentsName,
+  setUploadedDocs,
+  setState
 }) {
   console.log('uploadedDocumentsId', filesUploading);
   const { user } = useUserStore();
   const [disableChatButton, setDisableChatButton] = useState(true);
   const navigate = useNavigate();
   const toast = useCustomToast();
+  const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const handleSubmit = (inputFiles) => {
+    setUploadDocumentsName([]);
+    setUploadedDocs([]);
     setFilesUploading((pS) => {
       return [
-        ...pS,
         {
           jobId: '',
           uploading: true,
@@ -73,10 +79,12 @@ function UploadFiles({
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({
       studentId: sid,
+      subtopicId,
       formData
     })
       .then((response) => {
         if (response.status === 404) {
+          setState('error');
           toast({
             title: 'Duplicate Documents Detected',
             description: 'Document(s) has been uploaded before'
@@ -118,7 +126,10 @@ function UploadFiles({
       onDrop,
       accept: {
         'application/pdf': ['.pdf']
-      }
+      },
+      disabled:
+        (filesUploading.length > 0 && filesUploading[0].uploading) ||
+        (filesUploading.length > 0 && filesUploading[0].processing)
     });
   const { mutate, isPending: isGeneratingConvID } = useMutation({
     mutationFn: (data: {

@@ -37,6 +37,7 @@ import {
 import { HeaderItem } from '../../../doc-selector';
 import Sections, { Section } from '../../../doc-selector/_components/sections';
 import { Button } from '../../../../../../../components/ui/button';
+import { useSubtopicIdStore } from '../../../../../../../state/subTopicStore';
 
 function ThumbnailList({
   fetchedDocuments,
@@ -87,7 +88,7 @@ function ThumbnailList({
     useState(false);
   const [existingDocs, setExistingDocs] = useState<MultiragDocument[]>([]);
   const [selected, setSelected] = useState<Array<string>>([]);
-
+  const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const handleAddNewDocOpen = () => {
     setAddNewDocumentDialogOpen(true);
   };
@@ -131,6 +132,7 @@ function ThumbnailList({
     // Use fetch to POST data
     ApiService.uploadMultiDocFiles({
       studentId: sid,
+      subtopicId,
       formData
     })
       .then((response) => {
@@ -178,11 +180,11 @@ function ThumbnailList({
   useEffect(() => {
     if (user) {
       qc.ensureQueryData({
-        queryKey: ['processed-documents'],
+        queryKey: ['processed-documents', subtopicId],
         queryFn: async () => {
           const r: multiragResponse<Array<MultiragDocument>> =
-            await ApiService.multiDocVectorDocs(user._id).then((res) =>
-              res.json()
+            await ApiService.multiDocVectorDocs(user._id, subtopicId).then(
+              (res) => res.json()
             );
           return r;
         }
@@ -190,7 +192,7 @@ function ThumbnailList({
         setExistingDocs(r.data);
       });
     }
-  }, [user, qc]);
+  }, [user, qc, subtopicId]);
   return (
     <div className="w-full h-full mt-[1.5rem]">
       <h5 className="text-[#585F68] text-[0.75rem] font-normal mb-[10px] flex justify-between">

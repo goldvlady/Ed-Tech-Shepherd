@@ -18,10 +18,14 @@ function DocSelector() {
       processing: boolean;
     }[]
   >([]);
+  const [state, setState] = useState<'error' | 'in_progress' | 'success'>(
+    'in_progress'
+  );
   const [uploadedDocumentsId, setUploadDocumentsId] = useState([]);
   const [uploadedDocumentsName, setUploadDocumentsName] = useState<
     Array<string>
   >([]);
+  const [uploadedDocs, setUploadedDocs] = useState<Array<string>>([]);
   const toast = useCustomToast();
   const { mutate } = useMutation({
     mutationKey: ['long-poll'],
@@ -92,12 +96,18 @@ function DocSelector() {
             <HeaderItem
               title="Upload"
               isActive={active === 0}
-              onClick={() => setActive(0)}
+              onClick={() => {
+                uploadedDocumentsName.length > 0 && setUploadDocumentsName([]);
+                setActive(0);
+              }}
             />
             <HeaderItem
               title="Documents"
               isActive={active === 1}
-              onClick={() => setActive(1)}
+              onClick={() => {
+                uploadedDocumentsName.length > 0 && setUploadDocumentsName([]);
+                setActive(1);
+              }}
               className="mx-[-0.5rem]"
             />
           </header>
@@ -107,12 +117,19 @@ function DocSelector() {
             uploadedDocumentsId={uploadedDocumentsId}
             filesUploading={filesUploading}
             uploadDocumentsName={uploadedDocumentsName}
+            setUploadDocumentsName={setUploadDocumentsName}
+            setUploadedDocs={setUploadedDocs}
+            setState={setState}
           />
           <UploadingItems
+            state={state}
+            setState={setState}
             filesUploading={filesUploading}
             setUploadDocumentsId={setUploadDocumentsId}
             setUploadDocumentsName={setUploadDocumentsName}
             setFilesUploading={setFilesUploading}
+            uploadedDocs={uploadedDocs}
+            setUploadedDocs={setUploadedDocs}
           />
         </div>
       </div>

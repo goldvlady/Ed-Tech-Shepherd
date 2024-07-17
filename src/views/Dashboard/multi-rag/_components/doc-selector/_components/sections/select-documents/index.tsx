@@ -16,6 +16,7 @@ import {
 } from '../../../../../../../../types';
 import { languages } from '../../../../../../../../helpers';
 import PDFThumbnailViewer from '../../../../../../../../components/pdf-thumbnail-viewer';
+import { useSubtopicIdStore } from '../../../../../../../../state/subTopicStore';
 
 function SelectDocuments({ active }: { active: boolean }) {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
@@ -31,11 +32,12 @@ function SelectDocuments({ active }: { active: boolean }) {
       language: (typeof languages)[number];
     }) => ApiService.multiDocConversationStarter(data).then((res) => res.json())
   });
+  const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const { data: documents, isLoading } = useQuery({
-    queryKey: ['processed-documents'],
+    queryKey: ['processed-documents', subtopicId],
     queryFn: async () => {
       const r: multiragResponse<Array<MultiragDocument>> =
-        await ApiService.multiDocVectorDocs(user?._id).then((res) =>
+        await ApiService.multiDocVectorDocs(user?._id, subtopicId).then((res) =>
           res.json()
         );
       return r;
