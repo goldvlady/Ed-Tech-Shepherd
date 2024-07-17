@@ -88,6 +88,7 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
+import Sidebar from '../../components/sidebar';
 
 interface LinkItemProps {
   name: string;
@@ -325,7 +326,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             _hover={{ cursor: 'pointer' }}
           >
             <IoIosArrowRoundBack />
-            {/* <Text fontSize={12}>Back</Text> */}
           </Flex>
           <Flex
             bgColor={'transparent'}
@@ -342,7 +342,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               transform: 'translateY(-2px)'
             }}
           >
-            {/* <Image src={AskIcon} /> */}
             {<AskIcon />}
             <Text> Ask Shep?</Text>
           </Flex>
@@ -361,33 +360,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-          {/* <Box display={{ base: 'flex', md: 'none' }}>
-            <Flex
-              bgColor={'transparent'}
-              color="text.400"
-              border="1px solid #EBECF0"
-              borderRadius={'40px'}
-              fontSize={{ base: '10px' }}
-              p="6px 16px"
-              onClick={activateHelpModal}
-              gap={2}
-              _hover={{
-                cursor: 'pointer',
-                bgColor: '#EDF2F7',
-                transform: 'translateY(-2px)'
-              }}
-            >
-              <Image src={AskIcon} />
-              <Text> Ask Sheps?</Text>
-            </Flex>
-          </Box> */}
           <HStack spacing={4}>
-            {/* <RiQuestionMark
-              className="cursor-pointer"
-              onClick={() => {
-                setOpenWelcome(true);
-              }}
-            /> */}
             <IconButton
               size="md"
               borderRadius={'100%'}
@@ -498,7 +471,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 <MenuItem p={2} m={1}>
                   <Link to="/dashboard/account-settings">
                     <Flex alignItems="center" gap={2}>
-                      {/* <PiUserCircleLight size="24px" /> */}
                       <Center
                         borderRadius="50%"
                         border="1px solid #EAEAEB"
@@ -980,8 +952,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <FlashCardEventNotifier />
       <div className="flex flex-col w-full h-full relative bg-white">
         <div className="h-full flex w-full">
-          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
-            <SidebarContent
+          <Sidebar />
+          {/* <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
               aiChatMenu={aiChatMenu}
@@ -996,36 +968,35 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               handleLockedClick={handleLockedClick}
               openModal={openModal}
               closeModal={closeModal}
-            />
-            <Drawer
-              autoFocus={false}
-              isOpen={isOpen}
-              placement="left"
-              onClose={onClose}
-              returnFocusOnClose={false}
-              onOverlayClick={onClose}
-              size="full"
-            >
-              <DrawerContent>
-                <SidebarContent
-                  onClose={onClose}
-                  tutorMenu={tutorMenu}
-                  setTutorMenu={setTutorMenu}
-                  toggleMenu={() => setTutorMenu(!tutorMenu)}
-                  aiChatMenu={aiChatMenu}
-                  // setAiChatMenu={setAiChatMenu}
-                  toggleChatMenu={toggleChatMenu}
-                  earnMenu={earnMenu}
-                  toggleEarnMenu={toggleEarnMenu}
-                  unreadCount={unreadCount}
-                  hasActiveSubscription={hasActiveSubscription}
-                  handleLockedClick={handleLockedClick}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              </DrawerContent>
-            </Drawer>
-          </div>
+            /> */}
+          <Drawer
+            autoFocus={false}
+            isOpen={isOpen}
+            placement="left"
+            onClose={onClose}
+            returnFocusOnClose={false}
+            onOverlayClick={onClose}
+            size="full"
+          >
+            <DrawerContent>
+              <SidebarContent
+                onClose={onClose}
+                tutorMenu={tutorMenu}
+                setTutorMenu={setTutorMenu}
+                toggleMenu={() => setTutorMenu(!tutorMenu)}
+                aiChatMenu={aiChatMenu}
+                // setAiChatMenu={setAiChatMenu}
+                toggleChatMenu={toggleChatMenu}
+                earnMenu={earnMenu}
+                toggleEarnMenu={toggleEarnMenu}
+                unreadCount={unreadCount}
+                hasActiveSubscription={hasActiveSubscription}
+                handleLockedClick={handleLockedClick}
+                openModal={openModal}
+                closeModal={closeModal}
+              />
+            </DrawerContent>
+          </Drawer>
           <div className="flex-1 overflow-y-hidden h-full">
             <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />

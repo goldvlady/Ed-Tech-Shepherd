@@ -11,6 +11,7 @@ import './index.css';
 import 'katex/dist/katex.min.css';
 import { MemoizedReactMarkdown } from './memoized-react-markdown';
 import { CodeBlock } from './code-block';
+import { cn } from '../../../library/utils';
 
 interface CustomComponents {
   button: any;
@@ -30,6 +31,7 @@ interface ICustomMarkdownView {
   handleSendKeyword?: any;
   handleSendMessage?: any;
   className?: string;
+  paragraphClass?: string;
 }
 
 const CustomMarkdownView = ({
@@ -37,7 +39,8 @@ const CustomMarkdownView = ({
   keywords = [],
   showDot,
   handleSendKeyword,
-  className
+  className,
+  paragraphClass
 }: ICustomMarkdownView) => {
   const [renderedSource, setRenderedSource] = useState<string>('');
 
@@ -56,14 +59,46 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle`}
+      className={cn(
+        'memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0',
+        'rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm relative overflow-wrap: break-word align-middle',
+        className,
+        paragraphClass
+      )}
       remarkPlugins={[remarkMath, remarkGfm]}
       rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
     >
-      {replaceLatexDelimiters(source, showDot)}
+      {extractMarkdown(
+        highlightBracketedText(replaceLatexDelimiters(source, showDot))
+      )}
     </MemoizedReactMarkdown>
   );
+};
+
+// Function to remove markdown wrapper from input e.g ```markdown {content} ```
+function extractMarkdown(content) {
+  // Regular expression to match content between ```markdown and ```
+  const regex = /```markdown\n([\s\S]*?)\n```/;
+
+  // Execute the regex to find matches
+  const match = regex.exec(content);
+
+  // If a match is found, return the first capturing group, which is the content
+  if (match) {
+    return match[1];
+  }
+
+  // Return null if no markdown block is found
+  return content;
+}
+
+const highlightBracketedText = (text) => {
+  if (text) {
+    return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');
+  } else {
+    return text;
+  }
 };
 
 function replaceKeywordsWithButtons(
@@ -78,7 +113,7 @@ function replaceKeywordsWithButtons(
 
 function replaceLatexDelimiters(source: string, showDot = false): string {
   const latexRemoved = source
-    .replaceAll('\\[', '$')
+    ?.replaceAll('\\[', '$')
     .replaceAll('\\]', '$')
     .replaceAll('\\(', '$')
     .replaceAll('\\)', '$');

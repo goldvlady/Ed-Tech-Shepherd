@@ -1,7 +1,6 @@
 import { firebaseAuth } from './firebase';
 import { ToastId, createStandaloneToast } from '@chakra-ui/react';
 import { isArray } from 'lodash';
-import { DateTime, IANAZone } from 'luxon';
 import moment, { Duration, Moment } from 'moment-timezone';
 
 const { toast } = createStandaloneToast();
@@ -41,7 +40,11 @@ export const doFetch = async (
   const headers: HeadersInit = { ...initHeaders };
 
   const token = await firebaseAuth.currentUser?.getIdToken();
-  headers['x-shepherd-header'] = 'vunderkind23';
+  if (window.location.pathname.includes('/dashboard/doc-chat')) {
+    headers['X-Shepherd-Header'] = 'vunderkind23';
+  } else {
+    headers['x-shepherd-header'] = 'vunderkind23';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -718,4 +721,34 @@ export const CODE_SNIPPETS = {
   dart: `void main() {\n\tprint("Hello, Dart!");\n}`,
   r: `greet <- function(name) {\n\tprint(paste("Hello,", name, "!"))\n}\n\ngreet("Alex")\n`,
   sql: `SELECT 'Hello, SQL!' AS message;`
+};
+
+export const merge = (target, ...sources) => {
+  return sources.reduce((t, s) => {
+    return mergeDeep(t, s);
+  }, target);
+};
+
+const mergeDeep = (target, source) => {
+  let output = Object.assign({}, target);
+  if (isPlainObject(target) && isPlainObject(source)) {
+    keys(source).forEach((key) => {
+      if (isPlainObject(source[key])) {
+        if (!(key in target)) Object.assign(output, { [key]: source[key] });
+        else output[key] = mergeDeep(target[key], source[key]);
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+};
+
+const isPlainObject = (obj) =>
+  !(obj instanceof Date) && obj === Object(obj) && !Array.isArray(obj);
+
+export default isPlainObject;
+
+const keys = (obj) => {
+  return obj === Object(obj) ? Object.keys(obj) : [];
 };
