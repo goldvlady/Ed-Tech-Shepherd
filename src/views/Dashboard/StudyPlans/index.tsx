@@ -303,20 +303,7 @@ function StudyPlans() {
           </Button>
         )}
       </Flex>
-      {isLoading ? (
-        <Box
-          p={5}
-          textAlign="center"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh'
-          }}
-        >
-          <ShepherdSpinner />
-        </Box>
-      ) : studyPlans.length > 0 ? (
+      {studyPlans && studyPlans.length > 0 ? (
         <>
           <SimpleGrid
             columns={{ base: 1, md: 2, lg: 3 }}

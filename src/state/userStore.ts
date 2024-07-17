@@ -8,6 +8,8 @@ import {
 } from '../types';
 import { create } from 'zustand';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 type List = {
   name: string;
   fullPath: string;
@@ -106,17 +108,22 @@ const useUserStore = create<Store>((set, get) => ({
       ? userData.mobileSubscription
       : userData.subscription;
 
-    const fileSizeLimitMB =
-      activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
+    const fileSizeLimitMB = userData.school
+      ? 50
+      : activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
     const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
-    const flashcardCountLimit = hasActiveSubscription
+    const flashcardCountLimit = isDevelopment
+      ? Infinity
+      : hasActiveSubscription
       ? activeSubscription?.subscriptionMetadata?.flashcard_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
       : 40; // Default limit to 40 if on free tier
 
-    const quizCountLimit = hasActiveSubscription
+    const quizCountLimit = isDevelopment
+      ? Infinity
+      : hasActiveSubscription
       ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
-      : 40;
+      : 40; // Default limit to 40 if on free tier
 
     const newState = {
       user: userData,
@@ -166,13 +173,17 @@ const useUserStore = create<Store>((set, get) => ({
           activeSubscription?.subscriptionMetadata?.file_mb_limit || 5;
         const fileSizeLimitBytes = fileSizeLimitMB * 1000000;
 
-        const flashcardCountLimit = hasActiveSubscription
+        const flashcardCountLimit = isDevelopment
+          ? Infinity
+          : hasActiveSubscription
           ? activeSubscription?.subscriptionMetadata?.flashcard_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
           : 40; // Default limit to 40 if on free tier
 
-        const quizCountLimit = hasActiveSubscription
+        const quizCountLimit = isDevelopment
+          ? Infinity
+          : hasActiveSubscription
           ? activeSubscription?.subscriptionMetadata?.quiz_limit || 50000 //premium value, need to run cron on backend not all premium objects have it
-          : 40;
+          : 40; // Default limit to 40 if on free tier
 
         const updatedState = {
           user: newUser,

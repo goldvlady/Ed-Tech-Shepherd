@@ -68,12 +68,12 @@ const DropdownFilter: React.FC<DropdownFilterProps> = ({
     onSelectionChange([]);
   }, [onSelectionChange]);
 
-  const handleSearchChange = useCallback(
-    throttle((term) => {
-      setSearchTerm(term);
-    }, 300),
-    []
-  );
+  // const handleSearchChange = useCallback(
+  //   throttle((term) => {
+  //     setSearchTerm(term);
+  //   }, 300),
+  //   []
+  // );
 
   useEffect(() => {
     if (searchTerm === '') {

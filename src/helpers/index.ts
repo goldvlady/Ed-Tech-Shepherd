@@ -56,7 +56,8 @@ export const languages = [
   'Turkish',
   'Vietnamese',
   'Swahili',
-  'Polish'
+  'Polish',
+  'Japanese'
 ] as const;
 const getDateStringTest = (date: any) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };

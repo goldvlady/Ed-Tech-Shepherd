@@ -300,7 +300,6 @@ export default function WeeklySummary(props) {
               // h={"45px"}
               borderBottom="1px solid #eeeff2"
               borderBottomRadius={'10px'}
-              marginTop="60px"
             >
               <Flex h="16px" alignItems={'center'} gap={1} direction="row">
                 <Flash />
@@ -333,3 +332,19 @@ export default function WeeklySummary(props) {
     </>
   );
 }
+
+export const WeeklySummarySkeleton = () => (
+  <Card
+    // bg={"#207DF7"}
+    // bgImage={briefCase}
+    // bgRepeat={"no-repeat"}
+    // bgSize={"160px"}
+    // bgPosition={"right -10px bottom 10px"}
+    height={{ base: 'auto', md: '379px' }}
+    borderRadius={{ base: '5px', md: '10px' }}
+    border="1px solid #eeeff2"
+    position={'relative'}
+    marginBottom={{ base: '26px', md: 'none' }}
+    className="animate-pulse"
+  ></Card>
+);

@@ -12,9 +12,14 @@ import userStore from '../../state/userStore';
 import { numberToDayOfWeekName, twoDigitFormat } from '../../util';
 import ActivityFeeds from './components/ActivityFeeds';
 import HourReminder from './components/HourReminder';
-import { PerformanceChart } from './components/PerformanceChart';
+import {
+  PerformanceChart,
+  PerformanceChartSkeleton
+} from './components/PerformanceChart';
 import Schedule from './components/Schedule';
-import WeeklySummary from './components/WeeklySummary';
+import WeeklySummary, {
+  WeeklySummarySkeleton
+} from './components/WeeklySummary';
 import { CustomButton } from './layout';
 import {
   Box,
@@ -26,7 +31,8 @@ import {
   useBreakpointValue,
   useDisclosure,
   Center,
-  VStack
+  VStack,
+  Card
 } from '@chakra-ui/react';
 import { signOut, getAuth } from 'firebase/auth';
 import { capitalize } from 'lodash';
@@ -36,7 +42,21 @@ import { RxDotFilled } from 'react-icons/rx';
 import { Link } from 'react-router-dom';
 import ShepherdSpinner from './components/shepherd-spinner';
 import eventsStore from '../../state/eventsStore';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '../../components/ui/button';
+const keys = [
+  'studentReport',
+  'calendarData',
+  'nextEvent',
+  'chartData'
+] as const;
+type KeyType = (typeof keys)[number];
 
+export const loadDataFromLocalStorage = (key: KeyType) => {
+  const data = localStorage.getItem(key);
+  console.log('LSD', data);
+  return data ? JSON.parse(data) : null;
+};
 export default function Index() {
   const top = useBreakpointValue({ base: '90%', md: '50%' });
   const side = useBreakpointValue({ base: '30%', md: '40px' });
@@ -52,102 +72,117 @@ export default function Index() {
   const isDayTime = hours > 6 && hours < 20;
 
   const { user } = userStore();
-  const { feeds, fetchFeeds } = feedsStore();
 
-  const [studentReport, setStudentReport] = useState<any>('');
-  const [chartData, setChartData] = useState<any>('');
-  const [calendarEventData, setCalendarEventData] = useState<any>([]);
-  const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
   const [isWithinOneHour, setIsWithinOneHour] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { fetchEvents, events } = eventsStore();
-  const fetchData = useCallback(async () => {
-    try {
-      const loadDataFromLocalStorage = (key) => {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
-      };
-
-      // Load data from local storage
-      const storedStudentReport = loadDataFromLocalStorage('studentReport');
-      const storedCalendarData = loadDataFromLocalStorage('calendarData');
-      const storedNextEvent = loadDataFromLocalStorage('nextEvent');
-      const storedChartData = loadDataFromLocalStorage('chartData');
-      // const storedFeeds = loadDataFromLocalStorage('feeds');
-
-      const hasCachedValues =
-        storedStudentReport && storedCalendarData && storedNextEvent;
-
-      if (hasCachedValues) {
-        setStudentReport(storedStudentReport);
-        setChartData(storedStudentReport);
-        setCalendarEventData(storedCalendarData);
-        setUpcomingEvent(storedNextEvent);
-        setChartData(storedChartData);
-        // setFeeds(storedFeeds);
-        setIsLoading(false);
-      }
-
-      if (!hasCachedValues) setIsLoading(true);
-
-      const [
-        studentReportResponse,
-        calendarResponse,
-        upcomingEventResponse,
-        feedsResponse
-      ] = await Promise.all([
-        ApiService.getStudentReport(),
-        fetchEvents(),
-        ApiService.getUpcomingEvent(),
-        fetchFeeds()
-      ]);
-
-      // Check for 401 status code in each response and log the user out if found
-      if (
-        studentReportResponse.status === 401 ||
-        // calendarResponse.status === 401 ||
-        upcomingEventResponse.status === 401
-      ) {
+  const {
+    data: feeds,
+    isLoading: isFeedsLoading,
+    isError: isFeedsError,
+    failureCount: feedsFailureCount,
+    refetch: feedsRefetch
+  } = useQuery({
+    queryKey: ['feeds-student'],
+    queryFn: async () => {
+      const response = await ApiService.getActivityFeeds();
+      if (response.status === 401) {
         signOut(auth).then(() => {
           sessionStorage.clear();
           localStorage.clear();
           window.location.href = '/login';
         });
-        return; // Exit the function to prevent further processing
       }
-
-      const studentReportData = await studentReportResponse.json();
-      // const calendarData = await calendarResponse.json();
-      const nextEvent = await upcomingEventResponse.json();
-
-      setStudentReport(studentReportData);
-      setChartData(studentReportData.topQuizzes);
-      // setCalendarEventData(calendarData.data);
-      setUpcomingEvent(nextEvent);
-
-      // Save data to local storage
-      localStorage.setItem('studentReport', JSON.stringify(studentReportData));
-      localStorage.setItem('calendarData', JSON.stringify(events));
-      localStorage.setItem(
-        'chartData',
-        JSON.stringify(studentReportData.topQuizzes)
-      );
-      localStorage.setItem('nextEvent', JSON.stringify(nextEvent));
-
-      // setFeeds(feedsResponse);
-    } catch (error) {
-      // console.log(error);
-    } finally {
-      setIsLoading(false);
+      if (!response.ok) throw new Error('Something went wrong fetching');
+      const feeds = await response.json();
+      return feeds;
+    },
+    retry: 3
+  });
+  const {
+    data: events,
+    isLoading: isEventsLoading,
+    isError: isEventsError,
+    failureCount,
+    refetch: eventsRefetch
+  } = useQuery({
+    queryKey: ['events-student'],
+    queryFn: async () => {
+      const response = await ApiService.getCalendarEvents();
+      if (response.status === 401) {
+        signOut(auth).then(() => {
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      }
+      if (!response.ok) throw new Error('Something went wrong fetching');
+      const { data } = await response.json();
+      return data;
+    },
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('calendarData');
+      return d;
     }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  });
+  console.log('EVENTS ->', events);
+  const {
+    data: studentReport,
+    isLoading: isStudentReportLoading,
+    isError: isStudentReportError,
+    failureCount: studentReportFailurCount,
+    refetch: studentRefetch
+  } = useQuery({
+    queryKey: ['studentReport'],
+    queryFn: async () => {
+      const response = await ApiService.getStudentReport();
+      if (response.status === 401) {
+        signOut(auth).then(() => {
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      }
+      if (!response.ok)
+        throw new Error('Something went wrong fetching student reports');
+      const studentReport = await response.json();
+      return studentReport;
+    },
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('studentReport');
+      return d;
+    }
+  });
+  console.log('STUDENT REPORT->', studentReport);
+  const {
+    data: upcomingEvent,
+    isLoading: isUpcomingEventLoading,
+    isError: isUpcomingEventError,
+    failureCount: upcomingEventFailureCount,
+    refetch: upcomingEventRefetch
+  } = useQuery({
+    queryKey: ['upcomingEvent-student'],
+    queryFn: async () => {
+      const response = await ApiService.getUpcomingEvent();
+      if (response.status === 401) {
+        signOut(auth).then(() => {
+          sessionStorage.clear();
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      }
+      if (!response.ok)
+        throw new Error('Something went wrong fetching student reports');
+      const upcomingEvent = await response.json();
+      return upcomingEvent;
+    },
+    retry: 3,
+    initialData: () => {
+      const d = loadDataFromLocalStorage('nextEvent');
+      return d;
+    }
+  });
 
   const checkTimeDifference = () => {
     const currentTime = new Date().getTime();
@@ -169,6 +204,15 @@ export default function Index() {
     }
     // eslint-disable-next-line
   }, [upcomingEvent]);
+  useEffect(() => {
+    if (studentReport)
+      localStorage.setItem('studentReport', JSON.stringify(studentReport));
+
+    if (events) localStorage.setItem('calendarData', JSON.stringify(events));
+
+    if (upcomingEvent)
+      localStorage.setItem('nextEvent', JSON.stringify(upcomingEvent));
+  }, [studentReport, events, upcomingEvent]);
 
   const createNewLists = [
     {
@@ -186,23 +230,6 @@ export default function Index() {
   ];
 
   const sessionPrefaceDialogRef = useRef<SessionPrefaceDialogRef>(null);
-
-  if (isLoading) {
-    return (
-      <Box
-        p={5}
-        textAlign="center"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh'
-        }}
-      >
-        <ShepherdSpinner />
-      </Box>
-    );
-  }
 
   return (
     <>
@@ -263,7 +290,28 @@ export default function Index() {
               transition: 'box-shadow 0.2s ease-in-out'
             }}
           >
-            <WeeklySummary data={studentReport} />
+            {studentReport &&
+            !isStudentReportLoading &&
+            !isStudentReportError ? (
+              <WeeklySummary data={studentReport} />
+            ) : isStudentReportError && studentReportFailurCount >= 3 ? (
+              <Card
+                // bg={"#207DF7"}
+                // bgImage={briefCase}
+                // bgRepeat={"no-repeat"}
+                // bgSize={"160px"}
+                // bgPosition={"right -10px bottom 10px"}
+                height={{ base: 'auto', md: '379px' }}
+                borderRadius={{ base: '5px', md: '10px' }}
+                border="1px solid #eeeff2"
+                position={'relative'}
+                marginBottom={{ base: '26px', md: 'none' }}
+              >
+                <Button onClick={() => studentRefetch()}>Retry</Button>
+              </Card>
+            ) : (
+              <WeeklySummarySkeleton />
+            )}
           </GridItem>
 
           <GridItem
@@ -274,41 +322,65 @@ export default function Index() {
               transition: 'box-shadow 0.2s ease-in-out'
             }}
           >
-            <Box
-              border="1px solid #eeeff2"
-              borderRadius={'10px'}
-              bgColor={'#EEEFF2'}
-              height={'380px'}
-              p={2}
-              position="relative"
-              marginBottom={{ base: '26px', md: '0' }}
-            >
-              <Text fontSize={'20px'} fontWeight={600}>
-                Quiz Performance
-              </Text>
-              {chartData && chartData.length > 0 ? (
-                <Center p={2} h={'350px'}>
-                  <PerformanceChart chartData={chartData} />
-                </Center>
-              ) : (
-                <Box textAlign={'center'} px={20} mt={14}>
-                  <VStack spacing={5}>
-                    <Image
-                      src="/images/notes.png"
-                      alt="empty-note"
-                      width={'200px'}
-                    />
-                    <Text fontSize={13} fontWeight={500} color="text.400">
-                      {/* You have no quizzes at this moment. */}
-                      You have no quizzes yet
-                    </Text>
-                    <Link to="/dashboard/quizzes/create">
-                      <CustomButton buttonText="Create a Quiz" width="100%" />
-                    </Link>
-                  </VStack>
-                </Box>
-              )}
-            </Box>
+            {!studentReport && isStudentReportLoading ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'10px'}
+                bgColor={'#EEEFF2'}
+                height={'380px'}
+                p={2}
+                position="relative"
+                marginBottom={{ base: '26px', md: '0' }}
+              ></Box>
+            ) : isStudentReportError && studentReportFailurCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'10px'}
+                bgColor={'#EEEFF2'}
+                height={'380px'}
+                p={2}
+                position="relative"
+                marginBottom={{ base: '26px', md: '0' }}
+              >
+                <Button onClick={() => studentRefetch()}></Button>
+              </Box>
+            ) : (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'10px'}
+                bgColor={'#EEEFF2'}
+                height={'380px'}
+                p={2}
+                position="relative"
+                marginBottom={{ base: '26px', md: '0' }}
+              >
+                <Text fontSize={'20px'} fontWeight={600}>
+                  Quiz Performance
+                </Text>
+                {studentReport && studentReport.topQuizzes.length > 0 ? (
+                  <Center p={2} h={'350px'}>
+                    <PerformanceChart chartData={studentReport.topQuizzes} />
+                  </Center>
+                ) : studentReport && studentReport.topQuizzes.length === 0 ? (
+                  <Box textAlign={'center'} px={20} mt={14}>
+                    <VStack spacing={5}>
+                      <Image
+                        src="/images/notes.png"
+                        alt="empty-note"
+                        width={'200px'}
+                      />
+                      <Text fontSize={13} fontWeight={500} color="text.400">
+                        {/* You have no quizzes at this moment. */}
+                        You have no quizzes yet
+                      </Text>
+                      <Link to="/dashboard/quizzes/create">
+                        <CustomButton buttonText="Create a Quiz" width="100%" />
+                      </Link>
+                    </VStack>
+                  </Box>
+                ) : null}
+              </Box>
+            )}
           </GridItem>
           <GridItem
             colSpan={3}
@@ -317,15 +389,36 @@ export default function Index() {
               transition: 'box-shadow 0.2s ease-in-out'
             }}
           >
-            <Box
-              border="1px solid #eeeff2"
-              borderRadius={'14px'}
-              p={3}
-              height="450px"
-              marginBottom={{ base: '26px', md: ' 0' }}
-            >
-              <ActivityFeeds feeds={feeds} userType="Student" />
-            </Box>
+            {feeds && !isFeedsLoading ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+                marginBottom={{ base: '26px', md: ' 0' }}
+              >
+                <ActivityFeeds feeds={feeds} userType="Student" />
+              </Box>
+            ) : isFeedsError && feedsFailureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+                marginBottom={{ base: '26px', md: ' 0' }}
+              >
+                <Button onClick={() => feedsRefetch()}>Retry</Button>
+              </Box>
+            ) : (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                p={3}
+                height="450px"
+                className="animate-pulse"
+                marginBottom={{ base: '26px', md: ' 0' }}
+              ></Box>
+            )}
           </GridItem>
           <GridItem
             colSpan={2}
@@ -334,15 +427,37 @@ export default function Index() {
               transition: 'box-shadow 0.2s ease-in-out'
             }}
           >
-            <Box
-              border="1px solid #eeeff2"
-              borderRadius={'14px'}
-              px={3}
-              py={2}
-              height="450px"
-            >
-              <Schedule events={events} />
-            </Box>
+            {events && !isEventsLoading ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                px={3}
+                py={2}
+                height="450px"
+              >
+                <Schedule events={events} />
+              </Box>
+            ) : isEventsError && failureCount >= 3 ? (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                px={3}
+                py={2}
+                height="450px"
+                className="animate-pulse"
+              >
+                <Button onClick={() => eventsRefetch()}>Retry</Button>
+              </Box>
+            ) : (
+              <Box
+                border="1px solid #eeeff2"
+                borderRadius={'14px'}
+                px={3}
+                py={2}
+                height="450px"
+                className="animate-pulse"
+              ></Box>
+            )}
           </GridItem>
         </Grid>
       </Box>

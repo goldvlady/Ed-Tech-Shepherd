@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ApiService from '../../../../../services/ApiService';
 import {
   Table,
@@ -319,81 +319,86 @@ const OcclusionFlashcardTab = () => {
   const uniqueTags = extractUniqueTags(data ? data.list : undefined);
 
   return (
-    <div className="w-full h-full pt-4">
-      <div className="filter-section md:flex block justify-between px-4 gap-4">
-        <div
-          className={cn('md:flex block gap-4 items-center transition-opacity', {
-            'opacity-0': !checkedRows.length,
-            'pointer-events-none': !checkedRows.length
-          })}
-        >
-          <Button className="bg-red-500">Delete Selected</Button>
-          <Button>Add Tags</Button>
-        </div>
-        <div className="flex md:justify-end justify-center mb-[25px] md:mb-0 gap-4 items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="bg-white" variant="outline">
-                Sort By
-                <ArrowUpDownIcon className="ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white">
-              {Object.values(SortOptions).map((item) => (
-                <DropdownMenuItem
-                  key={item}
-                  className={cn('hover:bg-gray-100', {
-                    'bg-gray-200': filterBy === item
-                  })}
-                  onClick={() => {
-                    setSortOption(item);
-                  }}
-                >
-                  {item}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="bg-white" variant="outline">
-                {filterBy ? filterBy : 'Filter By Tag'}{' '}
-                <ArrowUpDownIcon className="ml-2" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-white">
-              <DropdownMenuItem
-                className={cn('hover:bg-gray-100', {
-                  'bg-gray-200': filterBy === ''
-                })}
-                onClick={() => {
-                  setFilterBy('');
-                }}
-              >
-                None
-              </DropdownMenuItem>
-              {uniqueTags.map((tag) => (
-                <DropdownMenuItem
-                  key={tag}
-                  className={cn('hover:bg-gray-100', {
-                    'bg-gray-200': filterBy === tag
-                  })}
-                  onClick={() => {
-                    setFilterBy(tag);
-                  }}
-                >
-                  {tag}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-      {/* <div className="md:block hidden"> */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {/* <TableHead className="w-[50px] pl-5">
+    <>
+      {!isLoading && data ? (
+        <div className="w-full h-full pt-4">
+          <div className="filter-section md:flex block justify-between px-4 gap-4">
+            <div
+              className={cn(
+                'md:flex block gap-4 items-center transition-opacity',
+                {
+                  'opacity-0': !checkedRows.length,
+                  'pointer-events-none': !checkedRows.length
+                }
+              )}
+            >
+              <Button className="bg-red-500">Delete Selected</Button>
+              <Button>Add Tags</Button>
+            </div>
+            <div className="flex md:justify-end justify-center mb-[25px] md:mb-0 gap-4 items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className="bg-white" variant="outline">
+                    Sort By
+                    <ArrowUpDownIcon className="ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white">
+                  {Object.values(SortOptions).map((item) => (
+                    <DropdownMenuItem
+                      key={item}
+                      className={cn('hover:bg-gray-100', {
+                        'bg-gray-200': filterBy === item
+                      })}
+                      onClick={() => {
+                        setSortOption(item);
+                      }}
+                    >
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className="bg-white" variant="outline">
+                    {filterBy ? filterBy : 'Filter By Tag'}{' '}
+                    <ArrowUpDownIcon className="ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-white">
+                  <DropdownMenuItem
+                    className={cn('hover:bg-gray-100', {
+                      'bg-gray-200': filterBy === ''
+                    })}
+                    onClick={() => {
+                      setFilterBy('');
+                    }}
+                  >
+                    None
+                  </DropdownMenuItem>
+                  {uniqueTags.map((tag) => (
+                    <DropdownMenuItem
+                      key={tag}
+                      className={cn('hover:bg-gray-100', {
+                        'bg-gray-200': filterBy === tag
+                      })}
+                      onClick={() => {
+                        setFilterBy(tag);
+                      }}
+                    >
+                      {tag}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          {/* <div className="md:block hidden"> */}
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {/* <TableHead className="w-[50px] pl-5">
               <Checkbox
                 checked={
                   data?.list?.length === checkedRows.length &&
@@ -408,113 +413,123 @@ const OcclusionFlashcardTab = () => {
                 }}
               />
             </TableHead> */}
-            <TableHead className="w-[200px] text-center">Deckname</TableHead>
-            <TableHead className="text-center">No. of Rectangles</TableHead>
-            <TableHead className="text-center">Tags</TableHead>
-            <TableHead className="text-center">Created At</TableHead>
-            <TableHead className="text-center">Last attempted</TableHead>
-            <TableHead className="text-center">Last attempted score</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading
-            ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
-            : getSortedData(data?.list)
-                .filter((row) => (filterBy ? row.tags.includes(filterBy) : row))
-                .map((row) => (
-                  <DataRow
-                    checked={checkedRows.includes(row._id) ? true : false}
-                    handleCheck={(value) => {
-                      if (value) {
-                        setCheckedRows((pS) => [...pS, row._id]);
-                      } else {
-                        setCheckedRows((pS) => {
-                          return pS.filter((r) => r !== row._id);
-                        });
-                      }
-                    }}
-                    key={row._id}
-                    row={row}
-                    handleOpen={handleOpen}
-                    page={pagination.page}
-                    limit={pagination.limit}
+                <TableHead className="w-[200px] text-center">
+                  Deckname
+                </TableHead>
+                <TableHead className="text-center">No. of Rectangles</TableHead>
+                <TableHead className="text-center">Tags</TableHead>
+                <TableHead className="text-center">Created At</TableHead>
+                <TableHead className="text-center">Last attempted</TableHead>
+                <TableHead className="text-center">
+                  Last attempted score
+                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading
+                ? [...Array(7)].map((_, index) => <LoadingRow key={index} />)
+                : getSortedData(data?.list)
+                    .filter((row) =>
+                      filterBy ? row.tags.includes(filterBy) : row
+                    )
+                    .map((row) => (
+                      <DataRow
+                        checked={checkedRows.includes(row._id) ? true : false}
+                        handleCheck={(value) => {
+                          if (value) {
+                            setCheckedRows((pS) => [...pS, row._id]);
+                          } else {
+                            setCheckedRows((pS) => {
+                              return pS.filter((r) => r !== row._id);
+                            });
+                          }
+                        }}
+                        key={row._id}
+                        row={row}
+                        handleOpen={handleOpen}
+                        page={pagination.page}
+                        limit={pagination.limit}
+                      />
+                    ))}
+            </TableBody>
+          </Table>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem className="hidden md:flex gap-2 border rounded p-1">
+                  <Input
+                    min={1}
+                    type="number"
+                    value={paginationUserInput === 0 ? 1 : paginationUserInput}
+                    className="max-w-12"
+                    onChange={(e) =>
+                      setPaginationUserInput(
+                        parseInt(e.target.value) === 0
+                          ? 1
+                          : parseInt(e.target.value)
+                      )
+                    }
                   />
-                ))}
-        </TableBody>
-      </Table>
-      {/* </div> */}
-
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem className="hidden md:flex gap-2 border rounded p-1">
-              <Input
-                min={1}
-                type="number"
-                value={paginationUserInput === 0 ? 1 : paginationUserInput}
-                className="max-w-12"
-                onChange={(e) =>
-                  setPaginationUserInput(
-                    parseInt(e.target.value) === 0
-                      ? 1
-                      : parseInt(e.target.value)
-                  )
-                }
-              />
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() =>
-                  setPagination((pS) => ({
-                    ...pS,
-                    page: paginationUserInput
-                  }))
-                }
-              >
-                <TrackNextIcon className="w-4 h-4" />
-              </Button>
-            </PaginationItem>
-            <PaginationItem className="ml-25 mr-25">
-              <PaginationPrevious
-                href="#"
-                onClick={handlePreviousClick}
-                className={
-                  pagination.page === 1
-                    ? 'pointer-events-none text-stone-500'
-                    : ''
-                }
-              />
-            </PaginationItem>
-            {renderPaginationItems()}
-            <PaginationEllipsis />
-            <PaginationItem>
-              <PaginationNext href="#" onClick={handleNextClick} />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-      <StudySession
-        id={state.id}
-        open={state.open}
-        close={handleClose}
-        quizOver={state.quizOver}
-        setQuizOver={setQuizOver}
-        score={state.score}
-        setOpenResults={showResults}
-        setScore={setScore}
-        resetForm={handleReset}
-      />
-      <OccResultsDialog
-        id={state.id}
-        open={state.showResults}
-        score={state.score}
-        close={handleCloseResults}
-        restartStudySession={handleRestart}
-        handleEditImage={() => null}
-        editImageDisabled={true}
-      />
-    </div>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() =>
+                      setPagination((pS) => ({
+                        ...pS,
+                        page: paginationUserInput
+                      }))
+                    }
+                  >
+                    <TrackNextIcon className="w-4 h-4" />
+                  </Button>
+                </PaginationItem>
+                <PaginationItem className="ml-25 mr-25">
+                  <PaginationPrevious
+                    href="#"
+                    onClick={handlePreviousClick}
+                    className={
+                      pagination.page === 1
+                        ? 'pointer-events-none text-stone-500'
+                        : ''
+                    }
+                  />
+                </PaginationItem>
+                {renderPaginationItems()}
+                <PaginationEllipsis />
+                <PaginationItem>
+                  <PaginationNext href="#" onClick={handleNextClick} />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+          <StudySession
+            id={state.id}
+            open={state.open}
+            close={handleClose}
+            quizOver={state.quizOver}
+            setQuizOver={setQuizOver}
+            score={state.score}
+            setOpenResults={showResults}
+            setScore={setScore}
+            resetForm={handleReset}
+          />
+          <OccResultsDialog
+            id={state.id}
+            open={state.showResults}
+            score={state.score}
+            close={handleCloseResults}
+            restartStudySession={handleRestart}
+            handleEditImage={() => null}
+            editImageDisabled={true}
+          />
+        </div>
+      ) : (
+        <div className="w-full h-full pt-4">
+          <div className="w-11/12 h-72 animate-pulse border border-black/5 rounded-md bg-[#F8F9FB]"></div>
+        </div>
+      )}
+    </>
   );
 };
 

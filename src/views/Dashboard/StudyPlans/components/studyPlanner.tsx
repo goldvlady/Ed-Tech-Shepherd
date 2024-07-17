@@ -111,9 +111,9 @@ const StudyPlanner = ({
 
   const handleUploadInput = (file: File | null) => {
     if (!file) return;
-    if (file?.size > 10000000) {
+    if (file.size > fileSizeLimitBytes) {
       toast({
-        title: 'Please upload a file under 10MB',
+        title: `Please upload a file under ${fileSizeLimitMB}MB`,
         status: 'error',
         position: 'top',
         isClosable: true
@@ -252,6 +252,8 @@ const StudyPlanner = ({
         }
       },
       (error) => {
+        console.log(error);
+
         callback(error);
       }
     );
@@ -399,43 +401,46 @@ const StudyPlanner = ({
               mb={2}
             />
           </Box>
-          <Box my={2}>
-            <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
-              Enter your grade level
-            </Text>
+          {!user.school && (
+            <Box my={2}>
+              <Text as="label" htmlFor="gradeLevel" mb={2} display="block">
+                Enter your grade level
+              </Text>
 
-            <FormControl mb={4}>
-              <Menu>
-                <MenuButton
-                  as={Button}
-                  variant="outline"
-                  rightIcon={<FiChevronDown />}
-                  borderRadius="8px"
-                  fontSize="0.875rem"
-                  fontFamily="Inter"
-                  color="#212224"
-                  fontWeight="400"
-                  width="100%"
-                  height="42px"
-                  textAlign="left"
-                >
-                  {gradeLevel}
-                </MenuButton>
-                <MenuList minWidth={'auto'}>
-                  {levelOptions.map((level) => (
-                    <MenuItem
-                      fontSize="0.875rem"
-                      key={level._id}
-                      _hover={{ bgColor: '#F2F4F7' }}
-                      onClick={() => setGradeLevel(level.label)}
-                    >
-                      {level.label}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </Menu>
-            </FormControl>
-          </Box>
+              <FormControl mb={4}>
+                <Menu>
+                  <MenuButton
+                    as={Button}
+                    variant="outline"
+                    rightIcon={<FiChevronDown />}
+                    borderRadius="8px"
+                    fontSize="0.875rem"
+                    fontFamily="Inter"
+                    color="#212224"
+                    fontWeight="400"
+                    width="100%"
+                    height="42px"
+                    textAlign="left"
+                  >
+                    {gradeLevel}
+                  </MenuButton>
+                  <MenuList minWidth={'auto'}>
+                    {levelOptions.map((level) => (
+                      <MenuItem
+                        fontSize="0.875rem"
+                        key={level._id}
+                        _hover={{ bgColor: '#F2F4F7' }}
+                        onClick={() => setGradeLevel(level.label)}
+                      >
+                        {level.label}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+              </FormControl>
+            </Box>
+          )}
+
           <Box>
             <Text as="label" htmlFor="subjects" mb={2} display="block">
               What subject would you like to generate a plan for
@@ -523,7 +528,7 @@ const StudyPlanner = ({
               display="inline-flex"
               alignItems="center"
               onClick={handleCreateSyllabus}
-              isDisabled={!planName || !gradeLevel || !course || isLoading}
+              isDisabled={!planName || !course || isLoading}
             >
               <Icon as={FaFileMedical} mr={2} />
               Manually Create Syllabus
@@ -540,7 +545,7 @@ const StudyPlanner = ({
               display="inline-flex"
               alignItems="center"
               onClick={handleGenerateSyllabus}
-              isDisabled={!planName || !gradeLevel || !course || isLoading}
+              isDisabled={!planName || !course || isLoading}
             >
               <Icon as={FaRocket} mr={2} />
               Auto-generate Syllabus

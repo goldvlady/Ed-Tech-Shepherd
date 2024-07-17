@@ -8,7 +8,7 @@ import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 function TutorBounties() {
   const { pagination, fetchBountyOffers, bounties } = offerStore();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(20);
 

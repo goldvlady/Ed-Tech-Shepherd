@@ -48,7 +48,11 @@ const AnkiType = () => {
   };
   return (
     <Box bg="white" width="100%" mt="10px">
-      <Text fontSize={'24px'} fontWeight="500" marginBottom="5px">
+      <Text
+        fontSize={{ md: '24px', base: '1.1rem' }}
+        fontWeight="500"
+        marginBottom="5px"
+      >
         Set up flashcard
       </Text>
       <Text

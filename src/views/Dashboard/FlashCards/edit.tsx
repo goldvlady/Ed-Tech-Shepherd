@@ -410,7 +410,7 @@ const EditFlashCard = () => {
 
   return (
     <Box width={'100%'}>
-      {isLoading && <LoaderOverlay />}
+      {/* {isLoading && <LoaderOverlay />} */}
       {renderConfirmationModal()}
       <Wrapper
         ref={wrapperRef}

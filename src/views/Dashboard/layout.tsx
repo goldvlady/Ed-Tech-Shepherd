@@ -111,6 +111,12 @@ const LinkItems: Array<LinkItemProps> = [
     icon: LuFileQuestion,
     path: '/dashboard/quizzes',
     requiresSubscription: true
+  },
+  {
+    name: 'Study Plans',
+    icon: PiClipboardTextLight,
+    path: '/dashboard/study-plans',
+    requiresSubscription: true
   }
 ];
 interface SidebarProps extends BoxProps {
@@ -271,8 +277,8 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
-      sessionStorage.clear();
-      localStorage.clear();
+      // sessionStorage.clear();
+      // localStorage.clear();
       logoutUser();
       navigate('/login');
     });
@@ -706,7 +712,7 @@ const SidebarContent = ({
           {link.name}
         </NavItem>
       ))}
-      <Box ml={8} mb={2} color="text.400">
+      {/* <Box ml={8} mb={2} color="text.400">
         <Button
           pointerEvents={'none'}
           variant={'unstyled'}
@@ -733,7 +739,7 @@ const SidebarContent = ({
             </Text>
           </Flex>
         </Button>
-      </Box>
+      </Box> */}
 
       <Divider />
       <Box ml={8} color="text.400">
@@ -837,6 +843,30 @@ const SidebarContent = ({
       >
         Feedback
       </NavItem>
+      {user.school && (
+        <Flex
+          gap={1}
+          alignItems="center"
+          textAlign="center"
+          bg="#f1f5f9"
+          p={3}
+          m={4}
+          borderRadius={8}
+          direction="column"
+          boxShadow="lg" // Added drop shadow
+        >
+          <Image
+            src="/images/SeqHub_Logo.png"
+            alt="School Logo"
+            boxSize={'50%'}
+            borderRadius="md"
+          />
+          <Text fontWeight="bold" fontSize="lg">
+            {user.school.name}
+          </Text>
+        </Flex>
+      )}
+
       {showSelected && (
         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
       )}

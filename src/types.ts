@@ -197,6 +197,7 @@ export interface User extends TimestampedEntity {
   isTutor?: boolean;
   type: any;
   stripeCustomerId?: string;
+  nylasGrantId?: string;
   signedUpAsTutor?: string;
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
@@ -338,6 +339,9 @@ export interface Score {
   passed: number;
   failed: number;
   notRemembered: number;
+  questionsPassed?: string[];
+  questionsFailed?: string[];
+  questionsNotRemembered?: string[];
   date: string;
 }
 
@@ -361,6 +365,7 @@ export interface FlashcardData {
   source: 'anki' | 'shepherd';
   updatedAt: string;
   currentStudy?: MinimizedStudy;
+  studyDetails?: FlashcardStudyDetails[];
 }
 
 export interface LibraryCardData {
@@ -406,6 +411,14 @@ export interface FlashcardQuestion {
   totalSteps: number;
 }
 
+export interface FlashcardStudyDetails {
+  availableTimeStart?: string;
+  availableTimeEnd?: string;
+  frequencyPerWeek?: number;
+  sessionDurationMinutes?: number;
+  studyEndDate?: string;
+}
+
 export interface Options {
   type: 'single' | 'multiple';
   content: string[];
@@ -415,6 +428,7 @@ export interface Study {
   id: number;
   type: 'timed' | 'manual';
   questions: string;
+  questionId?: string;
   helperText?: string;
   explanation?: string;
   answers: string | string[];
@@ -450,6 +464,7 @@ export interface StudentDocumentPayload {
   documentUrl?: string;
   tags?: string[];
   ingestId?: string;
+  type?: string;
 }
 
 export type LevelType = Level;
@@ -588,13 +603,7 @@ export interface QuizQuestion {
   totalSteps?: number;
   id?: string | number;
   _id?: string | number;
-  difficulty?:
-    | 'kindergarten'
-    | 'high school'
-    | 'college'
-    | 'PhD'
-    | 'genius'
-    | 'phd';
+  difficulty?: 'Very Easy' | 'Medium' | 'Hard' | 'Very Hard';
 }
 
 export interface QuizData {
@@ -654,6 +663,13 @@ export interface StudyPlanTopicDocumentPayload {
   topicId: string;
   documentId: string;
 }
+
+export type StoreQuizScoreType = {
+  questionIdx: number;
+  score: 'true' | 'false' | 'pending' | 'null' | boolean | null;
+  selectedOptions: string[];
+  questionId: string | number;
+};
 export interface MultiragDocument {
   collection_name: string;
   document_id: string;

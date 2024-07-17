@@ -12,8 +12,8 @@ import ScheduleStudyModal, {
 } from '../views/Dashboard/FlashCards/components/scheduleModal';
 import CalendarDateInput from './CalendarDateInput';
 import TimePicker from '../components/TimePicker';
-import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CloseIcon } from '@chakra-ui/icons';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import {
   Button,
   Box,
@@ -357,11 +357,7 @@ export default function Events({ event }: any) {
             <Flex alignItems={'center'}>
               {' '}
               <Text className="mt-1 flex items-center truncate text-xs leading-5 text-gray-500">
-                <span>
-                  {event.type !== 'booking'
-                    ? moment.utc(event.data.startDate).format('hh:mm A')
-                    : convertUtcToUserTime(event.data.startDate)}
-                </span>
+                <span>{convertUtcToUserTime(event.data.startDate)}</span>
                 {event.type !== 'study' && (
                   <>
                     {' '}

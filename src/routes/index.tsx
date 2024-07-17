@@ -16,6 +16,11 @@ import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
 import MultiRag from '../views/Dashboard/multi-rag';
 import ApiService from '../services/ApiService';
+import Home from '../views/Home';
+import TutorDashboardLayout from '../components/Layout';
+//import TutorDashboard from '../views/TutorDashboard/index';
+import DashboardLayout from '../views/Dashboard/layout';
+import { usePrefetchQueries } from '../hooks/usePrefetchQueries';
 import MultiRagChat from '../views/Dashboard/multi-rag/multi-rag-chat';
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
@@ -41,14 +46,14 @@ const PendingActivation = lazy(
   () => import('../views/VerificationPages/pending_activation')
 );
 const Signup = lazy(() => import('../views/Signup'));
-const Home = lazy(() => import('../views/Home'));
+//const Home = lazy(() => import('../views/Home'));
 const Feedback = lazy(() => import('../views/Feedback'));
 const Session = lazy(() => import('../views/Session'));
-const DashboardLayout = lazy(() => import('../views/Dashboard/layout'));
+//const DashboardLayout = lazy(() => import('../views/Dashboard/layout'));
 const DocChat = lazy(() => import('../views/Dashboard/DocChat'));
 const TakeQuizzes = lazy(() => import('../views/Dashboard/Quizzes/take'));
 const Tutor = lazy(() => import('../views/Dashboard/Tutor'));
-const TutorDashboardLayout = lazy(() => import('../components/Layout'));
+//const TutorDashboardLayout = lazy(() => import('../components/Layout'));
 
 const TutorDashboard = lazy(() => import('../views/TutorDashboard/index'));
 const Clients = lazy(() => import('../views/TutorDashboard/Clients'));
@@ -260,7 +265,10 @@ const RequireAuth = ({
   if (isAuthenticated && !allowTempAccess && !user?.isVerified) {
     navigate('/verification_pending');
   }
-  return isAuthenticated || allowTempAccess ? authenticated : unAuthenticated;
+  return isAuthenticated || allowTempAccess
+    ? authenticated
+    : (localStorage.setItem('preAuthRoute', window.location.href),
+      unAuthenticated);
 };
 
 const NotFound = () => {
@@ -278,7 +286,7 @@ const AppRoutes: React.FC = () => {
   const [params] = useSearchParams();
   const { fetchNotifications, fetchUserDocuments } = userStore();
   /* chameleon.io NPM script */
-
+  const { prefetchQueries } = usePrefetchQueries();
   chameleon.init(
     'S9mtu3rwhjnyCB5YCEJ8wL946DrhUsVByQcsQKo6tTAWqP-1QmYSE-ExIRqucDjaOrhGTJ',
     { fastUrl: 'https://fast.chameleon.io/' }
@@ -289,7 +297,11 @@ const AppRoutes: React.FC = () => {
   } = useAuth();
 
   const userType = useMemo(() => {
-    return userData?.userRole;
+    // if user type array include student and tutor, set userType to both.
+    return userData?.type.includes('tutor') &&
+      userData?.type.includes('student')
+      ? 'both'
+      : userData?.userRole;
   }, [userData]);
 
   let userRoute = userRoutes[userType] || [];
@@ -310,6 +322,7 @@ const AppRoutes: React.FC = () => {
     if (isAuthenticated) {
       // fetchNotifications();
       if (userData) {
+        prefetchQueries(userData);
         chameleon.identify(userData?._id, {
           // REQUIRED, the unique ID of each user in your database (e.g. 23443 or "690b80e5f433ea81b96c9bf6")
           email: userData?.email, // RECOMMENDED, email is used as the key to map user data for integrations

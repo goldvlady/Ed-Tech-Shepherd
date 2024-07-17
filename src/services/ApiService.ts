@@ -10,7 +10,8 @@ import {
   QuizData,
   QuizQuestion,
   FlashcardData,
-  StudyPlanTopicDocumentPayload
+  StudyPlanTopicDocumentPayload,
+  StoreQuizScoreType
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -24,7 +25,6 @@ import {
 } from './AI';
 
 // Suppose these functions are in 'apiFunctions.ts' file
-
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
   static baseAiEndpoint = AI_API;
@@ -204,6 +204,12 @@ class ApiService {
     return doFetch(`${ApiService.baseEndpoint}/createStudent`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  };
+
+  static nylasAuth = async () => {
+    return doFetch(`${ApiService.baseEndpoint}/nylasAuth`, {
+      method: 'POST'
     });
   };
 
@@ -1394,6 +1400,8 @@ class ApiService {
     questions: QuizQuestion[];
     title: string;
     tags: string[];
+    level?: string;
+    grade?: string;
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/createQuiz`, {
       method: 'POST',
@@ -1450,6 +1458,7 @@ class ApiService {
   static storeQuizScore = async (data: {
     quizId: string;
     score: number | string;
+    scoreDetails?: StoreQuizScoreType[];
   }) => {
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',

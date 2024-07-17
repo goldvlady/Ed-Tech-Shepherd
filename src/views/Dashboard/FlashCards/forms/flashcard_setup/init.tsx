@@ -32,6 +32,8 @@ import userStore from '../../../../../state/userStore';
 import PlansModal from '../../../../../components/PlansModal';
 import { languages } from '../../../../../helpers';
 import { FiChevronDown } from 'react-icons/fi';
+import TimePicker from '../../../../../components/TimePicker';
+import CalendarDateInput from '../../../../../components/CalendarDateInput';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -60,7 +62,13 @@ const FlashCardSetupInit = ({
     numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false,
-    grade: ''
+    grade: '',
+    availableTimeStart: '',
+    availableTimeEnd: '',
+    totalStudyHours: 0,
+    frequencyPerWeek: 0,
+    sessionDurationMinutes: '30',
+    studyEndDate: null
   };
 
   const [preferredLanguage, setPreferredLanguage] = useState<
@@ -134,13 +142,14 @@ const FlashCardSetupInit = ({
           ? 'noRepeat'
           : 'spacedRepetition'
     }
+    // { label: 'Custom', value: 'custom' }
   ];
 
   const levelOptions = [
-    { label: 'Very Easy', value: 'kindergarten' },
-    { label: 'Medium', value: 'high school' },
-    { label: 'Hard', value: 'college' },
-    { label: 'Very Hard', value: 'PhD' }
+    { label: 'Very Easy', value: 'Very Easy' },
+    { label: 'Medium', value: 'Medium' },
+    { label: 'Hard', value: 'Hard' },
+    { label: 'Very Hard', value: 'Very Hard' }
   ];
 
   const gradeOptions = [
@@ -244,6 +253,28 @@ const FlashCardSetupInit = ({
 
       goToNextStep();
     }
+  };
+
+  const handleAuthClick = async () => {
+    try {
+      const response = await ApiService.nylasAuth();
+      const data = await response.json();
+      window.location.href = data.url;
+    } catch (error) {
+      toast({
+        title: 'Error conneting to Calendar provider',
+        position: 'top-right',
+        status: 'error',
+        isClosable: true
+      });
+    }
+  };
+
+  const handleSessionDurationChange = (value) => {
+    setLocalData((prevState) => ({
+      ...prevState,
+      sessionDurationMinutes: value
+    }));
   };
 
   const renderOptional = useCallback(() => {
@@ -505,6 +536,111 @@ const FlashCardSetupInit = ({
           />
         </FormControl>
       )}
+      {localData?.studyPeriod === 'custom' && (
+        <>
+          <Button
+            onClick={handleAuthClick}
+            marginBottom={'40px'}
+            isDisabled={!!user.nylasGrantId}
+          >
+            {user.nylasGrantId ? 'Calendar Connected' : 'Connect Calendar'}
+          </Button>
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Available Time Start
+            </FormLabel>
+            <TimePicker
+              value={localData.availableTimeStart}
+              onChange={(value) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  availableTimeStart: value
+                }))
+              }
+            />
+          </FormControl>
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Available Time End
+            </FormLabel>
+            <TimePicker
+              value={localData.availableTimeEnd}
+              onChange={(value) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  availableTimeEnd: value
+                }))
+              }
+            />
+          </FormControl>
+          {/* <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Total Study Hours
+            </FormLabel>
+            <Input
+              type="number"
+              name="totalStudyHours"
+              placeholder="Total Study Hours"
+              value={localData.totalStudyHours}
+              onChange={(e) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  totalStudyHours: parseInt(e.target.value)
+                }))
+              }
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            />
+          </FormControl> */}
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Frequency per week
+            </FormLabel>
+            <Input
+              type="number"
+              name="frequencyPerWeek"
+              placeholder="Frequency Per Week"
+              value={localData.frequencyPerWeek}
+              onChange={(e) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  frequencyPerWeek: parseInt(e.target.value)
+                }))
+              }
+              _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+            />
+          </FormControl>
+
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Session Duration Minutes
+            </FormLabel>
+            <RadioGroup
+              onChange={handleSessionDurationChange}
+              value={localData.sessionDurationMinutes}
+            >
+              <HStack spacing="24px">
+                <Radio value="30">30 minutes</Radio>
+                <Radio value="60">60 minutes</Radio>
+              </HStack>
+            </RadioGroup>
+          </FormControl>
+
+          <FormControl mb={8}>
+            <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
+              Study End Date
+            </FormLabel>
+            <CalendarDateInput
+              value={new Date(localData.studyEndDate)}
+              onChange={(date) =>
+                setLocalData((prevState) => ({
+                  ...prevState,
+                  studyEndDate: date.toISOString()
+                }))
+              }
+            />
+          </FormControl>
+        </>
+      )}
       <FormControl mb={8}>
         <FormLabel fontSize="12px" lineHeight="17px" color="#5C5F64" mb={3}>
           Number of questions
@@ -526,7 +662,7 @@ const FlashCardSetupInit = ({
       <HStack w="full" align={'flex-end'}>
         <Button
           variant="solid"
-          isDisabled={isLoading || !isValid || isGenerating}
+          // isDisabled={isLoading || !isValid || isGenerating}
           colorScheme="primary"
           size="sm"
           ml="auto"

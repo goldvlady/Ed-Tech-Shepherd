@@ -14,7 +14,7 @@ import ShepherdSpinner from '../../Dashboard/components/shepherd-spinner';
 export default function Client() {
   const { clientId }: any = useParams();
   const [client, setClient] = useState<any>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const doFetchTutorClient = useCallback(async (id: string) => {
     const response = await ApiService.getTutorSingleClients(id);
     const tutorClients = await response.json();

@@ -11,6 +11,7 @@ import {
 } from 'firebase/database';
 import React, { useEffect, useState, useCallback } from 'react';
 import { QuizQuestion } from '../types';
+import { isEmpty, isNil } from 'lodash';
 
 // type QuizQuestion = {
 //   question: string;
@@ -20,7 +21,7 @@ import { QuizQuestion } from '../types';
 // };
 
 type Job = {
-  documentId: string;
+  jobId: string;
   quiz: QuizQuestion[];
 };
 
@@ -29,15 +30,12 @@ function useQuizQuestionsJob(studentID: string) {
 
   // Function to watch new jobs for a documentId
   const watchJobs = useCallback(
-    (
-      documentId: string,
-      callback?: (error: any, quiz?: QuizQuestion[]) => void
-    ) => {
+    (jobId: string, callback?: (error: any, quiz?: QuizQuestion[]) => void) => {
       const jobsRef = ref(database, `/quiz-job/${studentID}`);
       const documentIdQuery = query(
         jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
+        orderByChild('jobId'),
+        equalTo(jobId)
       );
 
       onValue(
@@ -49,7 +47,11 @@ function useQuizQuestionsJob(studentID: string) {
 
           // Collect quiz from each job that matches the documentId
           Object.values(jobsData).forEach((job) => {
-            if (job.documentId === documentId && job.quiz) {
+            if (
+              job.jobId === jobId &&
+              !isNil(job?.quiz) &&
+              !isEmpty(job?.quiz)
+            ) {
               allQuizs.push(
                 ...job.quiz.map((question) => ({
                   type: 'openEnded',
@@ -73,31 +75,46 @@ function useQuizQuestionsJob(studentID: string) {
   );
 
   // Function to delete all jobs for a documentId
+  // const clearJobs = useCallback(
+  //   (documentId: string) => {
+  //     const jobsRef = ref(database, `/quiz-job/${studentID}`);
+  //     const documentIdQuery = query(
+  //       jobsRef,
+  //       orderByChild('documentId'),
+  //       equalTo(documentId)
+  //     );
+
+  //     onValue(
+  //       documentIdQuery,
+  //       (snapshot: DataSnapshot) => {
+  //         const jobsData: { [key: string]: Job } = snapshot.val() || {};
+
+  //         // Iterate over each job and delete it if it matches the documentId
+  //         Object.keys(jobsData).forEach((jobKey) => {
+  //           if (jobsData[jobKey].documentId === documentId) {
+  //             remove(ref(database, `/quiz-job/${studentID}/${jobKey}`));
+  //           }
+  //         });
+  //       },
+  //       (error) => {
+  //         // console.error('Firebase delete error:', error);
+  //       }
+  //     );
+  //   },
+  //   [studentID]
+  // );
+
   const clearJobs = useCallback(
     (documentId: string) => {
       const jobsRef = ref(database, `/quiz-job/${studentID}`);
-      const documentIdQuery = query(
-        jobsRef,
-        orderByChild('documentId'),
-        equalTo(documentId)
-      );
 
-      onValue(
-        documentIdQuery,
-        (snapshot: DataSnapshot) => {
-          const jobsData: { [key: string]: Job } = snapshot.val() || {};
-
-          // Iterate over each job and delete it if it matches the documentId
-          Object.keys(jobsData).forEach((jobKey) => {
-            if (jobsData[jobKey].documentId === documentId) {
-              remove(ref(database, `/quiz-job/${studentID}/${jobKey}`));
-            }
-          });
-        },
-        (error) => {
-          // console.error('Firebase delete error:', error);
-        }
-      );
+      remove(jobsRef)
+        .then(() => {
+          setQuizQuestions([]);
+        })
+        .catch((error) => {
+          console.error('Error clearing jobs:', error);
+        });
     },
     [studentID]
   );

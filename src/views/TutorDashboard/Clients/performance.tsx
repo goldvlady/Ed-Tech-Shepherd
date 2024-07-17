@@ -66,7 +66,7 @@ const Performance = () => {
   const { clientId } = useParams();
   console.log(clientId);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [performanceReport, setPerformanceReport] = useState<any>([]);
 
   const doFetchTutorClients = useCallback(async () => {
