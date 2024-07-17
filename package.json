@@ -198,8 +198,8 @@
     "extends": [
       "react-app",
       "react-app/jest",
-      "eslint:recommended"
-     
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
       "no-console": "warn",
