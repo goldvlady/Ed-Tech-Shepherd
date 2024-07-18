@@ -200,12 +200,12 @@ const ChatHistory = () => {
   const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const state = queryClient.getQueryData(['processed-documents', subtopicId]) as { data: Array<MultiragDocument> } | undefined;
   const r = state === undefined ? [] : state.data.map((doc) => doc.document_id)
-  console.log(r)
+  const referenceDocIds = encodeURIComponent(JSON.stringify(r))
 
   const { data } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
-      ApiService.multiPreviousConversations(user._id,r).then((res) => res.json())
+      ApiService.multiPreviousConversations(user._id,referenceDocIds).then((res) => res.json())
   });
 
   if (!data) {

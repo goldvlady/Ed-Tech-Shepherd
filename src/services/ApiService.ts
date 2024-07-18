@@ -1310,12 +1310,10 @@ class ApiService {
 
   static multiPreviousConversations = async (
     refId: string,
-    referenceDocIds: string[]
+    referenceDocIds: string
   ) => {
-    const q = encodeURIComponent(JSON.stringify(referenceDocIds));
-
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${q}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}`,
       {
         method: 'GET'
       },
