@@ -16,18 +16,17 @@ import {
   SheetTrigger
 } from '../../../../../../../components/ui/sheet';
 import useUserStore from '../../../../../../../state/userStore';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTrigger,
 } from '../../../../../../../components/ui/alert-dialog';
 import {
   DropdownMenu,
@@ -200,13 +199,13 @@ const ChatHistory = () => {
   const queryClient = useQueryClient();
   const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const state = queryClient.getQueryData(['processed-documents', subtopicId]) as { data: Array<MultiragDocument> } | undefined;
-  const r = state === undefined ? [] : state.data.map((doc) => doc.document_id)
-  const referenceIds = JSON.stringify(r)
-  console.log(referenceIds)
+  const r = state === undefined ? [] : state.data.map((doc) => JSON.stringify(doc.document_id))
+  console.log(r)
+
   const { data } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
-      ApiService.multiPreviousConversations(user._id,referenceIds).then((res) => res.json())
+      ApiService.multiPreviousConversations(user._id,r).then((res) => res.json())
   });
 
   if (!data) {

@@ -2,7 +2,7 @@ import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
-import { languages } from '../helpers';
+import { encodeQueryParams, languages } from '../helpers';
 import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
@@ -1310,10 +1310,14 @@ class ApiService {
 
   static multiPreviousConversations = async (
     refId: string,
-    referenceDocIds: string
+    referenceDocIds: string[]
   ) => {
+    const q = encodeQueryParams({
+      referenceId: refId,
+      referenceDocIds
+    });
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations${q}`,
       {
         method: 'GET'
       },
