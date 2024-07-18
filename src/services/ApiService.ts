@@ -1312,12 +1312,10 @@ class ApiService {
     refId: string,
     referenceDocIds: string[]
   ) => {
-    const q = encodeQueryParams({
-      referenceId: refId,
-      referenceDocIds
-    });
+    const q = encodeURIComponent(JSON.stringify(referenceDocIds));
+
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations${q}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${q}`,
       {
         method: 'GET'
       },
