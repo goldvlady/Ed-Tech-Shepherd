@@ -6,6 +6,7 @@ import {
   TrashIcon
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Checkbox } from "../../../../../components/ui/checkbox"
 import { cn } from '../../../../../library/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
@@ -15,7 +16,6 @@ import { Share1Icon } from '@radix-ui/react-icons';
 import CustomMarkdownView, {
   stripMarkdown
 } from '../../../../../components/CustomComponents/CustomMarkdownView';
-import useUserStore from '../../../../../state/userStore';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 
 const LearningResourcesSection = ({
@@ -88,7 +88,8 @@ const LearningResourcesSection = ({
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
         />
-        <GenerateQuizSection />
+        <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}  />
         <GenerateFlashcardsSection />
       </div>
     </div>
@@ -334,9 +335,9 @@ const HighlightsSection = ({
               <HighlightItem
                 title={item.name}
                 onClick={() => {
-                  const pageIndex = item.position[0]
-                    ? item.position[0].pageIndex
-                    : 0;
+                  // const pageIndex = item.position[0]
+                  //   ? item.position[0].pageIndex
+                  //   : 0;
                   //setHighlightedDocumentPageIndex(pageIndex);
                 }}
                 deleteHandler={deleteHandler}
@@ -492,12 +493,70 @@ const PinnedSection = ({
   );
 };
 
-const GenerateQuizSection = () => {
-  return <ActionButton>Generate Quiz</ActionButton>;
+const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurrentTabOpened: any;
+  currentTabOpened: string;
+}) => {
+  const [quizExpanded, setQuizExpanded] = useState(false)
+  const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
+  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
+  console.log(selectedDocs)
+  const ref = useRef(null);
+  const toggleExpand = () => {
+    setQuizExpanded(!quizExpanded);
+    setCurrentTabOpened('Summary');
+  };
+
+  useEffect(() => {
+    if (currentTabOpened !== 'Summary') {
+      setQuizExpanded(false);
+    }
+  }, [currentTabOpened]);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setQuizExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  return <div className='relative'>
+
+    <ActionButton active={quizExpanded} onClick={toggleExpand}>Generate Quiz</ActionButton>
+    <div
+        ref={ref}
+        className={cn(
+          'absolute w-[20.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          {
+            'opacity-100 pointer-events-auto': quizExpanded
+          }
+        )}
+      >
+      {docNames.length > 0 ? docNames.map(d => <div className='flex items-center gap-2'>
+        <Checkbox onCheckedChange={(checked) => {
+          if (checked) {
+            setSelectedDocs(prev => prev.concat(d))
+          } else {
+            const existing = [...selectedDocs]
+           setSelectedDocs(existing.filter(e => e !== d))
+         }
+        }}/>
+        <span key={d} className="bg-[#cee4e5] p-2 w-full mb-2">{d}</span>
+     </div>): null}
+      </div>
+  </div>
 };
 
 const GenerateFlashcardsSection = () => {
-  return <ActionButton>Generate Flashcards</ActionButton>;
+  return <div className="relative">
+
+    <ActionButton>Generate Flashcards</ActionButton>
+    
+  </div> 
 };
 
 const ActionButton = ({

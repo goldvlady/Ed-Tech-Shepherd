@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import ApiService from '../../../../../../../services/ApiService';
 import {
   ComponentInstanceIcon,
@@ -9,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { cn } from '../../../../../../../library/utils';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import useUserStore from '../../../../../../../state/userStore';
+import { MultiragDocument } from '../../../../../../../types';
 
 function UploadingItems({
   filesUploading,
@@ -23,8 +24,18 @@ function UploadingItems({
   const { user } = useUserStore();
   const file = filesUploading[0];
   const { mutate } = useMutation({
-    mutationFn: (data: any) =>
-      ApiService.multiDocBackgroundJobs(data).then((res) => res.json()),
+    mutationFn: async (data: any) => {
+      const r = await ApiService.multiDocBackgroundJobs(data)
+      if (!r.ok) {
+          throw new Error("Bad Network request")
+      }
+      const  d: {
+        vectors?: Array<MultiragDocument>;
+        status: 'error' | 'in_progress' | 'success';
+      } = await r.json()
+     
+      return d;
+    },
     onSuccess: (data: any) => {
       console.log('Jobs', data);
       if (data.status === 'success') {
@@ -74,19 +85,38 @@ function UploadingItems({
       } else {
         //
       }
-    }
+    },
+    onError() {
+      setState('error');
+      setFilesUploading((prevState) => {
+        return prevState.map((job) =>
+          job.jobId === file.jobId
+            ? { ...job, processing: false, uploading: false, jobId: '' }
+            : job
+        );
+      });
+      toast({
+        position: 'top-right',
+        title: `Something went wrong uploading your documents`,
+        status: 'error',
+        colorScheme: 'red',
+        isClosable: true,
+        description: 'Please try uploading again.'
+      });
+    },
   });
 
   const toast = useCustomToast();
   console.log(filesUploading[0]);
 
   useEffect(() => {
-    if (file && file.jobId && file.jobId.length > 0 && file.tables.length > 0) {
+    if (file && file.jobId && file.jobId.length > 0 && file.tables.length > 0 && file.uploading) {
       mutate({
         jobId: file.jobId,
         tables: file.tables,
         sid: user._id
       });
+      setFilesUploading([{...file, uploading: false}])
     }
   }, [file, mutate, user._id]);
   console.log('multiDocBackgroundJobs', filesUploading);

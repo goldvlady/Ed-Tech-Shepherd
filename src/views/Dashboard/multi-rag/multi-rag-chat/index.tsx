@@ -5,8 +5,6 @@ import LearningResourcesSection from '../_components/learning-resources-section'
 import PDFViewer from '../_components/pdf-viewer';
 import { useEffect, useState } from 'react';
 import useUserStore from '../../../../state/userStore';
-import { Sheet, SheetTrigger } from '../../../../components/ui/sheet';
-import { Button } from '../../../../components/ui/button';
 import PlansModal from '../../../../components/PlansModal';
 import { MultiragDocument } from '../../../../types';
 import { useMutation } from '@tanstack/react-query';
@@ -35,7 +33,7 @@ function MultiRagChat() {
     tables: [],
     processing: false
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [, setIsLoading] = useState(false);
   const [refetch, setRefetch] = useState(false);
   const [searchParams] = useSearchParams();
   const apiKey = searchParams.get('apiKey');
@@ -53,7 +51,6 @@ function MultiRagChat() {
   const {
     mutateAsync,
     mutate: addDocs,
-    isPending
   } = useMutation({
     mutationKey: ['add-doc'],
     mutationFn: async (d: {
@@ -93,12 +90,15 @@ function MultiRagChat() {
       tables: Array<string>;
       sid: string;
     }) => {
-      const data: {
+      const r = await ApiService.multiDocBackgroundJobs(d)
+      if (!r.ok) {
+          throw new Error("Bad Network request")
+      }
+      const  data: {
         vectors?: Array<MultiragDocument>;
         status: 'error' | 'in_progress' | 'success';
-      } = await ApiService.multiDocBackgroundJobs(d).then((resp) =>
-        resp.json()
-      );
+      } = await r.json()
+     
       return data;
     },
     async onSuccess(data) {
@@ -110,12 +110,7 @@ function MultiRagChat() {
             tables: filesUploading.tables,
             sid: user._id
           });
-          setFilesUploading({
-            uploading: 'default',
-            tables: [],
-            jobId: '',
-            processing: true
-          });
+       
         } else if (data.status === 'success') {
           const collectionMap = new Map();
 
@@ -174,6 +169,15 @@ function MultiRagChat() {
           status: 'error'
         });
       }
+    },
+    onError: () => {
+      setIsLoading(false);
+      setFilesUploading({
+        uploading: 'error',
+        tables: [],
+        jobId: '',
+        processing: false
+      });
     }
   });
 

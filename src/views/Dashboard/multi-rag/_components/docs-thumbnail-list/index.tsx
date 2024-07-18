@@ -4,9 +4,7 @@ import ThumbnailList from './_components/thumbnail-list';
 import ApiService from '../../../../../services/ApiService';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 import { User } from '../../../../../types';
-import { UseMutateFunction, useQueryClient } from '@tanstack/react-query';
-import { Button } from '../../../../../components/ui/button';
-import { Pencil2Icon } from '@radix-ui/react-icons';
+import { UseMutateFunction } from '@tanstack/react-query';
 
 const DocsThumbnailList = ({
   conversationID,
@@ -48,7 +46,7 @@ const DocsThumbnailList = ({
     name: string;
   };
 }) => {
-  const qc = useQueryClient();
+
   const [fetchedDocuments, setFetchedDocuments] = useState<any[]>([]);
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const addDocs = useVectorsStore((state) => state.addChatDocuments);

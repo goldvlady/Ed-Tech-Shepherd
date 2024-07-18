@@ -1308,9 +1308,12 @@ class ApiService {
     );
   };
 
-  static multiPreviousConversations = async (refId) => {
+  static multiPreviousConversations = async (
+    refId: string,
+    referenceDocIds: string
+  ) => {
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}`,
       {
         method: 'GET'
       },

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { cn } from '../../../../../library/utils';
 import ChatHistory from './_components/chat-history';
 import UploadingItems from './_components/uploading-items';
@@ -34,12 +34,15 @@ function DocSelector() {
       tables: Array<string>;
       processing: boolean;
     }) => {
-      const data: {
+      const r = await ApiService.multiDocBackgroundJobs(d)
+      if (!r.ok) {
+          throw new Error("Bad Network request")
+      }
+      const  data: {
         vectors?: Array<MultiragDocument>;
         status: 'error' | 'in_progress' | 'success';
-      } = await ApiService.multiDocBackgroundJobs(d).then((resp) =>
-        resp.json()
-      );
+      } = await r.json()
+     
       return data;
     },
     async onSuccess(data, { jobId }) {

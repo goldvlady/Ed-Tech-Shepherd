@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react';
 import { cn } from '../../../../../../../../library/utils';
 import ApiService from '../../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../../state/userStore';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useCustomToast } from '../../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import { Loader } from 'lucide-react';
@@ -102,7 +102,6 @@ function UploadFiles({
               if (isExactMatch(state.tables, data.uploaded_filenames)) {
                 return {
                   ...state,
-                  uploading: false,
                   processing: true,
                   jobId: data.job_id
                 };

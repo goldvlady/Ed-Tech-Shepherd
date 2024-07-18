@@ -1,24 +1,16 @@
 import { SearchIcon } from '@chakra-ui/icons';
 import { Input, InputGroup, InputLeftElement } from '@chakra-ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '../../../../../../../components/ui/select';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ApiService from '../../../../../../../services/ApiService';
 import useUserStore from '../../../../../../../state/userStore';
 import { cn } from '../../../../../../../library/utils';
 import { Link } from 'react-router-dom';
 import { memo, useState } from 'react';
-import { AnyObject } from 'chart.js/dist/types/basic';
 import { format, isToday, isYesterday } from 'date-fns';
 import PDFThumbnailViewer from '../../../../../../../components/pdf-thumbnail-viewer';
-import { usePDFBlobUrl } from '../../../../../../../hooks/usePDFBlobURL';
+import { useSubtopicIdStore } from '../../../../../../../state/subTopicStore';
+import { MultiragDocument } from '../../../../../../../types';
 
 function groupConversationsByDate(conversations: any[]): any {
   return conversations
@@ -49,10 +41,15 @@ function groupConversationsByDate(conversations: any[]): any {
 
 function ChatHistory() {
   const { user } = useUserStore();
+  const queryClient = useQueryClient();
+  const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
+  const state = queryClient.getQueryData(['processed-documents', subtopicId]) as {data: Array<MultiragDocument> | undefined};
+  const referenceIds = JSON.stringify(state ? state.data.map((doc) => doc.document_id) : [])
+  console.log(referenceIds)
   const { data, isLoading } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
-      ApiService.multiPreviousConversations(user?._id).then((res) => res.json())
+      ApiService.multiPreviousConversations(user?._id, referenceIds).then((res) => res.json())
   });
   const [searchValue, setSearchValue] = useState('');
 

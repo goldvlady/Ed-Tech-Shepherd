@@ -1,15 +1,6 @@
 import { PlusIcon, UploadIcon } from 'lucide-react';
 import Thumbnail from '../thumbnail';
-import {
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Tooltip,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Tooltip } from '@chakra-ui/react';
 import {
   Dispatch,
   SetStateAction,
@@ -19,7 +10,6 @@ import {
 } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from '../../../../../../../library/utils';
-import useUserStore from '../../../../../../../state/userStore';
 import { useCustomToast } from '../../../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import ApiService from '../../../../../../../services/ApiService';
 import {
@@ -27,7 +17,6 @@ import {
   User,
   multiragResponse
 } from '../../../../../../../types';
-import * as Tabs from '@radix-ui/react-tabs';
 import { UseMutateFunction, useQueryClient } from '@tanstack/react-query';
 import { DocItem } from '../../../doc-selector/_components/sections/select-documents';
 import {
@@ -35,7 +24,7 @@ import {
   DialogContent
 } from '../../../../../../../components/ui/dialog';
 import { HeaderItem } from '../../../doc-selector';
-import Sections, { Section } from '../../../doc-selector/_components/sections';
+import { Section } from '../../../doc-selector/_components/sections';
 import { Button } from '../../../../../../../components/ui/button';
 import { useSubtopicIdStore } from '../../../../../../../state/subTopicStore';
 
