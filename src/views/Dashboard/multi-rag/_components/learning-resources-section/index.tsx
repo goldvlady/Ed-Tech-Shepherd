@@ -530,7 +530,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
     <div
         ref={ref}
         className={cn(
-          'absolute w-[20.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          'absolute w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
             'opacity-100 pointer-events-auto': quizExpanded
           }
