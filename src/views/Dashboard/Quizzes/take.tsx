@@ -1,13 +1,14 @@
+import React, { useEffect, useState } from 'react';
+import { Box, Flex } from '@chakra-ui/react';
+import { isEmpty, isNil, map, merge } from 'lodash';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import { useCustomToast } from '../../../components/CustomComponents/CustomToast/useCustomToast';
 import LoaderOverlay from '../../../components/loaderOverlay';
 import ApiService from '../../../services/ApiService';
 import quizStore from '../../../state/quizStore';
 import { QuizData, QuizQuestion } from '../../../types';
 import { QuizPreview as QuizPreviewer } from './previews';
-import { Box, Flex } from '@chakra-ui/react';
-import { isEmpty, isNil, map, merge } from 'lodash';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import './styles.css';
 import { firebaseAuth } from '../../../firebase';
 
@@ -15,7 +16,13 @@ type NewQuizQuestion = QuizQuestion & {
   canEdit?: boolean;
 };
 
-const CreateQuizPage = () => {
+export const CreateQuizPage = ({
+  externalQuizId,
+  studyPlanMode
+}: {
+  externalQuizId?: string;
+  studyPlanMode?: boolean;
+}) => {
   const [searchParams] = useSearchParams();
   const toast = useCustomToast();
   const { isLoading, fetchQuizzes, handleIsLoadingQuizzes } = quizStore();
@@ -29,7 +36,7 @@ const CreateQuizPage = () => {
   const apiKey = searchParams.get('apiKey');
   const shareable = searchParams.get('shareable');
   useEffect(() => {
-    const queryQuizId = searchParams.get('quiz_id');
+    const queryQuizId = externalQuizId ?? searchParams.get('quiz_id');
 
     if (!isEmpty(queryQuizId) && !isNil(queryQuizId)) {
       (async () => {
@@ -150,7 +157,7 @@ const CreateQuizPage = () => {
         height={'100vh'}
         maxH={'calc(100vh - 80px)'}
         overflowY={'hidden'}
-        flexWrap="wrap"
+        flexWrap={studyPlanMode ? 'nowrap' : 'wrap'}
       >
         <Box
           className="review-quiz-wrapper"
@@ -158,6 +165,7 @@ const CreateQuizPage = () => {
           bg="#F9F9FB"
           borderLeft="1px solid #E7E8E9"
         >
+          {isLoading && !externalQuizId && <LoaderOverlay />}
           {/* {isLoading && <LoaderOverlay />} */}
 
           <QuizPreviewer
@@ -167,6 +175,8 @@ const CreateQuizPage = () => {
             quizId={quizId as string}
             togglePlansModal={togglePlansModal}
             setTogglePlansModal={setTogglePlansModal}
+            externalQuizId={externalQuizId}
+            studyPlanMode={studyPlanMode}
           />
         </Box>
       </Flex>

@@ -88,6 +88,7 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
+import Sidebar from '../../components/sidebar';
 
 interface LinkItemProps {
   name: string;
@@ -325,7 +326,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             _hover={{ cursor: 'pointer' }}
           >
             <IoIosArrowRoundBack />
-            {/* <Text fontSize={12}>Back</Text> */}
           </Flex>
           <Flex
             bgColor={'transparent'}
@@ -342,7 +342,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               transform: 'translateY(-2px)'
             }}
           >
-            {/* <Image src={AskIcon} /> */}
             {<AskIcon />}
             <Text> Ask Shep?</Text>
           </Flex>
@@ -361,33 +360,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-          {/* <Box display={{ base: 'flex', md: 'none' }}>
-            <Flex
-              bgColor={'transparent'}
-              color="text.400"
-              border="1px solid #EBECF0"
-              borderRadius={'40px'}
-              fontSize={{ base: '10px' }}
-              p="6px 16px"
-              onClick={activateHelpModal}
-              gap={2}
-              _hover={{
-                cursor: 'pointer',
-                bgColor: '#EDF2F7',
-                transform: 'translateY(-2px)'
-              }}
-            >
-              <Image src={AskIcon} />
-              <Text> Ask Sheps?</Text>
-            </Flex>
-          </Box> */}
           <HStack spacing={4}>
-            {/* <RiQuestionMark
-              className="cursor-pointer"
-              onClick={() => {
-                setOpenWelcome(true);
-              }}
-            /> */}
             <IconButton
               size="md"
               borderRadius={'100%'}
@@ -498,7 +471,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 <MenuItem p={2} m={1}>
                   <Link to="/dashboard/account-settings">
                     <Flex alignItems="center" gap={2}>
-                      {/* <PiUserCircleLight size="24px" /> */}
                       <Center
                         borderRadius="50%"
                         border="1px solid #EAEAEB"
@@ -615,292 +587,293 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     </>
   );
 };
-const SidebarContent = ({
-  onClose,
-  tutorMenu,
-  setTutorMenu,
-  aiChatMenu,
-  earnMenu,
-  toggleMenu,
-  toggleChatMenu,
-  toggleEarnMenu,
-  unreadCount,
-  hasActiveSubscription,
-  handleLockedClick,
-  openModal,
-  closeModal,
-  ...rest
-}: SidebarProps & {
-  hasActiveSubscription: boolean;
-  handleLockedClick: (message: string, subMessage: string) => void;
-}) => {
-  const { pathname } = useLocation();
-  const [showSelected, setShowSelected] = useState(false);
 
-  const handleShowSelected = () => {
-    setShowSelected(true);
-  };
+// const SidebarContent = ({
+//   onClose,
+//   tutorMenu,
+//   setTutorMenu,
+//   aiChatMenu,
+//   earnMenu,
+//   toggleMenu,
+//   toggleChatMenu,
+//   toggleEarnMenu,
+//   unreadCount,
+//   hasActiveSubscription,
+//   handleLockedClick,
+//   openModal,
+//   closeModal,
+//   ...rest
+// }: SidebarProps & {
+//   hasActiveSubscription: boolean;
+//   handleLockedClick: (message: string, subMessage: string) => void;
+// }) => {
+//   const { pathname } = useLocation();
+//   const [showSelected, setShowSelected] = useState(false);
 
-  const [isHovering, setIsHovering] = useState(false);
-  const { user }: any = userStore();
-  // const { unreadCount } = useStreamChat();
+//   const handleShowSelected = () => {
+//     setShowSelected(true);
+//   };
 
-  return (
-    <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
-      <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
-        <h4 className="font-bold">
-          <Logo />
-        </h4>
-        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-      </div>
-      <NavItem icon={FiHome} path={'/dashboard'} onClose={onClose}>
-        Home
-      </NavItem>
-      <Divider />
-      <Box
-        paddingLeft={8}
-        paddingRight={4}
-        color="text.400"
-        display={aiChatMenu ? 'block' : 'flex'}
-        alignItems="center"
-        justifyContent="space-between"
-        cursor="pointer"
-        onClick={() => toggleChatMenu()}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <HStack width={'100%'} justifyContent="space-between">
-          <Button
-            variant={'unstyled'}
-            display="flex"
-            alignSelf="start"
-            gap={'10px'}
-            leftIcon={<RiChat3Line width={18} />}
-            fontSize={14}
-            fontWeight={500}
-            onClick={
-              () => toggleChatMenu()
-              // hasActiveSubscription
-              //   ? () => toggleChatMenu()
-              //   : () =>
-              //       handleLockedClick(
-              //         !user.hadSubscription
-              //           ? 'Start Your Free Trial!'
-              //           : 'Pick a plan to access your AI Study Tools! 🚀',
-              //         'One-click Cancel at anytime.'
-              //       )
-            }
-            rightIcon={
-              aiChatMenu ? (
-                <MdOutlineKeyboardArrowUp />
-              ) : (
-                <MdOutlineKeyboardArrowDown />
-              )
-            }
-          >
-            AI Chat
-          </Button>
-        </HStack>
-        <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
-          <MenuLinedList
-            items={[
-              {
-                title: 'Docchat',
-                path: '',
-                onClick: handleShowSelected
-              },
-              {
-                title: 'AI tutor',
-                path: '/dashboard/ace-homework'
-              }
-            ]}
-            onClose={onClose}
-          />
-        </Box>
-      </Box>
-      {LinkItems.map((link) => (
-        <NavItem
-          key={link.name}
-          icon={link.icon}
-          path={link.path}
-          onClose={onClose}
-          isLocked={false} //link.requiresSubscription && !hasActiveSubscription
-          onLockedClick={
-            link.requiresSubscription
-              ? () =>
-                  handleLockedClick(
-                    !user.hadSubscription
-                      ? 'Subscribe to unlock your AI Study Tools! 🚀'
-                      : 'Pick a plan to access your AI Study Tools! 🚀',
-                    'One-click Cancel at anytime.'
-                  )
-              : undefined
-          }
-        >
-          {link.name}
-        </NavItem>
-      ))}
-      {/* <Box ml={8} mb={2} color="text.400">
-        <Button
-          pointerEvents={'none'}
-          variant={'unstyled'}
-          display="flex"
-          gap={2}
-          leftIcon={<PiClipboardTextLight />}
-          // onClick={() => toggleChatMenu()}
-          fontSize={14}
-          fontWeight={400}
-          width="100%"
-          pr={2}
-        >
-          <Flex align="center" justify="space-between" pr={2} width="100%">
-            <Text>Study Plans</Text>
-            <Text
-              fontSize={10}
-              border="1px solid #fc9b65"
-              borderRadius={4}
-              color="#fc9b65"
-              alignSelf={'center'}
-              px={1}
-            >
-              Coming Soon
-            </Text>
-          </Flex>
-        </Button>
-      </Box> */}
+//   const [isHovering, setIsHovering] = useState(false);
+//   const { user }: any = userStore();
+//   // const { unreadCount } = useStreamChat();
 
-      <Divider />
-      <Box ml={8} color="text.400">
-        {' '}
-        <Button
-          variant={'unstyled'}
-          display="flex"
-          gap={'10px'}
-          leftIcon={<FiBriefcase />}
-          fontSize={14}
-          fontWeight={500}
-          onClick={() => setTutorMenu(!tutorMenu)}
-          rightIcon={
-            tutorMenu ? (
-              <MdOutlineKeyboardArrowUp />
-            ) : (
-              <MdOutlineKeyboardArrowDown />
-            )
-          }
-        >
-          Shepherds
-        </Button>
-        <Box display={tutorMenu ? 'block' : 'none'}>
-          <MenuLinedList
-            items={[
-              {
-                title: 'Find a Shepherd',
-                path: '/dashboard/find-tutor'
-              },
-              {
-                title: 'My Shepherds',
-                path: '/dashboard/my-tutors'
-              },
-              {
-                title: 'Bookmarks',
-                path: '/dashboard/saved-tutors'
-              },
-              {
-                title: 'Bounties',
-                path: '/dashboard/bounties'
-              }
-            ]}
-            onClose={onClose}
-          />
-        </Box>
-      </Box>
+//   return (
+//     <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
+//       <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
+//         <h4 className="font-bold">
+//           <Logo />
+//         </h4>
+//         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+//       </div>
+//       <NavItem icon={FiHome} path={'/dashboard'} onClose={onClose}>
+//         Home
+//       </NavItem>
+//       <Divider />
+//       <Box
+//         paddingLeft={8}
+//         paddingRight={4}
+//         color="text.400"
+//         display={aiChatMenu ? 'block' : 'flex'}
+//         alignItems="center"
+//         justifyContent="space-between"
+//         cursor="pointer"
+//         onClick={() => toggleChatMenu()}
+//         onMouseEnter={() => setIsHovering(true)}
+//         onMouseLeave={() => setIsHovering(false)}
+//       >
+//         <HStack width={'100%'} justifyContent="space-between">
+//           <Button
+//             variant={'unstyled'}
+//             display="flex"
+//             alignSelf="start"
+//             gap={'10px'}
+//             leftIcon={<RiChat3Line width={18} />}
+//             fontSize={14}
+//             fontWeight={500}
+//             onClick={
+//               () => toggleChatMenu()
+//               // hasActiveSubscription
+//               //   ? () => toggleChatMenu()
+//               //   : () =>
+//               //       handleLockedClick(
+//               //         !user.hadSubscription
+//               //           ? 'Start Your Free Trial!'
+//               //           : 'Pick a plan to access your AI Study Tools! 🚀',
+//               //         'One-click Cancel at anytime.'
+//               //       )
+//             }
+//             rightIcon={
+//               aiChatMenu ? (
+//                 <MdOutlineKeyboardArrowUp />
+//               ) : (
+//                 <MdOutlineKeyboardArrowDown />
+//               )
+//             }
+//           >
+//             AI Chat
+//           </Button>
+//         </HStack>
+//         <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
+//           <MenuLinedList
+//             items={[
+//               {
+//                 title: 'Docchat',
+//                 path: '',
+//                 onClick: handleShowSelected
+//               },
+//               {
+//                 title: 'AI tutor',
+//                 path: '/dashboard/ace-homework'
+//               }
+//             ]}
+//             onClose={onClose}
+//           />
+//         </Box>
+//       </Box>
+//       {LinkItems.map((link) => (
+//         <NavItem
+//           key={link.name}
+//           icon={link.icon}
+//           path={link.path}
+//           onClose={onClose}
+//           isLocked={false} //link.requiresSubscription && !hasActiveSubscription
+//           onLockedClick={
+//             link.requiresSubscription
+//               ? () =>
+//                   handleLockedClick(
+//                     !user.hadSubscription
+//                       ? 'Subscribe to unlock your AI Study Tools! 🚀'
+//                       : 'Pick a plan to access your AI Study Tools! 🚀',
+//                     'One-click Cancel at anytime.'
+//                   )
+//               : undefined
+//           }
+//         >
+//           {link.name}
+//         </NavItem>
+//       ))}
+//       {/* <Box ml={8} mb={2} color="text.400">
+//         <Button
+//           pointerEvents={'none'}
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={2}
+//           leftIcon={<PiClipboardTextLight />}
+//           // onClick={() => toggleChatMenu()}
+//           fontSize={14}
+//           fontWeight={400}
+//           width="100%"
+//           pr={2}
+//         >
+//           <Flex align="center" justify="space-between" pr={2} width="100%">
+//             <Text>Study Plans</Text>
+//             <Text
+//               fontSize={10}
+//               border="1px solid #fc9b65"
+//               borderRadius={4}
+//               color="#fc9b65"
+//               alignSelf={'center'}
+//               px={1}
+//             >
+//               Coming Soon
+//             </Text>
+//           </Flex>
+//         </Button>
+//       </Box> */}
 
-      <NavItem
-        icon={BsChatLeftDots}
-        path="/dashboard/messaging"
-        onClose={onClose}
-      >
-        Shepherd Chat
-        {unreadCount > 0 && ( // Display badge if there are unread messages
-          <Badge colorScheme="red" ml={2}>
-            {unreadCount}
-          </Badge>
-        )}
-      </NavItem>
+//       <Divider />
+//       <Box ml={8} color="text.400">
+//         {' '}
+//         <Button
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={'10px'}
+//           leftIcon={<FiBriefcase />}
+//           fontSize={14}
+//           fontWeight={500}
+//           onClick={() => setTutorMenu(!tutorMenu)}
+//           rightIcon={
+//             tutorMenu ? (
+//               <MdOutlineKeyboardArrowUp />
+//             ) : (
+//               <MdOutlineKeyboardArrowDown />
+//             )
+//           }
+//         >
+//           Shepherds
+//         </Button>
+//         <Box display={tutorMenu ? 'block' : 'none'}>
+//           <MenuLinedList
+//             items={[
+//               {
+//                 title: 'Find a Shepherd',
+//                 path: '/dashboard/find-tutor'
+//               },
+//               {
+//                 title: 'My Shepherds',
+//                 path: '/dashboard/my-tutors'
+//               },
+//               {
+//                 title: 'Bookmarks',
+//                 path: '/dashboard/saved-tutors'
+//               },
+//               {
+//                 title: 'Bounties',
+//                 path: '/dashboard/bounties'
+//               }
+//             ]}
+//             onClose={onClose}
+//           />
+//         </Box>
+//       </Box>
 
-      <Divider />
+//       <NavItem
+//         icon={BsChatLeftDots}
+//         path="/dashboard/messaging"
+//         onClose={onClose}
+//       >
+//         Shepherd Chat
+//         {unreadCount > 0 && ( // Display badge if there are unread messages
+//           <Badge colorScheme="red" ml={2}>
+//             {unreadCount}
+//           </Badge>
+//         )}
+//       </NavItem>
 
-      <Box ml={8} color="text.400">
-        <Button
-          cursor={'not-allowed'}
-          pointerEvents={'none'}
-          opacity={1}
-          variant={'unstyled'}
-          display="flex"
-          gap={2}
-          leftIcon={<BarnImg />}
-          onClick={() => openModal('Coming Soon!')}
-          fontSize={14}
-          fontWeight={400}
-          width="100%"
-          pr="2"
-          my="2"
-        >
-          <Flex align="center" justify="space-between" pr={2} width="100%">
-            <Text>Barn</Text>
-            <Text
-              fontSize={10}
-              border="1px solid #fc9b65"
-              borderRadius={4}
-              color="#fc9b65"
-              alignSelf={'center'}
-              px={1}
-              ml="auto"
-            >
-              Coming Soon
-            </Text>
-          </Flex>
-        </Button>
-      </Box>
-      <Divider />
-      <NavItem
-        icon={RiFeedbackLine as unknown as IconType}
-        type="external"
-        path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
-        onClose={onClose}
-      >
-        Feedback
-      </NavItem>
-      {user.school && (
-        <Flex
-          gap={1}
-          alignItems="center"
-          textAlign="center"
-          bg="#f1f5f9"
-          p={3}
-          m={4}
-          borderRadius={8}
-          direction="column"
-          boxShadow="lg" // Added drop shadow
-        >
-          <Image
-            src="/images/SeqHub_Logo.png"
-            alt="School Logo"
-            boxSize={'50%'}
-            borderRadius="md"
-          />
-          <Text fontWeight="bold" fontSize="lg">
-            {user.school.name}
-          </Text>
-        </Flex>
-      )}
+//       <Divider />
 
-      {showSelected && (
-        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
-      )}
-    </div>
-  );
-};
+//       <Box ml={8} color="text.400">
+//         <Button
+//           cursor={'not-allowed'}
+//           pointerEvents={'none'}
+//           opacity={1}
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={2}
+//           leftIcon={<BarnImg />}
+//           onClick={() => openModal('Coming Soon!')}
+//           fontSize={14}
+//           fontWeight={400}
+//           width="100%"
+//           pr="2"
+//           my="2"
+//         >
+//           <Flex align="center" justify="space-between" pr={2} width="100%">
+//             <Text>Barn</Text>
+//             <Text
+//               fontSize={10}
+//               border="1px solid #fc9b65"
+//               borderRadius={4}
+//               color="#fc9b65"
+//               alignSelf={'center'}
+//               px={1}
+//               ml="auto"
+//             >
+//               Coming Soon
+//             </Text>
+//           </Flex>
+//         </Button>
+//       </Box>
+//       <Divider />
+//       <NavItem
+//         icon={RiFeedbackLine as unknown as IconType}
+//         type="external"
+//         path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+//         onClose={onClose}
+//       >
+//         Feedback
+//       </NavItem>
+//       {user.school && (
+//         <Flex
+//           gap={1}
+//           alignItems="center"
+//           textAlign="center"
+//           bg="#f1f5f9"
+//           p={3}
+//           m={4}
+//           borderRadius={8}
+//           direction="column"
+//           boxShadow="lg" // Added drop shadow
+//         >
+//           <Image
+//             src="/images/SeqHub_Logo.png"
+//             alt="School Logo"
+//             boxSize={'50%'}
+//             borderRadius="md"
+//           />
+//           <Text fontWeight="bold" fontSize="lg">
+//             {user.school.name}
+//           </Text>
+//         </Flex>
+//       )}
+
+//       {showSelected && (
+//         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+//       )}
+//     </div>
+//   );
+// };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
@@ -980,8 +953,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <FlashCardEventNotifier />
       <div className="flex flex-col w-full h-full relative bg-white">
         <div className="h-full flex w-full">
-          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
-            <SidebarContent
+          <Sidebar />
+          {/* <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
               aiChatMenu={aiChatMenu}
@@ -996,36 +969,35 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               handleLockedClick={handleLockedClick}
               openModal={openModal}
               closeModal={closeModal}
-            />
-            <Drawer
-              autoFocus={false}
-              isOpen={isOpen}
-              placement="left"
-              onClose={onClose}
-              returnFocusOnClose={false}
-              onOverlayClick={onClose}
-              size="full"
-            >
-              <DrawerContent>
-                <SidebarContent
-                  onClose={onClose}
-                  tutorMenu={tutorMenu}
-                  setTutorMenu={setTutorMenu}
-                  toggleMenu={() => setTutorMenu(!tutorMenu)}
-                  aiChatMenu={aiChatMenu}
-                  // setAiChatMenu={setAiChatMenu}
-                  toggleChatMenu={toggleChatMenu}
-                  earnMenu={earnMenu}
-                  toggleEarnMenu={toggleEarnMenu}
-                  unreadCount={unreadCount}
-                  hasActiveSubscription={hasActiveSubscription}
-                  handleLockedClick={handleLockedClick}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              </DrawerContent>
-            </Drawer>
-          </div>
+            /> */}
+          <Drawer
+            autoFocus={false}
+            isOpen={isOpen}
+            placement="left"
+            onClose={onClose}
+            returnFocusOnClose={false}
+            onOverlayClick={onClose}
+            size="full"
+          >
+            <DrawerContent>
+              {/* <SidebarContent
+                onClose={onClose}
+                tutorMenu={tutorMenu}
+                setTutorMenu={setTutorMenu}
+                toggleMenu={() => setTutorMenu(!tutorMenu)}
+                aiChatMenu={aiChatMenu}
+                // setAiChatMenu={setAiChatMenu}
+                toggleChatMenu={toggleChatMenu}
+                earnMenu={earnMenu}
+                toggleEarnMenu={toggleEarnMenu}
+                unreadCount={unreadCount}
+                hasActiveSubscription={hasActiveSubscription}
+                handleLockedClick={handleLockedClick}
+                openModal={openModal}
+                closeModal={closeModal}
+              /> */}
+            </DrawerContent>
+          </Drawer>
           <div className="flex-1 overflow-y-hidden h-full">
             <div className="w-full z-10">
               <MobileNav onOpen={onOpen} />
