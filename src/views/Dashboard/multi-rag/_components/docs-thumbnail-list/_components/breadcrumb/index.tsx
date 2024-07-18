@@ -37,6 +37,8 @@ import {
   DropdownMenuTrigger
 } from '../../../../../../../components/ui/dropdown-menu';
 import { Button } from '../../../../../../../components/ui/button';
+import { useSubtopicIdStore } from '../../../../../../../state/subTopicStore';
+import { MultiragDocument } from '../../../../../../../types';
 
 function BreadCrumb({ conversationId }: { conversationId: string }) {
   const { data, isLoading } = useQuery({
@@ -195,10 +197,15 @@ const RenameChatDialog = ({
 const ChatHistory = () => {
   const [searchValue, setSearchValue] = useState('');
   const { user } = useUserStore();
+  const queryClient = useQueryClient();
+  const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
+  const state = queryClient.getQueryData(['processed-documents', subtopicId]) as { data: Array<MultiragDocument> } | undefined;
+  const referenceIds = JSON.stringify(state ? state.data.map((doc) => doc.document_id) : [])
+  console.log(referenceIds)
   const { data } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
-      ApiService.multiPreviousConversations(user._id).then((res) => res.json())
+      ApiService.multiPreviousConversations(user._id,referenceIds).then((res) => res.json())
   });
 
   if (!data) {
