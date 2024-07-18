@@ -536,7 +536,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex items-center bg-[#cee4e5] p-4  gap-2'>
+      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-[#cee4e5] p-4  gap-2'>
         <Checkbox onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
