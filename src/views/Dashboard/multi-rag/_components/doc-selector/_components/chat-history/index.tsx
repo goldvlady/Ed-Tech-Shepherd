@@ -122,9 +122,7 @@ const HistoryItemGroup = ({ item, date }: { date: string; item: any }) => {
               title={conversation.title}
               documentId={
                 conversation.referenceDocIds[
-                  Math.floor(
-                    Math.random() * conversation.referenceDocIds?.length
-                  )
+                 0
                 ]
               }
             />
