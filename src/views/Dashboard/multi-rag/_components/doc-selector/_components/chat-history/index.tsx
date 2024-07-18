@@ -44,7 +44,8 @@ function ChatHistory() {
   const queryClient = useQueryClient();
   const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const state = queryClient.getQueryData(['processed-documents', subtopicId]) as {data: Array<MultiragDocument>} | undefined;
-  const referenceIds = JSON.stringify(state ? state.data.map((doc) => doc.document_id) : [])
+  const r = state === undefined ? [] : state.data.map((doc) => doc.document_id)
+  const referenceIds = JSON.stringify(r)
   console.log(referenceIds)
   const { data, isLoading } = useQuery({
     queryKey: ['doc-chat-history'],
