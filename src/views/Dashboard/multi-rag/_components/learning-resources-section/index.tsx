@@ -530,13 +530,13 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
     <div
         ref={ref}
         className={cn(
-          'absolute w-[20.25rem] bg-white rounded-md shadow-md right-0 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          'absolute w-[20.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
             'opacity-100 pointer-events-auto': quizExpanded
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex items-center bg-[#cee4e5] p-2  gap-2'>
+      {docNames.length > 0 ? docNames.map(d => <div className='flex w-5/6 items-center bg-[#cee4e5] p-2  gap-2'>
         <Checkbox onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
