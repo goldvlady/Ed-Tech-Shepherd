@@ -536,7 +536,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex items-center gap-2'>
+      {docNames.length > 0 ? docNames.map(d => <div className='flex items-center bg-[#cee4e5] p-2  gap-2'>
         <Checkbox onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
@@ -545,7 +545,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
            setSelectedDocs(existing.filter(e => e !== d))
          }
         }}/>
-        <span key={d} className="bg-[#cee4e5] p-2 w-full mb-2">{d}</span>
+        <span key={d}>{d}</span>
      </div>): null}
       </div>
   </div>
