@@ -537,7 +537,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-100 p-2.5  gap-2 hover:bg-stone-50'>
+      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
         <Checkbox onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
@@ -548,7 +548,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
         }}/>
         <span key={d}>{d}</span>
       </div>) : null}
-      <button className='px-3 py-2 w-[95%] rounded-sm bg-black text-sm'>Generate Quiz</button>
+      <button className='px-3 py-2 w-[95%] rounded-md bg-black/80 text-white  text-sm'>Generate Quiz</button>
       </div>
   </div>
 };
@@ -596,7 +596,7 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
         }
       )}
     >
-    {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-100 p-2.5  gap-2 hover:bg-stone-50'>
+    {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
       <Checkbox onCheckedChange={(checked) => {
         if (checked) {
           setSelectedDocs(prev => prev.concat(d))
@@ -607,7 +607,7 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
       }}/>
       <span key={d}>{d}</span>
     </div>) : null}
-    <button className='px-3 py-2 w-[95%] rounded-sm bg-black text-sm'>Generate Flashcards</button>
+    <button className='px-3 py-2 w-[95%] rounded-md bg-black/80 text-white text-sm'>Generate Flashcards</button>
     </div>
 </div>
 };

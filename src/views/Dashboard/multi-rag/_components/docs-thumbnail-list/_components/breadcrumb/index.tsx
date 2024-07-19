@@ -199,7 +199,7 @@ const ChatHistory = () => {
   const queryClient = useQueryClient();
   const subtopicId = useSubtopicIdStore((state) => state.subTopicId);
   const state = queryClient.getQueryData(['processed-documents', subtopicId]) as { data: Array<MultiragDocument> } | undefined;
-  const r = state === undefined ? [] : state.data.map((doc) => doc.document_id)
+  const r = state === undefined  ? [] : subtopicId.length === 0 ? [] : state.data.map((doc) => doc.document_id)
   const referenceDocIds = encodeURIComponent(JSON.stringify(r))
   console.log("ReferencedocIdS from crumbs", r, referenceDocIds)
   const { data } = useQuery({
