@@ -33,7 +33,7 @@ const LearningResourcesSection = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [currentTabOpened, setCurrentTabOpened] = useState<
-    'Summary' | 'Highlight' | 'Pinned' | ''
+    'Summary' | 'Highlight' | 'Pinned' | 'Flashcards' | 'Quizzes' | ''
   >('');
   return (
     <div>
@@ -90,7 +90,8 @@ const LearningResourcesSection = ({
         />
         <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}  />
-        <GenerateFlashcardsSection />
+        <GenerateFlashcardsSection setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened} />
       </div>
     </div>
   );
@@ -499,15 +500,15 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
   const [quizExpanded, setQuizExpanded] = useState(false)
   const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
   const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
-  console.log(selectedDocs)
+  console.log("sELECTED DOCS FROM QUIZ",selectedDocs)
   const ref = useRef(null);
   const toggleExpand = () => {
     setQuizExpanded(!quizExpanded);
-    setCurrentTabOpened('Summary');
+    setCurrentTabOpened('Quizzes');
   };
 
   useEffect(() => {
-    if (currentTabOpened !== 'Summary') {
+    if (currentTabOpened !== 'Quizzes') {
       setQuizExpanded(false);
     }
   }, [currentTabOpened]);
@@ -536,7 +537,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-[#cee4e5] p-2.5  gap-2'>
+      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-100 p-2.5  gap-2 hover:bg-stone-50'>
         <Checkbox onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
@@ -546,17 +547,69 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
          }
         }}/>
         <span key={d}>{d}</span>
-     </div>): null}
+      </div>) : null}
+      <button className='px-3 py-2 w-[95%] rounded-sm bg-black text-sm'>Generate Quiz</button>
       </div>
   </div>
 };
 
-const GenerateFlashcardsSection = () => {
-  return <div className="relative">
+const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurrentTabOpened: any;
+  currentTabOpened: string;
+}) => {
+  const [flashcardExpanded, setFlashcardExpanded] = useState(false)
+  const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
+  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
+  console.log("SELECTED DCOS FROM FLASHCARD",selectedDocs)
+  const ref = useRef(null);
+  const toggleExpand = () => {
+    setFlashcardExpanded(!flashcardExpanded);
+    setCurrentTabOpened('Flashcards');
+  };
 
-    <ActionButton>Generate Flashcards</ActionButton>
-    
-  </div> 
+  useEffect(() => {
+    if (currentTabOpened !== 'Flashcards') {
+      setFlashcardExpanded(false);
+    }
+  }, [currentTabOpened]);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setFlashcardExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  return <div className='relative'>
+
+  <ActionButton active={flashcardExpanded} onClick={toggleExpand}>Generate Flashcards</ActionButton>
+  <div
+      ref={ref}
+      className={cn(
+        'absolute w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+        {
+          'opacity-100 pointer-events-auto': flashcardExpanded
+        }
+      )}
+    >
+    {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-100 p-2.5  gap-2 hover:bg-stone-50'>
+      <Checkbox onCheckedChange={(checked) => {
+        if (checked) {
+          setSelectedDocs(prev => prev.concat(d))
+        } else {
+          const existing = [...selectedDocs]
+         setSelectedDocs(existing.filter(e => e !== d))
+       }
+      }}/>
+      <span key={d}>{d}</span>
+    </div>) : null}
+    <button className='px-3 py-2 w-[95%] rounded-sm bg-black text-sm'>Generate Flashcards</button>
+    </div>
+</div>
 };
 
 const ActionButton = ({
