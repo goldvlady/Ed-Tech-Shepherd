@@ -62,7 +62,7 @@ function UploadingItems({
         const d = await mutateAsync({
           jobId: file.jobId,
           tables: file.tables,
-          sid: user._id
+          sid: user?._id
         });
         console.log("D from mutateAsync",d)
       } else if (data.status === 'error') {
@@ -115,11 +115,11 @@ function UploadingItems({
       mutate({
         jobId: file.jobId,
         tables: file.tables,
-        sid: user._id
+        sid: user?._id
       });
       setFilesUploading([{...file, uploading: false}])
     }
-  }, [file, mutate, user._id]);
+  }, [file, mutate, user?._id]);
   console.log('multiDocBackgroundJobs', filesUploading);
   return (
     <div className="uploading-documents flex w-full flex-col gap-[9px] justify-start mt-[1.8rem] max-h-[10rem] overflow-y-scroll no-scrollbar">
