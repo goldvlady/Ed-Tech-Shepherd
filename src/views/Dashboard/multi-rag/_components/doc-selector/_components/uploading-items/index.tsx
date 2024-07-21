@@ -23,7 +23,7 @@ function UploadingItems({
 }) {
   const { user } = useUserStore();
   const file = filesUploading[0];
-  const { mutate } = useMutation({
+  const { mutate, mutateAsync } = useMutation({
     mutationFn: async (data: any) => {
       const r = await ApiService.multiDocBackgroundJobs(data)
       if (!r.ok) {
@@ -36,7 +36,7 @@ function UploadingItems({
      
       return d;
     },
-    onSuccess: (data: any) => {
+    onSuccess: async (data: any) => {
       console.log('Jobs', data);
       if (data.status === 'success') {
         setState('success');
@@ -59,11 +59,12 @@ function UploadingItems({
         });
       } else if (data.status === 'in_progress') {
         setState('in_progress');
-        mutate({
+        const d = await mutateAsync({
           jobId: file.jobId,
           tables: file.tables,
           sid: user._id
         });
+        console.log("D from mutateAsync",d)
       } else if (data.status === 'error') {
         setState('error');
         setFilesUploading((prevState) => {
