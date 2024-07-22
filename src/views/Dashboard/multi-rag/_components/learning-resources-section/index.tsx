@@ -548,7 +548,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
         }}/>
         <span key={d}>{d}</span>
       </div>) : null}
-      <button className='px-3 py-2 w-[95%] rounded-md bg-black/80 text-white  text-sm'>Generate Quiz</button>
+      <button className='px-3 py-2 w-[95%] rounded-md bg-primaryBlue text-white  text-sm'>Generate Quiz</button>
       </div>
   </div>
 };
@@ -607,7 +607,7 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
       }}/>
       <span key={d}>{d}</span>
     </div>) : null}
-    <button className='px-3 py-2 w-[95%] rounded-md bg-black/80 text-white text-sm'>Generate Flashcards</button>
+    <button className='px-3 py-2 w-[95%] rounded-md bg-primaryBlue text-whitetext-sm'>Generate Flashcards</button>
     </div>
 </div>
 };
