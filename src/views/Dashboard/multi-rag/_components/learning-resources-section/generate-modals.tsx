@@ -88,7 +88,7 @@ export const GenerateFlashcardModal = ({
   const handleSubmit = async () => {
     const data = {
       ...localData,
-      preferredLanguage,
+      lang: preferredLanguage,
       docNames
     };
       console.log(data);
