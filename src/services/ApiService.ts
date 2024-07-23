@@ -1,17 +1,16 @@
-import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
-import { encodeQueryParams, languages } from '../helpers';
+import { languages } from '../helpers';
 import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
   StudentDocumentPayload,
-  QuizData,
   QuizQuestion,
   FlashcardData,
   StudyPlanTopicDocumentPayload,
-  StoreQuizScoreType
+  StoreQuizScoreType,
+  GenerateFlashcardFromMultiBody,
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1364,6 +1363,24 @@ class ApiService {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       `${ApiService.multiRagMainURL}/misc/toggle-like`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static multiGenerateFlashcardsFromDocs = async (
+    data: GenerateFlashcardFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-flashcards`,
       {
         method: 'POST',
         body: JSON.stringify(data)

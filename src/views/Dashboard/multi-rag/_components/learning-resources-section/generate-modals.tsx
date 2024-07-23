@@ -23,8 +23,11 @@ import { FiChevronDown } from 'react-icons/fi';
 import SelectComponent, { Option } from '../../../../../components/Select';
 import React from 'react';
 import { languages } from '../../../../../helpers';
-import { FlashcardData } from '../../../FlashCards/context/flashcard';
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { useMutation } from '@tanstack/react-query';
+import { GenerateFlashcardFromMultiBody } from '../../../../../types';
+import ApiService from '../../../../../services/ApiService';
+import useUserStore from '../../../../../state/userStore';
 
 type GenerateFlashcardModalProps = {
   isOpen: boolean;
@@ -40,18 +43,42 @@ export const GenerateFlashcardModal = ({
   const [preferredLanguage, setPreferredLanguage] = React.useState<
     (typeof languages)[number]
   >(languages[0]);
-  const [localData, setLocalData] = React.useState<FlashcardData>({
+  const [localData, setLocalData] = React.useState({
     deckname: '',
     studyType: '',
     studyPeriod: '',
     numQuestions: 0,
     timerDuration: '',
     hasSubmitted: false,
-    documentId: ''
+    documentId: '',
+    topic: '',
+    subject: ''
   });
   const toast = useCustomToast();
 
-    
+  const {user} = useUserStore()
+  
+  const { mutate } = useMutation({
+    mutationKey: ["generateFlashcardFromMultirag", docNames],
+    mutationFn: (data: GenerateFlashcardFromMultiBody) => ApiService.multiGenerateFlashcardsFromDocs(data),
+    onSuccess() {
+      console.log("SUFFERING FROM SUCCESS")
+        setLocalData({
+          deckname: '',
+          studyType: '',
+          studyPeriod: '',
+          numQuestions: 0,
+          timerDuration: '',
+          hasSubmitted: false,
+          documentId: '',
+          topic: '',
+          subject: ''
+        })
+      setSearchValue('')
+      setPreferredLanguage(languages[0])
+    },
+  })
+
   const studyPeriodOptions = [
     { label: 'Daily', value: 'daily' },
     { label: 'Once a week', value: 'weekly' },
@@ -89,17 +116,11 @@ export const GenerateFlashcardModal = ({
     const data = {
       ...localData,
       lang: preferredLanguage,
-      docNames
+      docNames,
+      userId: user._id
     };
-      console.log(data);
-      // RESET STATE 
-    //   const questions = data.flashcards.map((d: any) => ({
-    //     question: d.front,
-    //     answer: d.back,
-    //     explanation: d.explainer,
-    //     helperText: d['helpful reading'],
-    //     questionType: 'openEnded'
-    //   }));
+    console.log(data);
+    mutate(data);
   };
   const closeModalOnSubmit = async() => {
       onClose();
@@ -243,6 +264,44 @@ export const GenerateFlashcardModal = ({
                 name="deckname"
                 placeholder="e.g. Deckname"
                 value={localData.deckname}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Topic
+              </FormLabel>
+              <Input
+                fontSize="0.875rem"
+                type="text"
+                name="deckname"
+                placeholder="e.g. Deckname"
+                value={localData.topic}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Subject
+              </FormLabel>
+              <Input
+                fontSize="0.875rem"
+                type="text"
+                name="deckname"
+                placeholder="e.g. Deckname"
+                value={localData.subject}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               />

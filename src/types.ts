@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { languages } from './helpers';
 
 export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
 export const MULTIPLE_CHOICE_MULTI = 'multipleChoiceMulti';
@@ -9,6 +10,16 @@ export const MIXED = 'mixed';
 export type Entity = {
   _id: string;
 };
+export interface GenerateFlashcardFromMultiBody {
+  docNames: string[];
+  deckname: string;
+  numQuestions: number;
+  difficulty?: string;
+  subject: string;
+  topic: string;
+  userId: string;
+  lang: (typeof languages)[number];
+}
 
 export interface TimestampedEntity extends Entity {
   createdAt: Date;
