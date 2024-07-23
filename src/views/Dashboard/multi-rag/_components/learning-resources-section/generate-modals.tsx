@@ -52,7 +52,8 @@ export const GenerateFlashcardModal = ({
     hasSubmitted: false,
     documentId: '',
     topic: '',
-    subject: ''
+    subject: '',
+    grade: ''
   });
   const toast = useCustomToast();
 
@@ -72,7 +73,8 @@ export const GenerateFlashcardModal = ({
           hasSubmitted: false,
           documentId: '',
           topic: '',
-          subject: ''
+          subject: '',
+          grade: ''
         })
       setSearchValue('')
       setPreferredLanguage(languages[0])
@@ -112,13 +114,19 @@ export const GenerateFlashcardModal = ({
     },
     [setLocalData]
   );
+ 
   const handleSubmit = async () => {
+
     const data = {
       ...localData,
       lang: preferredLanguage,
       docNames,
-      userId: user._id
+      numQuestions: parseInt(localData.numQuestions as unknown as string),
+      user_id: user._id
     };
+    delete data["timerDuration"]
+    delete data["hasSubmitted"]
+    delete data["documentId"]
     console.log(data);
     mutate(data);
   };
@@ -280,8 +288,8 @@ export const GenerateFlashcardModal = ({
               <Input
                 fontSize="0.875rem"
                 type="text"
-                name="deckname"
-                placeholder="e.g. Deckname"
+                name="topic"
+                placeholder="e.g. Covalent bonds"
                 value={localData.topic}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
@@ -299,14 +307,32 @@ export const GenerateFlashcardModal = ({
               <Input
                 fontSize="0.875rem"
                 type="text"
-                name="deckname"
-                placeholder="e.g. Deckname"
+                name="subject"
+                placeholder="e.g. Chemistry"
                 value={localData.subject}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               />
             </FormControl>
-
+            <FormControl mb={8}>
+              <FormLabel
+                fontSize="12px"
+                lineHeight="17px"
+                color="#5C5F64"
+                mb={3}
+              >
+                Grade
+              </FormLabel>
+              <Input
+                fontSize="0.875rem"
+                type="text"
+                name="grade"
+                placeholder="e.g. Sophomore"
+                value={localData.grade}
+                onChange={handleChange}
+                _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
+              />
+            </FormControl>
             <FormControl mb={8}>
               <FormLabel
                 fontSize="12px"

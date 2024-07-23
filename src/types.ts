@@ -16,8 +16,9 @@ export interface GenerateFlashcardFromMultiBody {
   numQuestions: number;
   difficulty?: string;
   subject: string;
+  grade: string;
   topic: string;
-  userId: string;
+  user_id: string;
   lang: (typeof languages)[number];
 }
 
