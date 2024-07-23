@@ -24,6 +24,7 @@ import SelectComponent, { Option } from '../../../../../components/Select';
 import React from 'react';
 import { languages } from '../../../../../helpers';
 import { FlashcardData } from '../../../FlashCards/context/flashcard';
+import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 
 type GenerateFlashcardModalProps = {
   isOpen: boolean;
@@ -48,6 +49,9 @@ export const GenerateFlashcardModal = ({
     hasSubmitted: false,
     documentId: ''
   });
+  const toast = useCustomToast();
+
+    
   const studyPeriodOptions = [
     { label: 'Daily', value: 'daily' },
     { label: 'Once a week', value: 'weekly' },
@@ -99,6 +103,11 @@ export const GenerateFlashcardModal = ({
   };
   const closeModalOnSubmit = async() => {
       onClose();
+      toast({
+          title: "Creating Flashcards",
+          description: "Hang tight we're creating your flashcards",
+          status: "success"
+      })
       handleSubmit()
   };
   return (
