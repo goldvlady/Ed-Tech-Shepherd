@@ -12,8 +12,8 @@ import ScheduleStudyModal, {
 } from '../views/Dashboard/FlashCards/components/scheduleModal';
 import CalendarDateInput from './CalendarDateInput';
 import TimePicker from '../components/TimePicker';
-import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import { CloseIcon } from '@chakra-ui/icons';
+import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 import {
   Button,
   Box,

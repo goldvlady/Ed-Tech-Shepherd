@@ -3,43 +3,22 @@ import AddSubjectLevel from '../../../components/AddSubjectLevel';
 import CustomModal from '../../../components/CustomComponents/CustomModal';
 import CustomToast from '../../../components/CustomComponents/CustomToast';
 import DragAndDrop from '../../../components/DragandDrop';
-import { firebaseAuth, updatePassword } from '../../../firebase';
-import { storage } from '../../../firebase';
 import ApiService from '../../../services/ApiService';
 import resourceStore from '../../../state/resourceStore';
 import userStore from '../../../state/userStore';
 import { Course, LevelType } from '../../../types';
-import AvailabilityTable from '../../Dashboard/components/AvailabilityTable';
-import AddSubjectForm from '../../OnboardTutor/components/steps/add_subjects';
-import AvailabilityEditForm from './AvailabilityEditForm.tsx';
-import QualificationsEditForm from './QualificationsEditForm';
 import {
   Avatar,
-  AspectRatio,
-  Editable,
-  EditableInput,
-  EditableTextarea,
-  EditablePreview,
   Input,
   InputGroup,
   InputRightElement,
-  useEditableControls,
-  Switch,
   Spacer,
   Divider,
   Button,
   Box,
   Flex,
-  Image,
   FormControl,
   FormLabel,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
   Text,
   Stack,
   useToast,
@@ -53,51 +32,29 @@ import {
   Tr,
   Th,
   Td,
-  IconButton,
   Textarea,
   InputLeftElement,
   HStack,
   Link
 } from '@chakra-ui/react';
-import { ref } from '@firebase/storage';
+import { getStorage, ref } from 'firebase/storage';
 import { getDownloadURL, uploadBytesResumable } from 'firebase/storage';
-import moment from 'moment';
-// import { updatePassword } from 'firebase/auth';
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef
-} from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BiPlayCircle } from 'react-icons/bi';
-import { IoIosAlert } from 'react-icons/io';
 import { MdEdit } from 'react-icons/md';
-import { RiArrowRightSLine } from 'react-icons/ri';
 import Availability from '../../../components/Availability';
-import FileUpload from '../../Dashboard/FlashCards/components/fileUploadField';
 import uploadFile from '../../../helpers/file.helpers';
-
-interface SubjectLevel {
-  subject: string;
-  level: string;
-}
+import QualificationsEditForm from './QualificationsEditForm';
 
 function MyProfile(props) {
+  const storage = getStorage();
   const { tutorData } = props;
   const { user, fetchUser } = userStore();
   const { courses: courseList, levels, rate } = resourceStore();
 
   const toast = useToast();
-  const [newEmail, setNewEmail] = useState<string>(tutorData.email);
 
   const [isUpdating, setIsUpdating] = useState(false);
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [oldPassword, setOldPassword] = useState<string>('');
-  const [newPassword, setNewPassword] = useState<string>('');
-  const handleClickOld = () => setShowOldPassword(!showOldPassword);
-  const handleClickNew = () => setShowNewPassword(!showNewPassword);
   const [vidOverlay, setVidOverlay] = useState<boolean>(true);
   const [description, setDescription] = useState(tutorData.tutor.description);
   const [schedule, setSchedule] = useState('');
@@ -113,7 +70,7 @@ function MyProfile(props) {
 
   const [hourlyRate, setHourlyRate] = useState(tutorData.tutor.rate);
   const [isLoading, setIsLoading] = useState(false);
-  const [icsFile, setIcsFile] = useState(null);
+  const [_, setIcsFile] = useState(null);
   const [introVideo, setIntroVideo] = useState<any>(null);
   const [introVideoLink, setIntroVideoLink] = useState<any>(null);
 
@@ -524,7 +481,6 @@ function MyProfile(props) {
                       Your browser does not support the video tag.
                     </video>
                   </Box>{' '}
-                  {/* </AspectRatio> */}
                   <Center
                     color="white"
                     display={vidOverlay ? 'flex' : 'none'}

@@ -465,16 +465,14 @@ export default function Marketplace() {
                   }
                   components={{ DropdownIndicator }}
                   isSearchable
-                  // @ts-ignore
                   styles={{
-                    // @ts-ignore
                     container: (provided) =>
                       ({
                         ...provided,
                         width: '150px',
                         position: 'relative',
                         zIndex: '99999'
-                      } as unknown as any),
+                      } as any),
                     control: (provided) =>
                       ({
                         ...provided,
@@ -483,12 +481,12 @@ export default function Marketplace() {
                         fontWeight: '400',
                         textAlign: 'left',
                         borderColor: '#E2E8F0'
-                      } as unknown as any),
+                      } as any),
                     menu: (provided) =>
                       ({
                         ...provided,
                         marginTop: '2px'
-                      } as unknown as any),
+                      } as any),
                     option: (provided, state) =>
                       ({
                         ...provided,
@@ -498,7 +496,7 @@ export default function Marketplace() {
                         ':active': {
                           backgroundColor: '#F2F4F7'
                         }
-                      } as unknown as any)
+                      } as any)
                   }}
                 />
               </Box>

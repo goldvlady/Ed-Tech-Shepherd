@@ -18,13 +18,15 @@ export const TabModal = ({
   onCancel,
   onChange,
   text,
-  tabIndex
+  tabIndex,
+  dense
 }: {
   isOpen: boolean;
   onCancel: () => void;
   text: string;
   tabIndex: number;
   onChange: (id: number) => void;
+  dense: boolean;
 }) => {
   return (
     <Modal isOpen={isOpen} onClose={onCancel} isCentered>
@@ -34,6 +36,7 @@ export const TabModal = ({
         mx="auto"
         w="fit-content"
         borderRadius="10px"
+        marginRight={dense ? '22%' : 'auto'}
       >
         <ModalHeader>
           <Tabs

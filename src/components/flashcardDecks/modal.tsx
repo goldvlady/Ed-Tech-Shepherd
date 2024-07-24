@@ -49,7 +49,7 @@ import { BsThreeDots } from 'react-icons/bs';
 import { FiCheck, FiHelpCircle, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
 import { MdCancel } from 'react-icons/md';
 import BillingModal from '../BillingModal';
@@ -83,10 +83,12 @@ const LoaderOverlay = () => (
 
 const StudyFooter = ({
   showMinimize = false,
-  onMinimize
+  onMinimize,
+  hideCloseButton
 }: {
   showMinimize?: boolean;
   onMinimize?: () => void;
+  hideCloseButton?: boolean;
 }) => {
   const { loadFlashcard, flashcard } = flashcardStore();
 
@@ -145,7 +147,7 @@ const StudyFooter = ({
     >
       <Box>{renderTag()}</Box>
       <Box>
-        {showMinimize && (
+        {showMinimize && !hideCloseButton && (
           <Button
             variant="ghost"
             rounded="100%"
@@ -175,31 +177,33 @@ const StudyFooter = ({
             </svg>
           </Button>
         )}
-        <Button
-          variant="ghost"
-          rounded="100%"
-          padding="10px"
-          bg="#FEECEC"
-          onClick={() => loadFlashcard(null, false)}
-          _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
-          color="black"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            width={'15px'}
-            height={'15px'}
+        {hideCloseButton ? null : (
+          <Button
+            variant="ghost"
+            rounded="100%"
+            padding="10px"
+            bg="#FEECEC"
+            onClick={() => loadFlashcard(null, false)}
+            _hover={{ bg: '#FEECEC', transform: 'scale(1.05)' }}
+            color="black"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </Button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              width={'15px'}
+              height={'15px'}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </Button>
+        )}
       </Box>
     </Box>
   );
@@ -460,7 +464,15 @@ const CompletedState = ({
 
 let studySessionLogger: StudySessionLogger | undefined = undefined;
 
-const StudyBox = () => {
+export const StudyBox = ({
+  hideCloseButton,
+  dense,
+  selectedTopic
+}: {
+  hideCloseButton?: boolean;
+  dense?: boolean;
+  selectedTopic?: string;
+}) => {
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
@@ -792,6 +804,13 @@ const StudyBox = () => {
     studySessionLogger.start();
   };
 
+  useEffect(() => {
+    setActivityState((prev) => ({
+      ...prev,
+      isStarted: false
+    }));
+  }, [selectedTopic]);
+
   const finishStudy = () => {
     setActivityState((prev) => ({
       isStarted: false,
@@ -838,7 +857,7 @@ const StudyBox = () => {
       />
     ) : (
       <Box width="100%" flexDirection={'column'} display={'flex'}>
-        <Box width="100%" height="500px">
+        <Box width="100%" height="500px" position={'relative'}>
           <Box
             position="absolute"
             top="150px"
@@ -892,7 +911,7 @@ const StudyBox = () => {
               }}
               studyState={studyState}
               position="absolute"
-              top="0"
+              top="-70px"
               borderRadius="5px"
               background={
                 studyState === 'answer' || cardStyle === 'default'
@@ -905,6 +924,7 @@ const StudyBox = () => {
               left="50%"
               transform="translateX(-50%)"
               width="340px"
+              dense={dense}
             />
           </Box>
         </Box>
@@ -1101,7 +1121,9 @@ const StudyBox = () => {
   return (
     <Box
       padding={0}
-      display={{ base: 'flex', sm: 'block' }}
+      backgroundColor={'#ffffff'}
+      borderRadius={'1rem'}
+      display={'flex'}
       justifyContent={'space-between'}
       boxShadow="0px 4px 8px rgba(0, 0, 0, 0.1)"
       flexDirection={'column'}
@@ -1335,6 +1357,7 @@ const StudyBox = () => {
       <StudyFooter
         onMinimize={() => minimizeStudy()}
         showMinimize={isStarted && !isFinished}
+        hideCloseButton={hideCloseButton}
       />
     </Box>
   );
@@ -1344,6 +1367,8 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const { showStudyList, setShowStudyList, loadFlashcard } = flashcardStore();
   const [cancelButtonTop, setCancelButtonTop] = useState(0);
+  const location = useLocation();
+  console.log('FlashCardModal', location);
 
   useEffect(() => {
     const modalContent = modalRef.current;
@@ -1355,6 +1380,9 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
     }
   }, []);
 
+  if (location.pathname.includes('/dashboard/study-plans/')) {
+    return null;
+  }
   return (
     <Modal
       onClose={() => {
@@ -1387,7 +1415,7 @@ const FlashCardModal = ({ isOpen }: { isOpen: boolean }) => {
             </ModalHeader>
           )}
           <div ref={modalRef}>
-            {showStudyList ? <DailyDeckSelector /> : <StudyBox />}
+            {showStudyList ? <DailyDeckSelector /> : <StudyBox dense={false} />}
           </div>
         </ModalContent>
       </ModalOverlay>

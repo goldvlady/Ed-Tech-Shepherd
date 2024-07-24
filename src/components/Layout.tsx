@@ -190,7 +190,7 @@ export default function Layout({ children, className }) {
 
   const handleSignOut = () => {
     disconnectAndReset();
-    sessionStorage.clear();
+    //sessionStorage.clear();
     signOut(auth).then(() => {
       navigate('/login');
     });

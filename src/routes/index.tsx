@@ -5,22 +5,24 @@ import chameleon from '@chamaeleonidae/chmln';
 import { useAuth } from '../providers/auth.provider';
 import { usePostHog } from 'posthog-js/react';
 import { isProduction } from '../util';
-import { Box, ChakraProvider } from '@chakra-ui/react';
-import theme from '../theme';
+import { Box } from '@chakra-ui/react';
 import { Navigate, Route, Routes, useRoutes } from 'react-router';
 // TODO:// Add Create Password to Suspense
 import CreatePassword from '../views/CreatePassword';
-import ShepherdSpinner from '../views/Dashboard/components/shepherd-spinner';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
-import ApiService from '../services/ApiService';
+import MultiRag from '../views/Dashboard/multi-rag';
 import Home from '../views/Home';
 import TutorDashboardLayout from '../components/Layout';
 //import TutorDashboard from '../views/TutorDashboard/index';
 import DashboardLayout from '../views/Dashboard/layout';
 import Thanks from '../views/Thanks';
 import Cancel from '../views/Cancel';
+
+import MultiRagChat from '../views/Dashboard/multi-rag/multi-rag-chat';
+import { usePrefetchQueries } from '../hooks/usePrefetchQueries';
+
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
 const HomeWorkHelp = lazy(() => import('../views/Dashboard/home-work-help-2'));
 const WelcomeLayout = lazy(() => import('../views/WelcomeLayout'));
@@ -285,7 +287,7 @@ const AppRoutes: React.FC = () => {
   const [params] = useSearchParams();
   const { fetchNotifications, fetchUserDocuments } = userStore();
   /* chameleon.io NPM script */
-
+  const { prefetchQueries } = usePrefetchQueries();
   chameleon.init(
     'S9mtu3rwhjnyCB5YCEJ8wL946DrhUsVByQcsQKo6tTAWqP-1QmYSE-ExIRqucDjaOrhGTJ',
     { fastUrl: 'https://fast.chameleon.io/' }
@@ -296,7 +298,11 @@ const AppRoutes: React.FC = () => {
   } = useAuth();
 
   const userType = useMemo(() => {
-    return userData?.userRole;
+    // if user type array include student and tutor, set userType to both.
+    return userData?.type.includes('tutor') &&
+      userData?.type.includes('student')
+      ? 'both'
+      : userData?.userRole;
   }, [userData]);
 
   let userRoute = userRoutes[userType] || [];
@@ -317,6 +323,7 @@ const AppRoutes: React.FC = () => {
     if (isAuthenticated) {
       // fetchNotifications();
       if (userData) {
+        prefetchQueries(userData);
         chameleon.identify(userData?._id, {
           // REQUIRED, the unique ID of each user in your database (e.g. 23443 or "690b80e5f433ea81b96c9bf6")
           email: userData?.email, // RECOMMENDED, email is used as the key to map user data for integrations
@@ -343,7 +350,12 @@ const AppRoutes: React.FC = () => {
     return (
       <div className="w-full h-screen flex items-center justify-center flex-col">
         <div className="spinner">
-          <ShepherdSpinner />
+          <img
+            src="/images/logo-blue.svg"
+            alt="shepherd-logo"
+            loading="eager"
+            className="h-20 w-20 animate-bounce"
+          />
         </div>
         <div className="text-center">
           <p className="text-xl text-muted-foreground">
@@ -590,19 +602,23 @@ const AppRoutes: React.FC = () => {
         >
           <Route path=":id" element={<ChatRoom />} />
         </Route>
+        <Route
+          path="/dashboard/doc-chat"
+          element={
+            <Suspense fallback={<SharedLoading />}>
+              <MultiRag />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/dashboard/doc-chat/:docId"
+          element={
+            <Suspense fallback={<SharedLoading />}>
+              <MultiRagChat />
+            </Suspense>
+          }
+        />
       </Route>
-      {/* <Route
-        path="/dashboard/ace-homework/:id"
-        element={
-          <Suspense fallback={<DashboardLayoutSkeleton />}>
-            <DashboardLayout>
-              <Suspense fallback={<SharedLoading />}>
-                <HomeWorkHelp />
-              </Suspense>
-            </DashboardLayout>
-          </Suspense>
-        }
-      /> */}
       <Route
         path="/dashboard/quizzes/take"
         element={
