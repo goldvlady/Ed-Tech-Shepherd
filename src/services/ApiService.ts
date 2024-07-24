@@ -10,7 +10,7 @@ import {
   FlashcardData,
   StudyPlanTopicDocumentPayload,
   StoreQuizScoreType,
-  GenerateFlashcardFromMultiBody,
+  GenerateFlashcardFromMultiBody
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1383,7 +1383,8 @@ class ApiService {
       `${ApiService.multiRagMainURL}/generate/create-flashcards`,
       {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(5000)
       },
       true,
       {
