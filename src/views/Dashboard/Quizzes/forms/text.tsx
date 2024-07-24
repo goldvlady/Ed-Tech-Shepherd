@@ -1,3 +1,4 @@
+import BillingModal from '../../../../components/BillingModal';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
 import PlansModal from '../../../../components/PlansModal';
 import SelectComponent, { Option } from '../../../../components/Select';
@@ -311,12 +312,7 @@ const TextQuizForm = ({ addQuestion, handleSetTitle }) => {
         </Button>
       </HStack>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage}
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

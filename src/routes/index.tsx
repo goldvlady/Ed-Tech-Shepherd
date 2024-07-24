@@ -17,6 +17,9 @@ import Home from '../views/Home';
 import TutorDashboardLayout from '../components/Layout';
 //import TutorDashboard from '../views/TutorDashboard/index';
 import DashboardLayout from '../views/Dashboard/layout';
+import Thanks from '../views/Thanks';
+import Cancel from '../views/Cancel';
+
 import MultiRagChat from '../views/Dashboard/multi-rag/multi-rag-chat';
 import { usePrefetchQueries } from '../hooks/usePrefetchQueries';
 
@@ -377,6 +380,9 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+      <Route path="thanks" element={<Thanks />} />
+      <Route path="cancel" element={<Cancel />} />
+
       <Route
         element={
           <Suspense fallback={<SharedLoading />}>

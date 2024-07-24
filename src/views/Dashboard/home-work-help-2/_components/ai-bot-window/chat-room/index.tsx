@@ -15,6 +15,7 @@ import { useSearchQuery } from '../../../../../../hooks';
 import PlansModal from '../../../../../../components/PlansModal';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
+import BillingModal from '../../../../../../components/BillingModal';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 const KEYWORD =
   'We can tell that this query is complex and we suggest using a human tutor for better understanding of the subject matter.';
@@ -439,9 +440,9 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PlansModal
-            togglePlansModal={openPricingModel}
-            setTogglePlansModal={() => setOpenPricingModel(false)}
+          <BillingModal
+            open={openPricingModel}
+            setOpen={() => setOpenPricingModel(false)}
           />
           <PromptInput
             disabled={apiKey || handleDisabledForMaths ? true : false}

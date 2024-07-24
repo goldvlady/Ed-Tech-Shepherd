@@ -42,6 +42,7 @@ import FileUpload from '../components/fileUpload';
 import { useToggle } from 'usehooks-ts';
 import { languages } from '../../../../helpers';
 import { FiChevronDown } from 'react-icons/fi';
+import BillingModal from '../../../../components/BillingModal';
 
 type LocalDummyData = {
   subject: string;
@@ -787,12 +788,7 @@ const UploadQuizForm = ({
         </Button>
       </HStack>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

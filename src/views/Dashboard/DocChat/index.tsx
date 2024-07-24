@@ -68,6 +68,7 @@ import {
   Link
 } from '@chakra-ui/react';
 import { languages } from '../../../helpers';
+import BillingModal from '../../../components/BillingModal';
 
 export default function DocChat() {
   const toastIdRef = useRef<any>();
@@ -1494,12 +1495,7 @@ export default function DocChat() {
           </>
         </div>
         {togglePlansModal && (
-          <PlansModal
-            togglePlansModal={togglePlansModal}
-            setTogglePlansModal={setTogglePlansModal}
-            message={plansModalMessage}
-            subMessage={plansModalSubMessage}
-          />
+          <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
         )}
         {true && (
           <>

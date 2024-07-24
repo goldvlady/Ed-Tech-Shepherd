@@ -32,6 +32,7 @@ import { isEmpty, merge, toNumber } from 'lodash';
 import { FiChevronDown } from 'react-icons/fi';
 import { ChangeEvent, useCallback, useState } from 'react';
 import { languages } from '../../../../helpers';
+import BillingModal from '../../../../components/BillingModal';
 
 const TopicQuizForm = ({
   handleSetTitle,
@@ -585,12 +586,7 @@ const TopicQuizForm = ({
         </Button>
       </HStack>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage}
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

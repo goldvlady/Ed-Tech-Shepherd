@@ -57,6 +57,7 @@ import { FaUpload } from 'react-icons/fa';
 import { useToggle } from 'usehooks-ts';
 import { StudentDocument } from '../../../../types';
 import { is } from 'date-fns/locale';
+import BillingModal from '../../../../components/BillingModal';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -750,12 +751,7 @@ const FileUploadModal = ({
       )}
 
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </>
   );
