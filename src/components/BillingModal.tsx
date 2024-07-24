@@ -19,7 +19,7 @@ const BillingModal = ({ open, setOpen }: BillingModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogContent className="bg-white w-screen max-w-[63vw]">
+      <DialogContent className="bg-white w-screen md:max-w-[63vw]">
         <DialogTitle className="text-lg text-center">
           {user ? 'Upgrade Shepherd Subscription' : 'Subscribe to Shepherd'}
         </DialogTitle>
@@ -105,7 +105,7 @@ function PriceCards({
             )
             .map((plan) => (
               <div
-                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto no-scrollbar overflow-scroll md:overflow-auto h-[400px]"
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
@@ -233,7 +233,7 @@ function PriceCards({
             )
             .map((plan) => (
               <div
-                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                className="p-3 flex flex-col shadow shadow-black/20 no-scrollbar border overflow-scroll md:overflow-auto border-black/5 w-auto h-[400px]"
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
@@ -358,7 +358,7 @@ function PriceCards({
             )
             .map((plan) => (
               <div
-                className="p-3 flex flex-col shadow shadow-black/20 border border-black/5 w-auto h-[400px]"
+                className="p-3 flex flex-col shadow shadow-black/20 overflow-scroll no-scrollbar md:overflow-auto border border-black/5 w-auto h-[400px]"
                 key={plan.price}
               >
                 <h4 className="text-sm tracking-tight font-medium">
