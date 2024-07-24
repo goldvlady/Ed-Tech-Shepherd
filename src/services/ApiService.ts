@@ -1384,7 +1384,7 @@ class ApiService {
       {
         method: 'POST',
         body: JSON.stringify(data),
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(500000)
       },
       true,
       {
