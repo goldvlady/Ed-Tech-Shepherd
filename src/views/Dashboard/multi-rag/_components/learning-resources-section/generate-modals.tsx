@@ -57,29 +57,30 @@ export const GenerateFlashcardModal = ({
   });
   const toast = useCustomToast();
 
-  const {user} = useUserStore()
-  
+  const { user } = useUserStore();
+
   const { mutate } = useMutation({
-    mutationKey: ["generateFlashcardFromMultirag", docNames],
-    mutationFn: (data: GenerateFlashcardFromMultiBody) => ApiService.multiGenerateFlashcardsFromDocs(data),
+    mutationKey: ['generateFlashcardFromMultirag', docNames],
+    mutationFn: (data: GenerateFlashcardFromMultiBody) =>
+      ApiService.multiGenerateFlashcardsFromDocs(data),
     onSuccess() {
-      console.log("SUFFERING FROM SUCCESS")
-        setLocalData({
-          deckname: '',
-          studyType: '',
-          studyPeriod: '',
-          numQuestions: 0,
-          timerDuration: '',
-          hasSubmitted: false,
-          documentId: '',
-          topic: '',
-          subject: '',
-          grade: ''
-        })
-      setSearchValue('')
-      setPreferredLanguage(languages[0])
-    },
-  })
+      console.log('SUFFERING FROM SUCCESS');
+      setLocalData({
+        deckname: '',
+        studyType: '',
+        studyPeriod: '',
+        numQuestions: 0,
+        timerDuration: '',
+        hasSubmitted: false,
+        documentId: '',
+        topic: '',
+        subject: '',
+        grade: ''
+      });
+      setSearchValue('');
+      setPreferredLanguage(languages[0]);
+    }
+  });
 
   const studyPeriodOptions = [
     { label: 'Daily', value: 'daily' },
@@ -97,12 +98,13 @@ export const GenerateFlashcardModal = ({
     }
   ];
   const isValid = React.useMemo(() => {
-    const { timerDuration, hasSubmitted, subject, topic, documentId, ...data } = localData;
-      const payload: { [key: string]: any } = { ...data };
-      console.log(payload)
+    const { timerDuration, hasSubmitted, subject, topic, documentId, ...data } =
+      localData;
+    const payload: { [key: string]: any } = { ...data };
+    console.log(payload);
     return Object.values(payload).every(Boolean);
   }, [localData]);
-    console.log(isValid)
+  console.log(isValid);
   const handleChange = React.useCallback(
     (
       e: React.ChangeEvent<
@@ -114,9 +116,8 @@ export const GenerateFlashcardModal = ({
     },
     [setLocalData]
   );
- 
-  const handleSubmit = async () => {
 
+  const handleSubmit = async () => {
     const data = {
       ...localData,
       lang: preferredLanguage,
@@ -124,23 +125,24 @@ export const GenerateFlashcardModal = ({
       numQuestions: parseInt(localData.numQuestions as unknown as string),
       user_id: user._id
     };
-    delete data["timerDuration"]
-    delete data["hasSubmitted"]
-    delete data["documentId"]
+    delete data['timerDuration'];
+    delete data['hasSubmitted'];
+    delete data['documentId'];
     console.log(data);
     mutate(data);
   };
-  const closeModalOnSubmit = async() => {
-      onClose();
-      toast({
-          title: "Creating Flashcards",
-          description: "Hang tight we're creating your flashcards",
-          status: "success"
-      })
-      handleSubmit()
+  const closeModalOnSubmit = async () => {
+    onClose();
+    toast({
+      title: 'Creating Flashcards',
+      description: "Hang tight we're creating your flashcards",
+      status: 'success',
+      position: 'top-right'
+    });
+    handleSubmit();
   };
   return (
-    <Modal size={"md"} isOpen={isOpen} onClose={onClose}>
+    <Modal size={'md'} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -151,8 +153,8 @@ export const GenerateFlashcardModal = ({
           >
             Set up flashcard
           </Text>
-              </ModalHeader>
-              <ModalCloseButton/>
+        </ModalHeader>
+        <ModalCloseButton />
         <ModalBody>
           <Box bg="white" width="100%" mt="10px">
             <FormControl my={4}>
@@ -236,8 +238,8 @@ export const GenerateFlashcardModal = ({
               borderRadius="6px"
               border="1px solid #E4E6E7"
               py={'10px'}
-                          px={'20px'}
-                          mb={3}
+              px={'20px'}
+              mb={3}
               className="w-full"
               _hover={{ bg: '' }}
               cursor="pointer"
@@ -416,7 +418,6 @@ export const GenerateFlashcardModal = ({
               />
             </FormControl>
 
-          
             <HStack w="full" align={'flex-end'}>
               <Button
                 variant="solid"

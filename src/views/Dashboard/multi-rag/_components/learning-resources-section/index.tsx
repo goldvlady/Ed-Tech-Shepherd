@@ -528,7 +528,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
   }, []);
   return <div className='relative'>
 
-    <ActionButton active={quizExpanded} onClick={toggleExpand}>Configure Quiz</ActionButton>
+    <ActionButton active={quizExpanded} onClick={toggleExpand}>Generate Quiz</ActionButton>
     <div
         ref={ref}
         className={cn(
@@ -549,7 +549,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
         }}/>
         <span key={d}>{d}</span>
       </div>) : null}
-      <button className='px-3 py-2 w-[95%] rounded-md bg-primaryBlue text-white  text-sm'>Generate Quiz</button>
+      <button className='px-3 py-2 w-[95%] rounded-md bg-primaryBlue text-white  text-sm'>Configure Quiz</button>
       </div>
   </div>
 };
