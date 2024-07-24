@@ -611,7 +611,10 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
     </div>) : null}
     <button className='px-3 py-2 self-center rounded-md bg-primaryBlue text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Flashcards</button>
     </div>
-    <GenerateFlashcardModal isOpen={ isOpen} onClose={()=> setIsOpen(false)} docNames={selectedDocs} />
+    <GenerateFlashcardModal isOpen={isOpen} onClose={() => {
+      setSelectedDocs([])
+      setIsOpen(false)
+    }} docNames={selectedDocs} />
 </div>
 };
 

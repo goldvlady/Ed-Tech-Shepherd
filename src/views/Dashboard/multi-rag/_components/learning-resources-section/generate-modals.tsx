@@ -64,6 +64,11 @@ export const GenerateFlashcardModal = ({
     mutationFn: (data: GenerateFlashcardFromMultiBody) =>
       ApiService.multiGenerateFlashcardsFromDocs(data),
     onSuccess() {
+      toast({
+        title: 'Flashcards created',
+        status: 'success',
+        position: 'top-right'
+      });
       console.log('SUFFERING FROM SUCCESS');
       setLocalData({
         deckname: '',
@@ -79,6 +84,13 @@ export const GenerateFlashcardModal = ({
       });
       setSearchValue('');
       setPreferredLanguage(languages[0]);
+    },
+    onError() {
+      toast({
+        title: 'Problem creating flashcards',
+        status: 'error',
+        position: 'top-right'
+      });
     }
   });
 
