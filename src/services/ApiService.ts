@@ -1309,10 +1309,11 @@ class ApiService {
 
   static multiPreviousConversations = async (
     refId: string,
-    referenceDocIds: string
+    referenceDocIds: string,
+    subtopicId: string
   ) => {
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}&st=${subtopicId}`,
       {
         method: 'GET'
       },

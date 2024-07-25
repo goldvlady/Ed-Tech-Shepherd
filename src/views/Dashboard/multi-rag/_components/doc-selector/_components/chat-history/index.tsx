@@ -50,7 +50,7 @@ function ChatHistory() {
   const { data, isLoading } = useQuery({
     queryKey: ['doc-chat-history'],
     queryFn: () =>
-      ApiService.multiPreviousConversations(user?._id, referenceDocIds).then((res) => res.json())
+      ApiService.multiPreviousConversations(user?._id, referenceDocIds, subtopicId).then((res) => res.json())
   });
   const [searchValue, setSearchValue] = useState('');
 
