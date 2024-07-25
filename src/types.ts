@@ -12,6 +12,7 @@ export type Entity = {
 };
 export interface GenerateFlashcardFromMultiBody {
   docNames: string[];
+  convoId: string;
   deckname: string;
   numQuestions: number;
   difficulty?: string;

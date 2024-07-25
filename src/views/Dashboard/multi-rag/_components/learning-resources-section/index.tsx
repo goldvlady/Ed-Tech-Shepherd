@@ -89,8 +89,8 @@ const LearningResourcesSection = ({
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
         />
-        <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened}  />
+        {/* <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}  /> */}
         <GenerateFlashcardsSection setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened} />
       </div>
@@ -609,7 +609,7 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
       }}/>
       <span key={d}>{d}</span>
     </div>) : null}
-    <button className='px-3 py-2 self-center rounded-md bg-primaryBlue text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Flashcards</button>
+    <button className='px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Flashcards</button>
     </div>
     <GenerateFlashcardModal isOpen={isOpen} onClose={() => {
       setSelectedDocs([])

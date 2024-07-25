@@ -135,7 +135,8 @@ export const GenerateFlashcardModal = ({
       lang: preferredLanguage,
       docNames,
       numQuestions: parseInt(localData.numQuestions as unknown as string),
-      user_id: user._id
+      user_id: user._id,
+      convoId: window.location.pathname.split("/")[3]
     };
     delete data['timerDuration'];
     delete data['hasSubmitted'];
