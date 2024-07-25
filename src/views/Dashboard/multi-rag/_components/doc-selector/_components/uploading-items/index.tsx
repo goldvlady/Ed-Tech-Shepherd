@@ -112,6 +112,7 @@ function UploadingItems({
 
   useEffect(() => {
     if (file && file.jobId && file.jobId.length > 0 && file.tables.length > 0 && file.uploading) {
+      setState("in_progress")
       mutate({
         jobId: file.jobId,
         tables: file.tables,
