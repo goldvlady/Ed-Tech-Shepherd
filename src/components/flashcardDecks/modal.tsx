@@ -52,6 +52,7 @@ import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useLocation, useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
 import { MdCancel } from 'react-icons/md';
+import BillingModal from '../BillingModal';
 
 const MenuListWrapper = styled(MenuList)`
   .chakra-menu__group__title {
@@ -1351,12 +1352,7 @@ export const StudyBox = ({
         )}
       </Box>
       {togglePlansModal && (
-        <PlansModal
-          message="Get Started!"
-          subMessage="One-click Cancel at anytime."
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
       <StudyFooter
         onMinimize={() => minimizeStudy()}

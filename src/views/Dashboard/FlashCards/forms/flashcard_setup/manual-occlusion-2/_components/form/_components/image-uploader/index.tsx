@@ -13,6 +13,7 @@ import { Label } from '../../../../../../../../../../components/ui/label';
 import useAutomaticImageOcclusion from '../../../../hook/useAutomaticImageOcclusion';
 import PlansModal from '../../../../../../../../../../components/PlansModal';
 import useUserStore from '../../../../../../../../../../state/userStore';
+import BillingModal from '../../../../../../../../../../components/BillingModal';
 
 function resizeImageToWindow(src, callback) {
   const targetWidth = 714;
@@ -170,12 +171,7 @@ function ImageUploader({
 
   return (
     <React.Fragment>
-      <PlansModal
-        togglePlansModal={openPlansModel}
-        setTogglePlansModal={handleClosePlansModal}
-        message="Upgrade to Premium to access AI Occlusion &#9889;"
-        subMessage="One-click Cancel at anytime"
-      />
+      <BillingModal open={openPlansModel} setOpen={handleClosePlansModal} />
       <div className="my-4">
         <Dialog
           open={open}

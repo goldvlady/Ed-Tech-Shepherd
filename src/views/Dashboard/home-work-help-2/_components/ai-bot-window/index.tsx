@@ -8,6 +8,7 @@ import PlansModal from '../../../../../components/PlansModal';
 import { encodeQueryParams, languages } from '../../../../../helpers';
 import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
+import BillingModal from '../../../../../components/BillingModal';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -157,10 +158,7 @@ function AiChatBotWindow() {
         handleCloseLimitModal={handleCloseLimitModal}
         handleOpenPlansModal={handleOpenPlansModal}
       />
-      <PlansModal
-        togglePlansModal={isPlansModalOpen}
-        setTogglePlansModal={handleClosePlansModal}
-      />
+      <BillingModal open={isPlansModalOpen} setOpen={handleClosePlansModal} />
       {isChatRoom ? (
         // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
         <Outlet />

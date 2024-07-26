@@ -12,12 +12,13 @@ import CreatePassword from '../views/CreatePassword';
 import DashboardLayoutSkeleton from '../components/skeletons/dashboard-layout-skeleton';
 import SharedLoading from '../components/skeletons/shared-loading';
 import ChatRoom from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/chat-room';
-import MultiRag from '../views/Dashboard/multi-rag';
 import Home from '../views/Home';
 import TutorDashboardLayout from '../components/Layout';
 //import TutorDashboard from '../views/TutorDashboard/index';
 import DashboardLayout from '../views/Dashboard/layout';
-import MultiRagChat from '../views/Dashboard/multi-rag/multi-rag-chat';
+import Thanks from '../views/Thanks';
+import Cancel from '../views/Cancel';
+
 import { usePrefetchQueries } from '../hooks/usePrefetchQueries';
 
 // const HomeWorkHelp = lazy(() => import('../views/Dashboard/HomeWorkHelp'));
@@ -377,6 +378,9 @@ const AppRoutes: React.FC = () => {
           />
         }
       />
+      <Route path="thanks" element={<Thanks />} />
+      <Route path="cancel" element={<Cancel />} />
+
       <Route
         element={
           <Suspense fallback={<SharedLoading />}>
@@ -596,22 +600,22 @@ const AppRoutes: React.FC = () => {
         >
           <Route path=":id" element={<ChatRoom />} />
         </Route>
-        <Route
+        {/* <Route
           path="/dashboard/doc-chat"
           element={
             <Suspense fallback={<SharedLoading />}>
               <MultiRag />
             </Suspense>
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/dashboard/doc-chat/:docId"
           element={
             <Suspense fallback={<SharedLoading />}>
               <MultiRagChat />
             </Suspense>
           }
-        />
+        /> */}
       </Route>
       <Route
         path="/dashboard/quizzes/take"

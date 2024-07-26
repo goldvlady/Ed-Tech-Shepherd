@@ -15,6 +15,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import userStore from '../../state/userStore';
 import PlansModal from '../PlansModal';
+import BillingModal from '../BillingModal';
 
 // ... Your DragAndDrop component code here ...
 
@@ -97,12 +98,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
   if (togglePlansModal) {
     return (
-      <PlansModal
-        togglePlansModal={togglePlansModal}
-        setTogglePlansModal={setTogglePlansModal}
-        message={plansModalMessage} // Pass the message to the modal
-        subMessage={plansModalSubMessage}
-      />
+      <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
     );
   } else {
     return (

@@ -460,6 +460,23 @@ class ApiService {
       }
     );
   };
+  static downgradeSubscription = async (data: {
+    customerId: string;
+    priceId: string;
+  }) => {
+    console.log(data);
+    return doFetch(
+      `${ApiService.baseEndpoint}/downgradeSubscription`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      {
+        'Content-Type': 'application/json'
+      }
+    );
+  };
 
   static verifyToken = async (token: string) => {
     return doFetch(

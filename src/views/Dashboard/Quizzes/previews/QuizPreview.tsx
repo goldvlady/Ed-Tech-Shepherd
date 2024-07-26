@@ -26,7 +26,8 @@ import {
   Textarea,
   Flex,
   SimpleGrid,
-  Icon
+  Icon,
+  Image
 } from '@chakra-ui/react';
 import clsx from 'clsx';
 import {
@@ -60,6 +61,9 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import { MagicBandIcon } from '../../../../components/MagicBand';
 import { LoadingDots } from '../components/loadingDots';
 import ReactMarkdown from 'react-markdown';
+
+import BillingModal from '../../../../components/BillingModal';
+
 import { cn } from '../../../../library/utils';
 
 interface ChatCompletionRequestMessage {
@@ -96,11 +100,14 @@ const ChatBox = ({
   setMessages: any;
 }) => {
   console.log('chatbox', question);
+
   const { user, hasActiveSubscription } = userStore();
 
   const [inputMessage, setInputMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
   const [streamingMessage, setStreamingMessage] = useState('');
+
   const endOfMessagesRef = useRef(null);
 
   useEffect(() => {
@@ -256,6 +263,7 @@ const ChatBox = ({
                 )}
               </Box>
             ))}
+
           {streamingMessage && (
             <div className="relative">
               <Box
@@ -1350,11 +1358,9 @@ Would you like me to explain further?`;
                       </Button>
                     )}
                     {togglePlansModal && (
-                      <PlansModal
-                        message="Get Started!"
-                        subMessage="One-click Cancel at anytime."
-                        togglePlansModal={togglePlansModal}
-                        setTogglePlansModal={setTogglePlansModal}
+                      <BillingModal
+                        open={togglePlansModal}
+                        setOpen={setTogglePlansModal}
                       />
                     )}
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
