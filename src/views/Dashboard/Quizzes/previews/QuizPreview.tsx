@@ -66,10 +66,12 @@ import BillingModal from '../../../../components/BillingModal';
 
 import { cn } from '../../../../library/utils';
 
+
 interface ChatCompletionRequestMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
+
 
 function streamText(text, callback, doneCallback) {
   const words = text.split(' ');
@@ -99,6 +101,7 @@ const ChatBox = ({
   messages: ChatCompletionRequestMessage[];
   setMessages: any;
 }) => {
+
   console.log('chatbox', question);
 
   const { user, hasActiveSubscription } = userStore();
@@ -321,6 +324,7 @@ const ChatBox = ({
         </Box>
         <HStack
           spacing="3"
+
           // width={'630px'}
           width={'100%'}
           boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
@@ -509,6 +513,7 @@ const QuizCard = forwardRef(
     };
 
     return (
+
       <div className="flex gap-4 items-start w-full">
         <div className="min-w-[2.18rem] min-h-[2.18rem] rounded-full bg-[#F0F6FE] shadow-md flex justify-center items-center">
           <p className="text-[#207DF7] font-medium text-[1.12rem]">

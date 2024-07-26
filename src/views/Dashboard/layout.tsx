@@ -923,6 +923,7 @@ const MobileNav = ({ onOpen, setOpen, ...rest }: MobileProps) => {
 //   );
 // };
 
+
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
   const [aiChatMenu, setAiChatMenu] = useState(false);
