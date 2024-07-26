@@ -29,7 +29,7 @@ function UploadFiles({
 }) {
   console.log('uploadedDocumentsId', filesUploading);
   const { user } = useUserStore();
-  const meta = user.stripeSubscription ? user.stripeSubscription.features.find(feature => feature.featureName === "AI Words").meta : null
+  const meta = user.stripeSubscription ? user.stripeSubscription.features.find(feature => feature.featureName === "AI Words")?.meta : null
   const maxDocuments = meta ? meta.maxDocuments : 2
   const [disableChatButton, setDisableChatButton] = useState(true);
   const navigate = useNavigate();
