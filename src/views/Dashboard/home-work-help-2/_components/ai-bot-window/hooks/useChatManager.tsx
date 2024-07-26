@@ -42,7 +42,7 @@ interface ChatWindowConfigParams {
 const debugLog = (code: string, message?: any) => {
   message = message ? `: ${message}` : '';
   if (process.env.NODE_ENV === 'development') {
-    console.log(`${code.toUpperCase()} ${message}`);
+    // console.log(`${code.toUpperCase()} ${message}`);
   }
 };
 
@@ -69,6 +69,7 @@ const useChatManager = (
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentChat, setCurrentChat] = useState<string>('');
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [streaming, setStreaming] = useState(false);
 
   const getPersistStorageKey = useCallback(
     (id?: string) => {
@@ -172,6 +173,8 @@ const useChatManager = (
       const newMessage = formatMessage(message);
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       socketRef.current.emit('chat message', message); // Emitting the message to the server
+      console.log('Laoding start');
+      setStreaming(true);
       debugLog('SEND MESSAGE', message);
     },
     [formatMessage]
@@ -180,7 +183,12 @@ const useChatManager = (
   // useCallback for fetching chat history from the server
 
   const fetchHistory = useCallback(
-    async (limit: number, offset: number, convoId?: string) => {
+    async (
+      limit: number,
+      offset: number,
+      convoId?: string,
+      firstMessageText?: string
+    ) => {
       try {
         setLoading(true);
         const id = convoId || conversationId;
@@ -191,7 +199,7 @@ const useChatManager = (
           );
           return;
         }
-        debugLog('FETCH HISTORY', { limit, offset });
+        debugLog('FETCH HISTORY', JSON.stringify({ limit, offset }));
         if (shareable && shareable.length > 0 && apiKey && apiKey.length > 0) {
           const data = await ApiService.getConversationByIdAndAPIKey({
             conversationId: id,
@@ -261,6 +269,7 @@ const useChatManager = (
         setError(error.message);
       } finally {
         setLoading(false);
+        setStreaming(false);
       }
 
       // socketRef.current.emit('fetch_history', { limit, offset });
@@ -313,6 +322,7 @@ const useChatManager = (
 
       // Handlers for chat response start and end, updating chat state accordingly
       socketRef.current.on('chat response start', (token: string) => {
+        setStreaming(false);
         setCurrentChat((prevChat) => prevChat + token);
         // forceUpdate(); // Force update to render changes
         debugLog('CHAT RESPONSE START', token);
@@ -424,12 +434,19 @@ const useChatManager = (
           connectionQuery: queryParams
         });
       }
+      console.log('loading start');
+      setStreaming(true);
       initiateSocket(queryParams, conversationOptions); // Initiate socket with queryParams
       if (conversationId) {
         if (options?.autoHydrateChat) {
           hydrateChat(conversationId);
         }
-        fetchHistory(30, 0, conversationId);
+        fetchHistory(
+          30,
+          0,
+          conversationId,
+          conversationOptions?.conversationInitializer
+        );
       }
       debugLog('CONVERSATION STARTED');
     },
@@ -466,7 +483,8 @@ const useChatManager = (
     disconnectSocket,
     setTitle,
     setConversationId,
-    refreshManager
+    refreshManager,
+    streaming
   };
 };
 

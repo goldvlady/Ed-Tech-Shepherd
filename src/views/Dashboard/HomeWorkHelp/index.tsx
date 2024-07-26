@@ -65,6 +65,7 @@ import { RiLockFill, RiLockUnlockFill } from 'react-icons/ri';
 import PlansModal from '../../../components/PlansModal';
 import { useSearchQuery } from '../../../hooks';
 import { firebaseAuth } from '../../../firebase';
+import BillingModal from '../../../components/BillingModal';
 
 const HomeWorkHelp = () => {
   const [isOpenModal, setOpenModal] = useState(false);
@@ -836,12 +837,7 @@ const HomeWorkHelp = () => {
         />
       </HomeWorkHelpChatContainer>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage}
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
       <CustomModal
         isOpen={isOpenModal}

@@ -29,6 +29,7 @@ yarn-error.log*
 # Local Netlify folder
 .netlify
 
+
 .vscode
 .idx/integrations.json
 .idx/dev.nix

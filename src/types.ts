@@ -192,7 +192,30 @@ export enum UserNotificationTypes {
   NEW_OFFER_RECEIVED = 'new_offer_received',
   OFFER_WITHDRAWN = 'offer_withdrawn'
 }
-
+export const featureNames = [
+  'AI Tutor',
+  'flashcards',
+  'quizzes',
+  'multirag'
+] as const;
+export interface Feature extends TimestampedEntity {
+  subscription: StripeSubscription;
+  limit: number;
+  featureName: (typeof featureNames)[number];
+  model: string;
+  meta: any;
+}
+export type Tier = 'free' | 'pro';
+export type Recurrence = 'monthly' | 'semesterly' | 'yearly' | 'one-off';
+export interface StripeSubscription extends TimestampedEntity {
+  user: User;
+  customerId: string;
+  priceId: string;
+  tiers: Tier;
+  lookupKey: string;
+  hasAccess: boolean;
+  features: Array<Feature>;
+}
 export interface User extends TimestampedEntity {
   name: {
     first: string;
@@ -215,6 +238,7 @@ export interface User extends TimestampedEntity {
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
   subscription?: Subscription;
+  stripeSubscription?: StripeSubscription;
   hasActiveSubscription: boolean;
   mobileSubscription?: MobileSubscription;
   isMobileSubscription: boolean | null;
@@ -675,6 +699,22 @@ export interface StudyPlanTopicDocumentPayload {
   studyPlanId: string;
   topicId: string;
   documentId: string;
+}
+export interface MultiragDocument {
+  collection_name: string;
+  document_id: string;
+  student_id: string;
+  createdAt: string;
+  reference: string;
+  summary?: string;
+  updatedAt?: string;
+}
+
+// Generic Response type accepting any data type 'T'
+export interface multiragResponse<T> {
+  data: T;
+  status: string;
+  detail: string;
 }
 
 export type StoreQuizScoreType = {

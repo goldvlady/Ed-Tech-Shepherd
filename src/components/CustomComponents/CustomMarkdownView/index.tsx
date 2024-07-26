@@ -11,6 +11,7 @@ import './index.css';
 import 'katex/dist/katex.min.css';
 import { MemoizedReactMarkdown } from './memoized-react-markdown';
 import { CodeBlock } from './code-block';
+import { cn } from '../../../library/utils';
 
 interface CustomComponents {
   button: any;
@@ -59,7 +60,12 @@ const CustomMarkdownView = ({
 
   return (
     <MemoizedReactMarkdown
-      className={`memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm ${className} relative overflow-wrap: break-word align-middle ${paragraphClass}`}
+      className={cn(
+        'memoized-react-markdown prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0',
+        'rounded-xl px-3 py-2 transition-all max-w-[75ch] place-self-start shadow-sm relative overflow-wrap: break-word align-middle',
+        className,
+        paragraphClass
+      )}
       remarkPlugins={[remarkMath, remarkGfm]}
       rehypePlugins={[rehypeRaw, rehypeMathjax]}
       components={getComponents(onKeywordClick)}
@@ -87,6 +93,7 @@ function extractMarkdown(content) {
   // Return null if no markdown block is found
   return content;
 }
+
 export const convertChildrenToMarkdown = (element) => {
   const markdownLines = [];
 
@@ -160,6 +167,7 @@ export const stripMarkdown = (markdown: string) => {
     .replace(/^\d+\.\s/gm, '') // Ordered list items
     .trim();
 };
+
 const highlightBracketedText = (text) => {
   if (text) {
     return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');

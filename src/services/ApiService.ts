@@ -459,6 +459,23 @@ class ApiService {
       }
     );
   };
+  static downgradeSubscription = async (data: {
+    customerId: string;
+    priceId: string;
+  }) => {
+    console.log(data);
+    return doFetch(
+      `${ApiService.baseEndpoint}/downgradeSubscription`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      {
+        'Content-Type': 'application/json'
+      }
+    );
+  };
 
   static verifyToken = async (token: string) => {
     return doFetch(
@@ -1149,6 +1166,7 @@ class ApiService {
       }
     );
   };
+
   static multiDocVectorDocs = async (sId: string, subtopicId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
@@ -1197,6 +1215,7 @@ class ApiService {
       }
     );
   };
+
   static multiDocHighlightDelete = async (data) => {
     return await doFetch(
       `${ApiService.multiRagMainURL}/misc/delete-highlight`,
@@ -1212,6 +1231,7 @@ class ApiService {
       }
     );
   };
+
 
   static multiDocCreateTitle = async (data) => {
     return await doFetch(
@@ -1263,6 +1283,7 @@ class ApiService {
   };
 
   static getMultiDocHighlight = async (documentId: string) => {
+
     return await doFetch(
       `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
@@ -1306,6 +1327,7 @@ class ApiService {
       }
     );
   };
+
 
   static multiPreviousConversations = async (
     refId: string,
@@ -1376,6 +1398,7 @@ class ApiService {
       }
     );
   };
+
   static multiGenerateFlashcardsFromDocs = async (
     data: GenerateFlashcardFromMultiBody
   ) => {
@@ -1395,6 +1418,7 @@ class ApiService {
       }
     );
   };
+
 
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {

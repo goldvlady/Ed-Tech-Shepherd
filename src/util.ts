@@ -1,7 +1,6 @@
 import { firebaseAuth } from './firebase';
 import { ToastId, createStandaloneToast } from '@chakra-ui/react';
 import { isArray } from 'lodash';
-import { DateTime, IANAZone } from 'luxon';
 import moment, { Duration, Moment } from 'moment-timezone';
 
 const { toast } = createStandaloneToast();

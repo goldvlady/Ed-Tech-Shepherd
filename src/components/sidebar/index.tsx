@@ -1,23 +1,31 @@
-import { Link, useLocation } from 'react-router-dom';
-import Logo from '../Logo';
-import { FiHome } from 'react-icons/fi';
-import { cn } from '../../library/utils';
-import { BsChatLeftDots, BsPin, BsBook } from 'react-icons/bs';
+
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { ChevronLeftIcon } from '@radix-ui/react-icons';
+import { isNil, isEmpty } from 'lodash';
+import { useToggle } from 'usehooks-ts';
+
+import { BsChatLeftDots, BsBook } from 'react-icons/bs';
 import { CgNotes } from 'react-icons/cg';
-import { TbCards } from 'react-icons/tb';
+import { FiHome } from 'react-icons/fi';
+import { GiShepherdsCrook } from 'react-icons/gi';
+import { MdOutlineFeedback } from 'react-icons/md';
 import { LuFileQuestion } from 'react-icons/lu';
 import { PiClipboardTextLight } from 'react-icons/pi';
-import BarnImg from '../../assets/Barn.svg';
-import { MdOutlineFeedback } from 'react-icons/md';
 import { RiChat3Line } from 'react-icons/ri';
+import { TbCards } from 'react-icons/tb';
+
+import Logo from '../Logo';
+import { cn } from '../../library/utils';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger
 } from '../ui/accordion';
-import { useState } from 'react';
-import { ChevronLeftIcon } from '@radix-ui/react-icons';
+import BarnImg from '../../assets/Barn.svg';
+import { SelectedNoteModal } from '..';
+
 
 const listItems = [
   { name: 'Library', icon: BsBook, path: '/dashboard/library', coming: false },
@@ -47,6 +55,12 @@ const listItems = [
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [aiChatValue, setAiChatValue] = useState(null);
+  const [shepherds, setShepherds] = useState(null);
+
+  const [showDocChatModal, toggleShowDocChatModal, setShowDocChatModal] =
+    useToggle(false);
+
   return (
     <div
       className={cn(
@@ -93,8 +107,33 @@ function Sidebar() {
         </div>
         <hr className="h-1 mt-[.56rem] mb-[0.56rem]" />
         <div className="w-full flex flex-col gap-[10px]">
+          {collapsed && (
+            <div>
+              <div
+                onClick={() => {
+                  setCollapsed(false);
+                  setTimeout(() => {
+                    setAiChatValue('item-1');
+                  }, 100);
+                }}
+              >
+                <SidebarItem
+                  hideLabel={collapsed}
+                  title="AI Chat"
+                  active={false}
+                  icon={<RiChat3Line />}
+                />
+              </div>
+            </div>
+          )}
           {!collapsed && (
-            <Accordion type="single" collapsible className="w-full p-0">
+            <Accordion
+              type="single"
+              value={aiChatValue}
+              onValueChange={setAiChatValue}
+              collapsible
+              className="w-full p-0"
+            >
               <AccordionItem
                 value="item-1"
                 className="p-0 [&_button]:p-0 [&_a]:no-underline [&_a]:hover:no-underline border-none hover:no-underline"
@@ -141,8 +180,33 @@ function Sidebar() {
         </div>
         <hr className="h-1 mt-[.56rem] mb-[0.56rem]" />
         <div className="w-full">
+          {collapsed && (
+            <div>
+              <div
+                onClick={() => {
+                  setCollapsed(false);
+                  setTimeout(() => {
+                    setShepherds('item-1');
+                  }, 100);
+                }}
+              >
+                <SidebarItem
+                  hideLabel={collapsed}
+                  title="Shepherds"
+                  active={false}
+                  icon={<RiChat3Line />}
+                />
+              </div>
+            </div>
+          )}
           {!collapsed && (
-            <Accordion type="single" collapsible className="w-full p-0">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full p-0"
+              value={shepherds}
+              onValueChange={setShepherds}
+            >
               <AccordionItem
                 value="item-1"
                 className="p-0 [&_button]:p-0 [&_a]:no-underline [&_a]:hover:no-underline border-none hover:no-underline"
@@ -152,7 +216,7 @@ function Sidebar() {
                     hideLabel={collapsed}
                     title="Shepherds"
                     active={false}
-                    icon={<RiChat3Line />}
+                    icon={<GiShepherdsCrook />}
                   />
                 </AccordionTrigger>
                 <AccordionContent className="px-[1rem] flex flex-col pb-0">
@@ -228,11 +292,10 @@ function Sidebar() {
 const SidebarItem = ({
   title,
   icon,
-  active,
   link,
   comingSoon,
   hideLabel,
-  external
+  action
 }: {
   title: string;
   icon?: JSX.Element;
@@ -241,16 +304,22 @@ const SidebarItem = ({
   comingSoon?: boolean;
   hideLabel?: boolean;
   external?: boolean;
+  action?: () => void;
 }) => {
-  const Comp = link ? Link : 'div';
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   return (
-    <Comp
-      to={link}
-      {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+    <div
       className={cn({
         'pointer-events-none': comingSoon
       })}
+      onClick={() => {
+        if (!isNil(link) && !isEmpty(link)) {
+          navigate(link);
+          return;
+        }
+        action?.();
+      }}
     >
       <div
         className={cn(
@@ -273,7 +342,7 @@ const SidebarItem = ({
           </p>
         )}
       </div>
-    </Comp>
+    </div>
   );
 };
 

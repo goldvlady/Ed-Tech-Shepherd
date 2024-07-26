@@ -466,33 +466,37 @@ export default function Marketplace() {
                   components={{ DropdownIndicator }}
                   isSearchable
                   styles={{
-                    container: (provided) => ({
-                      ...provided,
-                      width: '150px',
-                      position: 'relative',
-                      zIndex: '99999'
-                    }),
-                    control: (provided) => ({
-                      ...provided,
-                      borderRadius: '40px',
-                      fontSize: '14px',
-                      fontWeight: '400',
-                      textAlign: 'left',
-                      borderColor: '#E2E8F0'
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      marginTop: '2px'
-                    }),
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused
-                        ? '#F2F4F7'
-                        : 'transparent',
-                      ':active': {
-                        backgroundColor: '#F2F4F7'
-                      }
-                    })
+                    container: (provided) =>
+                      ({
+                        ...provided,
+                        width: '150px',
+                        position: 'relative',
+                        zIndex: '99999'
+                      } as any),
+                    control: (provided) =>
+                      ({
+                        ...provided,
+                        borderRadius: '40px',
+                        fontSize: '14px',
+                        fontWeight: '400',
+                        textAlign: 'left',
+                        borderColor: '#E2E8F0'
+                      } as any),
+                    menu: (provided) =>
+                      ({
+                        ...provided,
+                        marginTop: '2px'
+                      } as any),
+                    option: (provided, state) =>
+                      ({
+                        ...provided,
+                        backgroundColor: state.isFocused
+                          ? '#F2F4F7'
+                          : 'transparent',
+                        ':active': {
+                          backgroundColor: '#F2F4F7'
+                        }
+                      } as any)
                   }}
                 />
               </Box>
