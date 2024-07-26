@@ -1232,7 +1232,6 @@ class ApiService {
     );
   };
 
-
   static multiDocCreateTitle = async (data) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
@@ -1283,7 +1282,6 @@ class ApiService {
   };
 
   static getMultiDocHighlight = async (documentId: string) => {
-
     return await doFetch(
       `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
@@ -1327,7 +1325,6 @@ class ApiService {
       }
     );
   };
-
 
   static multiPreviousConversations = async (
     refId: string,
@@ -1418,7 +1415,6 @@ class ApiService {
       }
     );
   };
-
 
   // Utility function to perform the fetch operations
   private static async doFetch(url: string, options: RequestInit) {

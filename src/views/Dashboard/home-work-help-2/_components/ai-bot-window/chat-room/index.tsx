@@ -12,7 +12,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
-import PlansModal from '../../../../../../components/PlansModal';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
 import BillingModal from '../../../../../../components/BillingModal';
@@ -85,7 +84,7 @@ function ChatRoom() {
               ? connectionQuery.language
               : 'English',
           conversationId: id,
-          firebaseId: user?.firebaseId,
+          firebaseId:  user?.firebaseId ? user.firebaseId : "",
           name: user.name.first,
           query: '',
           messages: JSON.stringify([])
@@ -364,10 +363,11 @@ function ChatRoom() {
                         connectionQuery.language.length > 0
                           ? connectionQuery.language
                           : 'English',
-                      firebaseId: user.firebaseId,
+                      firebaseId: user.firebaseId ? user.firebaseId : "",
                       conversationId: id,
                       name: user.name.first,
                       query: message,
+                      new: user.stripeSubscription ? 'True' : 'False',
                       messages: JSON.stringify(updatedMessages)
                     };
                     setStreamEnded(false);
@@ -478,13 +478,14 @@ function ChatRoom() {
                   studentId,
                   language:
                     connectionQuery.language &&
-                    connectionQuery.language.length > 0
+                      connectionQuery.language.length > 0
                       ? connectionQuery.language
                       : 'English',
-                  firebaseId: user.firebaseId,
+                  firebaseId: user.firebaseId ? user.firebaseId : "",
                   conversationId: id,
                   name: user.name.first,
                   query: message,
+                  new: user.stripeSubscription ? 'True' : 'False',
                   messages: JSON.stringify(updatedMessages)
                 };
                 setStreamEnded(false);

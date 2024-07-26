@@ -196,7 +196,11 @@ export const featureNames = [
   'AI Tutor',
   'flashcards',
   'quizzes',
-  'multirag'
+  'multirag',
+  'AI Words',
+  'Web searches',
+  'notes',
+  'study plan'
 ] as const;
 export interface Feature extends TimestampedEntity {
   subscription: StripeSubscription;

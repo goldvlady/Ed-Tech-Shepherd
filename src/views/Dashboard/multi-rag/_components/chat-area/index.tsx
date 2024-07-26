@@ -30,6 +30,7 @@ import {
 } from '../../../../../components/ui/select';
 import { Button } from '../../../../../components/ui/button';
 import { Languages } from 'lucide-react';
+import BillingModal from '../../../../../components/BillingModal';
 const firstKeyword = 'start of metadata';
 const lastKeyword = 'end of metadata';
 interface DocumentMetadata {
@@ -66,7 +67,8 @@ const ChatArea = ({
 }) => {
   const [vectorsMetadata, setVectorsMetadata] = useState<
     Array<VectorsMetadata[]>
-  >([]);
+    >([]);
+  const [handleDisabled, setHandleDisabled] = useState(false)
   const [userMessage, setUserMessage] = useState('');
   const [streamEnded, setStreamEnded] = useState(true);
   const [fullBuffer, setFullBuffer] = useState('');
@@ -95,6 +97,7 @@ const ChatArea = ({
     }
   });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [open, setOpen] = useState(false)
   const [isTranslateDialogOpen, setIsTranslateDialogOpen] = useState(false);
   console.log('data is', data);
   console.log(conversationID);
@@ -237,6 +240,8 @@ const ChatArea = ({
       conversationId: conversationID,
       documents: JSON.stringify(docs),
       fetchMetadata: 'True',
+      firebaseId: user.firebaseId ? user.firebaseId : "",
+      new: user.stripeSubscription ? 'True' : 'False',
       history:
         m.length >= 4
           ? JSON.stringify(
@@ -269,9 +274,20 @@ const ChatArea = ({
       if (buffer.includes(firstKeyword)) {
         return;
       }
+      if (buffer.includes('Please try again tomorrow')) {
+        setOpen(true);
+        setHandleDisabled(true)
+        setStreamEnded(true);
+        return
+      }
+      if (buffer.includes('something went very wrong')) {
+        setStreamEnded(true);
+        return
+      }
       if (buffer.includes('run out of credits')) {
         // here eventually we will implement running out of credits like AI tutor
-        //setOpenPricingModel(true);
+        setOpen(true);
+        setHandleDisabled(true)
         setStreamEnded(true);
         console.log('[Veerbal] - 3 done with stream');
         return;
@@ -346,7 +362,7 @@ const ChatArea = ({
           submitHandler={submitMessageHandler}
         />
         <InputArea
-          clickable={!!user}
+          clickable={!!user || !handleDisabled}
           documents={documents}
           submitHandler={submitMessageHandler}
           value={userMessage}
@@ -359,6 +375,7 @@ const ChatArea = ({
         onClose={handleTranslateDialogToggle}
         onSelectLanguage={handleLanguageSelect}
       />
+      <BillingModal open={open} setOpen={setOpen} />
     </div>
   );
 };
