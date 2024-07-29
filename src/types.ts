@@ -22,6 +22,16 @@ export interface GenerateFlashcardFromMultiBody {
   user_id: string;
   lang: (typeof languages)[number];
 }
+export interface GenerateQuizFromMultiBody {
+  docNames: string[];
+  convoId: string;
+  title: string;
+  numQuestions: number;
+  difficulty?: string;
+  quiz_type: string;
+  user_id: string;
+  lang: (typeof languages)[number];
+}
 
 export interface TimestampedEntity extends Entity {
   createdAt: Date;

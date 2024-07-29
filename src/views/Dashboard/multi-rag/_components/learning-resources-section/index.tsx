@@ -17,7 +17,7 @@ import CustomMarkdownView, {
   stripMarkdown
 } from '../../../../../components/CustomComponents/CustomMarkdownView';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
-import { GenerateFlashcardModal } from './generate-modals';
+import { GenerateFlashcardModal, GenerateQuizModal } from './generate-modals';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -501,6 +501,7 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
   const [quizExpanded, setQuizExpanded] = useState(false)
   const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
   const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
+  const [isOpen, setIsOpen] = useState(false)
   console.log("sELECTED DOCS FROM QUIZ",selectedDocs)
   const ref = useRef(null);
   const toggleExpand = () => {
@@ -532,14 +533,14 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
     <div
         ref={ref}
         className={cn(
-          'absolute w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          'absolute flex flex-col gap-2 items-center  w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
           {
             'opacity-100 pointer-events-auto': quizExpanded
           }
         )}
       >
       {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
-        <Checkbox onCheckedChange={(checked) => {
+        <Checkbox checked={selectedDocs.includes(d)} onCheckedChange={(checked) => {
           if (checked) {
             setSelectedDocs(prev => prev.concat(d))
           } else {
@@ -549,8 +550,12 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
         }}/>
         <span key={d}>{d}</span>
       </div>) : null}
-      <button className='px-3 py-2 w-[95%] rounded-md bg-primaryBlue text-white  text-sm'>Configure Quiz</button>
-      </div>
+      <button className='px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Quiz</button>
+    </div>
+    <GenerateQuizModal isOpen={isOpen} onClose={() => {
+      setSelectedDocs([])
+      setIsOpen(false)
+    }} docNames={selectedDocs} />
   </div>
 };
 
@@ -599,7 +604,7 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
       )}
     >
     {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs w-full items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
-      <Checkbox onCheckedChange={(checked) => {
+      <Checkbox checked={selectedDocs.includes(d)} onCheckedChange={(checked) => {
         if (checked) {
           setSelectedDocs(prev => prev.concat(d))
         } else {

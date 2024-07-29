@@ -10,7 +10,8 @@ import {
   FlashcardData,
   StudyPlanTopicDocumentPayload,
   StoreQuizScoreType,
-  GenerateFlashcardFromMultiBody
+  GenerateFlashcardFromMultiBody,
+  GenerateQuizFromMultiBody
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1402,6 +1403,25 @@ class ApiService {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       `${ApiService.multiRagMainURL}/generate/create-flashcards`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(500000)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static multiGenerateQuizFromDocs = async (
+    data: GenerateQuizFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-quizzes`,
       {
         method: 'POST',
         body: JSON.stringify(data),
