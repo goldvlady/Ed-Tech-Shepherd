@@ -89,8 +89,8 @@ const LearningResourcesSection = ({
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
         />
-        {/* <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened}  /> */}
+        <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}  />
         <GenerateFlashcardsSection setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened} />
       </div>
