@@ -69,6 +69,8 @@ export const GenerateFlashcardModal = ({
     mutationKey: ['generateFlashcardFromMultirag', docNames],
     mutationFn: (data: GenerateFlashcardFromMultiBody) =>
       ApiService.multiGenerateFlashcardsFromDocs(data),
+    retry: 2, 
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
     onSuccess() {
       toast({
         title: 'Flashcards created',
@@ -502,6 +504,8 @@ export const GenerateQuizModal = ({
     mutationKey: ['generateQuizFromMultirag', docNames],
     mutationFn: (data: GenerateQuizFromMultiBody) =>
       ApiService.multiGenerateQuizFromDocs(data),
+    retry: 2, 
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
     onSuccess() {
       toast({
         title: 'Quiz created',
