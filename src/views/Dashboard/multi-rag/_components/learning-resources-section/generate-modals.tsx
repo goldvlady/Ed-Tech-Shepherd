@@ -28,6 +28,7 @@ import { useMutation } from '@tanstack/react-query';
 import { GenerateFlashcardFromMultiBody } from '../../../../../types';
 import ApiService from '../../../../../services/ApiService';
 import useUserStore from '../../../../../state/userStore';
+import { useParams } from 'react-router';
 
 type GenerateFlashcardModalProps = {
   isOpen: boolean;
@@ -42,12 +43,14 @@ export const GenerateFlashcardModal = ({
   const [searchValue, setSearchValue] = React.useState('');
   const [preferredLanguage, setPreferredLanguage] = React.useState<
     (typeof languages)[number]
-  >(languages[0]);
+    >(languages[0]);
+  const path = useParams() as {docId: string}
+ 
   const [localData, setLocalData] = React.useState({
     deckname: '',
     studyType: '',
     studyPeriod: '',
-    numQuestions: 0,
+    numQuestions: 1,
     timerDuration: '',
     hasSubmitted: false,
     documentId: '',
@@ -136,7 +139,7 @@ export const GenerateFlashcardModal = ({
       docNames,
       numQuestions: parseInt(localData.numQuestions as unknown as string),
       user_id: user._id,
-      convoId: window.location.pathname.split("/")[3]
+      convoId: path.docId
     };
     delete data['timerDuration'];
     delete data['hasSubmitted'];
@@ -425,7 +428,7 @@ export const GenerateFlashcardModal = ({
                 fontSize="0.875rem"
                 name="numQuestions"
                 placeholder="Number of questions"
-                value={localData.numQuestions}
+                value={parseInt(localData.numQuestions as unknown as string)}
                 onChange={handleChange}
                 _placeholder={{ fontSize: '14px', color: '#9A9DA2' }}
               />
