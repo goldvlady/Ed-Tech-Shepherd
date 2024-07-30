@@ -141,6 +141,8 @@ const useUserStore = create<Store>((set, get) => ({
     return true;
   },
   logoutUser: () => {
+    localStorage.removeItem('noteStore');
+    localStorage.removeItem('noteId');
     set({ user: null });
     saveState({ user: null });
   },
