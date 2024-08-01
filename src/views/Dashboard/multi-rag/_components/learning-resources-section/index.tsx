@@ -6,18 +6,20 @@ import {
   TrashIcon
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Checkbox } from "../../../../../components/ui/checkbox"
+import { Checkbox } from '../../../../../components/ui/checkbox';
 import { cn } from '../../../../../library/utils';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
 import ShareModal from '../../../../../components/ShareModal';
-import { User } from '../../../../../types';
+import { FlashcardData, QuizData, User } from '../../../../../types';
 import { Share1Icon } from '@radix-ui/react-icons';
 import CustomMarkdownView, {
   stripMarkdown
 } from '../../../../../components/CustomComponents/CustomMarkdownView';
 import { useVectorsStore } from '../../../../../state/vectorsStore';
 import { GenerateFlashcardModal, GenerateQuizModal } from './generate-modals';
+import { Button } from '../../../../../components/ui/button';
+import { useNavigate } from 'react-router';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -32,9 +34,18 @@ const LearningResourcesSection = ({
   user: User;
   refetch: boolean;
 }) => {
+  const [flashcardsPageIndex, setFlashcardsPageIndex] = useState(1);
+  const [quizzesPageIndex, setQuizzesPageIndex] = useState(1);
   const [expanded, setExpanded] = useState(false);
   const [currentTabOpened, setCurrentTabOpened] = useState<
-    'Summary' | 'Highlight' | 'Pinned' | 'Flashcards' | 'Quizzes' | ''
+    | 'Summary'
+    | 'Highlight'
+    | 'Pinned'
+    | 'Flashcards'
+    | 'Quizzes'
+    | ''
+    | 'Flashcards_View'
+    | 'Quizzes_View'
   >('');
   return (
     <div>
@@ -89,10 +100,30 @@ const LearningResourcesSection = ({
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
         />
-        <GenerateQuizSection  setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened}  />
-        <GenerateFlashcardsSection setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened} />
+        <QuizzesViewSection
+          currentTabOpened={currentTabOpened}
+          conversationId={conversationID}
+          index={quizzesPageIndex}
+          setIndex={setQuizzesPageIndex}
+          setCurrentTabOpened={setCurrentTabOpened}
+        />
+        <GenerateQuizSection
+          index={quizzesPageIndex}
+          setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}
+        />
+        <FlashcardsViewSection
+          currentTabOpened={currentTabOpened}
+          conversationId={conversationID}
+          index={flashcardsPageIndex}
+          setIndex={setFlashcardsPageIndex}
+          setCurrentTabOpened={setCurrentTabOpened}
+        />
+        <GenerateFlashcardsSection
+          index={flashcardsPageIndex}
+          setCurrentTabOpened={setCurrentTabOpened}
+          currentTabOpened={currentTabOpened}
+        />
       </div>
     </div>
   );
@@ -495,14 +526,22 @@ const PinnedSection = ({
   );
 };
 
-const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurrentTabOpened: any;
+const GenerateQuizSection = ({
+  setCurrentTabOpened,
+  currentTabOpened,
+  index
+}: {
+  setCurrentTabOpened: any;
   currentTabOpened: string;
+  index: number;
 }) => {
-  const [quizExpanded, setQuizExpanded] = useState(false)
-  const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
-  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
-  const [isOpen, setIsOpen] = useState(false)
-  console.log("sELECTED DOCS FROM QUIZ",selectedDocs)
+  const [quizExpanded, setQuizExpanded] = useState(false);
+  const docNames = useVectorsStore((state) => state.chatDocuments).map(
+    (d) => d.collection_name
+  );
+  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  console.log('sELECTED DOCS FROM QUIZ', selectedDocs);
   const ref = useRef(null);
   const toggleExpand = () => {
     setQuizExpanded(!quizExpanded);
@@ -527,10 +566,12 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  return <div className='relative'>
-
-    <ActionButton active={quizExpanded} onClick={toggleExpand}>Generate Quiz</ActionButton>
-    <div
+  return (
+    <div className="relative">
+      <ActionButton active={quizExpanded} onClick={toggleExpand}>
+        Generate Quiz
+      </ActionButton>
+      <div
         ref={ref}
         className={cn(
           'absolute flex flex-col gap-2 items-center  w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
@@ -539,34 +580,61 @@ const GenerateQuizSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurr
           }
         )}
       >
-      {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
-        <Checkbox checked={selectedDocs.includes(d)} onCheckedChange={(checked) => {
-          if (checked) {
-            setSelectedDocs(prev => prev.concat(d))
-          } else {
-            const existing = [...selectedDocs]
-           setSelectedDocs(existing.filter(e => e !== d))
-         }
-        }}/>
-        <span key={d}>{d}</span>
-      </div>) : null}
-      <button className='px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Quiz</button>
+        {docNames.length > 0
+          ? docNames.map((d) => (
+              <div className="flex text-xs items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100">
+                <Checkbox
+                  checked={selectedDocs.includes(d)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setSelectedDocs((prev) => prev.concat(d));
+                    } else {
+                      const existing = [...selectedDocs];
+                      setSelectedDocs(existing.filter((e) => e !== d));
+                    }
+                  }}
+                />
+                <span key={d}>{d}</span>
+              </div>
+            ))
+          : null}
+        <button
+          className="px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm"
+          disabled={selectedDocs.length === 0}
+          onClick={() => setIsOpen(true)}
+        >
+          Configure Quiz
+        </button>
+      </div>
+      <GenerateQuizModal
+        index={index}
+        isOpen={isOpen}
+        onClose={() => {
+          setSelectedDocs([]);
+          setIsOpen(false);
+        }}
+        docNames={selectedDocs}
+      />
     </div>
-    <GenerateQuizModal isOpen={isOpen} onClose={() => {
-      setSelectedDocs([])
-      setIsOpen(false)
-    }} docNames={selectedDocs} />
-  </div>
+  );
 };
 
-const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  setCurrentTabOpened: any;
+const GenerateFlashcardsSection = ({
+  setCurrentTabOpened,
+  currentTabOpened,
+  index
+}: {
+  setCurrentTabOpened: any;
   currentTabOpened: string;
+  index: number;
 }) => {
-  const [flashcardExpanded, setFlashcardExpanded] = useState(false)
-  const docNames = useVectorsStore((state) => state.chatDocuments).map(d => d.collection_name);
-  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([])
-  const [isOpen, setIsOpen] = useState(false)
-  console.log("SELECTED DCOS FROM FLASHCARD",selectedDocs)
+  const [flashcardExpanded, setFlashcardExpanded] = useState(false);
+  const docNames = useVectorsStore((state) => state.chatDocuments).map(
+    (d) => d.collection_name
+  );
+  const [selectedDocs, setSelectedDocs] = useState<Array<string>>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  console.log('SELECTED DCOS FROM FLASHCARD', selectedDocs);
   const ref = useRef(null);
   const toggleExpand = () => {
     setFlashcardExpanded(!flashcardExpanded);
@@ -591,38 +659,358 @@ const GenerateFlashcardsSection = ({setCurrentTabOpened, currentTabOpened}: {  s
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  return <div className='relative'>
-
-  <ActionButton active={flashcardExpanded} onClick={toggleExpand}>Generate Flashcards</ActionButton>
-  <div
-      ref={ref}
-      className={cn(
-        'absolute flex flex-col gap-2 items-center w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
-        {
-          'opacity-100 pointer-events-auto': flashcardExpanded
-        }
-      )}
-    >
-    {docNames.length > 0 ? docNames.map(d => <div className='flex text-xs w-full items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100'>
-      <Checkbox checked={selectedDocs.includes(d)} onCheckedChange={(checked) => {
-        if (checked) {
-          setSelectedDocs(prev => prev.concat(d))
-        } else {
-          const existing = [...selectedDocs]
-         setSelectedDocs(existing.filter(e => e !== d))
-       }
-      }}/>
-      <span key={d}>{d}</span>
-    </div>) : null}
-    <button className='px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm' disabled={selectedDocs.length === 0} onClick={()=> setIsOpen(true)}>Configure Flashcards</button>
+  return (
+    <div className="relative">
+      <ActionButton active={flashcardExpanded} onClick={toggleExpand}>
+        Generate Flashcards
+      </ActionButton>
+      <div
+        ref={ref}
+        className={cn(
+          'absolute flex flex-col gap-2 items-center w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          {
+            'opacity-100 pointer-events-auto': flashcardExpanded
+          }
+        )}
+      >
+        {docNames.length > 0
+          ? docNames.map((d) => (
+              <div className="flex text-xs w-full items-center bg-stone-50 p-2.5  gap-2 hover:bg-stone-100">
+                <Checkbox
+                  checked={selectedDocs.includes(d)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setSelectedDocs((prev) => prev.concat(d));
+                    } else {
+                      const existing = [...selectedDocs];
+                      setSelectedDocs(existing.filter((e) => e !== d));
+                    }
+                  }}
+                />
+                <span key={d}>{d}</span>
+              </div>
+            ))
+          : null}
+        <button
+          className="px-3 py-2 self-center rounded-md bg-primaryBlue disabled:bg-blue-200 hover:bg-blue-400 text-white text-sm"
+          disabled={selectedDocs.length === 0}
+          onClick={() => setIsOpen(true)}
+        >
+          Configure Flashcards
+        </button>
+      </div>
+      <GenerateFlashcardModal
+        index={index}
+        isOpen={isOpen}
+        onClose={() => {
+          setSelectedDocs([]);
+          setIsOpen(false);
+        }}
+        docNames={selectedDocs}
+      />
     </div>
-    <GenerateFlashcardModal isOpen={isOpen} onClose={() => {
-      setSelectedDocs([])
-      setIsOpen(false)
-    }} docNames={selectedDocs} />
-</div>
+  );
 };
+const FlashcardPage = ({
+  conversationId,
+  index
+}: {
+  conversationId: string;
+  index: number;
+}) => {
+  const navigate = useNavigate();
+  const { data, isPending } = useQuery({
+    queryKey: [
+      `getFlashcardsForMultiragConversation?page=${index}&limit=3&convoId=${conversationId}`
+    ],
+    queryFn: async () => {
+      const response = await ApiService.getFlashcardsForMultiCovno({
+        limit: 3,
+        convoId: conversationId,
+        page: index
+      });
+      const data: { data: Array<FlashcardData> } = await response.json();
+      return data;
+    },
+    select(data) {
+      const transformed: Array<Pick<FlashcardData, '_id' | 'deckname'>> =
+        data.data.map((d) => ({ deckname: d.deckname, _id: d._id }));
+      return transformed;
+    }
+  });
+  console.log('paginated data si', data);
 
+  if (!data && isPending) {
+    return [1, 2, 3].map((el) => (
+      <div className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"></div>
+    ));
+  }
+  return (
+    <div className="w-full">
+      {data && data.length > 0 &&
+        !isPending ?
+        data.map((flashcard) => (
+          <div
+            onClick={() => navigate(`/dashboard/flashcards/${flashcard._id}`)}
+            key={flashcard._id}
+            className="flex text-sm cursor-pointer w-full items-center my-1 bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"
+          >
+            {flashcard.deckname}{' '}
+            <span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 2C2.44772 2 2 2.44772 2 3V12C2 12.5523 2.44772 13 3 13H12C12.5523 13 13 12.5523 13 12V8.5C13 8.22386 12.7761 8 12.5 8C12.2239 8 12 8.22386 12 8.5V12H3V3L6.5 3C6.77614 3 7 2.77614 7 2.5C7 2.22386 6.77614 2 6.5 2H3ZM12.8536 2.14645C12.9015 2.19439 12.9377 2.24964 12.9621 2.30861C12.9861 2.36669 12.9996 2.4303 13 2.497L13 2.5V2.50049V5.5C13 5.77614 12.7761 6 12.5 6C12.2239 6 12 5.77614 12 5.5V3.70711L6.85355 8.85355C6.65829 9.04882 6.34171 9.04882 6.14645 8.85355C5.95118 8.65829 5.95118 8.34171 6.14645 8.14645L11.2929 3H9.5C9.22386 3 9 2.77614 9 2.5C9 2.22386 9.22386 2 9.5 2H12.4999H12.5C12.5678 2 12.6324 2.01349 12.6914 2.03794C12.7504 2.06234 12.8056 2.09851 12.8536 2.14645Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </span>
+          </div>
+        )) :  <div className='text-sm text-center mt-1'>No Flashcards created for conversation.</div>}
+    </div>
+  );
+};
+const QuizPage = ({
+  conversationId,
+  index
+}: {
+  conversationId: string;
+  index: number;
+}) => {
+  const navigate = useNavigate();
+  const { data, isPending } = useQuery({
+    queryKey: [
+      `getQuizzesForMultiragConversation?page=${index}&limit=3&convoId=${conversationId}`
+    ],
+    queryFn: async () => {
+      const response = await ApiService.getQuizzesForMultiCovno({
+        limit: 3,
+        convoId: conversationId,
+        page: index
+      });
+      const data: { data: Array<QuizData> } = await response.json();
+      return data;
+    },
+    select(data) {
+      const transformed: Array<Pick<QuizData, '_id' | 'title'>> = data.data.map(
+        (d) => ({ title: d.title, _id: d._id })
+      );
+      return transformed;
+    }
+  });
+  console.log('paginated data for quiz is', data);
+
+  if (!data && isPending) {
+    return [1, 2, 3].map((el) => (
+      <div className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"></div>
+    ));
+  }
+  return (
+    <div className="w-full">
+      {data && data.length > 0 &&
+        !isPending ?
+        data.map((quiz) => (
+          <div
+            onClick={() =>
+              navigate(`/dashboard/quizzes/take?quiz_id=${quiz._id}`)
+            }
+            key={quiz._id}
+            className="flex text-sm cursor-pointer w-full items-center my-1 bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"
+          >
+            {quiz.title}{' '}
+            <span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 15 15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 2C2.44772 2 2 2.44772 2 3V12C2 12.5523 2.44772 13 3 13H12C12.5523 13 13 12.5523 13 12V8.5C13 8.22386 12.7761 8 12.5 8C12.2239 8 12 8.22386 12 8.5V12H3V3L6.5 3C6.77614 3 7 2.77614 7 2.5C7 2.22386 6.77614 2 6.5 2H3ZM12.8536 2.14645C12.9015 2.19439 12.9377 2.24964 12.9621 2.30861C12.9861 2.36669 12.9996 2.4303 13 2.497L13 2.5V2.50049V5.5C13 5.77614 12.7761 6 12.5 6C12.2239 6 12 5.77614 12 5.5V3.70711L6.85355 8.85355C6.65829 9.04882 6.34171 9.04882 6.14645 8.85355C5.95118 8.65829 5.95118 8.34171 6.14645 8.14645L11.2929 3H9.5C9.22386 3 9 2.77614 9 2.5C9 2.22386 9.22386 2 9.5 2H12.4999H12.5C12.5678 2 12.6324 2.01349 12.6914 2.03794C12.7504 2.06234 12.8056 2.09851 12.8536 2.14645Z"
+                  fill="currentColor"
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </span>
+          </div>
+        )) : <div className='text-sm text-center mt-1'>No quizzes created for conversation</div>}
+    </div>
+  );
+};
+const FlashcardsViewSection = ({
+  index,
+  currentTabOpened,
+  setCurrentTabOpened,
+  setIndex,
+  conversationId
+}: {
+  conversationId: string;
+  index: number;
+  setIndex: React.Dispatch<React.SetStateAction<number>>;
+  currentTabOpened: string;
+  setCurrentTabOpened: React.Dispatch<
+    React.SetStateAction<
+      | ''
+      | 'Summary'
+      | 'Highlight'
+      | 'Pinned'
+      | 'Flashcards'
+      | 'Quizzes'
+      | 'Flashcards_View'
+      | 'Quizzes_View'
+    >
+  >;
+}) => {
+  const [flashcardExpanded, setFlashcardExpanded] = useState(false);
+  const ref = useRef(null);
+  const toggleExpand = () => {
+    setFlashcardExpanded(!flashcardExpanded);
+    setCurrentTabOpened('Flashcards_View');
+  };
+
+  useEffect(() => {
+    if (currentTabOpened !== 'Flashcards_View') {
+      setFlashcardExpanded(false);
+    }
+  }, [currentTabOpened]);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setFlashcardExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  return (
+    <div className="relative">
+      <ActionButton active={flashcardExpanded} onClick={toggleExpand}>
+        View Flashcards
+      </ActionButton>
+      <div
+        ref={ref}
+        className={cn(
+          'absolute flex flex-col gap-2 items-center w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          {
+            'opacity-100 pointer-events-auto': flashcardExpanded
+          }
+        )}
+      >
+        <FlashcardPage conversationId={conversationId} index={index} />
+        <div style={{display: 'none'}}> <FlashcardPage conversationId={conversationId} index={index + 1} /></div>
+        <div className="flex mt-3 items-center gap-2">
+          <Button
+            disabled={index === 1}
+            onClick={() => setIndex(index - 1)}
+            variant="ghost"
+          >
+            &larr; Prev
+          </Button>
+          <Button onClick={() => setIndex(index + 1)} variant="ghost">
+            &rarr; Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+const QuizzesViewSection = ({
+  index,
+  currentTabOpened,
+  setCurrentTabOpened,
+  setIndex,
+  conversationId
+}: {
+  conversationId: string;
+  index: number;
+  setIndex: React.Dispatch<React.SetStateAction<number>>;
+  currentTabOpened: string;
+  setCurrentTabOpened: React.Dispatch<
+    React.SetStateAction<
+      | ''
+      | 'Summary'
+      | 'Highlight'
+      | 'Pinned'
+      | 'Flashcards'
+      | 'Quizzes'
+      | 'Flashcards_View'
+      | 'Quizzes_View'
+    >
+  >;
+}) => {
+  const [quizExpanded, setQuizExpanded] = useState(false);
+  const ref = useRef(null);
+  const toggleExpand = () => {
+    setQuizExpanded(!quizExpanded);
+    setCurrentTabOpened('Quizzes_View');
+  };
+
+  useEffect(() => {
+    if (currentTabOpened !== 'Quizzes_View') {
+      setQuizExpanded(false);
+    }
+  }, [currentTabOpened]);
+
+  const handleClickOutside = (event) => {
+    if (ref.current && !ref.current.contains(event.target)) {
+      setQuizExpanded(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  return (
+    <div className="relative">
+      <ActionButton active={quizExpanded} onClick={toggleExpand}>
+        View Quizzes
+      </ActionButton>
+      <div
+        ref={ref}
+        className={cn(
+          'absolute flex flex-col gap-2 items-center w-[15.25rem] bg-white rounded-md shadow-md right-0 p-1 top-10 pointer-events-none opacity-0 transition-opacity max-h-[29rem] overflow-y-scroll no-scrollbar z-50',
+          {
+            'opacity-100 pointer-events-auto': quizExpanded
+          }
+        )}
+      >
+        <QuizPage conversationId={conversationId} index={index} />
+        <div style={{ display: 'none' }}>
+          {' '}
+          <QuizPage conversationId={conversationId} index={index + 1} />
+        </div>
+        <div className="flex mt-3 items-center gap-2 p-1">
+          <Button
+            disabled={index === 1}
+            onClick={() => setIndex(index - 1)}
+            variant="outline"
+          >
+            &larr; Prev
+          </Button>
+          <Button onClick={() => setIndex(index + 1)} variant="outline">
+            &rarr; Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const ActionButton = ({
   children,
   onClick,

@@ -24,7 +24,7 @@ import SelectComponent, { Option } from '../../../../../components/Select';
 import React from 'react';
 import { languages } from '../../../../../helpers';
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   GenerateFlashcardFromMultiBody,
   GenerateQuizFromMultiBody
@@ -37,11 +37,13 @@ type GenerateFlashcardModalProps = {
   isOpen: boolean;
   onClose: VoidFunction;
   docNames: Array<string>;
+  index: number;
 };
 export const GenerateFlashcardModal = ({
   isOpen,
   onClose,
-  docNames
+  docNames,
+  index
 }: GenerateFlashcardModalProps) => {
   const [searchValue, setSearchValue] = React.useState('');
   const [preferredLanguage, setPreferredLanguage] = React.useState<
@@ -62,22 +64,23 @@ export const GenerateFlashcardModal = ({
     grade: ''
   });
   const toast = useCustomToast();
-
+  const qc = useQueryClient();
   const { user } = useUserStore();
 
   const { mutate } = useMutation({
     mutationKey: ['generateFlashcardFromMultirag', docNames],
     mutationFn: (data: GenerateFlashcardFromMultiBody) =>
       ApiService.multiGenerateFlashcardsFromDocs(data),
-    retry: 2, 
+    retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-    onSuccess() {
+    async onSuccess () {
       toast({
         title: 'Flashcards created',
         status: 'success',
         position: 'top-right'
       });
       console.log('SUFFERING FROM SUCCESS');
+     
       setLocalData({
         deckname: '',
         studyType: '',
@@ -92,8 +95,21 @@ export const GenerateFlashcardModal = ({
       });
       setSearchValue('');
       setPreferredLanguage(languages[0]);
+    await  qc.invalidateQueries({
+        queryKey: [
+          `getFlashcardsForMultiragConversation?page=${index}&limit=3&convoId=${path}`
+        ]
+      });
+     await qc.invalidateQueries({
+        queryKey: [
+          `getFlashcardsForMultiragConversation?page=${
+            index + 1
+          }&limit=3&convoId=${path}`
+        ]
+      });
     },
-    onError() {
+    onError(e) {
+      
       toast({
         title: 'Problem creating flashcards',
         status: 'error',
@@ -478,11 +494,13 @@ type GenerateQuizModalProps = {
   isOpen: boolean;
   onClose: VoidFunction;
   docNames: Array<string>;
+  index: number;
 };
 export const GenerateQuizModal = ({
   isOpen,
   onClose,
-  docNames
+  docNames,
+  index
 }: GenerateQuizModalProps) => {
   const [searchValue, setSearchValue] = React.useState('');
   const [preferredLanguage, setPreferredLanguage] = React.useState<
@@ -499,19 +517,20 @@ export const GenerateQuizModal = ({
   const toast = useCustomToast();
 
   const { user } = useUserStore();
-
+  const qc = useQueryClient();
   const { mutate } = useMutation({
     mutationKey: ['generateQuizFromMultirag', docNames],
     mutationFn: (data: GenerateQuizFromMultiBody) =>
       ApiService.multiGenerateQuizFromDocs(data),
-    retry: 2, 
+    retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000),
-    onSuccess() {
+    async onSuccess() {
       toast({
         title: 'Quiz created',
         status: 'success',
         position: 'top-right'
       });
+     
       console.log('SUFFERING FROM SUCCESS');
       setLocalData({
         title: '',
@@ -521,6 +540,18 @@ export const GenerateQuizModal = ({
       });
       setSearchValue('');
       setPreferredLanguage(languages[0]);
+      await qc.invalidateQueries({
+        queryKey: [
+          `getQuizzesForMultiragConversation?page=${index}&limit=3&convoId=${path}`
+        ]
+      });
+      await qc.invalidateQueries({
+        queryKey: [
+          `getQuizzesForMultiragConversation?page=${
+            index + 1
+          }&limit=3&convoId=${path}`
+        ]
+      });
     },
     onError() {
       toast({

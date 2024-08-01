@@ -1405,8 +1405,7 @@ class ApiService {
       `${ApiService.multiRagMainURL}/generate/create-flashcards`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        signal: AbortSignal.timeout(500000)
+        body: JSON.stringify(data)
       },
       true,
       {
@@ -1414,6 +1413,33 @@ class ApiService {
         'Content-Type': 'application/json'
         // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
+    );
+  };
+  static getFlashcardsForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getFlashcardsForMulitragConversation?${queryString}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+  static getQuizzesForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getQuizzesForMultiragConversation?${queryString}`
     );
   };
   static multiGenerateQuizFromDocs = async (
@@ -1424,8 +1450,7 @@ class ApiService {
       `${ApiService.multiRagMainURL}/generate/create-quizzes`,
       {
         method: 'POST',
-        body: JSON.stringify(data),
-        signal: AbortSignal.timeout(500000)
+        body: JSON.stringify(data)
       },
       true,
       {
