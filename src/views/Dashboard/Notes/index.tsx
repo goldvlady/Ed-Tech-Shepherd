@@ -274,7 +274,7 @@ const NotesDirectory: React.FC = () => {
 
   useEffect(() => {
     fetchStudentDocuments({ page: 1, limit: 20 }); // Replace with your actual fetchStudentDocuments function
-    fetchNotes({ page: 1, limit: 20 });
+    fetchNotes({ page: 1, limit: 2 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
