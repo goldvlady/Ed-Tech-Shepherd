@@ -741,14 +741,20 @@ const FlashcardPage = ({
   console.log('paginated data si', data);
 
   if (!data && isPending) {
-    return [1, 2, 3].map((el) => (
-      <div className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"></div>
-    ));
+    return (
+      <div className="w-full">
+        {[1, 2, 3].map((el) => (
+          <div
+            key={el}
+            className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"
+          ></div>
+        ))}
+      </div>
+    );
   }
   return (
     <div className="w-full">
-      {data && data.length > 0 &&
-        !isPending ?
+      {data && data.length > 0 && !isPending ? (
         data.map((flashcard) => (
           <div
             onClick={() => navigate(`/dashboard/flashcards/${flashcard._id}`)}
@@ -773,7 +779,12 @@ const FlashcardPage = ({
               </svg>
             </span>
           </div>
-        )) :  <div className='text-sm text-center mt-1'>No Flashcards created for conversation.</div>}
+        ))
+      ) : (
+        <div className="text-sm text-center mt-1">
+          No Flashcards created for conversation.
+        </div>
+      )}
     </div>
   );
 };
@@ -808,14 +819,20 @@ const QuizPage = ({
   console.log('paginated data for quiz is', data);
 
   if (!data && isPending) {
-    return [1, 2, 3].map((el) => (
-      <div className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"></div>
-    ));
+    return (
+      <div className="w-full">
+        {[1, 2, 3].map((el) => (
+          <div
+            key={el}
+            className="flex text-xs w-full items-center bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"
+          ></div>
+        ))}
+      </div>
+    );
   }
   return (
     <div className="w-full">
-      {data && data.length > 0 &&
-        !isPending ?
+      {data && data.length > 0 && !isPending ? (
         data.map((quiz) => (
           <div
             onClick={() =>
@@ -842,7 +859,12 @@ const QuizPage = ({
               </svg>
             </span>
           </div>
-        )) : <div className='text-sm text-center mt-1'>No quizzes created for conversation</div>}
+        ))
+      ) : (
+        <div className="text-sm text-center mt-1">
+          No quizzes created for conversation
+        </div>
+      )}
     </div>
   );
 };
@@ -910,7 +932,10 @@ const FlashcardsViewSection = ({
         )}
       >
         <FlashcardPage conversationId={conversationId} index={index} />
-        <div style={{display: 'none'}}> <FlashcardPage conversationId={conversationId} index={index + 1} /></div>
+        <div style={{ display: 'none' }}>
+          {' '}
+          <FlashcardPage conversationId={conversationId} index={index + 1} />
+        </div>
         <div className="flex mt-3 items-center gap-2">
           <Button
             disabled={index === 1}
