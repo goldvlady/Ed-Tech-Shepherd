@@ -110,6 +110,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
           </Text>
           <Flex minHeight="50px" wrap="wrap" my={4}>
             {tags &&
+              typeof tags !== 'string' && //necessary for now bc of new note structure in flux + new tag structure saved from notes on blocksuite-note branch
               tags.slice(0, 3).map((tag, index) => (
                 <Tag
                   key={index}
