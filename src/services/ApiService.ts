@@ -857,16 +857,7 @@ class ApiService {
     type?: string;
   }) => {
     const queryString = objectToQueryString(queryParams);
-    return doFetch(
-      `${ApiService.baseEndpoint}/notes?${queryString}`,
-      {
-        method: 'GET'
-      },
-      true,
-      {
-        'Content-Type': 'application/json'
-      }
-    );
+    return doFetch(`${ApiService.baseEndpoint}/notes?${queryString}`);
   };
 
   static getNote = async (id: string | number) => {
