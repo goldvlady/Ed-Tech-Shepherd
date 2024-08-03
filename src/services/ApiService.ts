@@ -849,6 +849,7 @@ class ApiService {
   };
 
   // Notes
+
   static getAllNotes = async (queryParams: {
     search?: string;
     page?: number;
