@@ -100,6 +100,11 @@ const LearningResourcesSection = ({
           setCurrentTabOpened={setCurrentTabOpened}
           currentTabOpened={currentTabOpened}
         />
+          <GenerateQuizSection
+            index={quizzesPageIndex}
+            setCurrentTabOpened={setCurrentTabOpened}
+            currentTabOpened={currentTabOpened}
+          />
         <QuizzesViewSection
           currentTabOpened={currentTabOpened}
           conversationId={conversationID}
@@ -107,22 +112,17 @@ const LearningResourcesSection = ({
           setIndex={setQuizzesPageIndex}
           setCurrentTabOpened={setCurrentTabOpened}
         />
-        <GenerateQuizSection
-          index={quizzesPageIndex}
-          setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened}
-        />
+          <GenerateFlashcardsSection
+            index={flashcardsPageIndex}
+            setCurrentTabOpened={setCurrentTabOpened}
+            currentTabOpened={currentTabOpened}
+          />
         <FlashcardsViewSection
           currentTabOpened={currentTabOpened}
           conversationId={conversationID}
           index={flashcardsPageIndex}
           setIndex={setFlashcardsPageIndex}
           setCurrentTabOpened={setCurrentTabOpened}
-        />
-        <GenerateFlashcardsSection
-          index={flashcardsPageIndex}
-          setCurrentTabOpened={setCurrentTabOpened}
-          currentTabOpened={currentTabOpened}
         />
       </div>
     </div>
