@@ -88,8 +88,10 @@ import WelcomeWalkthrough from '../../components/welcome-walkthrough';
 import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
+
 import BillingModal from '../../components/BillingModal';
 import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
+
 import Sidebar from '../../components/sidebar';
 
 interface LinkItemProps {
@@ -1029,6 +1031,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             size="full"
           >
             <DrawerContent>
+
               {/* <SidebarContent
                 onClose={onClose}
                 tutorMenu={tutorMenu}
@@ -1044,6 +1047,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 handleLockedClick={handleLockedClick}
                 openModal={openModal}
                 closeModal={closeModal}
+
               /> */}
             </DrawerContent>
           </Drawer>

@@ -92,7 +92,7 @@
     "fast-xml-parser": "^4.3.5",
     "firebase": "^9.19.1",
     "formik": "^2.2.9",
-    "framer-motion": "^11.2.3",
+    "framer-motion": "^11.3.6",
     "html2pdf.js": "^0.10.1",
     "jspdf": "^2.5.1",
     "katex": "^0.15.2",
@@ -198,8 +198,7 @@
     "extends": [
       "react-app",
       "react-app/jest",
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended"
+      "eslint:recommended"
     ],
     "rules": {
       "no-console": "warn",

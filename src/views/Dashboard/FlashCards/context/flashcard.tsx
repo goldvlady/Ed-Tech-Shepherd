@@ -44,7 +44,7 @@ export enum ModeEnum {
   CREATE = 'CREATE',
   EDIT = 'EDIT'
 }
-interface FlashcardData {
+export interface FlashcardData {
   deckname: string;
   level?: string;
   studyType: string;

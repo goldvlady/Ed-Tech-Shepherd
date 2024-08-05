@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
@@ -7,11 +6,12 @@ import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
   StudentDocumentPayload,
-  QuizData,
   QuizQuestion,
   FlashcardData,
   StudyPlanTopicDocumentPayload,
-  StoreQuizScoreType
+  StoreQuizScoreType,
+  GenerateFlashcardFromMultiBody,
+  GenerateQuizFromMultiBody
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -1057,11 +1057,13 @@ class ApiService {
 
   static uploadMultiDocFiles = async (queryParams: {
     studentId: string;
+    subtopicId: string;
     formData: FormData;
   }) => {
+    console.log('SID', queryParams.studentId);
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}&st=${queryParams.subtopicId}`,
       {
         method: 'POST',
         body: queryParams.formData
@@ -1165,10 +1167,11 @@ class ApiService {
       }
     );
   };
-  static multiDocVectorDocs = async (sId: string) => {
+
+  static multiDocVectorDocs = async (sId: string, subtopicId: string) => {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
-      `${ApiService.multiRagMainURL}/vector_docs/${sId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/${sId}?st=${subtopicId}`,
       {
         method: 'GET'
       },
@@ -1201,6 +1204,22 @@ class ApiService {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       `${ApiService.multiRagMainURL}/misc/create-highlight`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocHighlightDelete = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/delete-highlight`,
       {
         method: 'POST',
         body: JSON.stringify(data)
@@ -1263,7 +1282,7 @@ class ApiService {
     );
   };
 
-  static getMultiDocHighlight = async (documentId) => {
+  static getMultiDocHighlight = async (documentId: string) => {
     return await doFetch(
       `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
       {
@@ -1308,9 +1327,13 @@ class ApiService {
     );
   };
 
-  static multiPreviousConversations = async (refId) => {
+  static multiPreviousConversations = async (
+    refId: string,
+    referenceDocIds: string,
+    subtopicId: string
+  ) => {
     return await doFetch(
-      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}`,
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}&st=${subtopicId}`,
       {
         method: 'GET'
       },
@@ -1361,6 +1384,70 @@ class ApiService {
     return await doFetch(
       // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
       `${ApiService.multiRagMainURL}/misc/toggle-like`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiGenerateFlashcardsFromDocs = async (
+    data: GenerateFlashcardFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-flashcards`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static getFlashcardsForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getFlashcardsForMulitragConversation?${queryString}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+  static getQuizzesForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getQuizzesForMultiragConversation?${queryString}`
+    );
+  };
+  static multiGenerateQuizFromDocs = async (
+    data: GenerateQuizFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-quizzes`,
       {
         method: 'POST',
         body: JSON.stringify(data)

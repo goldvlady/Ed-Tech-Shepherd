@@ -9,7 +9,7 @@ interface vectorsStoreState {
 const useVectorsStore = create<vectorsStoreState>()((set) => ({
   chatDocuments: [],
   addChatDocuments: (chatDocuments) =>
-    set((state) => ({ chatDocuments: chatDocuments }))
+    set(() => ({ chatDocuments: chatDocuments }))
 }));
 
 export { useVectorsStore };

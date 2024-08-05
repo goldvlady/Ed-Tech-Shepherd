@@ -19,7 +19,8 @@ function AiChatBotWindow() {
     subject: '',
     topic: '',
     level: '',
-    language: 'English'
+    language: 'English',
+    new: false
   });
   const studentId = user?._id;
   // If id is null, It mean user is not in the chat room
@@ -96,8 +97,9 @@ function AiChatBotWindow() {
     level: string;
     language: (typeof languages)[number];
     topicSecondary?: string;
-  }) => {
-    const cq = { subject, topic, level, language, topicSecondary };
+    }) => {
+    const n = user.stripeSubscription ? true : false
+    const cq = { subject, topic, level, language, topicSecondary, new: n };
     setConnectionQuery(cq);
     // alert(JSON.stringify({ subject, topic }));
     if (subject === 'Math' && topic.trim().length > 0) {
@@ -129,7 +131,8 @@ function AiChatBotWindow() {
         name: user?.name?.first,
         studentId: studentId,
         firebaseId: user?.firebaseId,
-        namespace: 'homework-help'
+        namespace: 'homework-help',
+        new: n
       });
       startConversation({
         subject,
@@ -139,7 +142,8 @@ function AiChatBotWindow() {
         name: user?.name?.first,
         studentId: studentId,
         firebaseId: user?.firebaseId,
-        namespace: 'homework-help'
+        namespace: 'homework-help',
+        new: n
       });
     }
   };

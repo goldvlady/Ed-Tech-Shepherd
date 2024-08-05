@@ -22,6 +22,7 @@ interface CustomComponents {
   math?: any;
   inlineMath?: any;
   blockMath?: any;
+  h3?: any;
 }
 
 interface ICustomMarkdownView {
@@ -93,6 +94,80 @@ function extractMarkdown(content) {
   return content;
 }
 
+export const convertChildrenToMarkdown = (element) => {
+  const markdownLines = [];
+
+  element.childNodes.forEach((child) => {
+    if (child.nodeType === Node.TEXT_NODE) {
+      markdownLines.push(child.textContent.trim());
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      switch (child.tagName.toLowerCase()) {
+        case 'p':
+          markdownLines.push(child.textContent.trim());
+          break;
+        case 'h1':
+          markdownLines.push(`# ${child.textContent.trim()}`);
+          break;
+        case 'h2':
+          markdownLines.push(`## ${child.textContent.trim()}`);
+          break;
+        case 'h3':
+          markdownLines.push(`### ${child.textContent.trim()}`);
+          break;
+        case 'h4':
+          markdownLines.push(`#### ${child.textContent.trim()}`);
+          break;
+        case 'h5':
+          markdownLines.push(`##### ${child.textContent.trim()}`);
+          break;
+        case 'h6':
+          markdownLines.push(`###### ${child.textContent.trim()}`);
+          break;
+        case 'ul':
+          child.querySelectorAll('li').forEach((li) => {
+            markdownLines.push(`- ${li.textContent.trim()}`);
+          });
+          break;
+        case 'ol':
+          child.querySelectorAll('li').forEach((li, index) => {
+            markdownLines.push(`${index + 1}. ${li.textContent.trim()}`);
+          });
+          break;
+        case 'pre':
+          markdownLines.push(`\`\`\`\n${child.textContent.trim()}\n\`\`\``);
+          break;
+        case 'code':
+          markdownLines.push(`\`${child.textContent.trim()}\``);
+          break;
+        default:
+          markdownLines.push(child.textContent.trim());
+          break;
+      }
+    }
+  });
+
+  return markdownLines.join('\n');
+};
+export const stripMarkdown = (markdown: string) => {
+  return markdown
+    .replace(/#+\s/g, '') // Headers
+    .replace(/(\*\*|__)/g, '') // Bold
+    .replace(/(\*|_)/g, '') // Italic
+    .replace(/`{1,3}[^`](.*?)`{1,3}/g, '$1') // Inline code
+    .replace(/```[\s\S]*?```/g, '') // Code block
+    .replace(/!\[(.*?)\]\(.*?\)/g, '$1') // Images
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Links
+    .replace(/^\s*\n/gm, '') // Empty lines
+    .replace(/^\s+/g, '') // Leading whitespace
+    .replace(/\s+$/g, '') // Trailing whitespace
+    .replace(/^- /gm, '') // List items
+    .replace(/^\d+\.\s/gm, '') // Numbered list items
+    .replace(/\n+/g, ' ') // New lines
+    .replace(/-\s/g, '') // Hyphen list items
+    .replace(/^\d+\.\s/gm, '') // Ordered list items
+    .trim();
+};
+
 const highlightBracketedText = (text) => {
   if (text) {
     return text.replace(/\[\[\[(.*?)\]\]\]/g, '<strong>$1</strong>');
@@ -132,7 +207,8 @@ function getComponents(onKeywordClick: any): CustomComponents {
     p: ParagraphComponent,
     math: MathComponent,
     inlineMath: InlineMathComponent,
-    blockMath: BlockMathComponent
+    blockMath: BlockMathComponent,
+    h3: H3
   };
 }
 
@@ -148,6 +224,7 @@ const CodeBlockComponent = ({
   }
 
   const match = /language-(\w+)/.exec(className || '');
+  console.log('Language match', match);
 
   return inline ? (
     <code className={className} {...props}>
@@ -162,6 +239,8 @@ const CodeBlockComponent = ({
     />
   );
 };
+
+const H3 = ({ children }) => <h3 className="mt-6 !text-[1rem]">{children}</h3>;
 
 const ListComponent = ({ children }) => (
   <ul className="list-disc my-6 ml-6 [&>li]:mt-2 list-outside [&_svg]:inline-block">

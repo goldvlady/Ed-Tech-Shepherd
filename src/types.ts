@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { languages } from './helpers';
 
 export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
 export const MULTIPLE_CHOICE_MULTI = 'multipleChoiceMulti';
@@ -9,6 +10,28 @@ export const MIXED = 'mixed';
 export type Entity = {
   _id: string;
 };
+export interface GenerateFlashcardFromMultiBody {
+  docNames: string[];
+  convoId: string;
+  deckname: string;
+  numQuestions: number;
+  difficulty?: string;
+  subject: string;
+  grade: string;
+  topic: string;
+  user_id: string;
+  lang: (typeof languages)[number];
+}
+export interface GenerateQuizFromMultiBody {
+  docNames: string[];
+  convoId: string;
+  title: string;
+  numQuestions: number;
+  difficulty?: string;
+  quiz_type: string;
+  user_id: string;
+  lang: (typeof languages)[number];
+}
 
 export interface TimestampedEntity extends Entity {
   createdAt: Date;
@@ -183,7 +206,11 @@ export const featureNames = [
   'AI Tutor',
   'flashcards',
   'quizzes',
-  'multirag'
+  'multirag',
+  'AI Words',
+  'Web searches',
+  'notes',
+  'study plan'
 ] as const;
 export interface Feature extends TimestampedEntity {
   subscription: StripeSubscription;
@@ -710,3 +737,19 @@ export type StoreQuizScoreType = {
   selectedOptions: string[];
   questionId: string | number;
 };
+export interface MultiragDocument {
+  collection_name: string;
+  document_id: string;
+  student_id: string;
+  createdAt: string;
+  reference: string;
+  summary?: string;
+  updatedAt?: string;
+}
+
+// Generic Response type accepting any data type 'T'
+export interface multiragResponse<T> {
+  data: T;
+  status: string;
+  detail: string;
+}

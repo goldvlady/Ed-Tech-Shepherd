@@ -1,3 +1,4 @@
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ChevronLeftIcon } from '@radix-ui/react-icons';
@@ -24,6 +25,7 @@ import {
 } from '../ui/accordion';
 import BarnImg from '../../assets/Barn.svg';
 import { SelectedNoteModal } from '..';
+
 
 const listItems = [
   { name: 'Library', icon: BsBook, path: '/dashboard/library', coming: false },
@@ -150,8 +152,7 @@ function Sidebar() {
                     title="Doc chat"
                     active={false}
                     icon={null}
-                    // link="/dashboard/doc-chat"
-                    action={toggleShowDocChatModal}
+                    link="/dashboard/doc-chat"
                   />
                   <SidebarItem
                     hideLabel={collapsed}
@@ -284,13 +285,6 @@ function Sidebar() {
           />
         </div>
       </div>
-
-      {showDocChatModal && (
-        <SelectedNoteModal
-          show={showDocChatModal}
-          setShow={setShowDocChatModal}
-        />
-      )}
     </div>
   );
 }

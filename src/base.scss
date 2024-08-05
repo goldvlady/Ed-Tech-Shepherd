@@ -139,16 +139,21 @@ code {
 }
 
 .scrollbar-hidden {
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .scrollbar-hidden::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none;
+  /* Safari and Chrome */
 }
 
 #payment-form {
   width: 100%;
 }
+
 .stripeBox {
   background: repeating-linear-gradient(
     45deg,
@@ -254,20 +259,24 @@ code {
   top: 0;
   left: 0;
   width: 100%;
-  height: 839px; /* Height until the gradient stops */
-  background: linear-gradient(#ffffff, #ebf4fe); /* Gradient color */
+  height: 839px;
+  /* Height until the gradient stops */
+  background: linear-gradient(#ffffff, #ebf4fe);
+  /* Gradient color */
   background-clip: content-box;
 }
 
 .landing-gradient * {
   position: relative;
-  z-index: 1; /* Ensure content is above the gradient */
+  z-index: 1;
+  /* Ensure content is above the gradient */
 }
 
 .post-gradient {
   width: 100vw;
   position: absolute;
-  top: 100%; /* Position the div below the div above */
+  top: 100%;
+  /* Position the div below the div above */
   left: 0;
   display: flex;
   flex-direction: column;
@@ -595,12 +604,14 @@ code {
   text-align: left;
   width: 297px;
 }
+
 .landing-section-item-modal {
   display: flex;
   flex-direction: column;
   gap: 5px;
   text-align: left;
 }
+
 .landing-coming-soon-icon {
   width: 30px;
 }
@@ -1134,7 +1145,8 @@ code {
   }
 
   .landing-gradient::before {
-    height: 775px; /* Height until the gradient stops */
+    height: 775px;
+    /* Height until the gradient stops */
   }
 
   /* .landing-desc-info.mweb {
@@ -1211,6 +1223,7 @@ code {
     flex-wrap: wrap;
   }
 }
+
 .PdfHighlighter::-webkit-scrollbar {
   display: none;
 }
@@ -1226,11 +1239,13 @@ code {
     left: 20%;
     /* width: 100%; */
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
   }
 }
+
 .action-card {
   transition: box-shadow 0.2s ease-in-out;
 }
@@ -1239,15 +1254,18 @@ code {
   box-shadow: 0 0 11px rgba(33, 33, 33, 0.2);
   transform: scale(1.04);
 }
+
 .model .left {
   position: relative;
   --tw-shadow: -28px 12px 61px -33px rgb(0 0 0 / 0.25);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
     var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+
 #language_select {
   padding-bottom: 0px !important;
 }
+
 .model .left::after {
   --border-radius: 1rem;
   border: 10px solid white;
@@ -1273,8 +1291,10 @@ code {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .custom-scroll {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .chakra-input__group input[type='text'] {
@@ -1292,10 +1312,12 @@ code {
 input[type='text']:focus {
   box-shadow: none;
 }
+
 // T AND C
 .tandc p {
   margin-bottom: 16px;
 }
+
 //STREAM CHAT STYLES
 .stream-chat-wrapper {
   height: calc(100vh - 80px);
@@ -1321,11 +1343,13 @@ input[type='text']:focus {
   font-size: 0.875rem;
   position: relative;
 }
+
 .panel-content .select-panel {
   z-index: 1;
   height: 140px;
   overflow-y: scroll;
 }
+
 @media only screen and (max-width: 992px) {
   .rmsc .dropdown-heading {
     width: 250% !important;
@@ -1340,7 +1364,8 @@ input[type='text']:focus {
 /* Remove focus border */
 
 .rmsc .dropdown-content {
-  z-index: 1000; /* Adjust this value as needed */
+  z-index: 1000;
+  /* Adjust this value as needed */
 }
 
 .rmsc .dropdown-content {
@@ -1360,7 +1385,8 @@ input[type='text']:focus {
 
 .rmsc .dropdown-heading:focus {
   outline: none !important;
-  box-shadow: none !important; /* In case the component uses a box-shadow for focus indication */
+  box-shadow: none !important;
+  /* In case the component uses a box-shadow for focus indication */
 }
 
 //STUDY PLAN
@@ -1445,35 +1471,46 @@ input[type='text']:focus {
     color: #fff;
     // font-size: 16px;
   }
+
   .str-chat__message-bubble p {
     font-size: 16px;
   }
 
   /* Style for the cancel button */
   button.str-chat__edit-message-cancel {
-    background-color: #ff0000; /* Change the background color */
-    color: #ffffff; /* Change the text color */
+    background-color: #ff0000;
+    /* Change the background color */
+    color: #ffffff;
+    /* Change the text color */
     border: none;
-    padding: 8px 16px; /* Adjust padding as needed */
-    border-radius: 4px; /* Add rounded corners if desired */
+    padding: 8px 16px;
+    /* Adjust padding as needed */
+    border-radius: 4px;
+    /* Add rounded corners if desired */
     cursor: pointer;
-    margin-right: 10px; /* Add margin between buttons */
+    margin-right: 10px;
+    /* Add margin between buttons */
   }
 
   /* Style for the send button */
   button.str-chat__edit-message-send {
-    background-color: #007bff; /* Change the background color */
-    color: #ffffff; /* Change the text color */
+    background-color: #007bff;
+    /* Change the background color */
+    color: #ffffff;
+    /* Change the text color */
     border: none;
-    padding: 8px 16px; /* Adjust padding as needed */
-    border-radius: 4px; /* Add rounded corners if desired */
+    padding: 8px 16px;
+    /* Adjust padding as needed */
+    border-radius: 4px;
+    /* Add rounded corners if desired */
     cursor: pointer;
   }
 
   /* Hover effect for buttons */
   button.str-chat__edit-message-cancel:hover,
   button.str-chat__edit-message-send:hover {
-    opacity: 0.8; /* Reduce opacity on hover for a visual effect */
+    opacity: 0.8;
+    /* Reduce opacity on hover for a visual effect */
   }
 
   .str-chat-channel {
@@ -1607,6 +1644,7 @@ input[type='text']:focus {
     }
   }
 }
+
 //PDF VIEWER STYLES
 svg.rpv-core__icon {
   color: #606264;
@@ -1620,21 +1658,27 @@ svg.rpv-core__icon {
   border: none;
   font-size: 12px;
 }
+
 .rpv-toolbar__center {
   justify-content: right;
 }
+
 input.rpv-core__textbox {
   font-size: 12px;
 }
+
 .rpv-default-layout__sidebar {
   border: none;
 }
+
 .rpv-default-layout__sidebar-headers {
   background-color: transparent;
 }
+
 .rpv-default-layout__container {
   border: none;
 }
+
 .rpv-core__page-layer--single {
   width: 100%;
 }
@@ -1655,16 +1699,22 @@ input.rpv-core__textbox {
 .rpv-core__popover-body-arrow {
   display: none;
 }
+
 .rpv-zoom__popover-target-arrow {
   display: none;
 }
+
 .rpv-thumbnail__list .rpv-thumbnail__list--vertical {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .rpv-core__page-layer textarea {
   width: 100%;
 }
+
 .rmsc .multi-select {
   z-index: 111 !important;
 }
