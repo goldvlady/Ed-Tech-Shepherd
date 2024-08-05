@@ -1,8 +1,9 @@
 import ApiService from '../services/ApiService';
 import { NoteDetails, SearchQueryParams, Pagination } from '../types';
 import { create } from 'zustand';
+import { saveState, loadState } from '../helpers/indexedDBUtils';
 
-type NoteStore = {
+export type NoteStore = {
   pinnedNotes: NoteDetails[] | null;
   pinnedNotesCount: number;
   notes: NoteDetails[];
@@ -21,30 +22,31 @@ type NoteStore = {
   ) => Promise<boolean>;
 };
 
-const saveState = (state: Partial<NoteStore>) => {
-  const stateToSave = {
-    pinnedNotes: state.pinnedNotes,
-    pinnedNotesCount: state.pinnedNotesCount,
-    notes: state.notes,
-    tags: state.tags,
-    pagination: state.pagination
-  };
-  localStorage.setItem('noteStore', JSON.stringify(stateToSave));
-};
+// const saveState = (state: Partial<NoteStore>) => {
+//   const stateToSave = {
+//     pinnedNotes: state.pinnedNotes,
+//     pinnedNotesCount: state.pinnedNotesCount,
+//     notes: state.notes,
+//     tags: state.tags,
+//     pagination: state.pagination
+//   };
+//   localStorage.setItem('noteStore', JSON.stringify(stateToSave));
+// };
 
-// Function to load state from local storage
-const loadState = (): Partial<NoteStore> => {
-  const savedState = localStorage.getItem('noteStore');
-  return savedState
-    ? JSON.parse(savedState)
-    : {
-        pinnedNotes: null,
-        pinnedNotesCount: 0,
-        notes: [],
-        tags: [],
-        pagination: { limit: 10, page: 1, count: 100 }
-      };
-};
+// // Function to load state from local storage
+// const loadState = (): Partial<NoteStore> => {
+//   const savedState = localStorage.getItem('noteStore');
+//   console.log("savedState", savedState)
+//   return savedState
+//     ? JSON.parse(savedState)
+//     : {
+//         pinnedNotes: null,
+//         pinnedNotesCount: 0,
+//         notes: [],
+//         tags: [],
+//         pagination: { limit: 10, page: 1, count: 100 }
+//       };
+// };
 
 export default create<NoteStore>((set) => ({
   pinnedNotes: null,
@@ -66,12 +68,14 @@ export default create<NoteStore>((set) => ({
         return { isLoading: true };
       });
       const response = await ApiService.getAllNotes(queryParams);
+      console.log('Fetch Notes Response', response);
       const {
         data: {
           data,
           meta: { pagination, tags }
         }
       } = await response.json();
+      console.log('Fetch Notes data', data);
 
       set((prev) => {
         const nextState = {
@@ -81,6 +85,7 @@ export default create<NoteStore>((set) => ({
           tags: tags.sort()
         };
         if (!queryParams?.page || queryParams.page === 1) {
+          console.log('nextState', nextState);
           saveState(nextState);
         }
 
