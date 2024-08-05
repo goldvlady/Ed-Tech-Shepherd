@@ -20,6 +20,7 @@ import { useVectorsStore } from '../../../../../state/vectorsStore';
 import { GenerateFlashcardModal, GenerateQuizModal } from './generate-modals';
 import { Button } from '../../../../../components/ui/button';
 import { useNavigate } from 'react-router';
+import flashcardStore from '../../../../../state/flashcardStore';
 
 const LearningResourcesSection = ({
   conversationID,
@@ -718,7 +719,6 @@ const FlashcardPage = ({
   conversationId: string;
   index: number;
 }) => {
-  const navigate = useNavigate();
   const { data, isPending } = useQuery({
     queryKey: [
       `getFlashcardsForMultiragConversation?page=${index}&limit=3&convoId=${conversationId}`
@@ -738,6 +738,7 @@ const FlashcardPage = ({
       return transformed;
     }
   });
+  const {fetchSingleFlashcard, isLoading} =  flashcardStore();
   console.log('paginated data si', data);
 
   if (!data && isPending) {
@@ -757,8 +758,11 @@ const FlashcardPage = ({
       {data && data.length > 0 && !isPending ? (
         data.map((flashcard) => (
           <div
-            onClick={() => navigate(`/dashboard/flashcards/${flashcard._id}`)}
+            onClick={() => {
+            fetchSingleFlashcard(flashcard._id)
+            }}
             key={flashcard._id}
+            style={{pointerEvents: isLoading ? 'none' : 'auto'}}
             className="flex text-sm cursor-pointer w-full items-center my-1 bg-stone-50 p-2.5 h-6  gap-2 hover:bg-stone-100"
           >
             {flashcard.deckname}{' '}
