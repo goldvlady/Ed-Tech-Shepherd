@@ -1,3 +1,4 @@
+import { clearState } from '../helpers/indexedDBUtils';
 import { fetchStudentDocuments } from '../services/AI';
 import ApiService from '../services/ApiService';
 import {
@@ -140,7 +141,10 @@ const useUserStore = create<Store>((set, get) => ({
     saveState(newState);
     return true;
   },
-  logoutUser: () => {
+  logoutUser: async () => {
+    await clearState();
+    localStorage.removeItem('noteStore');
+    localStorage.removeItem('noteId');
     set({ user: null });
     saveState({ user: null });
   },

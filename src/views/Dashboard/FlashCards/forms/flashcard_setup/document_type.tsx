@@ -1,3 +1,4 @@
+import BillingModal from '../../../../../components/BillingModal';
 import { useCustomToast } from '../../../../../components/CustomComponents/CustomToast/useCustomToast';
 import CustomSelect from '../../../../../components/CustomSelect';
 import PlansModal from '../../../../../components/PlansModal';
@@ -423,12 +424,7 @@ const FlashcardFromDocumentSetup = ({
         </Button>
       </HStack>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

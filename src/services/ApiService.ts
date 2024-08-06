@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import { REACT_APP_API_ENDPOINT } from '../config';
 import { AI_API, HEADER_KEY } from '../config';
 import { firebaseAuth } from '../firebase';
@@ -7,11 +6,12 @@ import { objectToQueryString } from '../helpers/http.helpers';
 import {
   User,
   StudentDocumentPayload,
-  QuizData,
   QuizQuestion,
   FlashcardData,
   StudyPlanTopicDocumentPayload,
-  StoreQuizScoreType
+  StoreQuizScoreType,
+  GenerateFlashcardFromMultiBody,
+  GenerateQuizFromMultiBody
 } from '../types';
 import { doFetch } from '../util';
 import { ChatMessage } from '../views/Dashboard/home-work-help-2/_components/ai-bot-window/hooks/useChatManager';
@@ -31,6 +31,7 @@ import {
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
   static baseAiEndpoint = AI_API;
+  static isDev = false;
 
   static processDocument = processDocument;
   static createDocchatFlashCards = createDocchatFlashCards;
@@ -460,6 +461,23 @@ class ApiService {
       true,
       {
         'x-api-key': apiKey
+      }
+    );
+  };
+  static downgradeSubscription = async (data: {
+    customerId: string;
+    priceId: string;
+  }) => {
+    console.log(data);
+    return doFetch(
+      `${ApiService.baseEndpoint}/downgradeSubscription`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      false,
+      {
+        'Content-Type': 'application/json'
       }
     );
   };
@@ -1044,6 +1062,416 @@ class ApiService {
       `${ApiService.baseEndpoint}/getStudentDocuments?${queryString}`,
       {
         method: 'GET'
+      }
+    );
+  };
+
+  static multiRagMainURL = this.isDev
+    ? 'https://shepherd-ai-pr-123.onrender.com'
+    : process.env.REACT_APP_AI_II;
+
+  static uploadMultiDocFiles = async (queryParams: {
+    studentId: string;
+    subtopicId: string;
+    formData: FormData;
+  }) => {
+    console.log('SID', queryParams.studentId);
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/multirag/file-uploads/?sid=${queryParams.studentId}&st=${queryParams.subtopicId}`,
+      {
+        method: 'POST',
+        body: queryParams.formData
+      },
+      true
+    );
+  };
+
+  static fetchMultiDocBasedOnConversationID = async (
+    conversationID: string
+  ) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/vector_docs/doc_from_conversation/${conversationID}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static fetchMultiragConvoHistory = async (conversationID: string) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/docchat_history/${conversationID}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static fetchMultiragMetadata = async (conversationID: string) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/get-metadata/${conversationID}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static multiragChat = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/multirag/chat`,
+      {
+        method: 'GET',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocBackgroundJobs = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/jobs/`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static multiAddDoc = async (data: {
+    documentIds: Array<string>;
+    conversationId: string;
+  }) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/conversations/add-doc`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocVectorDocs = async (sId: string, subtopicId: string) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/${sId}?st=${subtopicId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocVectorDoc = async (documentId: string) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/vector_docs/doc/${documentId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocHighlight = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/misc/create-highlight`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocHighlightDelete = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/delete-highlight`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocCreateTitle = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/multirag/create-title`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static mutiDocUpdateTitle = async (data) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/multirag/update-title/${data.conversationId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocGetTitle = async (conversationID) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/conversations/title?id=${conversationID}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static getMultiDocHighlight = async (documentId: string) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/get-highlight?documentId=${documentId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocSummary = async (documentIds) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/summary?documentIds=${documentIds}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static getPinnedMessages = async (conversationLogId: string) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/misc/get-pins?conversationLogId=${conversationLogId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiPreviousConversations = async (
+    refId: string,
+    referenceDocIds: string,
+    subtopicId: string
+  ) => {
+    return await doFetch(
+      `${ApiService.multiRagMainURL}/multirag/previous_conversations?referenceId=${refId}&referenceDocIds=${referenceDocIds}&st=${subtopicId}`,
+      {
+        method: 'GET'
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocConversationStarter = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/conversations/documents`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocMessageTogglePin = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/misc/toggle-pinned`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiDocMessageToggleLike = async (data) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/misc/toggle-like`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+
+  static multiGenerateFlashcardsFromDocs = async (
+    data: GenerateFlashcardFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-flashcards`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
+      }
+    );
+  };
+  static getFlashcardsForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getFlashcardsForMulitragConversation?${queryString}`,
+      {
+        method: 'GET'
+      }
+    );
+  };
+  static getQuizzesForMultiCovno = async (queryParams: {
+    search?: string;
+    page: number;
+    limit: number;
+    convoId: string;
+    sort?: string;
+  }) => {
+    const queryString = objectToQueryString(queryParams);
+    return await doFetch(
+      `${ApiService.baseEndpoint}/getQuizzesForMultiragConversation?${queryString}`
+    );
+  };
+  static multiGenerateQuizFromDocs = async (
+    data: GenerateQuizFromMultiBody
+  ) => {
+    return await doFetch(
+      // `${ApiService.baseEndpoint}/multirag/file-uploads/?sid=${queryParams.studentId}`,
+      `${ApiService.multiRagMainURL}/generate/create-quizzes`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data)
+      },
+      true,
+      {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+        // 'X-Shepherd-Header': process.env.REACT_APP_AI_HEADER_KEY
       }
     );
   };

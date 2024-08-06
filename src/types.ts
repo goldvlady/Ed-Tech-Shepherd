@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent } from 'aws-lambda';
+import { languages } from './helpers';
 
 export const MULTIPLE_CHOICE_SINGLE = 'multipleChoiceSingle';
 export const MULTIPLE_CHOICE_MULTI = 'multipleChoiceMulti';
@@ -9,6 +10,28 @@ export const MIXED = 'mixed';
 export type Entity = {
   _id: string;
 };
+export interface GenerateFlashcardFromMultiBody {
+  docNames: string[];
+  convoId: string;
+  deckname: string;
+  numQuestions: number;
+  difficulty?: string;
+  subject: string;
+  grade: string;
+  topic: string;
+  user_id: string;
+  lang: (typeof languages)[number];
+}
+export interface GenerateQuizFromMultiBody {
+  docNames: string[];
+  convoId: string;
+  title: string;
+  numQuestions: number;
+  difficulty?: string;
+  quiz_type: string;
+  user_id: string;
+  lang: (typeof languages)[number];
+}
 
 export interface TimestampedEntity extends Entity {
   createdAt: Date;
@@ -179,7 +202,34 @@ export enum UserNotificationTypes {
   NEW_OFFER_RECEIVED = 'new_offer_received',
   OFFER_WITHDRAWN = 'offer_withdrawn'
 }
-
+export const featureNames = [
+  'AI Tutor',
+  'flashcards',
+  'quizzes',
+  'multirag',
+  'AI Words',
+  'Web searches',
+  'notes',
+  'study plan'
+] as const;
+export interface Feature extends TimestampedEntity {
+  subscription: StripeSubscription;
+  limit: number;
+  featureName: (typeof featureNames)[number];
+  model: string;
+  meta: any;
+}
+export type Tier = 'free' | 'pro';
+export type Recurrence = 'monthly' | 'semesterly' | 'yearly' | 'one-off';
+export interface StripeSubscription extends TimestampedEntity {
+  user: User;
+  customerId: string;
+  priceId: string;
+  tiers: Tier;
+  lookupKey: string;
+  hasAccess: boolean;
+  features: Array<Feature>;
+}
 export interface User extends TimestampedEntity {
   name: {
     first: string;
@@ -202,6 +252,7 @@ export interface User extends TimestampedEntity {
   paymentMethods: PaymentMethod[];
   streamTokens?: StreamToken[];
   subscription?: Subscription;
+  stripeSubscription?: StripeSubscription;
   hasActiveSubscription: boolean;
   mobileSubscription?: MobileSubscription;
   isMobileSubscription: boolean | null;
@@ -663,6 +714,22 @@ export interface StudyPlanTopicDocumentPayload {
   topicId: string;
   documentId: string;
 }
+export interface MultiragDocument {
+  collection_name: string;
+  document_id: string;
+  student_id: string;
+  createdAt: string;
+  reference: string;
+  summary?: string;
+  updatedAt?: string;
+}
+
+// Generic Response type accepting any data type 'T'
+export interface multiragResponse<T> {
+  data: T;
+  status: string;
+  detail: string;
+}
 
 export type StoreQuizScoreType = {
   questionIdx: number;
@@ -670,3 +737,19 @@ export type StoreQuizScoreType = {
   selectedOptions: string[];
   questionId: string | number;
 };
+export interface MultiragDocument {
+  collection_name: string;
+  document_id: string;
+  student_id: string;
+  createdAt: string;
+  reference: string;
+  summary?: string;
+  updatedAt?: string;
+}
+
+// Generic Response type accepting any data type 'T'
+export interface multiragResponse<T> {
+  data: T;
+  status: string;
+  detail: string;
+}

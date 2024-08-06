@@ -96,6 +96,7 @@ import PlansModal from '../../../../components/PlansModal';
 import ShareModal from '../../../../components/ShareModal';
 import { RiRemoteControlLine } from '@remixicon/react';
 import { encodeQueryParams } from '../../../../helpers';
+import BillingModal from '../../../../components/BillingModal';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
@@ -1424,11 +1425,9 @@ const NewNote = () => {
               isOpen={openSideModal}
             />
             {togglePlansModal && (
-              <PlansModal
-                message="Subscribe to unlock your AI Study Tools! 🚀"
-                subMessage="One-click Cancel at anytime."
-                togglePlansModal={togglePlansModal}
-                setTogglePlansModal={setTogglePlansModal}
+              <BillingModal
+                open={togglePlansModal}
+                setOpen={setTogglePlansModal}
               />
             )}
             <NoteBody

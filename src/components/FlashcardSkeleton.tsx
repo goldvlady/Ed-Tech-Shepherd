@@ -1,25 +1,22 @@
 import React from 'react';
 import {
   Box,
-  Button,
   Skeleton,
   HStack,
   Flex,
-  Menu,
-  MenuItem,
-  MenuButton,
-  MenuGroup,
-  MenuList,
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton
+  ModalFooter
 } from '@chakra-ui/react';
+import { useLocation } from 'react-router';
 
 const FlashcardSkeleton = ({ isOpen, onClose }) => {
+  const location = useLocation();
+
+  if (location.pathname.includes('/dashboard/study-plans/')) {
+    return null;
+  }
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />

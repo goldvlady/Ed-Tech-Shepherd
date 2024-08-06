@@ -4,21 +4,12 @@ import userStore from '../state/userStore';
 import {
   Box,
   Button,
-  Flex,
   Modal,
   ModalOverlay,
   ModalContent,
   ModalCloseButton,
   ModalBody,
-  Stack,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Text,
-  ModalHeader,
-  ModalFooter
+  Text
 } from '@chakra-ui/react';
 import { Transition, Dialog } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';

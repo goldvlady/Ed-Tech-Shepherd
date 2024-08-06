@@ -17,6 +17,7 @@ import React, {
 import CustomToast from '../../../../components/CustomComponents/CustomToast';
 import { useNavigate } from 'react-router';
 import { languages } from '../../../../helpers';
+import BillingModal from '../../../../components/BillingModal';
 
 export enum TypeEnum {
   FLASHCARD = 'flashcard',
@@ -43,7 +44,7 @@ export enum ModeEnum {
   CREATE = 'CREATE',
   EDIT = 'EDIT'
 }
-interface FlashcardData {
+export interface FlashcardData {
   deckname: string;
   level?: string;
   studyType: string;
@@ -725,12 +726,7 @@ const FlashcardWizardProvider: React.FC<{ children: React.ReactNode }> = ({
     <FlashcardDataContext.Provider value={value}>
       {children}
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </FlashcardDataContext.Provider>
   );

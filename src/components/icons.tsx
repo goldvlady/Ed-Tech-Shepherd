@@ -551,7 +551,7 @@ export const TakeQuizIcon = ({ className, onClick }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_4376_11438)">
+      <g clipPath="url(#clip0_4376_11438)">
         <rect width="100" height="100" rx="50" fill="#F7F7F8" />
         <g filter="url(#filter0_d_4376_11438)">
           <rect
@@ -561,8 +561,8 @@ export const TakeQuizIcon = ({ className, onClick }) => {
             height="71"
             rx="4"
             fill="white"
-            fill-opacity="0.65"
-            shape-rendering="crispEdges"
+            fillOpacity="0.65"
+            shapeRendering="crispEdges"
           />
         </g>
         <g filter="url(#filter1_d_4376_11438)">
@@ -571,7 +571,7 @@ export const TakeQuizIcon = ({ className, onClick }) => {
           <rect x="44" y="74" width="23" height="5" rx="2.5" fill="#EAEBEB" />
           <rect x="44" y="51" width="13" height="11" rx="1" fill="#EFF0F0" />
         </g>
-        <g clip-path="url(#clip1_4376_11438)">
+        <g clipPath="url(#clip1_4376_11438)">
           <path
             d="M22.3338 21.8057L23.213 23.4542L24.8615 24.3334L23.213 25.2127L22.3338 26.8612L21.4545 25.2127L19.806 24.3334L21.4545 23.4542L22.3338 21.8057ZM16.3338 23.889L18.1115 27.2223L21.4449 29.0001L18.1115 30.7779L16.3338 34.1112L14.556 30.7779L11.2227 29.0001L14.556 27.2223L16.3338 23.889ZM24.1115 31.889L23.0005 29.8057L21.8893 31.889L19.806 33.0001L21.8893 34.1112L23.0005 36.1945L24.1115 34.1112L26.1949 33.0001L24.1115 31.889Z"
             fill="white"
@@ -586,9 +586,9 @@ export const TakeQuizIcon = ({ className, onClick }) => {
           width="52"
           height="79"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -621,9 +621,9 @@ export const TakeQuizIcon = ({ className, onClick }) => {
           width="77"
           height="89"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"

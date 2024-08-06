@@ -34,6 +34,7 @@ import { languages } from '../../../../../helpers';
 import { FiChevronDown } from 'react-icons/fi';
 import TimePicker from '../../../../../components/TimePicker';
 import CalendarDateInput from '../../../../../components/CalendarDateInput';
+import BillingModal from '../../../../../components/BillingModal';
 
 const FlashCardSetupInit = ({
   isAutomated,
@@ -692,12 +693,7 @@ const FlashCardSetupInit = ({
         </Button>
       </HStack>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

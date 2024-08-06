@@ -12,9 +12,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ShareModal from '../../../../../../components/ShareModal';
 import { ChatScrollAnchor } from './chat-scroll-anchor';
 import { useSearchQuery } from '../../../../../../hooks';
-import PlansModal from '../../../../../../components/PlansModal';
 import { encodeQueryParams } from '../../../../../../helpers';
 import ApiService from '../../../../../../services/ApiService';
+import BillingModal from '../../../../../../components/BillingModal';
 const CONVERSATION_INITIALIZER = 'Shall we begin, Socrates?';
 const KEYWORD =
   'We can tell that this query is complex and we suggest using a human tutor for better understanding of the subject matter.';
@@ -84,7 +84,7 @@ function ChatRoom() {
               ? connectionQuery.language
               : 'English',
           conversationId: id,
-          firebaseId: user?.firebaseId,
+          firebaseId:  user?.firebaseId ? user.firebaseId : "",
           name: user.name.first,
           query: '',
           messages: JSON.stringify([])
@@ -363,10 +363,11 @@ function ChatRoom() {
                         connectionQuery.language.length > 0
                           ? connectionQuery.language
                           : 'English',
-                      firebaseId: user.firebaseId,
+                      firebaseId: user.firebaseId ? user.firebaseId : "",
                       conversationId: id,
                       name: user.name.first,
                       query: message,
+                      new: user.stripeSubscription ? 'True' : 'False',
                       messages: JSON.stringify(updatedMessages)
                     };
                     setStreamEnded(false);
@@ -439,9 +440,9 @@ function ChatRoom() {
               maskImage: 'linear-gradient(transparent, black 60%)'
             }}
           ></div>
-          <PlansModal
-            togglePlansModal={openPricingModel}
-            setTogglePlansModal={() => setOpenPricingModel(false)}
+          <BillingModal
+            open={openPricingModel}
+            setOpen={() => setOpenPricingModel(false)}
           />
           <PromptInput
             disabled={apiKey || handleDisabledForMaths ? true : false}
@@ -477,13 +478,14 @@ function ChatRoom() {
                   studentId,
                   language:
                     connectionQuery.language &&
-                    connectionQuery.language.length > 0
+                      connectionQuery.language.length > 0
                       ? connectionQuery.language
                       : 'English',
-                  firebaseId: user.firebaseId,
+                  firebaseId: user.firebaseId ? user.firebaseId : "",
                   conversationId: id,
                   name: user.name.first,
                   query: message,
+                  new: user.stripeSubscription ? 'True' : 'False',
                   messages: JSON.stringify(updatedMessages)
                 };
                 setStreamEnded(false);

@@ -90,3 +90,6 @@ export const arrangeDataByDate = (data: any) => {
     return acc;
   }, {});
 };
+export function capitalize(input: string): string {
+  return input.replace(/\b\w/g, (char) => char.toUpperCase());
+}

@@ -32,6 +32,7 @@ import { MdCancel } from 'react-icons/md';
 import PlansModal from './PlansModal';
 import ApiService from '../services/ApiService';
 import userStore from '../state/userStore';
+import BillingModal from './BillingModal';
 
 const defaultItems = [
   {
@@ -365,16 +366,7 @@ export default function WelcomeWalkthrough({
 
   return (
     <>
-      <PlansModal
-        message={
-          user && !user.hadSubscription
-            ? 'Subscribe to unlock your AI Study Tools! 🚀'
-            : 'Pick a plan to access your AI Study Tools! 🚀'
-        }
-        subMessage="One-click Cancel at anytime."
-        togglePlansModal={togglePlansModal}
-        setTogglePlansModal={setTogglePlansModal}
-      />
+      <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       <Dialog.Root open={toggleOnboardModal}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />

@@ -8,6 +8,7 @@ import PlansModal from '../../../../../components/PlansModal';
 import { encodeQueryParams, languages } from '../../../../../helpers';
 import { useMutation } from '@tanstack/react-query';
 import ApiService from '../../../../../services/ApiService';
+import BillingModal from '../../../../../components/BillingModal';
 
 function AiChatBotWindow() {
   const { id } = useParams();
@@ -18,7 +19,8 @@ function AiChatBotWindow() {
     subject: '',
     topic: '',
     level: '',
-    language: 'English'
+    language: 'English',
+    new: false
   });
   const studentId = user?._id;
   // If id is null, It mean user is not in the chat room
@@ -95,8 +97,9 @@ function AiChatBotWindow() {
     level: string;
     language: (typeof languages)[number];
     topicSecondary?: string;
-  }) => {
-    const cq = { subject, topic, level, language, topicSecondary };
+    }) => {
+    const n = user.stripeSubscription ? true : false
+    const cq = { subject, topic, level, language, topicSecondary, new: n };
     setConnectionQuery(cq);
     // alert(JSON.stringify({ subject, topic }));
     if (subject === 'Math' && topic.trim().length > 0) {
@@ -128,7 +131,8 @@ function AiChatBotWindow() {
         name: user?.name?.first,
         studentId: studentId,
         firebaseId: user?.firebaseId,
-        namespace: 'homework-help'
+        namespace: 'homework-help',
+        new: n
       });
       startConversation({
         subject,
@@ -138,7 +142,8 @@ function AiChatBotWindow() {
         name: user?.name?.first,
         studentId: studentId,
         firebaseId: user?.firebaseId,
-        namespace: 'homework-help'
+        namespace: 'homework-help',
+        new: n
       });
     }
   };
@@ -157,10 +162,7 @@ function AiChatBotWindow() {
         handleCloseLimitModal={handleCloseLimitModal}
         handleOpenPlansModal={handleOpenPlansModal}
       />
-      <PlansModal
-        togglePlansModal={isPlansModalOpen}
-        setTogglePlansModal={handleClosePlansModal}
-      />
+      <BillingModal open={isPlansModalOpen} setOpen={handleClosePlansModal} />
       {isChatRoom ? (
         // This outlet is for the chat room, it will be replaced by the chat room component using the react-router-dom
         <Outlet />

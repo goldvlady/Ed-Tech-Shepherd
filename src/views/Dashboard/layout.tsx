@@ -89,6 +89,11 @@ import useCompletedStore from '../../state/useCompletedStore';
 
 import { IoIosArrowRoundBack } from 'react-icons/io';
 
+import BillingModal from '../../components/BillingModal';
+import { useCustomToast } from '../../components/CustomComponents/CustomToast/useCustomToast';
+
+import Sidebar from '../../components/sidebar';
+
 interface LinkItemProps {
   name: string;
   icon: IconType;
@@ -252,9 +257,10 @@ const NavItem = ({
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+const MobileNav = ({ onOpen, setOpen, ...rest }: MobileProps) => {
   const auth = getAuth();
   const { user, logoutUser } = userStore();
   const userId = user?._id || '';
@@ -273,7 +279,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const { notifications, hasUnreadNotification, markAllAsRead, markAsRead } =
     useNotifications(userId);
-
+  const toast = useCustomToast();
   const handleSignOut = () => {
     signOut(auth).then(() => {
       // sessionStorage.clear();
@@ -325,7 +331,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             _hover={{ cursor: 'pointer' }}
           >
             <IoIosArrowRoundBack />
-            {/* <Text fontSize={12}>Back</Text> */}
           </Flex>
           <Flex
             bgColor={'transparent'}
@@ -342,7 +347,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               transform: 'translateY(-2px)'
             }}
           >
-            {/* <Image src={AskIcon} /> */}
             {<AskIcon />}
             <Text> Ask Shep?</Text>
           </Flex>
@@ -361,33 +365,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             aria-label="open menu"
             icon={<FiMenu />}
           />
-          {/* <Box display={{ base: 'flex', md: 'none' }}>
-            <Flex
-              bgColor={'transparent'}
-              color="text.400"
-              border="1px solid #EBECF0"
-              borderRadius={'40px'}
-              fontSize={{ base: '10px' }}
-              p="6px 16px"
-              onClick={activateHelpModal}
-              gap={2}
-              _hover={{
-                cursor: 'pointer',
-                bgColor: '#EDF2F7',
-                transform: 'translateY(-2px)'
-              }}
-            >
-              <Image src={AskIcon} />
-              <Text> Ask Sheps?</Text>
-            </Flex>
-          </Box> */}
           <HStack spacing={4}>
-            {/* <RiQuestionMark
-              className="cursor-pointer"
-              onClick={() => {
-                setOpenWelcome(true);
-              }}
-            /> */}
             <IconButton
               size="md"
               borderRadius={'100%'}
@@ -498,7 +476,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                 <MenuItem p={2} m={1}>
                   <Link to="/dashboard/account-settings">
                     <Flex alignItems="center" gap={2}>
-                      {/* <PiUserCircleLight size="24px" /> */}
                       <Center
                         borderRadius="50%"
                         border="1px solid #EAEAEB"
@@ -565,6 +542,51 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     </Text>
                   </Flex>
                 </MenuItem>
+                {user?.userRole === 'student' ? (
+                  <MenuItem
+                    p={2}
+                    m={1}
+                    onClick={() => {
+                      if (user.isMobileSubscription) {
+                        toast({
+                          position: 'top-right',
+                          title: `View in Mobile App`,
+                          description:
+                            "You've already subscribed from our mobile app! Make changes to your plan from the app.",
+                          status: 'success'
+                        });
+                        return;
+                      }
+                      setOpen(true);
+                    }}
+                  >
+                    <Flex alignItems="center" gap={2}>
+                      <Center
+                        borderRadius="50%"
+                        border="1px solid #EAEAEB"
+                        boxSize="26px"
+                      >
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 15 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M0.877014 7.49988C0.877014 3.84219 3.84216 0.877045 7.49985 0.877045C11.1575 0.877045 14.1227 3.84219 14.1227 7.49988C14.1227 11.1575 11.1575 14.1227 7.49985 14.1227C3.84216 14.1227 0.877014 11.1575 0.877014 7.49988ZM7.49985 1.82704C4.36683 1.82704 1.82701 4.36686 1.82701 7.49988C1.82701 8.97196 2.38774 10.3131 3.30727 11.3213C4.19074 9.94119 5.73818 9.02499 7.50023 9.02499C9.26206 9.02499 10.8093 9.94097 11.6929 11.3208C12.6121 10.3127 13.1727 8.97172 13.1727 7.49988C13.1727 4.36686 10.6328 1.82704 7.49985 1.82704ZM10.9818 11.9787C10.2839 10.7795 8.9857 9.97499 7.50023 9.97499C6.01458 9.97499 4.71624 10.7797 4.01845 11.9791C4.97952 12.7272 6.18765 13.1727 7.49985 13.1727C8.81227 13.1727 10.0206 12.727 10.9818 11.9787ZM5.14999 6.50487C5.14999 5.207 6.20212 4.15487 7.49999 4.15487C8.79786 4.15487 9.84999 5.207 9.84999 6.50487C9.84999 7.80274 8.79786 8.85487 7.49999 8.85487C6.20212 8.85487 5.14999 7.80274 5.14999 6.50487ZM7.49999 5.10487C6.72679 5.10487 6.09999 5.73167 6.09999 6.50487C6.09999 7.27807 6.72679 7.90487 7.49999 7.90487C8.27319 7.90487 8.89999 7.27807 8.89999 6.50487C8.89999 5.73167 8.27319 5.10487 7.49999 5.10487Z"
+                            fill="currentColor"
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                          ></path>
+                        </svg>
+                      </Center>
+                      <Text color="text.300" fontSize={14}>
+                        Manage Plans
+                      </Text>
+                    </Flex>
+                  </MenuItem>
+                ) : null}
                 <MenuDivider />
                 <MenuItem onClick={handleSignOut} p={2} m={1}>
                   <Flex alignItems="center" gap={2}>
@@ -615,292 +637,294 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     </>
   );
 };
-const SidebarContent = ({
-  onClose,
-  tutorMenu,
-  setTutorMenu,
-  aiChatMenu,
-  earnMenu,
-  toggleMenu,
-  toggleChatMenu,
-  toggleEarnMenu,
-  unreadCount,
-  hasActiveSubscription,
-  handleLockedClick,
-  openModal,
-  closeModal,
-  ...rest
-}: SidebarProps & {
-  hasActiveSubscription: boolean;
-  handleLockedClick: (message: string, subMessage: string) => void;
-}) => {
-  const { pathname } = useLocation();
-  const [showSelected, setShowSelected] = useState(false);
 
-  const handleShowSelected = () => {
-    setShowSelected(true);
-  };
+// const SidebarContent = ({
+//   onClose,
+//   tutorMenu,
+//   setTutorMenu,
+//   aiChatMenu,
+//   earnMenu,
+//   toggleMenu,
+//   toggleChatMenu,
+//   toggleEarnMenu,
+//   unreadCount,
+//   hasActiveSubscription,
+//   handleLockedClick,
+//   openModal,
+//   closeModal,
+//   ...rest
+// }: SidebarProps & {
+//   hasActiveSubscription: boolean;
+//   handleLockedClick: (message: string, subMessage: string) => void;
+// }) => {
+//   const { pathname } = useLocation();
+//   const [showSelected, setShowSelected] = useState(false);
 
-  const [isHovering, setIsHovering] = useState(false);
-  const { user }: any = userStore();
-  // const { unreadCount } = useStreamChat();
+//   const handleShowSelected = () => {
+//     setShowSelected(true);
+//   };
 
-  return (
-    <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
-      <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
-        <h4 className="font-bold">
-          <Logo />
-        </h4>
-        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-      </div>
-      <NavItem icon={FiHome} path={'/dashboard'} onClose={onClose}>
-        Home
-      </NavItem>
-      <Divider />
-      <Box
-        paddingLeft={8}
-        paddingRight={4}
-        color="text.400"
-        display={aiChatMenu ? 'block' : 'flex'}
-        alignItems="center"
-        justifyContent="space-between"
-        cursor="pointer"
-        onClick={() => toggleChatMenu()}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <HStack width={'100%'} justifyContent="space-between">
-          <Button
-            variant={'unstyled'}
-            display="flex"
-            alignSelf="start"
-            gap={'10px'}
-            leftIcon={<RiChat3Line width={18} />}
-            fontSize={14}
-            fontWeight={500}
-            onClick={
-              () => toggleChatMenu()
-              // hasActiveSubscription
-              //   ? () => toggleChatMenu()
-              //   : () =>
-              //       handleLockedClick(
-              //         !user.hadSubscription
-              //           ? 'Start Your Free Trial!'
-              //           : 'Pick a plan to access your AI Study Tools! 🚀',
-              //         'One-click Cancel at anytime.'
-              //       )
-            }
-            rightIcon={
-              aiChatMenu ? (
-                <MdOutlineKeyboardArrowUp />
-              ) : (
-                <MdOutlineKeyboardArrowDown />
-              )
-            }
-          >
-            AI Chat
-          </Button>
-        </HStack>
-        <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
-          <MenuLinedList
-            items={[
-              {
-                title: 'Docchat',
-                path: '',
-                onClick: handleShowSelected
-              },
-              {
-                title: 'AI tutor',
-                path: '/dashboard/ace-homework'
-              }
-            ]}
-            onClose={onClose}
-          />
-        </Box>
-      </Box>
-      {LinkItems.map((link) => (
-        <NavItem
-          key={link.name}
-          icon={link.icon}
-          path={link.path}
-          onClose={onClose}
-          isLocked={false} //link.requiresSubscription && !hasActiveSubscription
-          onLockedClick={
-            link.requiresSubscription
-              ? () =>
-                  handleLockedClick(
-                    !user.hadSubscription
-                      ? 'Subscribe to unlock your AI Study Tools! 🚀'
-                      : 'Pick a plan to access your AI Study Tools! 🚀',
-                    'One-click Cancel at anytime.'
-                  )
-              : undefined
-          }
-        >
-          {link.name}
-        </NavItem>
-      ))}
-      {/* <Box ml={8} mb={2} color="text.400">
-        <Button
-          pointerEvents={'none'}
-          variant={'unstyled'}
-          display="flex"
-          gap={2}
-          leftIcon={<PiClipboardTextLight />}
-          // onClick={() => toggleChatMenu()}
-          fontSize={14}
-          fontWeight={400}
-          width="100%"
-          pr={2}
-        >
-          <Flex align="center" justify="space-between" pr={2} width="100%">
-            <Text>Study Plans</Text>
-            <Text
-              fontSize={10}
-              border="1px solid #fc9b65"
-              borderRadius={4}
-              color="#fc9b65"
-              alignSelf={'center'}
-              px={1}
-            >
-              Coming Soon
-            </Text>
-          </Flex>
-        </Button>
-      </Box> */}
+//   const [isHovering, setIsHovering] = useState(false);
+//   const { user }: any = userStore();
+//   // const { unreadCount } = useStreamChat();
 
-      <Divider />
-      <Box ml={8} color="text.400">
-        {' '}
-        <Button
-          variant={'unstyled'}
-          display="flex"
-          gap={'10px'}
-          leftIcon={<FiBriefcase />}
-          fontSize={14}
-          fontWeight={500}
-          onClick={() => setTutorMenu(!tutorMenu)}
-          rightIcon={
-            tutorMenu ? (
-              <MdOutlineKeyboardArrowUp />
-            ) : (
-              <MdOutlineKeyboardArrowDown />
-            )
-          }
-        >
-          Shepherds
-        </Button>
-        <Box display={tutorMenu ? 'block' : 'none'}>
-          <MenuLinedList
-            items={[
-              {
-                title: 'Find a Shepherd',
-                path: '/dashboard/find-tutor'
-              },
-              {
-                title: 'My Shepherds',
-                path: '/dashboard/my-tutors'
-              },
-              {
-                title: 'Bookmarks',
-                path: '/dashboard/saved-tutors'
-              },
-              {
-                title: 'Bounties',
-                path: '/dashboard/bounties'
-              }
-            ]}
-            onClose={onClose}
-          />
-        </Box>
-      </Box>
+//   return (
+//     <div className="overflow-hidden transition-all bg-white border-r w-full h-full fixed max-w-[250px]">
+//       <div className="flex items-center justify-between h-[5rem] mx-[2rem]">
+//         <h4 className="font-bold">
+//           <Logo />
+//         </h4>
+//         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+//       </div>
+//       <NavItem icon={FiHome} path={'/dashboard'} onClose={onClose}>
+//         Home
+//       </NavItem>
+//       <Divider />
+//       <Box
+//         paddingLeft={8}
+//         paddingRight={4}
+//         color="text.400"
+//         display={aiChatMenu ? 'block' : 'flex'}
+//         alignItems="center"
+//         justifyContent="space-between"
+//         cursor="pointer"
+//         onClick={() => toggleChatMenu()}
+//         onMouseEnter={() => setIsHovering(true)}
+//         onMouseLeave={() => setIsHovering(false)}
+//       >
+//         <HStack width={'100%'} justifyContent="space-between">
+//           <Button
+//             variant={'unstyled'}
+//             display="flex"
+//             alignSelf="start"
+//             gap={'10px'}
+//             leftIcon={<RiChat3Line width={18} />}
+//             fontSize={14}
+//             fontWeight={500}
+//             onClick={
+//               () => toggleChatMenu()
+//               // hasActiveSubscription
+//               //   ? () => toggleChatMenu()
+//               //   : () =>
+//               //       handleLockedClick(
+//               //         !user.hadSubscription
+//               //           ? 'Start Your Free Trial!'
+//               //           : 'Pick a plan to access your AI Study Tools! 🚀',
+//               //         'One-click Cancel at anytime.'
+//               //       )
+//             }
+//             rightIcon={
+//               aiChatMenu ? (
+//                 <MdOutlineKeyboardArrowUp />
+//               ) : (
+//                 <MdOutlineKeyboardArrowDown />
+//               )
+//             }
+//           >
+//             AI Chat
+//           </Button>
+//         </HStack>
+//         <Box display={aiChatMenu ? 'block' : 'none'} alignSelf="start">
+//           <MenuLinedList
+//             items={[
+//               {
+//                 title: 'Docchat',
+//                 path: '',
+//                 onClick: handleShowSelected
+//               },
+//               {
+//                 title: 'AI tutor',
+//                 path: '/dashboard/ace-homework'
+//               }
+//             ]}
+//             onClose={onClose}
+//           />
+//         </Box>
+//       </Box>
+//       {LinkItems.map((link) => (
+//         <NavItem
+//           key={link.name}
+//           icon={link.icon}
+//           path={link.path}
+//           onClose={onClose}
+//           isLocked={false} //link.requiresSubscription && !hasActiveSubscription
+//           onLockedClick={
+//             link.requiresSubscription
+//               ? () =>
+//                   handleLockedClick(
+//                     !user.hadSubscription
+//                       ? 'Subscribe to unlock your AI Study Tools! 🚀'
+//                       : 'Pick a plan to access your AI Study Tools! 🚀',
+//                     'One-click Cancel at anytime.'
+//                   )
+//               : undefined
+//           }
+//         >
+//           {link.name}
+//         </NavItem>
+//       ))}
+//       {/* <Box ml={8} mb={2} color="text.400">
+//         <Button
+//           pointerEvents={'none'}
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={2}
+//           leftIcon={<PiClipboardTextLight />}
+//           // onClick={() => toggleChatMenu()}
+//           fontSize={14}
+//           fontWeight={400}
+//           width="100%"
+//           pr={2}
+//         >
+//           <Flex align="center" justify="space-between" pr={2} width="100%">
+//             <Text>Study Plans</Text>
+//             <Text
+//               fontSize={10}
+//               border="1px solid #fc9b65"
+//               borderRadius={4}
+//               color="#fc9b65"
+//               alignSelf={'center'}
+//               px={1}
+//             >
+//               Coming Soon
+//             </Text>
+//           </Flex>
+//         </Button>
+//       </Box> */}
 
-      <NavItem
-        icon={BsChatLeftDots}
-        path="/dashboard/messaging"
-        onClose={onClose}
-      >
-        Shepherd Chat
-        {unreadCount > 0 && ( // Display badge if there are unread messages
-          <Badge colorScheme="red" ml={2}>
-            {unreadCount}
-          </Badge>
-        )}
-      </NavItem>
+//       <Divider />
+//       <Box ml={8} color="text.400">
+//         {' '}
+//         <Button
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={'10px'}
+//           leftIcon={<FiBriefcase />}
+//           fontSize={14}
+//           fontWeight={500}
+//           onClick={() => setTutorMenu(!tutorMenu)}
+//           rightIcon={
+//             tutorMenu ? (
+//               <MdOutlineKeyboardArrowUp />
+//             ) : (
+//               <MdOutlineKeyboardArrowDown />
+//             )
+//           }
+//         >
+//           Shepherds
+//         </Button>
+//         <Box display={tutorMenu ? 'block' : 'none'}>
+//           <MenuLinedList
+//             items={[
+//               {
+//                 title: 'Find a Shepherd',
+//                 path: '/dashboard/find-tutor'
+//               },
+//               {
+//                 title: 'My Shepherds',
+//                 path: '/dashboard/my-tutors'
+//               },
+//               {
+//                 title: 'Bookmarks',
+//                 path: '/dashboard/saved-tutors'
+//               },
+//               {
+//                 title: 'Bounties',
+//                 path: '/dashboard/bounties'
+//               }
+//             ]}
+//             onClose={onClose}
+//           />
+//         </Box>
+//       </Box>
 
-      <Divider />
+//       <NavItem
+//         icon={BsChatLeftDots}
+//         path="/dashboard/messaging"
+//         onClose={onClose}
+//       >
+//         Shepherd Chat
+//         {unreadCount > 0 && ( // Display badge if there are unread messages
+//           <Badge colorScheme="red" ml={2}>
+//             {unreadCount}
+//           </Badge>
+//         )}
+//       </NavItem>
 
-      <Box ml={8} color="text.400">
-        <Button
-          cursor={'not-allowed'}
-          pointerEvents={'none'}
-          opacity={1}
-          variant={'unstyled'}
-          display="flex"
-          gap={2}
-          leftIcon={<BarnImg />}
-          onClick={() => openModal('Coming Soon!')}
-          fontSize={14}
-          fontWeight={400}
-          width="100%"
-          pr="2"
-          my="2"
-        >
-          <Flex align="center" justify="space-between" pr={2} width="100%">
-            <Text>Barn</Text>
-            <Text
-              fontSize={10}
-              border="1px solid #fc9b65"
-              borderRadius={4}
-              color="#fc9b65"
-              alignSelf={'center'}
-              px={1}
-              ml="auto"
-            >
-              Coming Soon
-            </Text>
-          </Flex>
-        </Button>
-      </Box>
-      <Divider />
-      <NavItem
-        icon={RiFeedbackLine as unknown as IconType}
-        type="external"
-        path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
-        onClose={onClose}
-      >
-        Feedback
-      </NavItem>
-      {user.school && (
-        <Flex
-          gap={1}
-          alignItems="center"
-          textAlign="center"
-          bg="#f1f5f9"
-          p={3}
-          m={4}
-          borderRadius={8}
-          direction="column"
-          boxShadow="lg" // Added drop shadow
-        >
-          <Image
-            src="/images/SeqHub_Logo.png"
-            alt="School Logo"
-            boxSize={'50%'}
-            borderRadius="md"
-          />
-          <Text fontWeight="bold" fontSize="lg">
-            {user.school.name}
-          </Text>
-        </Flex>
-      )}
+//       <Divider />
 
-      {showSelected && (
-        <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
-      )}
-    </div>
-  );
-};
+//       <Box ml={8} color="text.400">
+//         <Button
+//           cursor={'not-allowed'}
+//           pointerEvents={'none'}
+//           opacity={1}
+//           variant={'unstyled'}
+//           display="flex"
+//           gap={2}
+//           leftIcon={<BarnImg />}
+//           onClick={() => openModal('Coming Soon!')}
+//           fontSize={14}
+//           fontWeight={400}
+//           width="100%"
+//           pr="2"
+//           my="2"
+//         >
+//           <Flex align="center" justify="space-between" pr={2} width="100%">
+//             <Text>Barn</Text>
+//             <Text
+//               fontSize={10}
+//               border="1px solid #fc9b65"
+//               borderRadius={4}
+//               color="#fc9b65"
+//               alignSelf={'center'}
+//               px={1}
+//               ml="auto"
+//             >
+//               Coming Soon
+//             </Text>
+//           </Flex>
+//         </Button>
+//       </Box>
+//       <Divider />
+//       <NavItem
+//         icon={RiFeedbackLine as unknown as IconType}
+//         type="external"
+//         path="https://shepherdtutors.canny.io/shepherd/p/feature-requests"
+//         onClose={onClose}
+//       >
+//         Feedback
+//       </NavItem>
+//       {user.school && (
+//         <Flex
+//           gap={1}
+//           alignItems="center"
+//           textAlign="center"
+//           bg="#f1f5f9"
+//           p={3}
+//           m={4}
+//           borderRadius={8}
+//           direction="column"
+//           boxShadow="lg" // Added drop shadow
+//         >
+//           <Image
+//             src="/images/SeqHub_Logo.png"
+//             alt="School Logo"
+//             boxSize={'50%'}
+//             borderRadius="md"
+//           />
+//           <Text fontWeight="bold" fontSize="lg">
+//             {user.school.name}
+//           </Text>
+//         </Flex>
+//       )}
+
+//       {showSelected && (
+//         <SelectedNoteModal show={showSelected} setShow={setShowSelected} />
+//       )}
+//     </div>
+//   );
+// };
+
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [tutorMenu, setTutorMenu] = useState(false);
@@ -908,7 +932,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [earnMenu, setEarnMenu] = useState(false);
   const [uploadDocumentModal, setUploadDocumentModal] = useState(false);
   const { user, hasActiveSubscription }: any = userStore();
-  const [togglePlansModal, setTogglePlansModal] = useState(false);
+  const [open, setOpen] = useState(false);
   const [plansModalMessage, setPlansModalMessage] = useState('');
   const [plansModalSubMessage, setPlansModalSubMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -928,7 +952,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const handleLockedClick = (message, subMessage) => {
     setPlansModalMessage(message);
     setPlansModalSubMessage(subMessage);
-    setTogglePlansModal(true);
+    setOpen(true);
   };
 
   const {
@@ -980,8 +1004,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <FlashCardEventNotifier />
       <div className="flex flex-col w-full h-full relative bg-white">
         <div className="h-full flex w-full">
-          <div className="hidden md:block md:w-[250px] shrink-0 overflow-auto border-r">
-            <SidebarContent
+          <Sidebar />
+          {/* <SidebarContent
               onClose={() => onClose}
               tutorMenu={tutorMenu}
               aiChatMenu={aiChatMenu}
@@ -996,39 +1020,40 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               handleLockedClick={handleLockedClick}
               openModal={openModal}
               closeModal={closeModal}
-            />
-            <Drawer
-              autoFocus={false}
-              isOpen={isOpen}
-              placement="left"
-              onClose={onClose}
-              returnFocusOnClose={false}
-              onOverlayClick={onClose}
-              size="full"
-            >
-              <DrawerContent>
-                <SidebarContent
-                  onClose={onClose}
-                  tutorMenu={tutorMenu}
-                  setTutorMenu={setTutorMenu}
-                  toggleMenu={() => setTutorMenu(!tutorMenu)}
-                  aiChatMenu={aiChatMenu}
-                  // setAiChatMenu={setAiChatMenu}
-                  toggleChatMenu={toggleChatMenu}
-                  earnMenu={earnMenu}
-                  toggleEarnMenu={toggleEarnMenu}
-                  unreadCount={unreadCount}
-                  hasActiveSubscription={hasActiveSubscription}
-                  handleLockedClick={handleLockedClick}
-                  openModal={openModal}
-                  closeModal={closeModal}
-                />
-              </DrawerContent>
-            </Drawer>
-          </div>
+            /> */}
+          <Drawer
+            autoFocus={false}
+            isOpen={isOpen}
+            placement="left"
+            onClose={onClose}
+            returnFocusOnClose={false}
+            onOverlayClick={onClose}
+            size="full"
+          >
+            <DrawerContent>
+
+              {/* <SidebarContent
+                onClose={onClose}
+                tutorMenu={tutorMenu}
+                setTutorMenu={setTutorMenu}
+                toggleMenu={() => setTutorMenu(!tutorMenu)}
+                aiChatMenu={aiChatMenu}
+                // setAiChatMenu={setAiChatMenu}
+                toggleChatMenu={toggleChatMenu}
+                earnMenu={earnMenu}
+                toggleEarnMenu={toggleEarnMenu}
+                unreadCount={unreadCount}
+                hasActiveSubscription={hasActiveSubscription}
+                handleLockedClick={handleLockedClick}
+                openModal={openModal}
+                closeModal={closeModal}
+
+              /> */}
+            </DrawerContent>
+          </Drawer>
           <div className="flex-1 overflow-y-hidden h-full">
             <div className="w-full z-10">
-              <MobileNav onOpen={onOpen} />
+              <MobileNav setOpen={setOpen} onOpen={onOpen} />
             </div>
             <div className="box pt-20 relative h-full overflow-y-scroll">
               <Outlet />
@@ -1037,14 +1062,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
-      {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage}
-          subMessage={plansModalSubMessage}
-        />
-      )}
+      {open && <BillingModal open={open} setOpen={setOpen} />}
       <Modal isOpen={isModalOpen} onClose={closeModal}>
         <ModalOverlay />
         <ModalContent>

@@ -4,6 +4,7 @@ import { FaUpload } from 'react-icons/fa';
 import userStore from '../../../../state/userStore';
 import PlansModal from '../../../../components/PlansModal';
 import ShepherdSpinner from '../../components/shepherd-spinner';
+import BillingModal from '../../../../components/BillingModal';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -108,12 +109,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
         />
       </Box>
       {togglePlansModal && (
-        <PlansModal
-          togglePlansModal={togglePlansModal}
-          setTogglePlansModal={setTogglePlansModal}
-          message={plansModalMessage} // Pass the message to the modal
-          subMessage={plansModalSubMessage}
-        />
+        <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
       )}
     </Box>
   );

@@ -40,6 +40,7 @@ import documentStore from '../state/documentStore';
 import { useCustomToast } from './CustomComponents/CustomToast/useCustomToast';
 
 import { encodeQueryParams, languages } from '../helpers';
+import BillingModal from './BillingModal';
 
 const DocumentListWrapper = styled.div`
   max-height: 200px;
@@ -620,12 +621,7 @@ const SelectedModal = ({
 
   if (togglePlansModal) {
     return (
-      <PlansModal
-        togglePlansModal={togglePlansModal}
-        setTogglePlansModal={setTogglePlansModal}
-        message={plansModalMessage} // Pass the message to the modal
-        subMessage={plansModalSubMessage}
-      />
+      <BillingModal open={togglePlansModal} setOpen={setTogglePlansModal} />
     );
   } else {
     return (

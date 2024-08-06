@@ -110,6 +110,7 @@ interface FlashCardProps extends ChakraBoxProps {
   studyState: 'question' | 'answer';
   cardStyle: 'flippable' | 'default';
   onNewResult?: (selectedOptions: string | string[]) => void;
+  dense?: boolean;
 }
 
 const truncateText = (text: string, limit: number) => {
@@ -130,6 +131,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
   studyState,
   cardStyle,
   onNewResult,
+  dense,
   ...rest
 }) => {
   const controls = useAnimation();
@@ -547,6 +549,7 @@ const FlashCard: React.FC<FlashCardProps> = ({
         text={extraReadingText}
         isOpen={Boolean(extraReading)}
         onCancel={() => setExtraReading(null)}
+        dense={dense}
       />
       <ChakraBox
         position="absolute"

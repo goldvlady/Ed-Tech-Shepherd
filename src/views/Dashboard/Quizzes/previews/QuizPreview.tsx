@@ -23,7 +23,6 @@ import {
   RadioGroup,
   Checkbox,
   CheckboxGroup,
-  Stack,
   Textarea,
   Flex,
   SimpleGrid,
@@ -64,9 +63,34 @@ import { MagicBandIcon } from '../../../../components/MagicBand';
 import { LoadingDots } from '../components/loadingDots';
 import ReactMarkdown from 'react-markdown';
 
+import BillingModal from '../../../../components/BillingModal';
+
+import { cn } from '../../../../library/utils';
+
+
 interface ChatCompletionRequestMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+}
+
+
+function streamText(text, callback, doneCallback) {
+  const words = text.split(' ');
+  let outputStream = '';
+  let index = 0;
+
+  function streamNextWord() {
+    if (index < words.length) {
+      outputStream += (index > 0 ? ' ' : '') + words[index];
+      callback(outputStream);
+      index++;
+      setTimeout(streamNextWord, 32); // Simulate streaming delay
+    } else {
+      doneCallback();
+    }
+  }
+
+  streamNextWord();
 }
 
 const ChatBox = ({
@@ -78,10 +102,16 @@ const ChatBox = ({
   messages: ChatCompletionRequestMessage[];
   setMessages: any;
 }) => {
+
+  console.log('chatbox', question);
+
   const { user, hasActiveSubscription } = userStore();
 
   const [inputMessage, setInputMessage] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+
+  const [streamingMessage, setStreamingMessage] = useState('');
+
   const endOfMessagesRef = useRef(null);
 
   useEffect(() => {
@@ -123,9 +153,22 @@ const ChatBox = ({
 
       if (assistantResponseText) {
         setMessages([
-          ...validMessages,
-          { role: 'assistant', content: assistantResponseText }
+          ...validMessages
+          // { role: 'assistant', content: assistantResponseText }
         ]);
+        streamText(
+          assistantResponseText,
+          (chunk) => {
+            setStreamingMessage(chunk);
+          },
+          () => {
+            setMessages([
+              ...validMessages,
+              { role: 'assistant', content: assistantResponseText }
+            ]);
+            setStreamingMessage('');
+          }
+        );
       } else {
         throw new Error('No response from assistant');
       }
@@ -145,14 +188,22 @@ const ChatBox = ({
 
   return (
     <Box
-      w={{ base: '35vw', md: '729px' }}
-      h={{ base: '70vh', md: '70vh' }}
+      // h={{ base: '70vh', md: '70vh' }}
+      width="100%"
       zIndex="1000"
       margin="auto"
-      minW={'729px'}
+      // minW={'729px'}
+      bgColor="#F9F9FB"
+      className="no-scrollbar flex-1 overflow-hidden"
     >
       <VStack h="full" justifyContent="space-between">
-        <Box w="full" h="full" overflowY="auto" pb="4">
+        <Box
+          w="full"
+          h="full"
+          overflowY="auto"
+          pb="4"
+          className="no-scrollbar overflow-y-scroll"
+        >
           {messages
             .filter((msg) => msg.role !== 'system')
             .map((msg, index) => (
@@ -216,6 +267,48 @@ const ChatBox = ({
                 )}
               </Box>
             ))}
+
+          {streamingMessage && (
+            <div className="relative">
+              <Box
+                position="absolute" // Use absolute positioning for the circle
+                bottom="0px" // Adjust as needed to move the circle to the desired location
+                display="flex"
+                borderRadius="full" // This creates a circular shape
+                bg="#207DF7" // This sets the background color to blue
+                width="36px" // Adjust the width as needed
+                height="36px" // Adjust the height as needed
+              ></Box>
+              <Box
+                display="flex"
+                justifyContent={'flex-start'}
+                ml={'51px'}
+                mr={'51px'}
+                my={'10px'}
+              >
+                <Box
+                  borderRadius="md"
+                  bg={'white'}
+                  color={'black'}
+                  maxW="627px"
+                  boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
+                  position={'relative'}
+                  overflow={'hidden'}
+                >
+                  <Text
+                    whiteSpace="pre-wrap"
+                    paddingRight="25px"
+                    paddingLeft="25px"
+                    paddingTop="8px"
+                    paddingBottom="8px"
+                  >
+                    <ReactMarkdown>{streamingMessage}</ReactMarkdown>
+                  </Text>
+                  <span className="h-4 bg-gradient-to-r from-transparent to-white pointer-events-none w-32 inline-block absolute right-0 bottom-0 mr-[25px] mb-[8px]"></span>
+                </Box>
+              </Box>
+            </div>
+          )}
           {loading && (
             <Box display="flex" justifyContent="flex-start" mb="3" ml="51px">
               <Box
@@ -232,7 +325,9 @@ const ChatBox = ({
         </Box>
         <HStack
           spacing="3"
-          width={'630px'}
+
+          // width={'630px'}
+          width={'100%'}
           boxShadow="0 1px 4px 0 rgba(0, 0, 0, 0.1)"
           bg="white"
           borderRadius="md"
@@ -287,6 +382,8 @@ const ChatBox = ({
 const QuizCard = forwardRef(
   (
     {
+      setChatBoxVisible,
+      isChatBoxVisible,
       handleSetScore,
       handleStoreQuizHistory,
       quizScores,
@@ -297,8 +394,12 @@ const QuizCard = forwardRef(
       minHeight = 100,
       onOpenChatBox,
       currentQuestion,
-      setCurrentQuestion
+      setCurrentQuestion,
+      studyPlanMode
     }: {
+      setChatBoxVisible?: any;
+      isChatBoxVisible?: boolean;
+      studyPlanMode?: boolean;
       minHeight?: number;
       showAnsweredQuestion?: boolean;
       handleShowUnansweredQuestion?: (val: boolean) => void;
@@ -368,6 +469,7 @@ const QuizCard = forwardRef(
         }
       }
     };
+
     const handleTFAnswerHandler = (trueFalseAnswer: string) => {
       if (!isEmpty(trueFalseAnswer)) {
         const [_, index, questionIdx] = split(trueFalseAnswer, ':');
@@ -386,6 +488,7 @@ const QuizCard = forwardRef(
         }
       }
     };
+
     const handleOptionCheckBox = (e: Array<string>) => {
       if (isEmpty(e)) {
         handleSetScore('', toNumber(index), []);
@@ -411,80 +514,105 @@ const QuizCard = forwardRef(
     };
 
     return (
-      <HStack alignItems={'flex-start'} flexWrap={'nowrap'} width="100%">
-        <Text fontSize="sm" fontWeight="semibold">
-          {index + 1}.
-        </Text>
 
+      <div className="flex gap-4 items-start w-full">
+        <div className="min-w-[2.18rem] min-h-[2.18rem] rounded-full bg-[#F0F6FE] shadow-md flex justify-center items-center">
+          <p className="text-[#207DF7] font-medium text-[1.12rem]">
+            {index + 1}
+          </p>
+        </div>
         <Box
           as="div"
           className="quiz-tile"
-          // ref={(node) => {
-          //   // quizCardRef.current = node;
-          // }}
+          overflow={'hidden'}
           position="relative"
           borderRadius={'8px'}
           bg="white"
           boxShadow={'md'}
           w="full"
-          minH={minHeight}
+          padding={'0.9rem'}
+          minH={'unset'}
           borderWidth={currentQuestion?.id === question.id ? '2px' : '0px'} // Set the border width
           borderColor={
             currentQuestion?.id === question.id ? '#207DF7' : 'white'
           } // Set the border color to blue
+          minWidth={'24rem'}
         >
-          <VStack alignItems={'flex-start'} justifyContent={'flex-start'}>
-            <Box bg="#F0F2F4" position="relative" w="100%">
-              <HStack
-                mb={2}
-                onClick={() =>
-                  onOpenChatBox(
-                    { options: options, ...question },
-                    quizScores[index]
-                  )
+          <div
+            className="relative w-full flex justify-end"
+            onClick={() => {
+              if (isChatBoxVisible && currentQuestion?.id === question.id) {
+                setCurrentQuestion(null);
+                setChatBoxVisible(false);
+              } else {
+                onOpenChatBox(
+                  { options: options, ...question },
+                  quizScores[index]
+                );
+              }
+            }}
+          >
+            {showQuizAnswers && (
+              <Box
+                display={'flex'}
+                alignItems={'center'}
+                border={
+                  isChatBoxVisible && currentQuestion?.id === question.id
+                    ? '1px solid #207DF7'
+                    : 'none'
                 }
+                padding={
+                  isChatBoxVisible && currentQuestion?.id === question.id
+                    ? '0.2rem'
+                    : '0'
+                }
+                borderRadius={'10px'}
               >
-                {showQuizAnswers && currentQuestion?.id !== question.id && (
-                  <Box position="absolute" top="1" right="0" display={'flex'}>
-                    <Text
-                      fontSize={'10px'}
-                      mr="5px"
-                      fontWeight="medium"
-                      cursor={'pointer'}
-                    >
-                      {' '}
-                      Explain with AI
-                    </Text>
-                    <MagicBandIcon
-                      style={{
-                        width: '14px',
-                        height: '13px',
-                        cursor: 'pointer'
-                      }}
-                    />
-                  </Box>
-                )}
-              </HStack>
-              <HStack
-                mb={'17px'}
-                alignItems={'flex-start'}
-                flexWrap={'nowrap'}
-                minH={'48px'}
-                h={'130px'}
-                bg="#F0F2F4"
-                borderTopLeftRadius={'8px'}
-                borderTopRightRadius={'8px'}
-                px={' 16px'}
-                pt={2}
-              >
-                <Text fontSize="md" fontWeight="semibold">
-                  {question.question}
+                <Text
+                  fontSize={'10px'}
+                  mr="5px"
+                  fontWeight="medium"
+                  cursor={'pointer'}
+                >
+                  Ask Shep
                 </Text>
-              </HStack>
-            </Box>
+                <div className="w-[20px] h-[20px] flex justify-center items-center bg-[#F0F6FE] rounded-full shadow-md cursor-pointer overflow-hidden">
+                  <MagicBandIcon
+                    style={{
+                      width: '14px',
+                      height: '14px',
+                      cursor: 'pointer'
+                    }}
+                  />
+                </div>
+              </Box>
+            )}
+          </div>
+          <div className="w-full mt-[0.75rem]">
+            <div className="question-text bg-[#F0F6FE] rounded-[10px] py-[0.75rem] px-[1.75rem]">
+              <p className="text-[#212224] font-normal text-[0.85rem]">
+                {question.question}
+              </p>
+            </div>
+            {false /** ImgSrc */ && (
+              <div className="w-full rounded-[10px] overflow-hidden mt-[1rem]">
+                <img
+                  src="https://images.pexels.com/photos/1073078/pexels-photo-1073078.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                  alt="Quiz image"
+                />
+              </div>
+            )}
+          </div>
+          <VStack
+            alignItems={'flex-start'}
+            justifyContent={'flex-start'}
+            padding={0}
+            mt={'8px'}
+          >
             <Box
               w={'100%'}
               className="font-[Inter] font-[400] text-[14px] leading-[16px]"
+              margin={0}
             >
               {questionType === MULTIPLE_CHOICE_MULTI && (
                 <CheckboxGroup
@@ -493,13 +621,13 @@ const QuizCard = forwardRef(
                   }}
                   value={quizScores[index]?.selectedOptions}
                 >
-                  <Flex direction="column" gap={'8px'} mx={3}>
+                  <Flex direction="column" gap={'8px'} mx={3} mt={'8px'}>
                     {isArray(options) &&
                       options?.map((option, optionIndex) => (
                         <div
                           key={optionIndex}
                           className={clsx(
-                            'min-h-[20px] flex justify-start items-start rounded-md !mt-0 !mb-4',
+                            'min-h-[33px] flex justify-start items-start rounded-md !mt-0 !mb-4',
                             {
                               'p-2': showQuizAnswers,
                               '!border !border-[#66BD6A] bg-[#F1F9F1]':
@@ -549,7 +677,7 @@ const QuizCard = forwardRef(
                         <div
                           key={optionIndex}
                           className={clsx(
-                            'min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                            'min-h-[33px] flex justify-start items-center rounded-md !mt-0 mb-2',
                             {
                               'p-2': showQuizAnswers,
                               '!border !border-[#F99597] bg-[#FEF1F1] ':
@@ -601,7 +729,7 @@ const QuizCard = forwardRef(
                         <div
                           key={optionIndex}
                           className={clsx(
-                            'cursor-pointer min-h-[20px] flex justify-start items-center rounded-md !mt-0 mb-2',
+                            'cursor-pointer min-h-[33px] flex justify-start items-center rounded-md !mt-0 mb-2',
                             {
                               'p-2': showQuizAnswers,
                               '!border !border-[#66BD6A] bg-[#F1F9F1]':
@@ -705,8 +833,6 @@ const QuizCard = forwardRef(
                         minH={'40px'}
                         w={'100%'}
                       >
-                        {/* open ended buttons */}
-
                         {questionType === OPEN_ENDED && (
                           <HStack
                             bg={'whiteAlpha.900'}
@@ -837,23 +963,28 @@ const QuizCard = forwardRef(
             </Box>
           </VStack>
         </Box>
-      </HStack>
+      </div>
     );
   }
 );
+
 const QuizPreviewer = ({
   title,
   questions,
   quizId,
   togglePlansModal,
   setTogglePlansModal,
-  apiKey
+  externalQuizId,
+  apiKey,
+  studyPlanMode
 }: {
   title: string;
   questions: QuizQuestion[];
   quizId: string;
   togglePlansModal: boolean;
   apiKey?: string;
+  externalQuizId?: string;
+  studyPlanMode?: boolean;
   setTogglePlansModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleSetUploadingState?: (value: boolean) => void;
 }) => {
@@ -885,12 +1016,18 @@ const QuizPreviewer = ({
 
   const handleLeaveQuiz = () => {
     handleCloseResultsModal();
-    navigate(`/dashboard/quizzes`);
+    // Veer
+    if (!externalQuizId) {
+      navigate(`/dashboard/quizzes`);
+    }
   };
 
   const handleReviewQuiz = () => {
     handleCloseResultsModal();
-    navigate(`/dashboard/quizzes/create?quiz_id=${quizId}`);
+    // Veer
+    if (!externalQuizId) {
+      navigate(`/dashboard/quizzes/create?quiz_id=${quizId}`);
+    }
   };
 
   const handleSubmit = async () => {
@@ -925,6 +1062,7 @@ const QuizPreviewer = ({
       })) as unknown as StoreQuizScoreType[];
       setScores(newArray);
     }, 1000);
+    setChatBoxVisible(false);
     setShowUnansweredQuestions(false);
 
     if (quizCardRef.current && quizCardRef.current.value) {
@@ -1021,6 +1159,10 @@ const QuizPreviewer = ({
   };
 
   const [isChatBoxVisible, setChatBoxVisible] = useState(false);
+
+  useEffect(() => {
+    console.log('currentQuestion', currentQuestion);
+  }, [isChatBoxVisible]);
 
   const nextCharWithIndex = (a: string, index: number) => {
     return String.fromCharCode(a.charCodeAt(0) + index);
@@ -1165,7 +1307,6 @@ Would you like me to explain further?`;
     <>
       <Box
         as="section"
-        pt={'40px'}
         display={'flex'}
         flexDirection={'column'}
         alignItems={'center'}
@@ -1175,8 +1316,15 @@ Would you like me to explain further?`;
         mr={'auto'}
         // _last={{ display: 'hidden' }}
       >
-        <Box w="100%" maxW="95%" mb={10} position={'relative'}>
-          <HStack mx={'auto'} justifyContent={'center'}>
+        <Box
+          w="100%"
+          maxW="95%"
+          mb={10}
+          position={'relative'}
+          display={'flex'}
+          flexDirection={'column'}
+        >
+          <HStack mx={'auto'} justifyContent={'center'} w={'100%'}>
             {!isEmpty(questions) && (
               <Box
                 display={'flex'}
@@ -1184,6 +1332,7 @@ Would you like me to explain further?`;
                 justifyContent={'space-between'}
                 w={'100%'}
                 pb={'16px'}
+                pt={'24px'}
               >
                 <HStack justifyContent={'flex-start'} alignItems={'center'}>
                   <Box>
@@ -1231,11 +1380,9 @@ Would you like me to explain further?`;
                       </Button>
                     )}
                     {togglePlansModal && (
-                      <PlansModal
-                        message="Get Started!"
-                        subMessage="One-click Cancel at anytime."
-                        togglePlansModal={togglePlansModal}
-                        setTogglePlansModal={setTogglePlansModal}
+                      <BillingModal
+                        open={togglePlansModal}
+                        setOpen={setTogglePlansModal}
                       />
                     )}
                     {!showQuizAnswers && handleUnansweredQuestionsCount > 0 && (
@@ -1299,6 +1446,7 @@ Would you like me to explain further?`;
             h={'100%'}
             overflowY={'auto'}
             display={'flex'}
+            alignItems={'stretch'}
             sx={{
               '&::-webkit-scrollbar': {
                 width: '4px'
@@ -1311,53 +1459,102 @@ Would you like me to explain further?`;
                 borderRadius: '24px'
               }
             }}
+            gap={4}
+            overflow={'hidden'}
+            className="flex-1"
           >
-            <SimpleGrid
-              // columns={{ base: 1, md: 2, lg: 3 }}
-              columns={1}
-              spacingY="25px"
-              spacingX={'5px'}
-              margin={'auto'}
+            <div className="w-full overflow-y-scroll no-scrollbar pb-10 flex-1">
+              {studyPlanMode ? (
+                <div className="flex flex-col gap-4 mt-10 px-32 items-center">
+                  {!isEmpty(questions) &&
+                    !isEmpty(scores) &&
+                    map(questions, (question, index) => {
+                      return (
+                        <div className="max-w-[37.93rem] w-full">
+                          <Flex>
+                            <QuizCard
+                              ref={quizCardRef}
+                              showAnsweredQuestion={showUnansweredQuestions}
+                              handleShowUnansweredQuestion={
+                                handleShowUnansweredQuestion
+                              }
+                              quizScores={scores}
+                              key={question?.id}
+                              question={question}
+                              index={index}
+                              handleStoreQuizHistory={handleStoreQuizHistory}
+                              handleSetScore={handleSetScore}
+                              showQuizAnswers={showQuizAnswers}
+                              minHeight={minHeight}
+                              onOpenChatBox={handleOpenChatBox}
+                              currentQuestion={currentQuestion}
+                              setCurrentQuestion={setCurrentQuestion}
+                              isChatBoxVisible={isChatBoxVisible}
+                              setChatBoxVisible={setChatBoxVisible}
+                            />
+                          </Flex>
+                        </div>
+                      );
+                    })}
+                </div>
+              ) : (
+                <SimpleGrid
+                  // columns={{ base: 1, md: 2, lg: 3 }}
+                  columns={1}
+                  spacingY="25px"
+                  spacingX={'5px'}
+                  margin={'auto'}
+                >
+                  {!isEmpty(questions) &&
+                    !isEmpty(scores) &&
+                    map(questions, (question, index) => {
+                      return (
+                        <Flex
+                          maxWidth={{ base: '350px', md: '450px' }}
+                          width={{ base: '350px', md: '450px' }}
+                          margin={'auto'}
+                        >
+                          <QuizCard
+                            ref={quizCardRef}
+                            showAnsweredQuestion={showUnansweredQuestions}
+                            handleShowUnansweredQuestion={
+                              handleShowUnansweredQuestion
+                            }
+                            quizScores={scores}
+                            key={question?.id}
+                            question={question}
+                            index={index}
+                            handleStoreQuizHistory={handleStoreQuizHistory}
+                            handleSetScore={handleSetScore}
+                            showQuizAnswers={showQuizAnswers}
+                            minHeight={minHeight}
+                            onOpenChatBox={handleOpenChatBox}
+                            currentQuestion={currentQuestion}
+                            setCurrentQuestion={setCurrentQuestion}
+                            isChatBoxVisible={isChatBoxVisible}
+                            setChatBoxVisible={setChatBoxVisible}
+                          />
+                        </Flex>
+                      );
+                    })}
+                </SimpleGrid>
+              )}
+            </div>
+            <div
+              className={cn('h-full flex flex-col pb-10', {
+                'flex-0': !isChatBoxVisible,
+                'flex-1': isChatBoxVisible
+              })}
             >
-              {!isEmpty(questions) &&
-                !isEmpty(scores) &&
-                map(questions, (question, index) => {
-                  return (
-                    <Flex
-                      maxWidth={{ base: '350px', md: '450px' }}
-                      width={{ base: '350px', md: '450px' }}
-                      margin={'auto'}
-                    >
-                      <QuizCard
-                        ref={quizCardRef}
-                        showAnsweredQuestion={showUnansweredQuestions}
-                        handleShowUnansweredQuestion={
-                          handleShowUnansweredQuestion
-                        }
-                        quizScores={scores}
-                        key={question?.id}
-                        question={question}
-                        index={index}
-                        handleStoreQuizHistory={handleStoreQuizHistory}
-                        handleSetScore={handleSetScore}
-                        showQuizAnswers={showQuizAnswers}
-                        minHeight={minHeight}
-                        onOpenChatBox={handleOpenChatBox}
-                        currentQuestion={currentQuestion}
-                        setCurrentQuestion={setCurrentQuestion}
-                      />
-                    </Flex>
-                  );
-                })}
-            </SimpleGrid>
-            {/* <ChatBox onClose={handleCloseChatBox} /> */}
-            {isChatBoxVisible && (
-              <ChatBox
-                question={currentQuestion}
-                messages={messages}
-                setMessages={setMessages}
-              />
-            )}
+              {isChatBoxVisible && (
+                <ChatBox
+                  question={currentQuestion}
+                  messages={messages}
+                  setMessages={setMessages}
+                />
+              )}
+            </div>
+
             <Box p="32px" />
           </Box>
         </Box>
