@@ -23,16 +23,16 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    {/* {isProduction ? ( */}
+    {isProduction ? (
     <PostHogProvider
       apiKey={process.env.REACT_APP_PUBLIC_POSTHOG_KEY}
       options={options}
     >
       <App />
     </PostHogProvider>
-    {/* ) : (
+     ) : (
       <App />
-    )} */}
+    )}
   </React.StrictMode>
 );
 
