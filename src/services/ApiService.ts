@@ -24,7 +24,6 @@ import {
   getConversionByIdAndAPIKey
 } from './AI';
 
-// Suppose these functions are in 'apiFunctions.ts' file
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
   static baseAiEndpoint = AI_API;
@@ -1623,7 +1622,7 @@ class ApiService {
     const newData = { ...d, language: lang };
     // const isDevelopment =
     //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
-
+    
     return doFetch(
       // isDevelopment
       //   ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'

@@ -197,7 +197,7 @@ const PriceCardList: React.FC<PriceCardListProps> = ({
         fontWeight={500}
         color="text.300"
       >
-        For more details & enquiries?{' '}
+        For more details & enquiries?
         <span className="text-blue-600">Contact Support</span>
       </Text>
     </Box>

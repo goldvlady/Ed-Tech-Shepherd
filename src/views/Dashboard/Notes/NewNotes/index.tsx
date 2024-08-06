@@ -100,6 +100,7 @@ import BillingModal from '../../../../components/BillingModal';
 // import CustomToast from '../../../../components/CustomComponents/CustomToast';
 // import { MdSavings } from 'react-icons/md';
 // import { callback } from 'chart.js/dist/helpers/helpers.core';
+import { usePostHog } from 'posthog-js/react';
 
 const DEFAULT_NOTE_TITLE = 'Enter Note Title';
 const DELETE_NOTE_TITLE = 'Delete Note';
@@ -204,6 +205,7 @@ const handleOptionClick = (
 const NewNote = () => {
   // const toastIdRef = useRef<any>();
   // const chakraToast = useToast();
+  const posthog = usePostHog();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
   const defaultNoteTitle = DEFAULT_NOTE_TITLE;
 
@@ -331,8 +333,16 @@ const NewNote = () => {
 
     if (!isNil(noteId) || !isEmpty(noteId)) {
       saveDetails = await updateNote(noteId, data as NoteData);
+      posthog?.capture('client_note_updated', {
+        distinct_id: user._id,
+        ...saveDetails
+      });
     } else {
       saveDetails = await createNote(data as NoteData);
+      posthog?.capture('client_note_created', {
+        distinct_id: user._id,
+        ...saveDetails
+      });
     }
     if (isNil(saveDetails)) {
       setSaveButtonState(true);
@@ -759,6 +769,12 @@ const NewNote = () => {
     try {
       // await new Promise((resolve) => setTimeout(resolve, 1000));
       await goToNoteChat(url, topic, noteId);
+      posthog?.capture('client_note_chat_clicked', {
+        distinct_id: user._id,
+        url,
+        topic,
+        noteId
+      });
     } catch (error) {
       // Handle error
     } finally {
@@ -822,6 +838,11 @@ const NewNote = () => {
     // const resp = await ApiService.updateNoteTags(id, data);
     const resp = await ApiService.storeNotesTags(id, tags);
     const respText = await resp.text();
+    posthog?.capture('client_note_tagged', {
+      distinct_id: user._id,
+      id,
+      tags
+    });
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
       return respDetails;
@@ -1052,6 +1073,10 @@ const NewNote = () => {
     try {
       const d = await ApiService.cloneNote(noteId);
       const data = await d.json();
+      posthog?.capture('client_note_cloned', {
+        distinct_id: user._id,
+        ...data
+      });
       toast({
         position: 'top-right',
         title: `Note Cloned Succesfully`,

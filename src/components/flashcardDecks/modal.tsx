@@ -52,6 +52,7 @@ import { useCustomToast } from '../CustomComponents/CustomToast/useCustomToast';
 import { useLocation, useNavigate } from 'react-router';
 import userStore from '../../state/userStore';
 import { MdCancel } from 'react-icons/md';
+import { usePostHog } from 'posthog-js/react';
 import BillingModal from '../BillingModal';
 
 const MenuListWrapper = styled(MenuList)`
@@ -473,6 +474,7 @@ export const StudyBox = ({
   dense?: boolean;
   selectedTopic?: string;
 }) => {
+  const posthog = usePostHog();
   const [studyState, setStudyState] = useState<'question' | 'answer'>(
     'question'
   );
@@ -641,7 +643,15 @@ export const StudyBox = ({
   }, [currentStudyIndex]);
 
   const saveScore = useCallback(async () => {
-    if (flashcard) await storeScore(flashcard?._id, savedScore);
+    if (flashcard) {
+      posthog?.capture('client_flashcard_studied', {
+        distinct_id: user._id,
+        flashcardId: flashcard?._id,
+        userId: user?._id,
+        score: savedScore
+      });
+      await storeScore(flashcard?._id, savedScore);
+    }
   }, [flashcard, storeScore, savedScore]);
 
   useEffect(() => {

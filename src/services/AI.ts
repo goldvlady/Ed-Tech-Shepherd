@@ -121,7 +121,6 @@ export const createDocchatFlashCards = async (data: DocumentType) => {
     },
     body: JSON.stringify(data)
   });
-
   return request;
 };
 

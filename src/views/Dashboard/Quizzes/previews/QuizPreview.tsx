@@ -57,6 +57,7 @@ import PlansModal from '../../../../components/PlansModal';
 import userStore from '../../../../state/userStore';
 import { RiRemoteControlLine } from '@remixicon/react';
 import { useCustomToast } from '../../../../components/CustomComponents/CustomToast/useCustomToast';
+import { usePostHog } from 'posthog-js/react';
 
 import { MagicBandIcon } from '../../../../components/MagicBand';
 import { LoadingDots } from '../components/loadingDots';
@@ -987,6 +988,8 @@ const QuizPreviewer = ({
   setTogglePlansModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleSetUploadingState?: (value: boolean) => void;
 }) => {
+  const posthog = usePostHog();
+
   const navigate = useNavigate();
 
   const quizCardRef = useRef<HTMLTextAreaElement | any>(null);
@@ -1031,6 +1034,14 @@ const QuizPreviewer = ({
     try {
       await ApiService.storeQuizScore({
         quizId,
+        score: size(filter(scores, ['score', 'true'])),
+        scoreDetails: scores
+      });
+
+      posthog?.capture('client_quiz_studied', {
+        distinct_id: user._id,
+        quizId: quizId,
+        userId: user?._id,
         score: size(filter(scores, ['score', 'true'])),
         scoreDetails: scores
       });
@@ -1122,6 +1133,12 @@ const QuizPreviewer = ({
     try {
       const d = await ApiService.cloneQuiz(quizId);
       const data = await d.json();
+      posthog?.capture('client_quiz_cloned', {
+        distinct_id: user._id,
+        quizId: quizId,
+        userId: user?._id,
+        ...data
+      });
       toast({
         position: 'top-right',
         title: `Quiz Cloned Succesfully`,

@@ -2,7 +2,7 @@ import { useCustomToast } from '../../../../components/CustomComponents/CustomTo
 import LoaderOverlay from '../../../../components/loaderOverlay';
 import flashcardStore from '../../../../state/flashcardStore';
 import libraryCardStore from '../../../../state/libraryCardStore';
-// import userStore from '../../../../state/userStore';
+import userStore from '../../../../state/userStore';
 import { LibraryCardData } from '../../../../types';
 import LibraryCard from './LibraryCard';
 import AddToDeckModal from './AddToDeckModal';
@@ -13,6 +13,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import SelectComponent, { Option } from '../../../../components/Select';
 import { capitalize } from 'lodash';
 import { ProviderSkeleton } from './ProviderList';
+import { usePostHog } from 'posthog-js/react';
 
 const StyledImage = styled(Box)`
   display: inline-flex;
@@ -44,9 +45,10 @@ interface LibraryCardProps {
 }
 
 const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
+  const posthog = usePostHog();
   const { fetchLibraryCards, isLoading, pagination, libraryCards } =
     libraryCardStore();
-  // const { user } = userStore();
+  const { user } = userStore();
   const { createFlashCard, editFlashcard } = flashcardStore();
   // State for tracking selected cards and modal visibility
   const [selectedCards, setSelectedCards] = useState([]);
@@ -110,6 +112,11 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
         const response = await createFlashCard(data, 'manual');
         if (response) {
           if (response.status === 200) {
+            posthog?.capture('client_library_flashcard_created', {
+              distinct_id: user._id,
+              userId: user._id,
+              ...data
+            });
             toast({
               title: 'Card saved to your flashcards',
               position: 'top-right',
@@ -128,6 +135,11 @@ const LibraryCardList: React.FC<LibraryCardProps> = ({ deckId }) => {
       } else {
         const response = await editFlashcard(formData.selectedDeckId, data);
         if (response) {
+          posthog?.capture('client_library_flashcard_updated', {
+            distinct_id: user._id,
+            userId: user._id,
+            ...data
+          });
           toast({
             title: `${data.deckname} updated`,
             position: 'top-right',

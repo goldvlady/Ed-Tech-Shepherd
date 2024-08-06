@@ -36,6 +36,8 @@ import moment from 'moment';
 import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
+import { usePostHog } from 'posthog-js/react';
+import userStore from '../../state/userStore';
 
 interface Client {
   id: number;
@@ -73,6 +75,8 @@ type PinnedNote = {
 };
 
 const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
+  const { user } = userStore();
+  const posthog = usePostHog();
   const params = useParams();
   const toast = useCustomToast();
   const [deleteNoteModal, setDeleteNoteModal] = useState(false);
@@ -103,7 +107,6 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [newTags, setNewTags] = useState<string[]>(tags);
-
   const [openFlashCard, setOpenFlashCard] = useState<boolean>(false);
 
   const showFlashCardDropdown = () => {
@@ -333,6 +336,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
   ): Promise<NoteServerResponse | null> => {
     const data = { tags: tags };
     const resp = await ApiService.updateNoteTags(id, data);
+    posthog?.capture('client_note_tagged', {
+      distinct_id: user._id,
+      id,
+      ...data
+    });
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
@@ -347,6 +355,11 @@ const AllNotesTab: FC<Props> = ({ data, getNotes, handleTagSelection }) => {
     tags: string[]
   ): Promise<NoteServerResponse | null> => {
     const resp = await ApiService.updateAllNoteTags(id, tags);
+    posthog?.capture('client_note_tagged', {
+      distinct_id: user._id,
+      id,
+      tags
+    });
     const respText = await resp.text();
     try {
       const respDetails: NoteServerResponse = JSON.parse(respText);
