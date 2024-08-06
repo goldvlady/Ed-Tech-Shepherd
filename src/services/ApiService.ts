@@ -23,10 +23,6 @@ import {
   getConversionById,
   getConversionByIdAndAPIKey
 } from './AI';
-// import { usePostHog } from 'posthog-js/react';
-
-// Suppose these functions are in 'apiFunctions.ts' file
-// const posthog = usePostHog();
 
 class ApiService {
   static baseEndpoint = REACT_APP_API_ENDPOINT;
@@ -283,7 +279,6 @@ class ApiService {
   };
 
   static storeFlashcardScore = async (data: any) => {
-    // posthog?.capture('client_flashcard_completed', {...data});
     return doFetch(`${ApiService.baseEndpoint}/storeScore`, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -542,11 +537,7 @@ class ApiService {
     studentId: string,
     lang: (typeof languages)[number]
   ) => {
-    // posthog?.capture('client_flashcards_generated', {
-    //   studentId: studentId,
-    //   language: lang,
-    //   ...data
-    // });
+
     return fetch(`${AI_API}/flash-cards/students/${studentId}?lang=${lang}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -565,12 +556,6 @@ class ApiService {
   ) => {
     const isDevelopment =
       process.env.REACT_APP_API_ENDPOINT.includes('develop');
-
-    // posthog?.capture('client_doc_flashcards_generated', {
-    //   studentId: studentId,
-    //   language: lang,
-    //   ...data
-    // });
 
     return fetch(
       `${AI_API}/flash-cards/generate-from-plain-notes?env=${
@@ -1562,7 +1547,6 @@ class ApiService {
     score: number | string;
     scoreDetails?: StoreQuizScoreType[];
   }) => {
-    // posthog?.capture('client_quiz_completed', {...data});
     return doFetch(`${ApiService.baseEndpoint}/storeQuizScore`, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -1611,11 +1595,6 @@ class ApiService {
     },
     lang: (typeof languages)[number]
   ) => {
-    // posthog?.capture('client_quiz_generated', {
-    //   userId: userId,
-    //   language: lang,
-    //   ...data
-    // });
 
     return doFetch(
       `${AI_API}/quizzes/students/${userId}?lang=${lang}`,
@@ -1643,9 +1622,6 @@ class ApiService {
   }) => {
     const { lang, ...d } = data;
     const newData = { ...d, language: lang };
-    // const isDevelopment =
-    //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
-    // posthog?.capture('client_doc_quiz_generated', { ...data });
 
     return doFetch(
       // isDevelopment
