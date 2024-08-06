@@ -240,7 +240,7 @@ const ChatArea = ({
       conversationId: conversationID,
       documents: JSON.stringify(docs),
       fetchMetadata: 'True',
-      firebaseId: user.firebaseId ? user.firebaseId : "",
+      firebase_id: user.firebaseId ? user.firebaseId : "",
       new: user.stripeSubscription ? 'True' : 'False',
       history:
         m.length >= 4
