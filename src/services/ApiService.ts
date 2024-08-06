@@ -537,7 +537,6 @@ class ApiService {
     studentId: string,
     lang: (typeof languages)[number]
   ) => {
-
     return fetch(`${AI_API}/flash-cards/students/${studentId}?lang=${lang}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -1595,7 +1594,6 @@ class ApiService {
     },
     lang: (typeof languages)[number]
   ) => {
-
     return doFetch(
       `${AI_API}/quizzes/students/${userId}?lang=${lang}`,
       {
@@ -1622,7 +1620,9 @@ class ApiService {
   }) => {
     const { lang, ...d } = data;
     const newData = { ...d, language: lang };
-
+    // const isDevelopment =
+    //   process.env.REACT_APP_API_ENDPOINT.includes('develop');
+    
     return doFetch(
       // isDevelopment
       //   ? 'https://shepherd-anywhere-cors.fly.dev/https://i2u58ng9l4.execute-api.us-east-2.amazonaws.com/prod/generate-from-notes'
